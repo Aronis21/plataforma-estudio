@@ -1,8 +1,8 @@
 /* Plataforma de Estudio — aplicación de una sola página sin dependencias de compilación.
  * Rutas (hash):
- *   #/                          catálogo de cursos
- *   #/curso/<idCurso>           índice del curso por módulos
- *   #/curso/<idCurso>/<idCap>   capítulo (pestañas: teoría, estándar, comparación, ejercicios, examen)
+ *   #/                                   mi aprendizaje (catálogo + continuar)
+ *   #/curso/<idCurso>                    inicio del curso por módulos
+ *   #/curso/<idCurso>/<idCap>[/<elem>]   elemento de un capítulo (teoria, estandar, comparacion, ejercicios, examen)
  */
 (function () {
   const { escapar, enLinea, bloques, bloqueCodigo } = window.Texto;
@@ -16,6 +16,47 @@
 
   let catalogo = null;
   const cacheCursos = {};
+
+  // ---------- Preferencias: tema y tamaño de letra ----------
+  const CLAVE_PREF = "plataforma-estudio:preferencias";
+  const TAMAÑOS = ["normal", "grande", "extra"];
+
+  function leerPref() {
+    try { return JSON.parse(localStorage.getItem(CLAVE_PREF)) || {}; } catch (_) { return {}; }
+  }
+  function guardarPref(p) {
+    try { localStorage.setItem(CLAVE_PREF, JSON.stringify(p)); } catch (_) { /* nada */ }
+  }
+  function temaEfectivo() {
+    const t = document.documentElement.dataset.theme;
+    if (t) return t;
+    return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function aplicarTemaCodigo() {
+    const oscuro = temaEfectivo() === "dark";
+    const claro = document.getElementById("hljsClaro");
+    const osc = document.getElementById("hljsOscuro");
+    if (claro && osc && document.documentElement.dataset.theme) {
+      claro.media = oscuro ? "not all" : "all";
+      osc.media = oscuro ? "all" : "not all";
+    }
+  }
+  aplicarTemaCodigo();
+  document.getElementById("btnTema").onclick = () => {
+    const p = leerPref();
+    p.tema = temaEfectivo() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = p.tema;
+    guardarPref(p);
+    aplicarTemaCodigo();
+  };
+  document.getElementById("btnLetra").onclick = () => {
+    const p = leerPref();
+    const actual = TAMAÑOS.indexOf(p.letra || "normal");
+    p.letra = TAMAÑOS[(actual + 1) % TAMAÑOS.length];
+    if (p.letra === "normal") delete document.documentElement.dataset.letra;
+    else document.documentElement.dataset.letra = p.letra;
+    guardarPref(p);
+  };
 
   // ---------- Carga de datos ----------
   async function cargarJSON(ruta) {
@@ -54,6 +95,49 @@
     return [...mapa.entries()];
   }
 
+  // ---------- Elementos de un capítulo ----------
+  // Cada capítulo se presenta como una lista de elementos, igual que en una plataforma de cursos.
+  const TIPO = {
+    teoria: { icono: "▤", tipo: "Lectura" },
+    estandar: { icono: "▤", tipo: "Lectura" },
+    comparacion: { icono: "⇄", tipo: "Caso práctico" },
+    ejercicios: { icono: "✎", tipo: "Práctica" },
+    examen: { icono: "?", tipo: "Cuestionario" },
+  };
+
+  function elementosDe(cap) {
+    const t = [];
+    if (cap.theorySections?.length || cap.objectives?.length) t.push(["teoria", "Teoría"]);
+    if (cap.professionalStandard) t.push(["estandar", "Estándar profesional"]);
+    if (cap.comparison) t.push(["comparacion", "Junior vs. Intermedio"]);
+    if (cap.exercises?.length) t.push(["ejercicios", `Ejercicios (${cap.exercises.length})`]);
+    if (cap.exam?.length) t.push(["examen", `Cuestionario (${cap.exam.length})`]);
+    return t;
+  }
+
+  function elementoHecho(curso, cap, clave) {
+    const c = P.capitulo(curso.id, cap.id);
+    if (clave === "examen") return P.estado(curso.id, cap.id) === "aprobado";
+    if (clave === "ejercicios") return (cap.exercises || []).every((e) => (c.ejercicios || {})[e.id]);
+    return !!c.leido;
+  }
+
+  function enlaceElemento(curso, cap, clave) {
+    return `#/curso/${curso.id}/${cap.id}/${clave}`;
+  }
+
+  // Siguiente elemento del curso a partir de uno dado (salta al siguiente capítulo al terminar)
+  function siguienteElemento(curso, cap, clave) {
+    const elems = elementosDe(cap);
+    const i = elems.findIndex(([k]) => k === clave);
+    if (i >= 0 && i < elems.length - 1) return { cap, clave: elems[i + 1][0], texto: elems[i + 1][1] };
+    const idx = curso.chapters.indexOf(cap);
+    const sig = curso.chapters[idx + 1];
+    if (!sig) return null;
+    const primero = elementosDe(sig)[0];
+    return { cap: sig, clave: primero?.[0] || "", texto: `${sig.code || ""} · ${sig.title}` };
+  }
+
   // ---------- Utilidades de UI ----------
   function setCrumbs(items) {
     crumbs.innerHTML = items
@@ -61,12 +145,11 @@
       .join('<span class="sep">/</span>');
   }
 
-  function barra(pct) {
-    return `<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>`;
+  function barra(pct, etiqueta) {
+    return `<div class="bar" role="progressbar" aria-label="${escapar(etiqueta || "Progreso")}" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>`;
   }
 
-  const ICONO_ESTADO = { aprobado: "✓", leido: "●", pendiente: "○" };
-  const TEXTO_ESTADO = { aprobado: "Aprobado", leido: "Leído", pendiente: "Pendiente" };
+  const TEXTO_ESTADO = { aprobado: "Aprobado", leido: "En curso", pendiente: "Pendiente" };
 
   function mostrarSidebar(html) {
     if (html == null) {
@@ -75,10 +158,12 @@
       document.body.classList.remove("con-sidebar");
       return;
     }
+    const scroll = sidebar.scrollTop;
     sidebar.innerHTML = html;
     sidebar.hidden = false;
     menuBtn.hidden = false;
     document.body.classList.add("con-sidebar");
+    sidebar.scrollTop = scroll;
   }
 
   function cerrarMenu() {
@@ -105,32 +190,69 @@
     setTimeout(() => (btn.textContent = "Copiar"), 1500);
   });
 
-  function sidebarCurso(curso, idActivo) {
+  function sidebarCurso(curso, idActivo, claveActiva) {
     const r = P.resumenCurso(curso);
+    const capActivo = curso.chapters.find((c) => c.id === idActivo);
     let html = `<div class="side-head">
       <a href="#/curso/${curso.id}" class="side-title">${escapar(curso.title)}</a>
-      ${barra(r.pct)}
-      <div class="side-meta">${r.aprobados}/${r.total} aprobados</div>
-    </div><nav class="side-nav">`;
+      <div class="side-prog">${barra(r.pct, "Progreso del curso")}<span>${r.aprobados}/${r.total}</span></div>
+    </div><nav class="side-nav" aria-label="Contenido del curso">`;
     for (const [modulo, caps] of modulosDe(curso)) {
-      html += `<div class="side-mod">${escapar(modulo)}</div>`;
+      const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
+      const abierto = capActivo ? capActivo.module === modulo || (!capActivo.module && modulo === "Contenido") : false;
+      html += `<details class="side-mod" ${abierto ? "open" : ""}>
+        <summary><span class="mod-nombre">${escapar(modulo)}</span><span class="mod-cuenta">${aprob}/${caps.length}</span></summary>`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
-        html += `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${cap.id === idActivo ? "activo" : ""} est-${est}">
-          <span class="est" title="${TEXTO_ESTADO[est]}">${ICONO_ESTADO[est]}</span>
-          <span class="side-code">${escapar(cap.code || "")}</span>
+        const activo = cap.id === idActivo;
+        html += `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${activo ? "activo" : ""}" title="${escapar(cap.title)}">
+          <span class="dot est-${est}" aria-label="${TEXTO_ESTADO[est]}"></span>
+          ${cap.code ? `<span class="side-code">${escapar(cap.code.replace(/^Cap\.\s*/, ""))}</span>` : ""}
           <span class="side-name">${escapar(cap.title)}</span>
         </a>`;
+        if (activo) {
+          html += `<div class="side-elems">`;
+          for (const [k, t] of elementosDe(cap)) {
+            const hecho = elementoHecho(curso, cap, k);
+            html += `<a href="${enlaceElemento(curso, cap, k)}" class="side-elem ${k === claveActiva ? "activo" : ""} ${hecho ? "hecho" : ""}">
+              <span class="elem-icono" aria-hidden="true">${hecho ? "✓" : TIPO[k].icono}</span>
+              <span class="elem-texto"><span class="elem-nombre">${escapar(t)}</span><span class="elem-tipo">${TIPO[k].tipo}</span></span>
+            </a>`;
+          }
+          html += `</div>`;
+        }
       }
+      html += "</details>";
     }
     html += "</nav>";
     return html;
   }
 
-  // ---------- Vista: catálogo ----------
+  function tarjetaContinuar(curso) {
+    const v = P.ultimaVisita();
+    let cap = v && v.curso === curso.id ? curso.chapters.find((c) => c.id === v.cap) : null;
+    let clave = cap ? v.pestaña : null;
+    let etiqueta = "Continuar donde lo dejaste";
+    if (!cap) {
+      cap = curso.chapters.find((c) => P.estado(curso.id, c.id) !== "aprobado");
+      if (!cap) return "";
+      const r = P.resumenCurso(curso);
+      etiqueta = r.aprobados || r.leidos ? "Siguiente capítulo" : "Empieza el curso";
+    }
+    const elems = elementosDe(cap);
+    if (!elems.some(([k]) => k === clave)) clave = elems[0]?.[0] || "";
+    const nombreElem = (elems.find(([k]) => k === clave) || [, ""])[1];
+    return `<a class="continuar" href="${enlaceElemento(curso, cap, clave)}">
+      <span><small>${etiqueta}</small><strong>${escapar(cap.code ? cap.code + " · " : "")}${escapar(cap.title)}</strong>
+      <span class="continuar-sub">${escapar(curso.title)}${nombreElem ? " · " + escapar(nombreElem) : ""}</span></span>
+      <span class="ir">Reanudar →</span>
+    </a>`;
+  }
+
+  // ---------- Vista: mi aprendizaje ----------
   async function vistaCatalogo() {
     const cat = await obtenerCatalogo();
-    setCrumbs([{ texto: "Cursos" }]);
+    setCrumbs([{ texto: "Mi aprendizaje" }]);
     mostrarSidebar(null);
     document.title = cat.titulo || "Plataforma de Estudio";
 
@@ -138,41 +260,46 @@
     const cursos = await Promise.all(visibles.map((c) => obtenerCurso(c.id).catch((err) => ({ _error: err, _meta: c }))));
 
     let tarjetas = "";
+    let continuar = "";
+    const v = P.ultimaVisita();
     for (const curso of cursos) {
       if (curso._error) {
         tarjetas += `<div class="card error"><h3>${escapar(curso._meta.id)}</h3><p>${escapar(curso._error.message)}</p></div>`;
         continue;
       }
+      if (!continuar || (v && v.curso === curso.id)) continuar = tarjetaContinuar(curso);
       const r = P.resumenCurso(curso);
       const minutos = curso.chapters.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
       const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
-      tarjetas += `<a class="card course-card" href="#/curso/${curso.id}" style="--acento:${escapar(curso._meta.color || "#2563eb")}">
+      tarjetas += `<a class="card course-card" href="#/curso/${curso.id}">
         <div class="card-top">
-          <span class="kicker">${escapar(curso._meta.categoria || curso.level || "Curso")}</span>
+          <span class="kicker">${escapar(curso._meta.categoria || "Curso")}</span>
           ${curso.level ? `<span class="pill">${escapar(curso.level)}</span>` : ""}
         </div>
         <h3>${escapar(curso.title)}</h3>
         <p class="muted">${escapar(curso.subtitle || "")}</p>
         <div class="tags">${etiquetas}</div>
         <div class="card-stats">
-          <span>${curso.chapters.length} lecciones</span><span>·</span><span>~${Math.round(minutos / 60)} h</span>
+          <span>${modulosDe(curso).length} módulos</span><span>·</span><span>${curso.chapters.length} lecciones</span><span>·</span><span>~${Math.round(minutos / 60)} h</span>
         </div>
-        ${barra(r.pct)}
+        ${barra(r.pct, "Progreso del curso")}
         <div class="card-foot">${r.pct}% completado · ${r.aprobados} de ${r.total} aprobados</div>
       </a>`;
     }
 
     app.innerHTML = `
       <section class="hero">
-        <h1>${escapar(cat.titulo || "Plataforma de Estudio")}</h1>
+        <h1>Mi aprendizaje</h1>
         <p class="lead">${escapar(cat.descripcion || "")}</p>
       </section>
+      ${continuar}
+      <h2 class="titulo-seccion">Mis cursos</h2>
       <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
       <section class="panel ajustes">
         <h2>Tu progreso</h2>
         <p class="muted">El progreso se guarda en este navegador. Expórtalo para pasarlo a otro dispositivo.</p>
         <div class="row">
-          <button class="btn" id="btnExportar" type="button">Exportar progreso</button>
+          <button class="btn ghost" id="btnExportar" type="button">Exportar progreso</button>
           <label class="btn ghost">Importar progreso<input type="file" id="inpImportar" accept="application/json" hidden></label>
         </div>
         <p class="muted small" id="msgProgreso"></p>
@@ -199,70 +326,73 @@
     };
   }
 
-  // ---------- Vista: índice del curso ----------
+  // ---------- Vista: inicio del curso ----------
   async function vistaCurso(idCurso) {
     const curso = await obtenerCurso(idCurso);
-    setCrumbs([{ texto: "Cursos", href: "#/" }, { texto: curso.title }]);
+    setCrumbs([{ texto: "Mi aprendizaje", href: "#/" }, { texto: curso.title }]);
     mostrarSidebar(sidebarCurso(curso, null));
     document.title = curso.title;
+    cerrarMenu();
 
     const r = P.resumenCurso(curso);
-    const siguiente = curso.chapters.find((c) => P.estado(curso.id, c.id) !== "aprobado");
+    const mods = modulosDe(curso);
     let modulos = "";
-    for (const [modulo, caps] of modulosDe(curso)) {
+    mods.forEach(([modulo, caps]) => {
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
+      const minutos = caps.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
+      const pct = Math.round((aprob * 100) / caps.length);
       modulos += `<section class="modulo">
-        <div class="modulo-head"><h2>${escapar(modulo)}</h2><span class="muted small">${aprob}/${caps.length}</span></div>
+        <div class="modulo-head">
+          <h2>${escapar(modulo)}</h2>
+          <span class="muted small">${caps.length} ${caps.length === 1 ? "lección" : "lecciones"} · ${minutos} min</span>
+        </div>
+        <div class="modulo-prog">${barra(pct, "Progreso del módulo")}<span>${aprob}/${caps.length} aprobadas</span></div>
         <div class="lista-caps">`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
         const ex = P.capitulo(curso.id, cap.id).examen;
-        modulos += `<a class="cap-row est-${est}" href="#/curso/${curso.id}/${cap.id}">
-          <span class="est">${ICONO_ESTADO[est]}</span>
+        modulos += `<a class="cap-row" href="#/curso/${curso.id}/${cap.id}">
+          <span class="dot est-${est}" aria-label="${TEXTO_ESTADO[est]}"></span>
           <span class="cap-code">${escapar(cap.code || "")}</span>
           <span class="cap-main"><strong>${escapar(cap.title)}</strong><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
-          <span class="cap-side muted small">${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}</span>
+          <span class="cap-side muted small">${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Nota ${Math.round((ex.mejor * 100) / ex.total)}%` : ""}</span>
         </a>`;
       }
       modulos += "</div></section>";
-    }
+    });
 
     app.innerHTML = `
       <section class="hero curso-hero">
         <span class="kicker">${escapar(curso._meta.categoria || "")}${curso.level ? " · " + escapar(curso.level) : ""}</span>
         <h1>${escapar(curso.title)}</h1>
         <p class="lead">${escapar(curso.subtitle || "")}</p>
-        <div class="hero-progress">${barra(r.pct)}<span>${r.pct}% · ${r.aprobados} aprobados · ${r.leidos} leídos</span></div>
-        <div class="row">
-          ${siguiente ? `<a class="btn" href="#/curso/${curso.id}/${siguiente.id}">${r.aprobados || r.leidos ? "Continuar" : "Empezar"}: ${escapar(siguiente.code || siguiente.title)}</a>` : '<span class="pill ok">¡Curso completado!</span>'}
-          <button class="btn ghost" id="btnReiniciar" type="button">Reiniciar progreso</button>
-        </div>
+        <div class="hero-progress">${barra(r.pct, "Progreso del curso")}<span>${r.pct}% · ${r.aprobados} aprobados · ${r.leidos} en curso</span></div>
       </section>
-      ${modulos}`;
+      ${r.aprobados === r.total ? '<p class="pill ok">¡Curso completado!</p>' : tarjetaContinuar(curso)}
+      ${modulos}
+      <div class="zona-opciones">
+        <span>Opciones del curso:</span>
+        <button class="link-btn" id="btnReiniciar" type="button">Reiniciar progreso</button>
+        <span id="confReiniciar" hidden>¿Borrar todo el progreso de este curso en este navegador?
+          <button class="btn peligro" id="btnConfirmar" type="button">Sí, borrar</button>
+          <button class="btn ghost" id="btnCancelar" type="button">Cancelar</button>
+        </span>
+      </div>`;
 
-    document.getElementById("btnReiniciar").onclick = () => {
-      if (confirm("¿Borrar todo el progreso de este curso en este navegador?")) {
-        P.reiniciarCurso(curso.id);
-        vistaCurso(curso.id);
-      }
+    const conf = document.getElementById("confReiniciar");
+    document.getElementById("btnReiniciar").onclick = () => (conf.hidden = false);
+    document.getElementById("btnCancelar").onclick = () => (conf.hidden = true);
+    document.getElementById("btnConfirmar").onclick = () => {
+      P.reiniciarCurso(curso.id);
+      vistaCurso(curso.id);
     };
   }
 
-  // ---------- Vista: capítulo ----------
-  function pestañasDe(cap) {
-    const t = [];
-    if (cap.theorySections?.length || cap.objectives?.length) t.push(["teoria", "Teoría"]);
-    if (cap.professionalStandard) t.push(["estandar", "Estándar profesional"]);
-    if (cap.comparison) t.push(["comparacion", "Junior vs. Intermedio"]);
-    if (cap.exercises?.length) t.push(["ejercicios", `Ejercicios (${cap.exercises.length})`]);
-    if (cap.exam?.length) t.push(["examen", `Examen (${cap.exam.length})`]);
-    return t;
-  }
-
+  // ---------- Contenido de los elementos ----------
   function htmlTeoria(cap) {
     let h = "";
     if (cap.objectives?.length) {
-      h += `<div class="panel objetivos"><h3>Objetivos</h3><ul>${cap.objectives.map((o) => `<li>${enLinea(o)}</li>`).join("")}</ul></div>`;
+      h += `<div class="objetivos"><h3>Al terminar podrás</h3><ul>${cap.objectives.map((o) => `<li>${enLinea(o)}</li>`).join("")}</ul></div>`;
     }
     for (const s of cap.theorySections || []) {
       h += `<article class="seccion">
@@ -333,84 +463,7 @@
       .join("");
   }
 
-  // Mezcla determinista por intento (para que la posición de la respuesta no se memorice)
-  function mezclar(arr, semilla) {
-    const a = arr.map((v, i) => [v, i]);
-    let s = semilla >>> 0 || 1;
-    for (let i = a.length - 1; i > 0; i--) {
-      s = (s * 1664525 + 1013904223) >>> 0;
-      const j = s % (i + 1);
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
-  function htmlExamen(curso, cap, semilla) {
-    const prev = P.capitulo(curso.id, cap.id).examen;
-    const letras = "ABCDEFGH";
-    let h = `<div class="panel examen-info">
-      <p>Responde las ${cap.exam.length} preguntas y pulsa <strong>Calificar</strong>. Aprobado desde ${Math.round(P.APROBADO * 100)}%.
-      Las opciones cambian de orden en cada intento.</p>
-      ${prev ? `<p class="muted small">Mejor resultado: ${prev.mejor}/${prev.total} · Último: ${prev.ultimo}/${prev.total} · Intentos: ${prev.intentos}</p>` : ""}
-    </div><form id="formExamen">`;
-    cap.exam.forEach((q, qi) => {
-      const opciones = mezclar(q.options, semilla + qi * 7919);
-      h += `<fieldset class="pregunta" data-correcta="${q.correctIndex}">
-        <legend><span class="num">${qi + 1}</span><span class="enunciado">${enLinea(q.question)}</span></legend>
-        ${opciones
-          .map(
-            ([texto, original], pos) => `<label class="opcion"><input type="radio" name="q${qi}" value="${original}">
-              <span class="letra">${letras[pos]}</span><span>${enLinea(texto)}</span></label>`
-          )
-          .join("")}
-        <div class="explicacion" hidden>${enLinea(q.explanation || "")}</div>
-      </fieldset>`;
-    });
-    h += `<div class="row sticky-actions">
-        <button class="btn" type="submit">Calificar</button>
-        <button class="btn ghost" type="button" id="btnReintentar" hidden>Nuevo intento</button>
-        <span id="resultado" class="resultado" aria-live="polite"></span>
-      </div></form>`;
-    return h;
-  }
-
-  function enlazarExamen(curso, cap, repintar) {
-    const form = document.getElementById("formExamen");
-    if (!form) return;
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      const preguntas = [...form.querySelectorAll(".pregunta")];
-      const sinResponder = preguntas.filter((f) => !f.querySelector("input:checked"));
-      if (sinResponder.length && !confirm(`Te faltan ${sinResponder.length} pregunta(s). ¿Calificar de todos modos?`)) return;
-      let aciertos = 0;
-      for (const f of preguntas) {
-        const correcta = f.dataset.correcta;
-        const marcada = f.querySelector("input:checked");
-        f.querySelectorAll(".opcion").forEach((op) => {
-          const inp = op.querySelector("input");
-          inp.disabled = true;
-          if (inp.value === correcta) op.classList.add("correcta");
-          else if (inp.checked) op.classList.add("incorrecta");
-        });
-        const ok = marcada && marcada.value === correcta;
-        if (ok) aciertos++;
-        f.classList.add(ok ? "bien" : "mal");
-        f.querySelector(".explicacion").hidden = false;
-      }
-      const total = preguntas.length;
-      P.registrarExamen(curso.id, cap.id, aciertos, total);
-      const aprobado = aciertos / total >= P.APROBADO;
-      const res = document.getElementById("resultado");
-      res.innerHTML = `<strong>${aciertos}/${total}</strong> (${Math.round((aciertos * 100) / total)}%) — ${aprobado ? "¡Aprobado!" : "Aún no; repasa y vuelve a intentarlo."}`;
-      res.className = "resultado " + (aprobado ? "ok" : "ko");
-      form.querySelector("button[type=submit]").hidden = true;
-      document.getElementById("btnReintentar").hidden = false;
-      mostrarSidebar(sidebarCurso(curso, cap.id));
-    };
-    document.getElementById("btnReintentar").onclick = repintar;
-  }
-
-  function enlazarEjercicios(curso, cap) {
+  function enlazarEjercicios(curso, cap, alCambiar) {
     app.querySelectorAll(".ejercicio").forEach((art) => {
       const idEj = art.dataset.ej;
       art.addEventListener("click", (e) => {
@@ -426,74 +479,261 @@
         }
       });
       const chk = art.querySelector('input[data-accion="hecho"]');
-      chk.onchange = () => P.marcarEjercicio(curso.id, cap.id, idEj, chk.checked);
+      chk.onchange = () => {
+        P.marcarEjercicio(curso.id, cap.id, idEj, chk.checked);
+        alCambiar();
+      };
     });
   }
 
-  async function vistaCapitulo(idCurso, idCap, pestañaInicial) {
+  // ---------- Cuestionario: una pregunta a la vez ----------
+  // Mezcla determinista por intento (para que la posición de la respuesta no se memorice)
+  function mezclar(arr, semilla) {
+    const a = arr.map((v, i) => [v, i]);
+    let s = semilla >>> 0 || 1;
+    for (let i = a.length - 1; i > 0; i--) {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      const j = s % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  const LETRAS = "ABCDEFGH";
+  let teclasQuiz = null; // manejador de teclado del cuestionario activo
+
+  document.addEventListener("keydown", (e) => {
+    if (!teclasQuiz || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.closest("input, textarea, select")) return;
+    teclasQuiz(e);
+  });
+
+  function montarCuestionario(cont, curso, cap, alTerminar) {
+    const preguntas = cap.exam;
+    const total = preguntas.length;
+    const st = { semilla: Date.now() % 100000, i: 0, respuestas: [] }; // respuestas: índice original elegido
+
+    function opcionesDe(qi) {
+      return mezclar(preguntas[qi].options, st.semilla + qi * 7919);
+    }
+
+    function pintarPregunta() {
+      const q = preguntas[st.i];
+      const elegida = st.respuestas[st.i];
+      const respondida = elegida !== undefined;
+      const aciertos = st.respuestas.filter((r, qi) => r === preguntas[qi].correctIndex).length;
+      const ops = opcionesDe(st.i);
+      const ok = respondida && elegida === q.correctIndex;
+      const ultima = st.i === total - 1;
+      const pct = Math.round(((st.i + (respondida ? 1 : 0)) * 100) / total);
+
+      cont.innerHTML = `<div class="quiz">
+        <div class="quiz-top"><span>Pregunta ${st.i + 1} de ${total}</span>${barra(pct, "Avance del cuestionario")}<span class="aciertos">✓ ${aciertos}</span></div>
+        <h2 id="enunciado">${enLinea(q.question)}</h2>
+        <div class="opciones" role="group" aria-labelledby="enunciado">
+          ${ops
+            .map(([texto, original], pos) => {
+              let cls = "";
+              if (respondida) {
+                if (original === q.correctIndex) cls = "correcta";
+                else if (original === elegida) cls = "incorrecta";
+                else cls = "apagada";
+              }
+              return `<button type="button" class="opcion ${cls}" data-original="${original}" ${respondida ? "disabled" : ""}>
+                <span class="letra">${LETRAS[pos]}</span><span class="texto">${enLinea(texto)}</span></button>`;
+            })
+            .join("")}
+        </div>
+        ${
+          respondida
+            ? `<div class="feedback ${ok ? "bien" : "mal"}" aria-live="polite">
+                <span class="titulo">${ok ? "¡Correcto!" : `Incorrecto. La respuesta correcta es la ${LETRAS[ops.findIndex(([, o]) => o === q.correctIndex)]}.`}</span>
+                ${q.explanation ? `<p>${enLinea(q.explanation)}</p>` : ""}
+                <div class="row"><button type="button" class="btn" id="btnSiguientePregunta">${ultima ? "Ver resultado" : "Siguiente pregunta →"}</button></div>
+              </div>`
+            : `<p class="quiz-ayuda">Pulsa <kbd>A</kbd>–<kbd>${LETRAS[ops.length - 1]}</kbd> para responder y <kbd>Enter</kbd> para seguir.</p>`
+        }
+      </div>`;
+
+      cont.querySelectorAll(".opcion").forEach((b) => {
+        b.onclick = () => responder(Number(b.dataset.original));
+      });
+      const sig = cont.querySelector("#btnSiguientePregunta");
+      if (sig) {
+        sig.onclick = avanzar;
+        sig.focus({ preventScroll: true });
+      }
+      teclasQuiz = (e) => {
+        const k = e.key.toUpperCase();
+        const pos = LETRAS.indexOf(k);
+        if (!respondida && pos >= 0 && pos < ops.length) {
+          e.preventDefault();
+          responder(ops[pos][1]);
+        } else if (respondida && e.key === "Enter" && document.activeElement?.id !== "btnSiguientePregunta") {
+          e.preventDefault();
+          avanzar();
+        }
+      };
+    }
+
+    function responder(original) {
+      if (st.respuestas[st.i] !== undefined) return;
+      st.respuestas[st.i] = original;
+      pintarPregunta();
+    }
+
+    function avanzar() {
+      if (st.i < total - 1) {
+        st.i++;
+        pintarPregunta();
+        cont.scrollIntoView({ block: "start", behavior: "smooth" });
+      } else {
+        terminar();
+      }
+    }
+
+    function terminar() {
+      teclasQuiz = null;
+      const aciertos = st.respuestas.filter((r, qi) => r === preguntas[qi].correctIndex).length;
+      P.registrarExamen(curso.id, cap.id, aciertos, total);
+      const pct = Math.round((aciertos * 100) / total);
+      const aprobado = aciertos / total >= P.APROBADO;
+      const prev = P.capitulo(curso.id, cap.id).examen;
+      const falladas = preguntas
+        .map((q, qi) => ({ q, qi }))
+        .filter(({ q, qi }) => st.respuestas[qi] !== q.correctIndex);
+      const sig = siguienteElemento(curso, cap, "examen");
+
+      cont.innerHTML = `<div class="quiz">
+        <div class="resumen-nota ${aprobado ? "ok" : "ko"}">
+          <span class="nota">${pct}%</span>
+          <span><strong>${aprobado ? "¡Aprobado!" : "Aún no apruebas"}</strong><br>
+          <span class="muted small">${aciertos} de ${total} correctas · se aprueba con ${Math.round(P.APROBADO * 100)}% · mejor nota ${Math.round((prev.mejor * 100) / prev.total)}%</span></span>
+        </div>
+        ${
+          falladas.length
+            ? `<div class="repaso"><h3>Para repasar</h3>${falladas
+                .map(
+                  ({ q }) => `<div class="repaso-item"><strong>${enLinea(q.question)}</strong>
+                    <p>Respuesta correcta: <span class="correcta-txt">${enLinea(q.options[q.correctIndex])}</span></p>
+                    ${q.explanation ? `<p class="muted">${enLinea(q.explanation)}</p>` : ""}</div>`
+                )
+                .join("")}</div>`
+            : '<p class="muted">Respondiste todo bien. Buen trabajo.</p>'
+        }
+        <div class="row">
+          <button type="button" class="btn ${aprobado ? "ghost" : ""}" id="btnReintentar">Nuevo intento</button>
+          ${aprobado && sig ? `<a class="btn" href="${enlaceElemento(curso, sig.cap, sig.clave)}">Siguiente: ${escapar(sig.cap.code || sig.cap.title)} →</a>` : ""}
+        </div>
+      </div>`;
+      cont.querySelector("#btnReintentar").onclick = () => {
+        st.semilla = Date.now() % 100000;
+        st.i = 0;
+        st.respuestas = [];
+        pintarPregunta();
+      };
+      alTerminar();
+    }
+
+    pintarPregunta();
+  }
+
+  // ---------- Vista: elemento de un capítulo ----------
+  async function vistaCapitulo(idCurso, idCap, claveInicial) {
     const curso = await obtenerCurso(idCurso);
     const idx = curso.chapters.findIndex((c) => c.id === idCap);
     if (idx < 0) throw new Error(`No existe el capítulo "${idCap}"`);
     const cap = curso.chapters[idx];
-    const anterior = curso.chapters[idx - 1];
-    const siguiente = curso.chapters[idx + 1];
-    const pestañas = pestañasDe(cap);
-    let activa = pestañas.some(([k]) => k === pestañaInicial) ? pestañaInicial : pestañas[0]?.[0];
+    const elems = elementosDe(cap);
+    const activa = elems.some(([k]) => k === claveInicial) ? claveInicial : elems[0]?.[0];
+    const iActiva = elems.findIndex(([k]) => k === activa);
+    teclasQuiz = null;
 
-    setCrumbs([{ texto: "Cursos", href: "#/" }, { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
-    mostrarSidebar(sidebarCurso(curso, cap.id));
+    setCrumbs([
+      { texto: "Mi aprendizaje", href: "#/" },
+      { texto: curso.title, href: `#/curso/${curso.id}` },
+      { texto: cap.code || cap.title },
+    ]);
+    const refrescarSidebar = () => mostrarSidebar(sidebarCurso(curso, cap.id, activa));
+    refrescarSidebar();
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
     cerrarMenu();
+    P.registrarVisita(curso.id, cap.id, activa);
 
-    const pintar = () => {
+    const esLectura = ["teoria", "estandar", "comparacion"].includes(activa);
+    const sig = siguienteElemento(curso, cap, activa);
+    const anterior = iActiva > 0 ? elems[iActiva - 1] : null;
+    const capAnterior = curso.chapters[idx - 1];
+
+    let contenido = "";
+    if (activa === "teoria") contenido = htmlTeoria(cap);
+    else if (activa === "estandar") contenido = htmlEstandar(cap);
+    else if (activa === "comparacion") contenido = htmlComparacion(cap);
+    else if (activa === "ejercicios") contenido = htmlEjercicios(curso, cap);
+    else if (activa === "examen") contenido = `<div id="cuestionario"></div>`;
+
+    const piePagina = () => {
       const leido = !!P.capitulo(curso.id, cap.id).leido;
-      let contenido = "";
-      if (activa === "teoria") contenido = htmlTeoria(cap);
-      else if (activa === "estandar") contenido = htmlEstandar(cap);
-      else if (activa === "comparacion") contenido = htmlComparacion(cap);
-      else if (activa === "ejercicios") contenido = htmlEjercicios(curso, cap);
-      else if (activa === "examen") contenido = htmlExamen(curso, cap, Date.now() % 100000);
-
-      app.innerHTML = `
-        <header class="cap-header">
-          <span class="kicker">${escapar(cap.module || "")}</span>
-          <h1><span class="cap-code-lg">${escapar(cap.code || "")}</span> ${escapar(cap.title)}</h1>
-          ${cap.subtitle ? `<p class="lead">${escapar(cap.subtitle)}</p>` : ""}
-          <div class="row meta">
-            ${cap.estimatedMinutes ? `<span class="pill">⏱ ${cap.estimatedMinutes} min</span>` : ""}
-            <span class="pill est-${P.estado(curso.id, cap.id)}">${TEXTO_ESTADO[P.estado(curso.id, cap.id)]}</span>
-            <label class="check"><input type="checkbox" id="chkLeido" ${leido ? "checked" : ""}> Marcar como leído</label>
-          </div>
-        </header>
-        <nav class="tabs" role="tablist">
-          ${pestañas.map(([k, t]) => `<button role="tab" type="button" class="tab ${k === activa ? "activa" : ""}" data-tab="${k}" aria-selected="${k === activa}">${escapar(t)}</button>`).join("")}
-        </nav>
-        <div class="tab-body">${contenido}</div>
-        <nav class="pager">
-          ${anterior ? `<a class="btn ghost" href="#/curso/${curso.id}/${anterior.id}">← ${escapar(anterior.code || "Anterior")}</a>` : "<span></span>"}
-          ${siguiente ? `<a class="btn" href="#/curso/${curso.id}/${siguiente.id}">${escapar(siguiente.code || "Siguiente")} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al índice</a>`}
-        </nav>`;
-
-      app.querySelectorAll(".tab").forEach((b) => {
-        b.onclick = () => {
-          activa = b.dataset.tab;
-          pintar();
-          app.querySelector(".tabs").scrollIntoView({ block: "start", behavior: "smooth" });
-        };
-      });
-      document.getElementById("chkLeido").onchange = (e) => {
-        P.marcarLeido(curso.id, cap.id, e.target.checked);
-        pintar();
-        mostrarSidebar(sidebarCurso(curso, cap.id));
-      };
-      // En pantallas estrechas, mantener visible la pestaña activa
-      const barraTabs = app.querySelector(".tabs");
-      const tabActiva = barraTabs.querySelector(".tab.activa");
-      if (tabActiva) barraTabs.scrollLeft = tabActiva.offsetLeft - (barraTabs.clientWidth - tabActiva.offsetWidth) / 2;
-      if (activa === "ejercicios") enlazarEjercicios(curso, cap);
-      if (activa === "examen") enlazarExamen(curso, cap, pintar);
+      if (esLectura && !leido) {
+        return `<div class="fin-seccion"><p>¿Terminaste de leer? Marca la lectura como completada para llevar tu avance.</p>
+          <button class="btn" type="button" id="btnCompletar">Marcar como completado</button></div>`;
+      }
+      if (esLectura) return `<div class="fin-seccion"><p><span class="pill ok">✓ Completado</span></p><button class="link-btn" type="button" id="btnDesmarcar">Desmarcar</button></div>`;
+      return "";
     };
-    pintar();
+
+    const pasos = elems
+      .map(([k, t]) => {
+        const hecho = elementoHecho(curso, cap, k);
+        return `<a role="tab" class="paso ${k === activa ? "activa" : ""} ${hecho ? "hecho" : ""}" aria-selected="${k === activa}" href="${enlaceElemento(curso, cap, k)}">${hecho && k !== activa ? "✓ " : ""}${escapar(t)}</a>`;
+      })
+      .join("");
+
+    app.innerHTML = `
+      <header class="cap-header">
+        <div class="cap-meta"><span>${escapar(cap.module || "")}</span>
+          <span class="derecha">${TIPO[activa]?.tipo || ""}${cap.estimatedMinutes ? ` · ${cap.estimatedMinutes} min` : ""} · ${TEXTO_ESTADO[P.estado(curso.id, cap.id)]}</span></div>
+        <h1>${cap.code ? `<span class="cap-code-lg">${escapar(cap.code)}</span> ` : ""}${escapar(cap.title)}</h1>
+        ${cap.subtitle ? `<p class="lead">${escapar(cap.subtitle)}</p>` : ""}
+      </header>
+      <nav class="pasos" role="tablist" aria-label="Elementos del capítulo">${pasos}</nav>
+      <div class="tab-body ${activa === "examen" ? "" : "lectura"}">${contenido}<div id="pie">${piePagina()}</div></div>
+      <nav class="pager">
+        ${
+          anterior
+            ? `<a class="btn ghost" href="${enlaceElemento(curso, cap, anterior[0])}">← ${escapar(anterior[1])}</a>`
+            : capAnterior
+              ? `<a class="btn ghost" href="#/curso/${curso.id}/${capAnterior.id}">← ${escapar(capAnterior.code || "Anterior")}</a>`
+              : "<span></span>"
+        }
+        ${sig ? `<a class="btn" href="${enlaceElemento(curso, sig.cap, sig.clave)}">Siguiente: ${escapar(sig.cap === cap ? sig.texto.replace(/ \(\d+\)$/, "") : sig.cap.code || sig.cap.title)} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al curso</a>`}
+      </nav>`;
+
+    // Mantener visible el paso activo en pantallas estrechas
+    const barraPasos = app.querySelector(".pasos");
+    const pasoActivo = barraPasos.querySelector(".paso.activa");
+    if (pasoActivo) barraPasos.scrollLeft = pasoActivo.offsetLeft - (barraPasos.clientWidth - pasoActivo.offsetWidth) / 2;
+
+    const enlazarPie = () => {
+      const c = document.getElementById("btnCompletar");
+      if (c) c.onclick = () => { P.marcarLeido(curso.id, cap.id, true); actualizarEstado(); };
+      const d = document.getElementById("btnDesmarcar");
+      if (d) d.onclick = () => { P.marcarLeido(curso.id, cap.id, false); actualizarEstado(); };
+    };
+    const actualizarEstado = () => {
+      document.getElementById("pie").innerHTML = piePagina();
+      enlazarPie();
+      refrescarSidebar();
+      app.querySelectorAll(".paso").forEach((a, i) => {
+        const k = elems[i][0];
+        const hecho = elementoHecho(curso, cap, k);
+        a.classList.toggle("hecho", hecho);
+        a.textContent = (hecho && k !== activa ? "✓ " : "") + elems[i][1];
+      });
+    };
+    enlazarPie();
+    if (activa === "ejercicios") enlazarEjercicios(curso, cap, actualizarEstado);
+    if (activa === "examen") montarCuestionario(document.getElementById("cuestionario"), curso, cap, actualizarEstado);
     window.scrollTo(0, 0);
   }
 

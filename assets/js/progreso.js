@@ -94,8 +94,25 @@
     try { localStorage.removeItem(PREFIJO + idCurso); } catch (_) { /* nada */ }
   }
 
+  // Último capítulo visitado (para "Continuar donde lo dejaste")
+  const CLAVE_VISITA = "plataforma-estudio:ultima-visita";
+
+  function registrarVisita(idCurso, idCap, pestaña) {
+    try {
+      localStorage.setItem(CLAVE_VISITA, JSON.stringify({ curso: idCurso, cap: idCap, pestaña, fecha: new Date().toISOString() }));
+    } catch (_) { /* nada */ }
+  }
+
+  function ultimaVisita() {
+    try {
+      return JSON.parse(localStorage.getItem(CLAVE_VISITA));
+    } catch (_) {
+      return null;
+    }
+  }
+
   window.Progreso = {
     APROBADO, capitulo, marcarLeido, marcarEjercicio, registrarExamen, estado,
-    resumenCurso, exportarTodo, importarTodo, reiniciarCurso,
+    resumenCurso, exportarTodo, importarTodo, reiniciarCurso, registrarVisita, ultimaVisita,
   };
 })();
