@@ -1,0 +1,73 @@
+{
+  "id": "mi-nuevo-curso",
+  "title": "Título del Curso",
+  "subtitle": "Una frase que explique de qué trata y para quién es.",
+  "level": "Básico",
+  "author": "Plan de Estudio Autónomo",
+  "updatedAt": "2026-11-12",
+  "chapters": [
+    {
+      "id": "cap-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1: Nombre del módulo",
+      "title": "Título del capítulo",
+      "subtitle": "Resumen de una línea.",
+      "estimatedMinutes": 30,
+      "status": "published",
+      "objectives": [
+        "Primer objetivo de aprendizaje.",
+        "Segundo objetivo."
+      ],
+      "theorySections": [
+        {
+          "id": "cap01-sec-1",
+          "title": "1. Primera idea",
+          "body": "Texto del tema. Puedes usar **negrita**, *cursiva* y `código`.\n\nUna línea en blanco crea un párrafo nuevo.\n- Las líneas con guion son listas\n- Así",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT 1;",
+          "keyTakeaway": "La idea más importante en una frase."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Opcional. Reglas de buenas prácticas del tema.",
+        "rules": ["Regla 1", "Regla 2"],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT 1;"
+      },
+      "comparison": {
+        "scenario": "Opcional. Un caso real donde se comete un error típico.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- forma incorrecta",
+        "juniorFlaws": ["Por qué está mal"],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- forma correcta",
+        "intermediateBenefits": ["Por qué está bien"],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap01-ej-1",
+          "title": "Práctica 1: Nombre",
+          "difficulty": "Básico",
+          "prompt": "Enunciado del ejercicio.",
+          "hint": "Pista opcional.",
+          "solutionExplanation": "Explicación de la solución.",
+          "solutionCode": "SELECT 1;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap01-q1",
+          "question": "¿Pregunta?",
+          "options": ["Opción correcta", "Distractor 1", "Distractor 2", "Distractor 3"],
+          "correctIndex": 0,
+          "explanation": "Por qué la opción correcta es la correcta."
+        }
+      ]
+    }
+  ]
+}

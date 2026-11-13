@@ -1,0 +1,14 @@
+{
+  "titulo": "Plataforma de Estudio",
+  "descripcion": "Mis cursos de estudio autónomo: teoría, ejercicios y exámenes con seguimiento de progreso.",
+  "cursos": [
+    {
+      "id": "analista-datos-intermedio",
+      "archivo": "analista-datos-intermedio.json",
+      "categoria": "Datos y Analítica",
+      "etiquetas": ["SQL", "Python", "Estadística", "BI"],
+      "color": "#2563eb",
+      "publicado": true
+    }
+  ]
+}
