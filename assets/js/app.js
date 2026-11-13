@@ -356,7 +356,7 @@
     cap.exam.forEach((q, qi) => {
       const opciones = mezclar(q.options, semilla + qi * 7919);
       h += `<fieldset class="pregunta" data-correcta="${q.correctIndex}">
-        <legend><span class="num">${qi + 1}</span>${enLinea(q.question)}</legend>
+        <legend><span class="num">${qi + 1}</span><span class="enunciado">${enLinea(q.question)}</span></legend>
         ${opciones
           .map(
             ([texto, original], pos) => `<label class="opcion"><input type="radio" name="q${qi}" value="${original}">
@@ -486,6 +486,10 @@
         pintar();
         mostrarSidebar(sidebarCurso(curso, cap.id));
       };
+      // En pantallas estrechas, mantener visible la pestaña activa
+      const barraTabs = app.querySelector(".tabs");
+      const tabActiva = barraTabs.querySelector(".tab.activa");
+      if (tabActiva) barraTabs.scrollLeft = tabActiva.offsetLeft - (barraTabs.clientWidth - tabActiva.offsetWidth) / 2;
       if (activa === "ejercicios") enlazarEjercicios(curso, cap);
       if (activa === "examen") enlazarExamen(curso, cap, pintar);
     };
