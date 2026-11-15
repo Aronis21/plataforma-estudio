@@ -95,6 +95,20 @@
     return [...mapa.entries()];
   }
 
+  // ---------- Colores e insignias de módulo ----------
+  const PALETA = ["#ff7a59", "#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ec4899", "#06b6d4", "#64748b"];
+
+  function colorModulo(curso, modulo) {
+    const i = modulosDe(curso).findIndex(([m]) => m === modulo);
+    return PALETA[Math.max(0, i) % PALETA.length];
+  }
+
+  function insignia(modulo, chica) {
+    const n = /M[oó]dulo\s+(\d+)/i.exec(modulo || "");
+    const txt = n ? n[1] : /^inicio/i.test(modulo || "") ? "★" : (modulo || "?").trim()[0].toUpperCase();
+    return `<span class="mod-badge${chica ? " sm" : ""}" aria-hidden="true">${escapar(txt)}</span>`;
+  }
+
   // ---------- Elementos de un capítulo ----------
   // Cada capítulo se presenta como una lista de elementos, igual que en una plataforma de cursos.
   const TIPO = {
@@ -200,8 +214,8 @@
     for (const [modulo, caps] of modulosDe(curso)) {
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
       const abierto = capActivo ? capActivo.module === modulo || (!capActivo.module && modulo === "Contenido") : false;
-      html += `<details class="side-mod" ${abierto ? "open" : ""}>
-        <summary><span class="mod-nombre">${escapar(modulo)}</span><span class="mod-cuenta">${aprob}/${caps.length}</span></summary>`;
+      html += `<details class="side-mod" style="--mod:${colorModulo(curso, modulo)}" ${abierto ? "open" : ""}>
+        <summary><span class="mod-nombre">${insignia(modulo, true)}<span>${escapar(modulo)}</span></span><span class="mod-cuenta">${aprob}/${caps.length}</span></summary>`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
         const activo = cap.id === idActivo;
@@ -242,7 +256,7 @@
     const elems = elementosDe(cap);
     if (!elems.some(([k]) => k === clave)) clave = elems[0]?.[0] || "";
     const nombreElem = (elems.find(([k]) => k === clave) || [, ""])[1];
-    return `<a class="continuar" href="${enlaceElemento(curso, cap, clave)}">
+    return `<a class="continuar deco" style="--mod:${colorModulo(curso, cap.module || "Contenido")}" href="${enlaceElemento(curso, cap, clave)}">
       <span><small>${etiqueta}</small><strong>${escapar(cap.code ? cap.code + " · " : "")}${escapar(cap.title)}</strong>
       <span class="continuar-sub">${escapar(curso.title)}${nombreElem ? " · " + escapar(nombreElem) : ""}</span></span>
       <span class="ir">Reanudar →</span>
@@ -272,6 +286,7 @@
       const minutos = curso.chapters.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
       const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
       tarjetas += `<a class="card course-card" href="#/curso/${curso.id}">
+        <div class="card-banner deco"><span class="card-banner-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span></div>
         <div class="card-top">
           <span class="kicker">${escapar(curso._meta.categoria || "Curso")}</span>
           ${curso.level ? `<span class="pill">${escapar(curso.level)}</span>` : ""}
@@ -289,7 +304,7 @@
 
     app.innerHTML = `
       <section class="hero">
-        <h1>Mi aprendizaje</h1>
+        <h1>¡Hola! ¿Qué aprendemos hoy?</h1>
         <p class="lead">${escapar(cat.descripcion || "")}</p>
       </section>
       ${continuar}
@@ -341,9 +356,9 @@
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
       const minutos = caps.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
       const pct = Math.round((aprob * 100) / caps.length);
-      modulos += `<section class="modulo">
+      modulos += `<section class="modulo" style="--mod:${colorModulo(curso, modulo)}">
         <div class="modulo-head">
-          <h2>${escapar(modulo)}</h2>
+          <h2>${insignia(modulo)}${escapar(modulo)}</h2>
           <span class="muted small">${caps.length} ${caps.length === 1 ? "lección" : "lecciones"} · ${minutos} min</span>
         </div>
         <div class="modulo-prog">${barra(pct, "Progreso del módulo")}<span>${aprob}/${caps.length} aprobadas</span></div>
@@ -362,7 +377,7 @@
     });
 
     app.innerHTML = `
-      <section class="hero curso-hero">
+      <section class="hero curso-hero deco">
         <span class="kicker">${escapar(curso._meta.categoria || "")}${curso.level ? " · " + escapar(curso.level) : ""}</span>
         <h1>${escapar(curso.title)}</h1>
         <p class="lead">${escapar(curso.subtitle || "")}</p>
@@ -605,6 +620,7 @@
       const sig = siguienteElemento(curso, cap, "examen");
 
       cont.innerHTML = `<div class="quiz">
+        <div class="resumen-emoji" aria-hidden="true">${aprobado ? (pct === 100 ? "🏆" : "🎉") : "💪"}</div>
         <div class="resumen-nota ${aprobado ? "ok" : "ko"}">
           <span class="nota">${pct}%</span>
           <span><strong>${aprobado ? "¡Aprobado!" : "Aún no apruebas"}</strong><br>
@@ -659,6 +675,7 @@
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
     cerrarMenu();
     P.registrarVisita(curso.id, cap.id, activa);
+    app.style.setProperty("--mod", colorModulo(curso, cap.module || "Contenido"));
 
     const esLectura = ["teoria", "estandar", "comparacion"].includes(activa);
     const sig = siguienteElemento(curso, cap, activa);
@@ -739,6 +756,7 @@
 
   // ---------- Router ----------
   async function router() {
+    app.style.removeProperty("--mod");
     const partes = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
     try {
       if (partes[0] === "curso" && partes[1] && partes[2]) await vistaCapitulo(partes[1], partes[2], partes[3]);
