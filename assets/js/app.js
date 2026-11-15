@@ -263,6 +263,89 @@
     </a>`;
   }
 
+  // ---------- Paneles reutilizables ----------
+  function estadisticas(curso) {
+    const r = P.resumenCurso(curso);
+    let minutos = 0, notas = 0, conNota = 0, ejHechos = 0, ejTotal = 0, preguntas = 0;
+    for (const cap of curso.chapters) {
+      const c = P.capitulo(curso.id, cap.id);
+      if (c.leido || P.estado(curso.id, cap.id) === "aprobado") minutos += cap.estimatedMinutes || 0;
+      if (c.examen && c.examen.total) { notas += c.examen.mejor / c.examen.total; conNota++; }
+      for (const e of cap.exercises || []) { ejTotal++; if ((c.ejercicios || {})[e.id]) ejHechos++; }
+      preguntas += (cap.exam || []).length;
+    }
+    const totalMin = curso.chapters.reduce((t, c) => t + (c.estimatedMinutes || 0), 0);
+    return { ...r, minutos, totalMin, nota: conNota ? Math.round((notas * 100) / conNota) : null, ejHechos, ejTotal, preguntas };
+  }
+
+  function horas(min) {
+    if (min < 60) return `${min} min`;
+    const h = min / 60;
+    return `${h < 10 ? h.toFixed(1).replace(".0", "").replace(".", ",") : Math.round(h)} h`;
+  }
+
+  function anillo(pct, texto) {
+    const r = 42, c = 2 * Math.PI * r;
+    return `<div class="anillo" role="img" aria-label="${pct}% ${escapar(texto || "")}">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="${r}" class="anillo-fondo"/>
+      <circle cx="50" cy="50" r="${r}" class="anillo-valor" stroke-dasharray="${((pct / 100) * c).toFixed(1)} ${c.toFixed(1)}"/></svg>
+      <span class="anillo-texto"><strong>${pct}%</strong><small>${escapar(texto || "")}</small></span>
+    </div>`;
+  }
+
+  function tiles(est) {
+    const t = [
+      ["✓", "Capítulos aprobados", `${est.aprobados}<small>/${est.total}</small>`, "#10b981"],
+      ["⏱", "Tiempo de estudio", `${horas(est.minutos)}<small> de ${horas(est.totalMin)}</small>`, "#3b82f6"],
+      ["★", "Nota media", est.nota == null ? "—" : `${est.nota}%`, "#f59e0b"],
+      ["✎", "Ejercicios resueltos", `${est.ejHechos}<small>/${est.ejTotal}</small>`, "#ec4899"],
+    ];
+    return `<section class="tiles">${t
+      .map(([i, l, v, c]) => `<div class="tile" style="--mod:${c}"><span class="tile-icono" aria-hidden="true">${i}</span>
+        <span class="tile-dato"><span class="tile-valor">${v}</span><span class="tile-label">${l}</span></span></div>`)
+      .join("")}</section>`;
+  }
+
+  function semana() {
+    const dias = new Set(P.diasDeEstudio());
+    const nombres = ["D", "L", "M", "X", "J", "V", "S"];
+    const hoy = new Date();
+    let h = "";
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(hoy);
+      d.setDate(hoy.getDate() - i);
+      const activo = dias.has(P.fechaLocal(d));
+      h += `<span class="dia ${activo ? "activo" : ""} ${i === 0 ? "hoy" : ""}" title="${P.fechaLocal(d)}">${nombres[d.getDay()]}</span>`;
+    }
+    return `<div class="semana" aria-label="Días con estudio esta semana">${h}</div>`;
+  }
+
+  function proximos(curso, n) {
+    const lista = curso.chapters.filter((c) => P.estado(curso.id, c.id) !== "aprobado").slice(0, n);
+    if (!lista.length) return '<p class="muted">¡Terminaste todos los capítulos! 🎉</p>';
+    return `<div class="proximos">${lista
+      .map((cap, i) => `<a class="proximo" style="--mod:${colorModulo(curso, cap.module || "Contenido")}" href="#/curso/${curso.id}/${cap.id}">
+        ${insignia(cap.module, true)}
+        <span class="proximo-texto"><strong>${escapar(cap.title)}</strong>
+        <small>${escapar(cap.code || "")}${cap.estimatedMinutes ? " · " + cap.estimatedMinutes + " min" : ""}${(cap.exam || []).length ? " · " + cap.exam.length + " preguntas" : ""}</small></span>
+        <span class="proximo-ir" aria-hidden="true">${i === 0 ? "Empezar" : "→"}</span>
+      </a>`)
+      .join("")}</div>`;
+  }
+
+  function avanceModulos(curso) {
+    return `<div class="avance-mods">${modulosDe(curso)
+      .map(([m, caps]) => {
+        const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
+        const pct = Math.round((aprob * 100) / caps.length);
+        return `<div class="avance-mod" style="--mod:${colorModulo(curso, m)}">${insignia(m, true)}
+          <span class="avance-texto"><span class="avance-nombre" title="${escapar(m)}">${escapar(m.replace(/^M[oó]dulo\s+\d+:\s*/i, ""))}</span>
+          <span class="avance-barra"><span style="width:${pct}%"></span></span></span>
+          <span class="avance-num">${aprob}/${caps.length}</span></div>`;
+      })
+      .join("")}</div>`;
+  }
+
   // ---------- Vista: mi aprendizaje ----------
   async function vistaCatalogo() {
     const cat = await obtenerCatalogo();
@@ -272,21 +355,22 @@
 
     const visibles = cat.cursos.filter((c) => c.publicado !== false);
     const cursos = await Promise.all(visibles.map((c) => obtenerCurso(c.id).catch((err) => ({ _error: err, _meta: c }))));
+    const v = P.ultimaVisita();
+    const validos = cursos.filter((c) => !c._error);
+    const principal = validos.find((c) => v && v.curso === c.id) || validos[0];
 
     let tarjetas = "";
-    let continuar = "";
-    const v = P.ultimaVisita();
     for (const curso of cursos) {
       if (curso._error) {
         tarjetas += `<div class="card error"><h3>${escapar(curso._meta.id)}</h3><p>${escapar(curso._error.message)}</p></div>`;
         continue;
       }
-      if (!continuar || (v && v.curso === curso.id)) continuar = tarjetaContinuar(curso);
       const r = P.resumenCurso(curso);
-      const minutos = curso.chapters.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
+      const minutos = curso.chapters.reduce((t, c) => t + (c.estimatedMinutes || 0), 0);
       const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
       tarjetas += `<a class="card course-card" href="#/curso/${curso.id}">
-        <div class="card-banner deco"><span class="card-banner-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span></div>
+        <div class="card-banner deco"><span class="card-banner-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+          <span class="card-banner-pct">${r.pct}%</span></div>
         <div class="card-top">
           <span class="kicker">${escapar(curso._meta.categoria || "Curso")}</span>
           ${curso.level ? `<span class="pill">${escapar(curso.level)}</span>` : ""}
@@ -302,23 +386,40 @@
       </a>`;
     }
 
+    const est = principal ? estadisticas(principal) : null;
+    const dias = P.racha();
+
     app.innerHTML = `
-      <section class="hero">
-        <h1>¡Hola! ¿Qué aprendemos hoy?</h1>
-        <p class="lead">${escapar(cat.descripcion || "")}</p>
-      </section>
-      ${continuar}
-      <h2 class="titulo-seccion">Mis cursos</h2>
-      <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
-      <section class="panel ajustes">
-        <h2>Tu progreso</h2>
-        <p class="muted">El progreso se guarda en este navegador. Expórtalo para pasarlo a otro dispositivo.</p>
-        <div class="row">
-          <button class="btn ghost" id="btnExportar" type="button">Exportar progreso</button>
-          <label class="btn ghost">Importar progreso<input type="file" id="inpImportar" accept="application/json" hidden></label>
+      <section class="bienvenida deco">
+        <div class="bienvenida-texto">
+          <span class="kicker">Mi aprendizaje</span>
+          <h1>¡Hola! ¿Qué aprendemos hoy?</h1>
+          <p>${dias ? `Llevas <strong>${dias} ${dias === 1 ? "día" : "días"} seguidos</strong> estudiando. ¡Sigue así!` : "Estudia un poco hoy para empezar tu racha."}</p>
+          ${semana()}
         </div>
-        <p class="muted small" id="msgProgreso"></p>
-      </section>`;
+        <div class="racha" aria-label="Racha de estudio"><span class="racha-fuego" aria-hidden="true">🔥</span><strong>${dias}</strong><small>${dias === 1 ? "día" : "días"}</small></div>
+      </section>
+      ${est ? tiles(est) : ""}
+      ${principal ? tarjetaContinuar(principal) : ""}
+      <div class="dash">
+        <div class="dash-main">
+          <h2 class="titulo-seccion">Mis cursos</h2>
+          <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
+          ${principal ? `<h2 class="titulo-seccion">Siguiente en tu ruta</h2>${proximos(principal, 4)}` : ""}
+        </div>
+        <aside class="dash-aside">
+          ${principal ? `<section class="panel"><h2>Avance por módulo</h2>${avanceModulos(principal)}</section>` : ""}
+          <section class="panel ajustes">
+            <h2>Respaldo de tu progreso</h2>
+            <p class="muted small">Se guarda en este navegador. Expórtalo para pasarlo a otro dispositivo.</p>
+            <div class="row">
+              <button class="btn ghost" id="btnExportar" type="button">Exportar</button>
+              <label class="btn ghost">Importar<input type="file" id="inpImportar" accept="application/json" hidden></label>
+            </div>
+            <p class="muted small" id="msgProgreso"></p>
+          </section>
+        </aside>
+      </div>`;
 
     document.getElementById("btnExportar").onclick = () => {
       const blob = new Blob([JSON.stringify(P.exportarTodo(), null, 2)], { type: "application/json" });
@@ -349,12 +450,12 @@
     document.title = curso.title;
     cerrarMenu();
 
-    const r = P.resumenCurso(curso);
+    const est = estadisticas(curso);
     const mods = modulosDe(curso);
     let modulos = "";
     mods.forEach(([modulo, caps]) => {
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
-      const minutos = caps.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
+      const minutos = caps.reduce((t, c) => t + (c.estimatedMinutes || 0), 0);
       const pct = Math.round((aprob * 100) / caps.length);
       modulos += `<section class="modulo" style="--mod:${colorModulo(curso, modulo)}">
         <div class="modulo-head">
@@ -364,34 +465,56 @@
         <div class="modulo-prog">${barra(pct, "Progreso del módulo")}<span>${aprob}/${caps.length} aprobadas</span></div>
         <div class="lista-caps">`;
       for (const cap of caps) {
-        const est = P.estado(curso.id, cap.id);
+        const e = P.estado(curso.id, cap.id);
         const ex = P.capitulo(curso.id, cap.id).examen;
         modulos += `<a class="cap-row" href="#/curso/${curso.id}/${cap.id}">
-          <span class="dot est-${est}" aria-label="${TEXTO_ESTADO[est]}"></span>
+          <span class="dot est-${e}" aria-label="${TEXTO_ESTADO[e]}"></span>
           <span class="cap-code">${escapar(cap.code || "")}</span>
           <span class="cap-main"><strong>${escapar(cap.title)}</strong><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
-          <span class="cap-side muted small">${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Nota ${Math.round((ex.mejor * 100) / ex.total)}%` : ""}</span>
+          <span class="cap-side muted small">${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br><span class="nota-chip">${Math.round((ex.mejor * 100) / ex.total)}%</span>` : ""}</span>
         </a>`;
       }
       modulos += "</div></section>";
     });
+
+    const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
 
     app.innerHTML = `
       <section class="hero curso-hero deco">
         <span class="kicker">${escapar(curso._meta.categoria || "")}${curso.level ? " · " + escapar(curso.level) : ""}</span>
         <h1>${escapar(curso.title)}</h1>
         <p class="lead">${escapar(curso.subtitle || "")}</p>
-        <div class="hero-progress">${barra(r.pct, "Progreso del curso")}<span>${r.pct}% · ${r.aprobados} aprobados · ${r.leidos} en curso</span></div>
+        <div class="hero-datos">
+          <span><strong>${mods.length}</strong> módulos</span><span><strong>${curso.chapters.length}</strong> lecciones</span>
+          <span><strong>${horas(est.totalMin)}</strong> de contenido</span><span><strong>${est.ejTotal}</strong> ejercicios</span>
+          <span><strong>${est.preguntas}</strong> preguntas</span>
+        </div>
       </section>
-      ${r.aprobados === r.total ? '<p class="pill ok">¡Curso completado!</p>' : tarjetaContinuar(curso)}
-      ${modulos}
-      <div class="zona-opciones">
-        <span>Opciones del curso:</span>
-        <button class="link-btn" id="btnReiniciar" type="button">Reiniciar progreso</button>
-        <span id="confReiniciar" hidden>¿Borrar todo el progreso de este curso en este navegador?
-          <button class="btn peligro" id="btnConfirmar" type="button">Sí, borrar</button>
-          <button class="btn ghost" id="btnCancelar" type="button">Cancelar</button>
-        </span>
+      ${est.aprobados === est.total ? '<p class="pill ok">¡Curso completado!</p>' : tarjetaContinuar(curso)}
+      <div class="dash">
+        <div class="dash-main">${modulos}</div>
+        <aside class="dash-aside">
+          <section class="panel progreso-panel">
+            <h2>Tu progreso</h2>
+            ${anillo(est.pct, "completado")}
+            <dl class="mini-stats">
+              <div><dt>Aprobados</dt><dd>${est.aprobados}/${est.total}</dd></div>
+              <div><dt>En curso</dt><dd>${est.leidos}</dd></div>
+              <div><dt>Nota media</dt><dd>${est.nota == null ? "—" : est.nota + "%"}</dd></div>
+              <div><dt>Estudiado</dt><dd>${horas(est.minutos)}</dd></div>
+            </dl>
+          </section>
+          <section class="panel"><h2>Siguiente en tu ruta</h2>${proximos(curso, 3)}</section>
+          ${etiquetas ? `<section class="panel"><h2>Qué vas a practicar</h2><div class="tags">${etiquetas}</div></section>` : ""}
+          <section class="panel zona-opciones">
+            <h2>Opciones</h2>
+            <button class="link-btn" id="btnReiniciar" type="button">Reiniciar progreso del curso</button>
+            <span id="confReiniciar" hidden><span class="small">¿Borrar todo el progreso de este curso en este navegador?</span>
+              <span class="row"><button class="btn peligro" id="btnConfirmar" type="button">Sí, borrar</button>
+              <button class="btn ghost" id="btnCancelar" type="button">Cancelar</button></span>
+            </span>
+          </section>
+        </aside>
       </div>`;
 
     const conf = document.getElementById("confReiniciar");
@@ -654,6 +777,31 @@
     pintarPregunta();
   }
 
+  function asideCapitulo(curso, cap, activa) {
+    let secciones = [];
+    if (activa === "teoria") secciones = (cap.theorySections || []).map((x) => x.title);
+    else if (activa === "ejercicios") secciones = (cap.exercises || []).map((x) => x.title);
+    const modulo = cap.module || "Contenido";
+    const caps = curso.chapters.filter((c) => (c.module || "Contenido") === modulo);
+    const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
+    const hechos = elementosDe(cap).filter(([k]) => elementoHecho(curso, cap, k)).length;
+    const total = elementosDe(cap).length;
+    const ex = P.capitulo(curso.id, cap.id).examen;
+    return `<aside class="cap-aside">
+      ${secciones.length ? `<section class="panel"><h2>En esta página</h2><ol class="toc">${secciones
+        .map((t, i) => `<li><button type="button" class="toc-link" data-ir="${i}">${enLinea(t.replace(/^\d+\.\s*/, ""))}</button></li>`)
+        .join("")}</ol></section>` : ""}
+      <section class="panel"><h2>Este capítulo</h2>
+        ${anillo(Math.round((hechos * 100) / (total || 1)), `${hechos} de ${total}`)}
+        <p class="small muted centro">${ex ? `Mejor nota del cuestionario: <strong>${Math.round((ex.mejor * 100) / ex.total)}%</strong>` : "Aún no haces el cuestionario."}</p>
+      </section>
+      <section class="panel"><h2>${insignia(modulo, true)} Módulo</h2>
+        <p class="small">${escapar(modulo)}</p>
+        <div class="modulo-prog">${barra(Math.round((aprob * 100) / caps.length), "Progreso del módulo")}<span>${aprob}/${caps.length}</span></div>
+      </section>
+    </aside>`;
+  }
+
   // ---------- Vista: elemento de un capítulo ----------
   async function vistaCapitulo(idCurso, idCap, claveInicial) {
     const curso = await obtenerCurso(idCurso);
@@ -714,6 +862,8 @@
         ${cap.subtitle ? `<p class="lead">${escapar(cap.subtitle)}</p>` : ""}
       </header>
       <nav class="pasos" role="tablist" aria-label="Elementos del capítulo">${pasos}</nav>
+      <div class="cap-cuerpo">
+      <div class="cap-contenido">
       <div class="tab-body ${activa === "examen" ? "" : "lectura"}">${contenido}<div id="pie">${piePagina()}</div></div>
       <nav class="pager">
         ${
@@ -724,7 +874,15 @@
               : "<span></span>"
         }
         ${sig ? `<a class="btn" href="${enlaceElemento(curso, sig.cap, sig.clave)}">Siguiente: ${escapar(sig.cap === cap ? sig.texto.replace(/ \(\d+\)$/, "") : sig.cap.code || sig.cap.title)} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al curso</a>`}
-      </nav>`;
+      </nav>
+      </div>
+      ${asideCapitulo(curso, cap, activa)}
+      </div>`;
+
+    // Índice "En esta página": desplaza a cada sección
+    app.querySelectorAll("[data-ir]").forEach((b) => {
+      b.onclick = () => app.querySelectorAll(".tab-body h2")[Number(b.dataset.ir)]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
 
     // Mantener visible el paso activo en pantallas estrechas
     const barraPasos = app.querySelector(".pasos");

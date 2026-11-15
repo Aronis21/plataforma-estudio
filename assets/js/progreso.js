@@ -97,10 +97,47 @@
   // Último capítulo visitado (para "Continuar donde lo dejaste")
   const CLAVE_VISITA = "plataforma-estudio:ultima-visita";
 
+  // Días con actividad (fecha local AAAA-MM-DD), para la racha de estudio
+  const CLAVE_DIAS = "plataforma-estudio:dias-de-estudio";
+
+  function fechaLocal(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
+  function diasDeEstudio() {
+    try {
+      return JSON.parse(localStorage.getItem(CLAVE_DIAS)) || [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function registrarDia() {
+    const hoy = fechaLocal(new Date());
+    const dias = diasDeEstudio();
+    if (dias.includes(hoy)) return;
+    dias.push(hoy);
+    try { localStorage.setItem(CLAVE_DIAS, JSON.stringify(dias.slice(-120))); } catch (_) { /* nada */ }
+  }
+
+  // Días seguidos con actividad, contando hasta hoy (o hasta ayer si hoy aún no se estudió)
+  function racha() {
+    const dias = new Set(diasDeEstudio());
+    const d = new Date();
+    if (!dias.has(fechaLocal(d))) d.setDate(d.getDate() - 1);
+    let n = 0;
+    while (dias.has(fechaLocal(d))) {
+      n++;
+      d.setDate(d.getDate() - 1);
+    }
+    return n;
+  }
+
   function registrarVisita(idCurso, idCap, pestaña) {
     try {
       localStorage.setItem(CLAVE_VISITA, JSON.stringify({ curso: idCurso, cap: idCap, pestaña, fecha: new Date().toISOString() }));
     } catch (_) { /* nada */ }
+    registrarDia();
   }
 
   function ultimaVisita() {
@@ -114,5 +151,6 @@
   window.Progreso = {
     APROBADO, capitulo, marcarLeido, marcarEjercicio, registrarExamen, estado,
     resumenCurso, exportarTodo, importarTodo, reiniciarCurso, registrarVisita, ultimaVisita,
+    diasDeEstudio, racha, fechaLocal,
   };
 })();

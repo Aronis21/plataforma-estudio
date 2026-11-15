@@ -103,7 +103,7 @@ li { margin: .25em 0; }
 
 /* ----- Layout ----- */
 .layout { display: flex; min-height: calc(100vh - var(--topbar-h)); }
-.main { flex: 1; min-width: 0; max-width: 920px; margin: 0 auto; padding: 2rem 2.5rem 4rem; outline: none; }
+.main { flex: 1; min-width: 0; max-width: 1220px; margin: 0 auto; padding: 2rem 2.5rem 4rem; outline: none; }
 .sidebar {
   width: var(--sidebar-w); flex-shrink: 0;
   position: sticky; top: var(--topbar-h); height: calc(100vh - var(--topbar-h));
@@ -236,7 +236,7 @@ li { margin: .25em 0; }
 .cap-main { display: flex; flex-direction: column; min-width: 0; }
 .cap-main strong { font-weight: 600; }
 .cap-side { text-align: right; font-variant-numeric: tabular-nums; }
-.zona-opciones { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; font-size: .85rem; color: var(--muted); }
+.zona-opciones { display: flex; flex-direction: column; gap: .6rem; align-items: flex-start; }
 
 /* ----- Capítulo ----- */
 .cap-header { position: relative; overflow: hidden; margin-bottom: 1.25rem; max-width: var(--medida); background: color-mix(in srgb, var(--mod) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--mod) 25%, var(--border)); border-radius: 20px; padding: 1.25rem 1.4rem; }
@@ -338,6 +338,116 @@ li { margin: .25em 0; }
 
 .pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); max-width: var(--medida); }
 .backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .35); z-index: 35; }
+
+/* ----- Paneles de inicio, curso y capítulo ----- */
+.dash { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 1.75rem; align-items: start; }
+.dash-main { min-width: 0; }
+.dash-main .grid { grid-template-columns: minmax(0, 1fr); }
+.dash-main .course-card { display: grid; grid-template-columns: 220px minmax(0, 1fr); column-gap: 1.25rem; padding: 0 1.25rem 0 0; }
+.dash-main .course-card > * { grid-column: 2; }
+.dash-main .course-card > .card-banner { grid-column: 1; grid-row: 1 / span 8; height: auto; margin: 0; flex-direction: column; justify-content: space-between; align-items: flex-start; padding: 1.25rem; }
+.dash-main .course-card > .card-top { margin-top: 1.1rem; }
+.dash-main .course-card > .card-foot { margin-bottom: 1.1rem; }
+.dash-main .card-banner-pct { margin-left: 0; }
+.dash-main .course-card > .card-banner.deco::after { right: -18px; bottom: -18px; }
+.dash-aside, .cap-aside { display: flex; flex-direction: column; gap: 1rem; position: sticky; top: calc(var(--topbar-h) + 1rem); }
+.dash-aside .panel, .cap-aside .panel { margin: 0; padding: 1.1rem 1.2rem; }
+.dash-aside h2, .cap-aside h2 { font-size: 1rem; display: flex; align-items: center; gap: .5rem; }
+.dash-main .titulo-seccion:first-child { margin-top: 0; }
+.titulo-seccion { margin-top: 1.5rem; }
+.centro { text-align: center; }
+
+/* Bienvenida con racha */
+.bienvenida { position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; flex-wrap: wrap; background: var(--accent); color: #fff; border-radius: 24px; padding: 1.75rem 1.9rem; margin-bottom: 1.25rem; }
+.bienvenida h1 { margin: .2rem 0 .4rem; }
+.bienvenida p { margin: 0 0 .9rem; opacity: .92; }
+.bienvenida .kicker { color: rgba(255, 255, 255, .85); }
+.semana { display: flex; gap: .4rem; }
+.dia { width: 2rem; height: 2rem; border-radius: 10px; display: grid; place-items: center; font-size: .78rem; font-weight: 800; background: rgba(255, 255, 255, .16); color: rgba(255, 255, 255, .85); }
+.dia.activo { background: var(--sol); color: var(--on-sol); box-shadow: 0 3px 0 color-mix(in srgb, var(--sol) 55%, #000); }
+.dia.hoy { outline: 2px solid rgba(255, 255, 255, .8); outline-offset: 2px; }
+.racha { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 8.5rem; height: 8.5rem; border-radius: 50%; background: rgba(255, 255, 255, .14); border: 3px solid rgba(255, 255, 255, .35); line-height: 1; gap: .15rem; }
+.racha-fuego { font-size: 1.9rem; }
+.racha strong { font-family: var(--display); font-size: 2.3rem; font-weight: 900; }
+.racha small { font-size: .8rem; font-weight: 700; opacity: .9; }
+
+/* Tarjetas de estadísticas */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+.tile { display: flex; gap: .85rem; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow); min-width: 0; }
+.tile-icono { width: 2.6rem; height: 2.6rem; border-radius: 14px; display: grid; place-items: center; flex-shrink: 0; font-size: 1.15rem; font-weight: 900; background: color-mix(in srgb, var(--mod) 16%, var(--surface)); color: var(--mod); }
+.tile-dato { display: flex; flex-direction: column; min-width: 0; }
+.tile-valor { font-family: var(--display); font-size: 1.45rem; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile-valor small { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.tile-label { font-size: .8rem; color: var(--muted); font-weight: 600; }
+
+/* Próximos capítulos */
+.proximos { display: flex; flex-direction: column; gap: .6rem; }
+.proximo { display: flex; gap: .8rem; align-items: center; padding: .75rem .9rem; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); box-shadow: var(--shadow); }
+.dash-aside .proximo { box-shadow: none; padding: .6rem .7rem; }
+.proximo:hover { text-decoration: none; border-color: var(--mod); }
+.proximo-texto { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.proximo-texto strong { font-size: .92rem; line-height: 1.3; }
+.proximo-texto small { color: var(--muted); font-size: .78rem; }
+.proximo-ir { font-size: .8rem; font-weight: 800; color: var(--mod); white-space: nowrap; }
+.proximo:first-child .proximo-ir { background: var(--mod); color: #fff; padding: .3rem .75rem; border-radius: 99px; }
+
+/* Avance por módulo */
+.avance-mods { display: flex; flex-direction: column; gap: .7rem; }
+.avance-mod { display: flex; gap: .65rem; align-items: center; }
+.avance-texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .25rem; }
+.avance-nombre { font-size: .82rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.avance-barra { height: 7px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.avance-barra span { display: block; height: 100%; border-radius: 99px; background: var(--mod); min-width: 4px; }
+.avance-num { font-size: .78rem; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* Anillo de progreso */
+.anillo { position: relative; width: 132px; height: 132px; margin: .25rem auto .75rem; }
+.anillo svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.anillo circle { fill: none; stroke-width: 11; }
+.anillo-fondo { stroke: var(--surface-2); }
+.anillo-valor { stroke: var(--mod); stroke-linecap: round; }
+.anillo-texto { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+.anillo-texto strong { font-family: var(--display); font-size: 1.6rem; font-weight: 900; }
+.anillo-texto small { font-size: .72rem; color: var(--muted); font-weight: 700; }
+.mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin: 0; }
+.mini-stats div { background: var(--surface-2); border-radius: 12px; padding: .55rem .7rem; }
+.mini-stats dt { font-size: .72rem; color: var(--muted); font-weight: 700; }
+.mini-stats dd { margin: 0; font-family: var(--display); font-weight: 900; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.hero-datos { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+.hero-datos span { background: rgba(255, 255, 255, .16); border-radius: 99px; padding: .3rem .8rem; font-size: .85rem; }
+.hero-datos strong { font-weight: 900; }
+.nota-chip { display: inline-block; margin-top: .2rem; background: var(--ok-soft); color: var(--ok); font-weight: 800; border-radius: 99px; padding: 0 .5rem; }
+.card-banner-pct { margin-left: auto; position: relative; font-family: var(--display); font-weight: 900; font-size: 1.6rem; color: #fff; }
+
+/* Capítulo con columna lateral */
+.cap-cuerpo { display: grid; grid-template-columns: minmax(0, var(--medida)) 260px; gap: 2rem; align-items: start; }
+.cap-contenido { min-width: 0; }
+.cap-aside { top: calc(var(--topbar-h) + 72px); }
+.toc { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .15rem; counter-reset: toc; }
+.toc li { margin: 0; counter-increment: toc; }
+.toc-link { display: flex; gap: .55rem; width: 100%; text-align: left; font: inherit; font-size: .84rem; line-height: 1.35; color: var(--text); background: none; border: 0; border-radius: 10px; padding: .4rem .5rem; cursor: pointer; }
+.toc-link::before { content: counter(toc); flex-shrink: 0; width: 1.3rem; height: 1.3rem; border-radius: 7px; display: grid; place-items: center; font-size: .7rem; font-weight: 800; background: color-mix(in srgb, var(--mod) 15%, var(--surface)); color: var(--mod); }
+.toc-link:hover { background: var(--surface-2); }
+
+@media (max-width: 1280px) {
+  .cap-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .cap-aside { display: none; }
+}
+@media (max-width: 1100px) {
+  .dash { grid-template-columns: minmax(0, 1fr); }
+  .dash-aside { position: static; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dash-main .course-card { display: flex; padding: 0 1.25rem 1.1rem; }
+  .dash-main .course-card > .card-banner { flex-direction: row; align-items: center; height: 92px; margin: 0 -1.25rem .35rem; }
+  .dash-main .course-card > .card-top { margin-top: 0; }
+  .racha { width: 6rem; height: 6rem; }
+  .racha strong { font-size: 1.7rem; }
+  .bienvenida { padding: 1.3rem; }
+  .tile { padding: .8rem; gap: .6rem; }
+  .tile-valor { font-size: 1.2rem; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
