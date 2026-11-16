@@ -3,10 +3,13 @@
  *   #/                          página "Hoy" (catálogo de cursos)
  *   #/curso/<idCurso>           índice del curso por módulos
  *   #/curso/<idCurso>/<idCap>   capítulo (pestañas: teoría, estándar, comparación, ejercicios, examen)
+ *   #/repaso                    repaso de las tarjetas que tocan hoy
  */
 (function () {
   const { escapar, enLinea, bloques, bloqueCodigo } = window.Texto;
   const P = window.Progreso;
+  const C = window.Cuaderno;
+  const Tutor = window.Tutor;
 
   const app = document.getElementById("app");
   const sidebar = document.getElementById("sidebar");
@@ -161,77 +164,321 @@
     return html;
   }
 
-  // ---------- Vista: catálogo ----------
-  async function vistaCatalogo() {
-    const cat = await obtenerCatalogo();
-    setCrumbs([{ texto: "Hoy" }]);
-    mostrarSidebar(null);
-    aplicarTema(null);
-    document.title = cat.titulo || "NEXUS Learning";
+  // ---------- Utilidades del cuaderno ----------
+  const RESALTADOR = { datos: "#FFD45C", web: "#A9D2FF", ia: "#DCF58A", hoy: "#FFD45C" };
+  const FRANJA = { datos: "#F0B429", web: "#1D64D8", ia: "#C6E85A", hoy: "#1D1F24" };
+  const enPreparacion = (entrada) => entrada && entrada.estado === "en-preparacion";
 
-    const visibles = cat.cursos.filter((c) => c.publicado !== false);
-    const cursos = await Promise.all(visibles.map((c) => obtenerCurso(c.id).catch((err) => ({ _error: err, _meta: c }))));
+  function siguienteCap(curso) {
+    return curso.chapters.find((c) => P.estado(curso.id, c.id) !== "aprobado") || null;
+  }
 
-    let tarjetas = "";
-    for (const curso of cursos) {
-      if (curso._error) {
-        tarjetas += `<div class="card error"><h3>${escapar(curso._meta.id)}</h3><p>${escapar(curso._error.message)}</p></div>`;
-        continue;
-      }
-      const r = P.resumenCurso(curso);
-      const minutos = curso.chapters.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
-      const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
-      tarjetas += `<a class="card course-card" href="#/curso/${curso.id}" style="--acento-tarjeta:${escapar(curso._meta.color || "#1D64D8")}">
-        <div class="card-top">
-          <span class="kicker">${escapar(curso._meta.categoria || curso.level || "Curso")}</span>
-          ${curso.level ? `<span class="pill">${escapar(curso.level)}</span>` : ""}
-        </div>
-        <h3>${escapar(curso.title)}</h3>
-        <p class="muted">${escapar(curso.subtitle || "")}</p>
-        <div class="tags">${etiquetas}</div>
-        <div class="card-stats">
-          <span>${curso.chapters.length} lecciones</span><span>·</span><span>~${Math.round(minutos / 60)} h</span>
-        </div>
-        ${barra(r.pct)}
-        <div class="card-foot">${r.pct}% completado · ${r.aprobados} de ${r.total} aprobados</div>
-      </a>`;
+  function aviso(texto) {
+    const div = document.createElement("div");
+    div.className = "aviso-flotante";
+    div.setAttribute("role", "status");
+    div.textContent = texto;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 2600);
+  }
+
+  function fechaLarga() {
+    try {
+      return new Intl.DateTimeFormat("es", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+    } catch (_) {
+      return C.fechaISO();
     }
+  }
 
-    app.innerHTML = `
-      <section class="hero">
-        <h1>${escapar(cat.titulo || "NEXUS Learning")}</h1>
-        <p class="lead">${escapar(cat.descripcion || "")}</p>
-      </section>
-      <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
-      <section class="panel ajustes">
-        <h2>Tu progreso</h2>
-        <p class="muted">El progreso se guarda en este navegador. Expórtalo para pasarlo a otro dispositivo.</p>
-        <div class="row">
-          <button class="btn" id="btnExportar" type="button">Exportar progreso</button>
-          <label class="btn ghost">Importar progreso<input type="file" id="inpImportar" accept="application/json" hidden></label>
-        </div>
-        <p class="muted small" id="msgProgreso"></p>
-      </section>`;
+  async function cursosVisibles() {
+    const cat = await obtenerCatalogo();
+    const visibles = cat.cursos.filter((c) => c.publicado !== false);
+    return Promise.all(visibles.map((c) => obtenerCurso(c.id).catch((err) => ({ _error: err, _meta: c, id: c.id, chapters: [] }))));
+  }
 
+  function respaldoHTML() {
+    return `<section class="respaldo" aria-labelledby="tRespaldo">
+      <h2 class="h-mano" id="tRespaldo">Respaldo de tu cuaderno</h2>
+      <p class="muted small">Tu progreso, notas, resaltados y tarjetas se guardan en este navegador. Descarga un respaldo para pasarlos a otro dispositivo.</p>
+      <div class="row">
+        <button class="btn" id="btnExportar" type="button">Descargar respaldo</button>
+        <label class="btn ghost">Cargar respaldo<input type="file" id="inpImportar" accept="application/json" hidden></label>
+      </div>
+      <p class="muted small" id="msgProgreso" aria-live="polite"></p>
+    </section>`;
+  }
+
+  function enlazarRespaldo(repintar) {
     document.getElementById("btnExportar").onclick = () => {
-      const blob = new Blob([JSON.stringify(P.exportarTodo(), null, 2)], { type: "application/json" });
+      const datos = { ...P.exportarTodo(), version: 2, cuaderno: C.exportar() };
+      const blob = new Blob([JSON.stringify(datos, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `progreso-estudio-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `nexus-respaldo-${C.fechaISO()}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
     };
     document.getElementById("inpImportar").onchange = async (e) => {
       const msg = document.getElementById("msgProgreso");
       try {
-        const texto = await e.target.files[0].text();
-        P.importarTodo(JSON.parse(texto));
-        msg.textContent = "Progreso importado.";
-        vistaCatalogo();
+        const datos = JSON.parse(await e.target.files[0].text());
+        P.importarTodo(datos);
+        if (datos.cuaderno) C.importar(datos.cuaderno);
+        aviso("Respaldo cargado");
+        repintar();
       } catch (err) {
-        msg.textContent = "No se pudo importar: " + err.message;
+        msg.textContent = "No se pudo cargar: " + err.message;
       }
     };
+  }
+
+  // ---------- Vista: Hoy (página principal) ----------
+  async function vistaHoy() {
+    const cat = await obtenerCatalogo();
+    setCrumbs([{ texto: "Hoy" }]);
+    mostrarSidebar(null);
+    aplicarTema(null);
+    document.title = cat.titulo || "NEXUS Learning";
+
+    const cursos = await cursosVisibles();
+    const activos = cursos.filter((c) => !c._error && !enPreparacion(c._meta));
+    const plan = C.planDeHoy();
+    const pendientes = C.tarjetasPendientes();
+    const racha = C.racha();
+
+    // Plan de hoy: el siguiente capítulo de cada curso + repaso + lo que tú agregues
+    const items = [];
+    for (const curso of activos) {
+      const sig = siguienteCap(curso);
+      if (!sig) continue;
+      const tema = temaDe(curso._meta);
+      items.push({
+        clave: `sig:${curso.id}:${sig.id}`,
+        html: `<a href="#/curso/${curso.id}/${sig.id}"><span class="marcador" style="--resaltador:${RESALTADOR[tema]}">${escapar(sig.code || "")} · ${escapar(recortar(sig.title, 42))}</span></a>${sig.estimatedMinutes ? ` <span class="min">— ${sig.estimatedMinutes} min</span>` : ""}`,
+      });
+    }
+    if (pendientes.length) {
+      items.push({ clave: "tarjetas", html: `<a href="#/repaso"><span class="marcador" style="--resaltador:#DCF58A">${pendientes.length} ${pendientes.length === 1 ? "tarjeta" : "tarjetas"} de repaso</span></a>` });
+    }
+    for (const x of plan.extra) items.push({ clave: x.id, html: escapar(x.texto), extra: true });
+
+    const planHTML = items.length
+      ? items.map((it) => `<li><label><input type="checkbox" data-plan="${escapar(it.clave)}" ${plan.hechos[it.clave] ? "checked" : ""}>
+          <span class="${plan.hechos[it.clave] ? "hecho" : ""}">${it.html}</span></label>
+          ${it.extra ? `<button class="quitar" type="button" data-quitar="${escapar(it.clave)}" aria-label="Quitar del plan">✕</button>` : ""}</li>`).join("")
+      : `<li class="muted">Nada pendiente. Agrega algo abajo.</li>`;
+
+    // Nota del tutor
+    let examenPendiente = null;
+    for (const curso of activos) {
+      for (const cap of curso.chapters) {
+        const ex = P.capitulo(curso.id, cap.id).examen;
+        if (ex && ex.total && ex.mejor / ex.total < P.APROBADO && (!examenPendiente || ex.fecha > examenPendiente.fecha)) {
+          examenPendiente = { code: cap.code || cap.title, ultimo: ex.ultimo, total: ex.total, fecha: ex.fecha };
+        }
+      }
+    }
+    const dudas = C.notas({ tipo: "duda" });
+    const primerSiguiente = activos.map(siguienteCap).find(Boolean);
+    const notaTutor = Tutor.notaDelDia({ examenPendiente, dudaReciente: dudas[dudas.length - 1], tarjetasHoy: pendientes.length, racha, siguiente: primerSiguiente });
+
+    // "Te quedaste aquí"
+    let aqui = null;
+    const u = C.ultimo();
+    if (u) {
+      const curso = activos.find((c) => c.id === u.curso);
+      const cap = curso && curso.chapters.find((c) => c.id === u.cap);
+      if (cap) aqui = { curso, cap, pestana: u.pestana };
+    }
+    if (!aqui && activos[0]) {
+      const cap = siguienteCap(activos[0]);
+      if (cap) aqui = { curso: activos[0], cap, pestana: null };
+    }
+    let aquiHTML = "";
+    if (aqui) {
+      const tema = temaDe(aqui.curso._meta);
+      const notasCap = C.notas({ curso: aqui.curso.id, cap: aqui.cap.id, tipo: "nota" });
+      const ultimaNota = notasCap[notasCap.length - 1];
+      aquiHTML = `<a class="papel-card" href="#/curso/${aqui.curso.id}/${aqui.cap.id}${aqui.pestana ? "/" + aqui.pestana : ""}" style="--franja:${FRANJA[tema]}">
+        <span class="franja" aria-hidden="true"></span>
+        <div class="cabecera-card"><span class="etiqueta">${escapar(aqui.curso._meta.separador || "")} · ${u ? "Te quedaste aquí" : "Para empezar"}</span><span class="small muted">${escapar(aqui.cap.code || "")}</span></div>
+        <h3>${escapar(aqui.cap.title)}</h3>
+        <p class="extracto">${escapar(aqui.cap.subtitle || "")}</p>
+        ${ultimaNota ? `<div class="nota-mano" style="margin-top:.7rem">↳ tu nota: “${escapar(recortar(ultimaNota.texto, 90))}”</div>` : ""}
+      </a>`;
+    }
+
+    // Último resaltado y mazo de tarjetas
+    const resaltes = C.resaltados();
+    const ult = resaltes[resaltes.length - 1];
+    const fragmentoHTML = ult
+      ? `<a class="papel-card" href="#/curso/${encodeURIComponent(ult.curso)}/${encodeURIComponent(ult.cap)}" style="flex:1 1 220px">
+          <span class="etiqueta">Fragmento resaltado</span>
+          <p class="extracto" style="margin-top:.6rem"><span class="marcador">${escapar(recortar(ult.texto, 140))}</span></p>
+        </a>`
+      : `<div class="papel-card" style="flex:1 1 220px"><span class="etiqueta">Fragmentos</span>
+          <p class="nota-mano" style="margin:.6rem 0 0">Resalta una frase en cualquier lección y aparecerá aquí.</p></div>`;
+    const mazoHTML = pendientes.length
+      ? `<a class="mazo" href="#/repaso" style="flex:1 1 220px"><span class="mazo-frente">
+          <span class="etiqueta">${pendientes.length} ${pendientes.length === 1 ? "tarjeta" : "tarjetas"} para hoy</span>
+          <span class="pregunta-txt">${escapar(recortar(pendientes[0].frente, 110))}</span>
+          <span class="nota-mano" style="display:block;margin-top:.5rem;font-size:1.2rem;color:var(--tinta-2)">toca para repasar</span></span></a>`
+      : `<div class="mazo" style="flex:1 1 220px"><span class="mazo-frente">
+          <span class="etiqueta">Tarjetas de repaso</span>
+          <span class="pregunta-txt">${C.tarjetas().length ? "Hoy no te toca ninguna. ¡Al día!" : "Aún no tienes tarjetas: créalas en las lecciones o al fallar una pregunta."}</span></span></div>`;
+
+    // Cuadernos (cursos)
+    const cuadernosHTML = cursos.map((curso) => {
+      const m = curso._meta;
+      const tema = temaDe(m);
+      if (curso._error) return `<div class="cuaderno-item ${tema}"><strong>${escapar(m.id)}</strong><span class="small">${escapar(curso._error.message)}</span></div>`;
+      const prep = enPreparacion(m);
+      const r = P.resumenCurso(curso);
+      return `<a class="cuaderno-item ${tema} ${prep ? "prep" : ""}" href="#/curso/${curso.id}">
+        <span class="tipo">${escapar(m.cuaderno || NOMBRE_CUADERNO[tema] || "Cuaderno")}</span>
+        <strong>${escapar(curso.title)}</strong>
+        <span class="pie"><span>${prep ? "En preparación" : `${r.aprobados}/${r.total} aprobados`}</span><span>${prep ? "" : r.pct + "%"}</span></span>
+        ${prep ? "" : `<span class="mini-bar"><span style="width:${r.pct}%"></span></span>`}
+      </a>`;
+    }).join("");
+
+    // Margen: dudas guardadas
+    const dudasHTML = dudas.length
+      ? `<ul class="lista-notas">${dudas.slice(-6).reverse().map((n) => `<li class="duda"><span class="nota-mano">${escapar(n.texto)}</span>
+          <button class="borrar" type="button" data-borrar-nota="${n.id}" aria-label="Borrar duda">✕</button></li>`).join("")}</ul>`
+      : `<p class="nota-mano" style="color:var(--tinta-2)">Aquí aparecerán las dudas que escribas abajo.</p>`;
+
+    app.innerHTML = `<div class="pagina">
+      <div class="pagina-main">
+        <header class="fila-panel" style="justify-content:space-between;align-items:flex-end;gap:1rem 2rem">
+          <div><div class="fecha-mano">${escapar(fechaLarga())}</div><h1 class="titulo-hoja">Hoy en tu cuaderno</h1></div>
+          <div class="nota-mano inclinada" style="color:var(--tinta-2)">${racha ? `racha: ${racha} ${racha === 1 ? "día" : "días"} · <span class="subrayado-mano">¡no la rompas!</span>` : "hoy puede empezar tu racha"}</div>
+        </header>
+        <div class="fila-panel" style="margin-top:2.2rem">
+          <section style="flex:1 1 300px;min-width:0" aria-labelledby="tPlan">
+            <h2 class="h-mano" id="tPlan">Plan de hoy</h2>
+            <ul class="plan">${planHTML}</ul>
+            <form class="fila-agregar" id="formPlan">
+              <label class="sr" for="inpPlan">Agregar al plan</label>
+              <input class="entrada-mano" id="inpPlan" type="text" placeholder="agregar algo al plan…" autocomplete="off">
+              <button class="btn ghost" type="submit">Añadir</button>
+            </form>
+            <div class="nota-adhesiva" style="margin-top:2.2rem;max-width:360px">
+              <span class="cinta" aria-hidden="true"></span>
+              <span class="etiqueta">Nota del tutor</span>
+              <p>${escapar(notaTutor)}</p>
+            </div>
+          </section>
+          <section style="flex:1.4 1 380px;min-width:0;display:flex;flex-direction:column;gap:1.4rem" aria-label="Continuar">
+            ${aquiHTML}
+            <div class="fila-panel" style="gap:1.4rem">${fragmentoHTML}${mazoHTML}</div>
+          </section>
+        </div>
+        <section style="margin-top:2.6rem" aria-labelledby="tCuadernos">
+          <h2 class="h-mano" id="tCuadernos">Tus cuadernos</h2>
+          <div class="cuadernos">${cuadernosHTML || '<p class="muted">Aún no hay cursos publicados.</p>'}</div>
+        </section>
+        <form class="fila-agregar" id="formDuda" style="margin-top:2.4rem">
+          <svg width="60" height="30" viewBox="0 0 60 30" aria-hidden="true" style="flex:none"><path d="M4 22C18 6 36 4 52 14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" style="color:var(--mano)"/><path d="M46 8l7 6-8 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" style="color:var(--mano)"/></svg>
+          <label class="sr" for="inpDuda">Escribe una duda</label>
+          <input class="entrada-mano" id="inpDuda" type="text" placeholder="escribe cualquier duda aquí y la guardo en tu cuaderno…" autocomplete="off">
+          <button class="btn ghost" type="submit">Guardar duda</button>
+        </form>
+        ${respaldoHTML()}
+      </div>
+      <aside class="margen" aria-label="Margen">
+        <div class="margen-titulo">Dudas guardadas</div>
+        ${dudasHTML}
+        <div class="margen-pie">
+          <div class="fila"><span>Tarjetas en tu mazo</span><span>${C.tarjetas().length}</span></div>
+          <div class="fila"><span>Resaltados</span><span>${resaltes.length}</span></div>
+          <div class="fila"><span>Notas</span><span>${C.notas({ tipo: "nota" }).length}</span></div>
+        </div>
+      </aside>
+    </div>`;
+
+    app.querySelectorAll("[data-plan]").forEach((chk) => {
+      chk.onchange = () => {
+        C.marcarPlan(chk.dataset.plan, chk.checked);
+        if (chk.checked) C.registrarActividad();
+        chk.nextElementSibling.classList.toggle("hecho", chk.checked);
+      };
+    });
+    app.querySelectorAll("[data-quitar]").forEach((b) => (b.onclick = () => { C.quitarDelPlan(b.dataset.quitar); vistaHoy(); }));
+    document.getElementById("formPlan").onsubmit = (e) => {
+      e.preventDefault();
+      const inp = document.getElementById("inpPlan");
+      if (inp.value.trim()) { C.agregarAlPlan(inp.value); vistaHoy(); }
+    };
+    document.getElementById("formDuda").onsubmit = (e) => {
+      e.preventDefault();
+      const inp = document.getElementById("inpDuda");
+      if (C.agregarNota({ texto: inp.value, tipo: "duda" })) { aviso("Duda guardada en tu cuaderno"); vistaHoy(); }
+    };
+    app.querySelectorAll("[data-borrar-nota]").forEach((b) => (b.onclick = () => { C.borrarNota(b.dataset.borrarNota); vistaHoy(); }));
+    enlazarRespaldo(vistaHoy);
+  }
+
+  // ---------- Vista: repaso de tarjetas ----------
+  async function vistaRepaso() {
+    await obtenerCatalogo();
+    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Repaso" }]);
+    mostrarSidebar(null);
+    aplicarTema(null);
+    document.title = "Repaso · NEXUS";
+    const cola = C.tarjetasPendientes();
+    // Nombre legible del capítulo de cada tarjeta (p. ej. "Cap. 06")
+    const nombresCap = {};
+    for (const id of new Set(cola.map((t) => t.curso))) {
+      try {
+        const curso = await obtenerCurso(id);
+        for (const c of curso.chapters) nombresCap[`${id}|${c.id}`] = c.code || c.title;
+      } catch (_) { /* curso no disponible: se muestra el id */ }
+    }
+    let i = 0;
+    let volteada = false;
+
+    const pintar = () => {
+      const t = cola[i];
+      if (!t) {
+        app.innerHTML = `<div class="pagina"><div class="pagina-main"><div class="repaso">
+          <div class="fecha-mano">repaso</div><h1 class="titulo-hoja">${cola.length ? "¡Listo por hoy!" : "No hay tarjetas para hoy"}</h1>
+          <p class="lead" style="margin-top:1rem">${cola.length ? `Repasaste ${cola.length} ${cola.length === 1 ? "tarjeta" : "tarjetas"}. Volverán cuando toque recordarlas.` : "Crea tarjetas desde las lecciones (resaltando una frase) o se crearán solas cuando falles una pregunta del examen."}</p>
+          <a class="btn cta" href="#/" style="margin-top:1rem">Volver a Hoy</a></div></div></div>`;
+        return;
+      }
+      const entrada = catalogo.cursos.find((c) => c.id === t.curso);
+      app.innerHTML = `<div class="pagina"><div class="pagina-main"><div class="repaso">
+        <div class="fila-panel" style="justify-content:space-between;align-items:baseline">
+          <div class="fecha-mano">repaso de hoy</div><span class="etiqueta">${i + 1} de ${cola.length}</span>
+        </div>
+        <article class="tarjeta-repaso" style="margin-top:1rem;--chip-bg:${FRANJA[temaDe(entrada)]}">
+          <div class="frente">${enLinea(t.frente)}</div>
+          ${volteada ? `<div class="reverso">${t.reverso ? bloques(t.reverso) : '<p class="muted">Sin respuesta escrita.</p>'}</div>` : ""}
+          <div class="origen">${escapar(entrada ? entrada.separador || entrada.id : t.curso)}${t.cap ? " · " + escapar(nombresCap[`${t.curso}|${t.cap}`] || t.cap) : ""}</div>
+        </article>
+        <div class="row" style="margin-top:1.2rem">
+          ${volteada
+            ? `<button class="btn ghost" type="button" data-cal="otra">No la sabía</button>
+               <button class="btn" type="button" data-cal="bien">La sabía</button>
+               <button class="btn cta" type="button" data-cal="facil">Muy fácil</button>`
+            : `<button class="btn" type="button" id="btnVoltear">Ver respuesta</button>`}
+          <button class="chip-btn" type="button" id="btnBorrarT" style="margin-left:auto">Borrar tarjeta</button>
+        </div>
+      </div></div></div>`;
+      const v = document.getElementById("btnVoltear");
+      if (v) v.onclick = () => { volteada = true; pintar(); };
+      app.querySelectorAll("[data-cal]").forEach((b) => (b.onclick = () => { C.responderTarjeta(t.id, b.dataset.cal); i++; volteada = false; pintar(); }));
+      document.getElementById("btnBorrarT").onclick = () => {
+        if (confirm("¿Borrar esta tarjeta de tu mazo?")) { C.borrarTarjeta(t.id); cola.splice(i, 1); volteada = false; pintar(); }
+      };
+    };
+    pintar();
+  }
+
+  function recortar(t, n) {
+    t = String(t || "");
+    return t.length > n ? t.slice(0, n - 1) + "…" : t;
   }
 
   // ---------- Vista: índice del curso ----------
@@ -482,7 +729,9 @@
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
     cerrarMenu();
 
+    C.registrarActividad();
     const pintar = () => {
+      C.recordarUltimo(curso.id, cap.id, activa);
       const leido = !!P.capitulo(curso.id, cap.id).leido;
       let contenido = "";
       if (activa === "teoria") contenido = htmlTeoria(cap);
@@ -536,7 +785,8 @@
     try {
       if (partes[0] === "curso" && partes[1] && partes[2]) await vistaCapitulo(partes[1], partes[2], partes[3]);
       else if (partes[0] === "curso" && partes[1]) await vistaCurso(partes[1]);
-      else await vistaCatalogo();
+      else if (partes[0] === "repaso") await vistaRepaso();
+      else await vistaHoy();
     } catch (err) {
       console.error(err);
       mostrarSidebar(null);
