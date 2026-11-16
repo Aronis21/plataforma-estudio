@@ -6,18 +6,29 @@ Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejerci
 
 ## Cursos
 
-| Curso | Lecciones | Nivel |
+| Cuaderno | Curso | Estado |
 |---|---|---|
-| Analista de Datos Intermedio | 27 capítulos + 3 apéndices | Intermedio |
+| Cuaderno de analista (Datos) | Analista de Datos Intermedio · 27 capítulos + 3 apéndices | Disponible |
+| Cuaderno de desarrollador (Web) | Programación y Desarrollo Web · 18 temas | En preparación (temario listo) |
+| Cuaderno de laboratorio (IA) | Inteligencia Artificial · 13 temas | En preparación (temario listo) |
 
 ## Qué tiene
 
-- Catálogo de cursos con porcentaje de avance.
-- Índice por módulos con estado de cada lección (pendiente, leída, aprobada).
-- Pestañas por lección: teoría, estándar profesional, comparación junior vs. intermedio, ejercicios y examen.
-- Exámenes calificados con explicación por pregunta; las opciones cambian de orden en cada intento. Se aprueba con 70%.
-- El progreso se guarda en el navegador y se puede exportar/importar para pasarlo a otro dispositivo.
+- **Hoy:** plan del día (siguiente capítulo de cada curso, tarjetas pendientes y tus propias tareas), racha de días seguidos, nota del tutor, "Te quedaste aquí", último resaltado, mazo de tarjetas y dudas guardadas.
+- **Panel de cada curso:** gráfico de avance por módulo, "libro mayor" con tus números, índice por módulos y margen con dudas del curso.
+- **Capítulo** con margen para tus notas y pestañas propias de cada papel: lección, regla profesional, corrección en tinta (junior vs. intermedio), ejercicios y evaluación.
+- **Resaltar:** selecciona una frase de la lección para resaltarla, pedir una explicación o convertirla en tarjeta de repaso. Toca un resaltado para quitarlo.
+- **Ejercicios:** tu intento se guarda solo, pistas por niveles y "¿cómo te fue?". Lo que no te salió pasa a tus tarjetas.
+- **Evaluación:** se aprueba con 70%, las opciones cambian de orden en cada intento, dices qué tan seguro estás y recibes un análisis; lo que fallas pasa a tus tarjetas.
+- **Repaso espaciado** (`#/repaso`): cada tarjeta vuelve cuando toca recordarla.
+- **Respaldo:** progreso, notas, resaltados y tarjetas se guardan en el navegador y se descargan/cargan en un solo archivo desde la página Hoy.
 - Un papel por curso (Hoy, Datos, Web, IA) con separadores para cambiar de cuaderno, y diseño adaptado al celular.
+
+## Tutor
+
+El tutor funciona hoy en **modo local**: arma sus mensajes con tu progreso y con el contenido del curso (ideas clave, objetivos, ejercicios), sin inteligencia artificial y sin servidor. Todo está en `assets/js/tutor.js`.
+
+Para conectar una IA real más adelante (por ejemplo, con Firebase: una Cloud Function que guarde la clave como secreto y llame a la API de Claude), solo hay que cambiar las funciones de `tutor.js` para que hagan `fetch()` a ese servidor. **Nunca pongas una clave de API en este repositorio: es público.**
 
 ## Estructura
 
@@ -25,11 +36,15 @@ Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejerci
 index.html                  Página única
 assets/css/tokens.css       Tipografías, tamaños y medidas comunes
 assets/css/temas.css        Los papeles de cada curso (colores de Hoy, Datos, Web e IA)
-assets/css/base.css         Esqueleto del cuaderno y componentes
-assets/js/app.js            Navegación y vistas
+assets/css/base.css         Esqueleto del cuaderno y componentes generales
+assets/css/cuaderno.css     Componentes del cuaderno: margen, notas, tarjetas, correcciones…
+assets/js/app.js            Navegación y vistas (Hoy, panel del curso, capítulo, repaso)
 assets/js/texto.js          Formato del texto y bloques de código
-assets/js/progreso.js       Guardado del progreso
-cursos/catalogo.json        Lista de cursos publicados (con su "tema": datos, web o ia)
+assets/js/progreso.js       Progreso de lecturas, ejercicios y exámenes
+assets/js/cuaderno.js       Notas, dudas, resaltados, tarjetas, plan del día y racha
+assets/js/resaltado.js      Barra de acciones al seleccionar texto en una lección
+assets/js/tutor.js          Tutor en modo local (punto de conexión para una IA futura)
+cursos/catalogo.json        Lista de cursos (con su "tema": datos, web o ia, y "estado")
 cursos/*.json               Un archivo por curso
 plantillas/                 Plantilla para crear cursos nuevos
 scripts/validar_cursos.py   Revisa que los cursos tengan el formato correcto
