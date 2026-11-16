@@ -105,24 +105,24 @@
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En la carpeta de configuración, donde están los ajustes como los estados.",
             "En el logotipo.",
             "En cada archivo de CSS.",
-            "En la librería de Excel."
+            "En la librería de Excel.",
+            "En la carpeta de configuración, donde están los ajustes como los estados."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
         },
         {
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "El nombre del archivo principal.",
-            "Un servidor de base de datos.",
             "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
-            "Un lenguaje de estilos."
+            "Un servidor de base de datos.",
+            "Un lenguaje de estilos.",
+            "El nombre del archivo principal."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
         }
       ],
@@ -217,21 +217,21 @@
           "id": "lec-01-q1",
           "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
           "options": [
+            "Ctrl+P",
             "Ctrl+Shift+F",
             "Ctrl+F",
-            "Ctrl+D",
-            "Ctrl+P"
+            "Ctrl+D"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Ctrl+F busca solo en el archivo abierto; Ctrl+Shift+F busca en toda la carpeta."
         },
         {
           "id": "lec-01-q2",
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
-            "No hay diferencia.",
-            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
             "Porque Live Server solo funciona con carpetas vacías.",
+            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
+            "No hay diferencia.",
             "Porque los archivos sueltos no se pueden guardar."
           ],
           "correctIndex": 1,
@@ -241,10 +241,10 @@
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Ejecuta la página.",
+            "Borra la función.",
             "Salta al lugar donde la función está definida.",
-            "Comenta la línea.",
-            "Borra la función."
+            "Ejecuta la página.",
+            "Comenta la línea."
           ],
           "correctIndex": 1,
           "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
@@ -344,9 +344,9 @@
           "id": "lec-02-q1",
           "question": "¿Qué muestra la pestaña Elements de las DevTools?",
           "options": [
-            "Los datos guardados en el navegador.",
             "Solo el archivo HTML tal como está en el disco.",
             "Los errores de red.",
+            "Los datos guardados en el navegador.",
             "El DOM actual de la página, incluido lo que agregó JavaScript."
           ],
           "correctIndex": 3,
@@ -356,24 +356,24 @@
           "id": "lec-02-q2",
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
-            "Que otra regla con más prioridad le está ganando.",
-            "Que la regla se borrará al guardar.",
+            "Que el navegador no soporta CSS.",
             "Que el archivo CSS no existe.",
-            "Que el navegador no soporta CSS."
+            "Que otra regla con más prioridad le está ganando.",
+            "Que la regla se borrará al guardar."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
         },
         {
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
+            "Porque un error de formato puede impedir que la página lea sus datos.",
             "Porque solo se puede editar desde Excel.",
-            "Porque se borra al instante.",
             "Porque está prohibido por el navegador.",
-            "Porque un error de formato puede impedir que la página lea sus datos."
+            "Porque se borra al instante."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
         }
       ],
@@ -387,7 +387,129 @@
       "title": "Estructura HTML y etiquetas semánticas",
       "subtitle": "Secciones, menú, encabezado, ids y el atributo hidden.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Leer un documento HTML y reconocer su estructura de etiquetas anidadas.",
+        "Elegir etiquetas semánticas (`header`, `nav`, `main`, `section`) en lugar de `div` genéricos.",
+        "Entender cómo una página de una sola carga muestra varias 'pantallas' con `id` y `hidden`."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-03-sec-1",
+          "title": "1. Etiquetas, atributos y anidación",
+          "body": "Un documento HTML es un árbol de **etiquetas**. Cada elemento abre (`<section>`) y cierra (`</section>`), y puede contener otros. Los **atributos** dan información extra: `id` (nombre único en la página), `class` (grupos para estilos), `hidden` (oculto), `aria-label` (descripción para lectores de pantalla).\n\nReglas básicas:\n- Todo elemento que abres, lo cierras en el orden inverso (lo último que abriste es lo primero que cierras).\n- Un `id` no se repite en la página. JavaScript lo usa para encontrar ese elemento.\n- Las `class` sí se repiten: sirven para aplicar el mismo estilo a muchos elementos.",
+          "codeLanguage": "html",
+          "codeSnippet": "<section id=\"v-tecnicos\" class=\"pantalla\" hidden>\n  <h2>Técnicos</h2>\n  <p class=\"ayuda\">Lista de técnicos y ayudantes.</p>\n  <table id=\"tabla-tecnicos\">…</table>\n</section>",
+          "keyTakeaway": "Un id identifica un solo elemento; una class agrupa muchos. Abre y cierra las etiquetas en orden."
+        },
+        {
+          "id": "lec-03-sec-2",
+          "title": "2. Etiquetas semánticas",
+          "body": "Las etiquetas semánticas dicen **qué es** cada parte, no solo cómo se ve. El navegador, los lectores de pantalla y tú mismo dentro de seis meses entienden mejor una página así:\n- `<header>`: encabezado (logo, buscador, nombre de la empresa).\n- `<nav>`: menú de navegación.\n- `<main>`: el contenido principal (uno por página).\n- `<section>`: una sección temática con título; en tu página, cada pantalla.\n- `<article>`, `<aside>`, `<footer>`: contenido independiente, complementario y pie.\n- `<button>` para acciones y `<a href>` para ir a otro lugar.\n\nUn `<div>` no significa nada: úsalo solo para agrupar con fines de estilo.",
+          "codeLanguage": "html",
+          "codeSnippet": "<body>\n  <header class=\"barra-superior\">\n    <img src=\"recursos/logo.png\" alt=\"Logotipo de la empresa\">\n    <input type=\"search\" aria-label=\"Buscar\">\n  </header>\n  <nav aria-label=\"Menú principal\">\n    <button data-view=\"actividades\">Actividades</button>\n    <button data-view=\"calendario\">Calendario</button>\n  </nav>\n  <main>\n    <section id=\"v-actividades\">…</section>\n    <section id=\"v-calendario\" hidden>…</section>\n  </main>\n</body>",
+          "keyTakeaway": "Usa la etiqueta que describe el contenido: button para acciones, nav para menús, section para pantallas."
+        },
+        {
+          "id": "lec-03-sec-3",
+          "title": "3. Una página, muchas pantallas",
+          "body": "Tu página no carga un archivo nuevo al cambiar de pantalla. Todas las pantallas están en el mismo `index.html`, y solo una es visible: las demás tienen el atributo **`hidden`**. Al pulsar un botón del menú, JavaScript quita `hidden` a la sección elegida y se lo pone a las demás.\n\nPor eso, para agregar una pantalla nueva necesitas tres cosas en el HTML: una `<section>` con su `id` (con el prefijo `v-`), un botón en el `<nav>` con su `data-view`, y el contenido de la sección. Lo harás completo en el Proyecto 4.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Así se muestra una pantalla y se ocultan las demás\nfunction mostrarPantalla(nombre) {\n  document.querySelectorAll('main > section').forEach(s => {\n    s.hidden = s.id !== 'v-' + nombre;\n  });\n}",
+          "keyTakeaway": "En una página de una sola carga, cambiar de pantalla es mostrar una sección y ocultar las otras con hidden."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para un HTML que se pueda mantener.",
+        "rules": [
+          "Un solo `id` por elemento y nunca repetido; nómbralo en minúsculas con guiones.",
+          "Usa `<button type=\"button\">` para acciones; nunca un `<div>` con clic.",
+          "Toda imagen lleva `alt` (vacío si es decorativa).",
+          "Indenta el HTML: cada nivel de anidación, dos espacios más.",
+          "Valida el HTML (lo harás automático en la lección 24)."
+        ],
+        "codeLanguage": "html",
+        "referenceCode": "<nav aria-label=\"Menú principal\">\n  <button type=\"button\" data-view=\"vehiculos\" aria-current=\"page\">Vehículos</button>\n</nav>"
+      },
+      "comparison": {
+        "scenario": "Agregar un botón para exportar la tabla.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<div class=\"boton\" onclick=\"exportar()\">\n  <div>Exportar</div>\n</div>",
+        "juniorFlaws": [
+          "Un div no se puede usar con el teclado (Tab no llega, Enter no lo activa).",
+          "Los lectores de pantalla no saben que es un botón.",
+          "`onclick` en el HTML mezcla comportamiento y estructura."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "<button type=\"button\" class=\"btn\" data-act=\"exportar\">\n  Exportar\n</button>",
+        "intermediateBenefits": [
+          "Funciona con teclado y ratón sin código extra.",
+          "Se anuncia como botón.",
+          "El comportamiento se conecta desde JavaScript por su `data-act`."
+        ],
+        "codeLanguage": "html"
+      },
+      "exercises": [
+        {
+          "id": "lec-03-ej-1",
+          "title": "Práctica 1: Estructura una pantalla",
+          "difficulty": "Básico",
+          "prompt": "Escribe el HTML de una pantalla nueva llamada \"Repuestos\" que tenga: un título, un párrafo de ayuda, un botón \"Agregar repuesto\" y una tabla vacía con id `tabla-repuestos`. Debe empezar oculta.",
+          "hint": "La sección necesita id con prefijo v- y el atributo hidden.",
+          "solutionExplanation": "La sección empieza oculta con `hidden`; el botón usa `type=\"button\"` y un `data-act` para conectarlo después desde JavaScript; la tabla tiene un id único para poder llenarla.",
+          "solutionCode": "<section id=\"v-repuestos\" hidden>\n  <h2>Repuestos</h2>\n  <p class=\"ayuda\">Piezas en espera y piezas recibidas.</p>\n  <button type=\"button\" class=\"btn\" data-act=\"nuevo-repuesto\">Agregar repuesto</button>\n  <table id=\"tabla-repuestos\">\n    <thead><tr><th>Pieza</th><th>Actividad</th><th>Estado</th></tr></thead>\n    <tbody></tbody>\n  </table>\n</section>",
+          "codeLanguage": "html"
+        },
+        {
+          "id": "lec-03-ej-2",
+          "title": "Práctica 2: Encuentra los errores",
+          "difficulty": "Intermedio",
+          "prompt": "Este fragmento tiene cuatro problemas. Encuéntralos y corrígelos:\n```\n<section id=\"v-dietas\">\n  <h2>Dietas<h2>\n  <div onclick=\"calcular()\">Calcular</div>\n  <img src=\"logo.png\">\n  <table id=\"v-dietas\"></table>\n</section>\n```",
+          "hint": "Revisa cierres de etiquetas, ids repetidos, accesibilidad de imágenes y botones.",
+          "solutionExplanation": "1. `<h2>` no se cierra (`</h2>`).\n2. El div con onclick debe ser un `<button type=\"button\">`.\n3. La imagen no tiene `alt`.\n4. El id `v-dietas` está repetido en la tabla.",
+          "solutionCode": "<section id=\"v-dietas\">\n  <h2>Dietas</h2>\n  <button type=\"button\" data-act=\"calcular-dietas\">Calcular</button>\n  <img src=\"logo.png\" alt=\"\">\n  <table id=\"tabla-dietas\"></table>\n</section>",
+          "codeLanguage": "html"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-03-q1",
+          "question": "¿Qué atributo usa tu página para ocultar las pantallas que no se están viendo?",
+          "options": [
+            "hidden",
+            "alt",
+            "class=\"oculto\" obligatoriamente",
+            "display"
+          ],
+          "correctIndex": 0,
+          "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
+        },
+        {
+          "id": "lec-03-q2",
+          "question": "¿Cuál es la diferencia principal entre id y class?",
+          "options": [
+            "La class es única y el id se repite.",
+            "El id es único en la página; la class puede repetirse en muchos elementos.",
+            "No hay diferencia.",
+            "El id solo sirve para estilos."
+          ],
+          "correctIndex": 1,
+          "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
+        },
+        {
+          "id": "lec-03-q3",
+          "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
+          "options": [
+            "Porque button es más rápido de escribir.",
+            "Porque los div no pueden tener texto.",
+            "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra.",
+            "Porque los div no se pueden pintar con CSS."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las etiquetas nativas traen accesibilidad y comportamiento gratis: foco con Tab, activación con Enter y Espacio."
+        }
+      ],
       "order": 4
     },
     {
@@ -398,7 +520,128 @@
       "title": "Formularios",
       "subtitle": "Campos, etiquetas, listas, validación y atributos data-*.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Construir formularios con `label`, `input`, `select`, `textarea` y `datalist`.",
+        "Elegir el tipo de campo correcto (`date`, `number`, `email`, `tel`).",
+        "Usar la validación nativa (`required`, `min`, `max`, `pattern`).",
+        "Guardar información extra en atributos `data-*`."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-04-sec-1",
+          "title": "1. Campo y etiqueta, siempre juntos",
+          "body": "Cada campo necesita una **etiqueta** (`<label>`) conectada por su `for` con el `id` del campo. Así, al tocar el texto se activa el campo, y los lectores de pantalla lo anuncian. Un `placeholder` **no** reemplaza a la etiqueta: desaparece al escribir.\n\nEl `name` del campo es el nombre con el que lo leerás desde JavaScript si usas `FormData`.",
+          "codeLanguage": "html",
+          "codeSnippet": "<label for=\"f-chasis\">Chasis</label>\n<input id=\"f-chasis\" name=\"chasis\" type=\"text\" required>\n\n<label for=\"f-fecha\">Fecha de ejecución</label>\n<input id=\"f-fecha\" name=\"fecha\" type=\"date\" required>\n\n<label for=\"f-cant\">Cantidad de equipos</label>\n<input id=\"f-cant\" name=\"cant\" type=\"number\" min=\"1\" value=\"1\">",
+          "keyTakeaway": "Etiqueta + id + name: así el campo se usa bien con dedo, teclado, lector de pantalla y JavaScript."
+        },
+        {
+          "id": "lec-04-sec-2",
+          "title": "2. Listas: select y datalist",
+          "body": "- `<select>` obliga a elegir una opción de la lista (por ejemplo el **estado** o el **técnico**).\n- `<datalist>` **sugiere** opciones pero deja escribir otra (ideal para **clientes** o **localidades**, donde la lista crece).\n\nEn tu página las opciones de estas listas no se escriben a mano en el HTML: se generan con JavaScript a partir de los datos maestros. El HTML solo pone el contenedor vacío.",
+          "codeLanguage": "html",
+          "codeSnippet": "<label for=\"f-estado\">Estado</label>\n<select id=\"f-estado\" name=\"estado\">\n  <option>Pendiente</option>\n  <option>En curso</option>\n  <option>Finalizado</option>\n</select>\n\n<label for=\"f-cliente\">Cliente</label>\n<input id=\"f-cliente\" name=\"cliente\" list=\"lista-clientes\">\n<datalist id=\"lista-clientes\"><!-- se llena con JavaScript --></datalist>",
+          "keyTakeaway": "select cuando la respuesta debe ser una de la lista; datalist cuando quieres sugerir pero permitir valores nuevos."
+        },
+        {
+          "id": "lec-04-sec-3",
+          "title": "3. Validación nativa y atributos data-*",
+          "body": "El navegador puede validar antes de que tu código se entere: `required` (obligatorio), `min`/`max` en números y fechas, `minlength`, `pattern` (una expresión regular). Si un campo no es válido, el navegador muestra un mensaje y el formulario no se envía.\n\nLos atributos **`data-*`** guardan información propia en cualquier elemento: `data-id=\"a7f3\"`, `data-act=\"editar\"`. JavaScript los lee con `elemento.dataset`. Tu página usa `data-act` en los botones y `data-view` en el menú.",
+          "codeLanguage": "html",
+          "codeSnippet": "<form id=\"form-vehiculo\">\n  <label for=\"f-placa\">Placa</label>\n  <input id=\"f-placa\" name=\"placa\" required pattern=\"[A-Z][0-9]{6}\"\n         title=\"Una letra mayúscula y seis números, por ejemplo L123456\">\n  <button type=\"submit\">Guardar</button>\n</form>\n\n<button type=\"button\" data-act=\"editar-vehiculo\" data-id=\"v12\">Editar</button>",
+          "keyTakeaway": "Deja que el navegador valide lo básico y usa data-* para que cada botón sepa sobre qué registro actúa."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Formularios que no frustran a quien los llena.",
+        "rules": [
+          "Todo campo tiene `<label>` visible conectado por `for`/`id`.",
+          "Usa el `type` correcto: en el celular cambia el teclado (numérico, fecha, teléfono).",
+          "Marca como `required` solo lo que de verdad es obligatorio.",
+          "Agrupa campos relacionados con `<fieldset>` y `<legend>`.",
+          "El botón principal es `type=\"submit\"`; los demás `type=\"button\"`."
+        ],
+        "codeLanguage": "html",
+        "referenceCode": "<fieldset>\n  <legend>Asignación</legend>\n  <label for=\"f-tec\">Técnico</label>\n  <select id=\"f-tec\" name=\"tec\" required></select>\n  <label for=\"f-veh\">Vehículo</label>\n  <select id=\"f-veh\" name=\"veh\"></select>\n</fieldset>"
+      },
+      "comparison": {
+        "scenario": "Un campo para la fecha del servicio.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<input placeholder=\"Fecha (dd/mm/aaaa)\">",
+        "juniorFlaws": [
+          "Sin etiqueta: al escribir desaparece la pista.",
+          "Texto libre: cada quien escribe la fecha distinto (15/11, 2026-11-15, 15 nov).",
+          "Sin validación: se puede guardar vacío."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "<label for=\"f-fecha\">Fecha de ejecución</label>\n<input id=\"f-fecha\" name=\"fecha\" type=\"date\" required>",
+        "intermediateBenefits": [
+          "Calendario nativo en computadora y celular.",
+          "El valor siempre llega en formato AAAA-MM-DD, fácil de comparar y ordenar.",
+          "No se puede dejar vacío."
+        ],
+        "codeLanguage": "html"
+      },
+      "exercises": [
+        {
+          "id": "lec-04-ej-1",
+          "title": "Práctica 1: Formulario de técnico",
+          "difficulty": "Básico",
+          "prompt": "Escribe un formulario para registrar un técnico con: nombre (obligatorio), rol (select: Técnico, Ayudante), teléfono (`tel`) y una casilla \"Activo\" marcada por defecto.",
+          "hint": "La casilla es `type=\"checkbox\"` con el atributo `checked`.",
+          "solutionExplanation": "Cada campo tiene su label; el rol es un select porque solo hay dos opciones válidas; el teléfono usa `type=\"tel\"` para abrir el teclado numérico en el celular.",
+          "solutionCode": "<form id=\"form-tecnico\">\n  <label for=\"t-nombre\">Nombre</label>\n  <input id=\"t-nombre\" name=\"nombre\" required>\n\n  <label for=\"t-rol\">Rol</label>\n  <select id=\"t-rol\" name=\"rol\">\n    <option>Técnico</option>\n    <option>Ayudante</option>\n  </select>\n\n  <label for=\"t-tel\">Teléfono</label>\n  <input id=\"t-tel\" name=\"tel\" type=\"tel\">\n\n  <label><input type=\"checkbox\" name=\"activo\" checked> Activo</label>\n\n  <button type=\"submit\">Guardar técnico</button>\n</form>",
+          "codeLanguage": "html"
+        },
+        {
+          "id": "lec-04-ej-2",
+          "title": "Práctica 2: Elige el campo correcto",
+          "difficulty": "Intermedio",
+          "prompt": "Para cada dato de una actividad, elige el tipo de campo y si sería `select`, `datalist` o `input` simple: cliente, estado, cantidad de equipos, kilometraje del odómetro, observación larga, localidad.",
+          "hint": "Piensa: ¿la lista es fija o crece? ¿es número, fecha o texto largo?",
+          "solutionExplanation": "- Cliente: `input` con `datalist` (la lista crece).\n- Estado: `select` (lista fija definida en la configuración).\n- Cantidad: `input type=\"number\" min=\"1\"`.\n- Kilometraje: `input type=\"number\" min=\"0\"`.\n- Observación: `textarea`.\n- Localidad: `input` con `datalist` (muchas opciones, se busca escribiendo)."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-04-q1",
+          "question": "¿Qué conecta un `<label>` con su campo?",
+          "options": [
+            "El atributo for del label igual al id del campo.",
+            "El atributo class.",
+            "El atributo name del label.",
+            "Que estén en la misma línea."
+          ],
+          "correctIndex": 0,
+          "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
+        },
+        {
+          "id": "lec-04-q2",
+          "question": "Quieres sugerir clientes existentes pero permitir escribir uno nuevo. ¿Qué usas?",
+          "options": [
+            "Un textarea.",
+            "Un input con datalist.",
+            "Un checkbox.",
+            "Un select."
+          ],
+          "correctIndex": 1,
+          "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
+        },
+        {
+          "id": "lec-04-q3",
+          "question": "¿Cómo lee JavaScript el atributo `data-id=\"v12\"` de un botón?",
+          "options": [
+            "boton.dataset.id",
+            "boton.id",
+            "boton.data-id",
+            "boton.getData()"
+          ],
+          "correctIndex": 0,
+          "explanation": "Los atributos `data-*` quedan disponibles en `dataset`, sin el prefijo y en camelCase: `data-id` → `dataset.id`."
+        }
+      ],
       "order": 5
     },
     {
@@ -409,7 +652,125 @@
       "title": "Tablas y accesibilidad",
       "subtitle": "Tablas de datos bien hechas, aria-label y uso con teclado.",
       "estimatedMinutes": 35,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Construir tablas con `thead`, `tbody`, `th` y `caption`.",
+        "Hacer que una tabla ancha se pueda desplazar en el celular.",
+        "Aplicar lo básico de accesibilidad: textos alternativos, `aria-label`, foco visible y contraste."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-05-sec-1",
+          "title": "1. La anatomía de una tabla",
+          "body": "Una tabla de datos tiene partes con significado:\n- `<caption>`: el título de la tabla.\n- `<thead>`: la fila de encabezados, con celdas `<th scope=\"col\">`.\n- `<tbody>`: las filas de datos. En tu página el `tbody` empieza vacío y JavaScript lo llena.\n- `<tfoot>`: totales al final (por ejemplo, el total de dietas).\n\nUsa tablas solo para **datos tabulares**, nunca para acomodar el diseño de la página.",
+          "codeLanguage": "html",
+          "codeSnippet": "<table class=\"tabla\">\n  <caption>Actividades de la semana</caption>\n  <thead>\n    <tr><th scope=\"col\">Fecha</th><th scope=\"col\">Cliente</th><th scope=\"col\">Técnico</th><th scope=\"col\">Estado</th></tr>\n  </thead>\n  <tbody id=\"tb-actividades\"></tbody>\n  <tfoot>\n    <tr><th scope=\"row\" colspan=\"3\">Total</th><td id=\"total-actividades\">0</td></tr>\n  </tfoot>\n</table>",
+          "keyTakeaway": "thead para encabezados, tbody para los datos que llena JavaScript y tfoot para totales."
+        },
+        {
+          "id": "lec-05-sec-2",
+          "title": "2. Tablas anchas en pantallas pequeñas",
+          "body": "Una tabla con muchas columnas no cabe en un celular. La solución profesional no es achicar la letra, sino **envolver la tabla en un contenedor que se desplace horizontalmente**. Así la página no se rompe y el usuario desliza la tabla con el dedo.",
+          "codeLanguage": "css",
+          "codeSnippet": ".tabla-contenedor {\n  overflow-x: auto;           /* desplazamiento horizontal solo en la tabla */\n  -webkit-overflow-scrolling: touch;\n}\n.tabla { min-width: 720px; border-collapse: collapse; }\n.tabla th { position: sticky; top: 0; background: var(--fondo); }",
+          "keyTakeaway": "Envuelve las tablas anchas en un contenedor con overflow-x: auto."
+        },
+        {
+          "id": "lec-05-sec-3",
+          "title": "3. Accesibilidad básica que sí se nota",
+          "body": "La accesibilidad no es solo para personas con discapacidad: hace la página más fácil para todos (con sol en la pantalla, con guantes, con prisa).\n- **Texto alternativo**: `alt` en imágenes.\n- **Botones con solo ícono**: necesitan `aria-label` (`<button aria-label=\"Eliminar\">🗑</button>`).\n- **Foco visible**: quien usa el teclado debe ver dónde está. No quites el contorno sin poner otro.\n- **Contraste**: texto gris claro sobre blanco no se lee en el taller. Apunta a un contraste de al menos 4.5 a 1.\n- **`aria-current=\"page\"`** en el botón del menú de la pantalla activa.",
+          "codeLanguage": "css",
+          "codeSnippet": "/* Nunca: button:focus { outline: none; } sin alternativa */\nbutton:focus-visible {\n  outline: 3px solid var(--color-principal);\n  outline-offset: 2px;\n}",
+          "keyTakeaway": "Si un botón solo tiene ícono, dale aria-label; si quitas el contorno de foco, pon otro visible."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Tablas y accesibilidad en una página de trabajo.",
+        "rules": [
+          "Encabezados en `<th>` con `scope`; los datos en `<td>`.",
+          "Toda tabla ancha va dentro de un contenedor con `overflow-x: auto`.",
+          "Botones de solo ícono con `aria-label` describiendo la acción.",
+          "Foco visible en todos los elementos interactivos.",
+          "Comprueba que se puede usar la pantalla solo con el teclado (Tab, Enter, Espacio)."
+        ]
+      },
+      "comparison": {
+        "scenario": "Botón para eliminar una fila de la tabla.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<td><span class=\"icono-basura\" onclick=\"borrar(3)\"></span></td>",
+        "juniorFlaws": [
+          "No se puede alcanzar con el teclado.",
+          "Un lector de pantalla no anuncia nada.",
+          "No dice qué fila se va a borrar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "<td>\n  <button type=\"button\" class=\"btn-icono\" data-act=\"eliminar-actividad\"\n          data-id=\"a3\" aria-label=\"Eliminar la actividad OT-2291\">🗑</button>\n</td>",
+        "intermediateBenefits": [
+          "Es un botón real con foco y teclado.",
+          "El `aria-label` dice exactamente qué hace y sobre qué.",
+          "El `data-id` identifica la fila sin depender de su posición."
+        ],
+        "codeLanguage": "html"
+      },
+      "exercises": [
+        {
+          "id": "lec-05-ej-1",
+          "title": "Práctica 1: Tabla de vehículos",
+          "difficulty": "Básico",
+          "prompt": "Escribe una tabla con título \"Unidades operativas\", encabezados Ficha, Placa, Estado y Km actual, un `tbody` vacío con id y un pie con el total de unidades. Envuélvela para que se desplace en el celular.",
+          "hint": "Usa caption, thead con th scope=\"col\", tbody con id y tfoot.",
+          "solutionExplanation": "La tabla queda lista para que JavaScript llene el tbody; el contenedor evita que rompa el diseño en pantallas pequeñas.",
+          "solutionCode": "<div class=\"tabla-contenedor\">\n  <table class=\"tabla\">\n    <caption>Unidades operativas</caption>\n    <thead>\n      <tr><th scope=\"col\">Ficha</th><th scope=\"col\">Placa</th><th scope=\"col\">Estado</th><th scope=\"col\">Km actual</th></tr>\n    </thead>\n    <tbody id=\"tb-vehiculos\"></tbody>\n    <tfoot>\n      <tr><th scope=\"row\" colspan=\"3\">Total de unidades</th><td id=\"total-vehiculos\">0</td></tr>\n    </tfoot>\n  </table>\n</div>",
+          "codeLanguage": "html"
+        },
+        {
+          "id": "lec-05-ej-2",
+          "title": "Práctica 2: Prueba de teclado",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* recorre la pantalla de Actividades usando solo el teclado (Tab para avanzar, Shift+Tab para retroceder, Enter para activar). Anota cada elemento al que no llegas o donde no ves el foco.",
+          "hint": "Si un elemento clicable no recibe foco, probablemente no es un button ni un enlace.",
+          "solutionExplanation": "Cada problema que encuentres es una mejora concreta: convertir elementos en `<button>`, agregar `aria-label` o un estilo `:focus-visible`. Guarda la lista: la usarás cuando sepas CSS y JavaScript."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-05-q1",
+          "question": "¿Dónde van los encabezados de columna de una tabla?",
+          "options": [
+            "En el atributo title de la tabla.",
+            "En celdas td dentro de tbody.",
+            "En celdas th dentro de thead.",
+            "En un div encima de la tabla."
+          ],
+          "correctIndex": 2,
+          "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
+        },
+        {
+          "id": "lec-05-q2",
+          "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
+          "options": [
+            "Envolverla en un contenedor con overflow-x: auto.",
+            "Ocultar la tabla en el celular.",
+            "Reducir la letra a 6 píxeles.",
+            "Convertirla en una imagen."
+          ],
+          "correctIndex": 0,
+          "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
+        },
+        {
+          "id": "lec-05-q3",
+          "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
+          "options": [
+            "Un aria-label que describa la acción, como \"Editar actividad\".",
+            "Un id.",
+            "Nada, el ícono es suficiente.",
+            "Un color más oscuro."
+          ],
+          "correctIndex": 0,
+          "explanation": "Sin texto, un lector de pantalla no sabe qué hace el botón; `aria-label` le da nombre."
+        }
+      ],
       "order": 6
     },
     {
@@ -420,7 +781,125 @@
       "title": "Selectores, cascada y especificidad",
       "subtitle": "Por qué un estilo le gana a otro y cómo ordenar tus hojas de estilo.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Escribir selectores de etiqueta, clase, id, atributo y descendiente.",
+        "Predecir qué regla gana usando la cascada y la especificidad.",
+        "Ordenar las hojas de estilo en capas, como ya hace tu página."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-06-sec-1",
+          "title": "1. Selectores que vas a usar",
+          "body": "Un selector dice **a qué elementos** se aplica una regla:\n- `button`: todas las etiquetas button.\n- `.btn`: todo lo que tenga la clase `btn`.\n- `#v-actividades`: el elemento con ese id.\n- `[data-act=\"eliminar\"]`: elementos con ese atributo y valor.\n- `.tabla td`: celdas `td` que estén **dentro** de algo con clase `tabla`.\n- `.tabla > tbody`: hijo **directo**.\n- `button:hover`, `input:focus-visible`, `tr:nth-child(even)`: estados y posiciones (pseudoclases).",
+          "codeLanguage": "css",
+          "codeSnippet": ".tabla td { padding: 6px 10px; }\n.tabla tr:nth-child(even) { background: var(--fila-alterna); }\n[data-act=\"eliminar-actividad\"] { color: var(--peligro); }\n.btn:hover { filter: brightness(1.08); }",
+          "keyTakeaway": "Prefiere clases para dar estilo: son reutilizables y tienen una especificidad baja y predecible."
+        },
+        {
+          "id": "lec-06-sec-2",
+          "title": "2. Cascada y especificidad",
+          "body": "Cuando dos reglas chocan sobre la misma propiedad, el navegador decide así:\n1. **Importancia**: `!important` gana (y por eso casi nunca debes usarlo).\n2. **Especificidad**: cuenta cuántos id, clases y etiquetas tiene el selector. Un id vale más que cualquier cantidad de clases; una clase vale más que cualquier cantidad de etiquetas.\n3. **Orden**: si empatan, gana la que aparece **después** (en el mismo archivo o en un archivo cargado más tarde).\n\nPor eso tu página numera sus hojas (`1-base`, `2-estilo-suave`, `3-panel-y-pantallas`): las capas posteriores pueden ajustar a las anteriores con selectores sencillos.",
+          "codeLanguage": "css",
+          "codeSnippet": "/* especificidad (id, clases, etiquetas) */\nbutton            { color: black; }   /* (0,0,1) */\n.btn              { color: navy; }    /* (0,1,0)  gana a la anterior */\n#v-dietas .btn    { color: green; }   /* (1,1,0)  gana a las dos */\n.btn.btn-peligro  { color: red; }     /* (0,2,0)  pierde contra la del id */",
+          "keyTakeaway": "Si un estilo 'no se aplica', casi siempre otra regla más específica o posterior le gana. Las DevTools te lo muestran tachado."
+        },
+        {
+          "id": "lec-06-sec-3",
+          "title": "3. Dónde escribir tus cambios",
+          "body": "Una regla de oro en un proyecto con capas: **no edites la base para arreglar un caso particular**. Agrega la regla en la capa que corresponde (normalmente la de pantallas) con un selector que apunte solo a lo que quieres cambiar.\n\nSi tu proyecto tiene un archivo de apariencia en `config/` para colores y tamaños, cambia ahí los valores en lugar de reescribir reglas.",
+          "keyTakeaway": "Cambios globales en la base o la configuración; cambios de una pantalla en la capa de pantallas, con un selector que empiece por esa pantalla."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "CSS que no se pelea consigo mismo.",
+        "rules": [
+          "Da estilo con clases; evita estilos por id.",
+          "No uses `!important` salvo para utilidades muy concretas (como `[hidden]{display:none!important}`).",
+          "Mantén los selectores cortos: dos o tres partes como máximo.",
+          "Respeta el orden de capas del proyecto y escribe cada regla en la capa que le corresponde.",
+          "Nombra las clases por lo que son (`.tarjeta-indicador`), no por cómo se ven (`.azul-grande`)."
+        ],
+        "codeLanguage": "css",
+        "referenceCode": "/* Ajuste solo para la pantalla de vehículos, en la capa de pantallas */\n#v-vehiculos .tarjeta { min-height: 120px; }"
+      },
+      "comparison": {
+        "scenario": "Un botón dentro de la pantalla de dietas no toma el color que pusiste.",
+        "juniorLabel": "Así no",
+        "juniorCode": ".btn-dietas { background: orange !important; }",
+        "juniorFlaws": [
+          "`!important` gana hoy pero obliga a usar más `!important` mañana.",
+          "No entiendes por qué no se aplicaba.",
+          "Rompe la posibilidad de ajustar el botón desde otra capa."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "/* 1. Inspeccionar: ver qué regla le gana (p. ej. \"#v-dietas button\")\n   2. Escribir una regla con especificidad suficiente en la capa correcta */\n#v-dietas .btn-dietas { background: var(--acento); }",
+        "intermediateBenefits": [
+          "Sabes exactamente por qué antes no funcionaba.",
+          "La solución es tan específica como hace falta, no más.",
+          "Usa una variable de color en vez de un valor suelto."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-06-ej-1",
+          "title": "Práctica 1: ¿Quién gana?",
+          "difficulty": "Básico",
+          "prompt": "Para un `<button class=\"btn principal\">` dentro de `<section id=\"v-inicio\">`, ¿de qué color queda el texto?\n```\n.btn.principal { color: white; }\n#v-inicio button { color: yellow; }\n.principal { color: blue; }\n```",
+          "hint": "Cuenta ids, clases y etiquetas de cada selector.",
+          "solutionExplanation": "Amarillo. `#v-inicio button` tiene un id (1,0,1); `.btn.principal` tiene dos clases (0,2,0). Cualquier selector con id gana a uno sin id."
+        },
+        {
+          "id": "lec-06-ej-2",
+          "title": "Práctica 2: Filas alternas y fila resaltada",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el CSS para que las filas pares de `.tabla` tengan un fondo suave, y que una fila con la clase `atrasada` tenga fondo rojo claro incluso si es par.",
+          "hint": "La regla de la fila atrasada debe tener igual o más especificidad que la de filas pares y aparecer después.",
+          "solutionExplanation": "`.tabla tr:nth-child(even)` tiene (0,2,1). `.tabla tr.atrasada` también (0,2,1); como aparece después, gana por orden.",
+          "solutionCode": ".tabla tr:nth-child(even) { background: #f6f7f9; }\n.tabla tr.atrasada { background: #fde8e8; }",
+          "codeLanguage": "css"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-06-q1",
+          "question": "¿Cuál de estos selectores tiene más especificidad?",
+          "options": [
+            "main section div p",
+            "#v-inicio .tarjeta",
+            ".tarjeta:hover",
+            ".panel .tarjeta .titulo"
+          ],
+          "correctIndex": 1,
+          "explanation": "Un id pesa más que cualquier cantidad de clases o etiquetas."
+        },
+        {
+          "id": "lec-06-q2",
+          "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
+          "options": [
+            "La que aparece primero.",
+            "La que aparece después.",
+            "No se aplica ninguna.",
+            "La más corta."
+          ],
+          "correctIndex": 1,
+          "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
+        },
+        {
+          "id": "lec-06-q3",
+          "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
+          "options": [
+            "Porque el navegador ignora los archivos sin número.",
+            "Por compatibilidad con Excel.",
+            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
+            "Para que pesen menos."
+          ],
+          "correctIndex": 2,
+          "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
+        }
+      ],
       "order": 7
     },
     {
@@ -431,7 +910,122 @@
       "title": "Variables CSS y temas",
       "subtitle": "Colores centralizados, modo claro y oscuro, y estilos según el modo de la página.",
       "estimatedMinutes": 35,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Definir y usar variables CSS (custom properties).",
+        "Crear un modo oscuro cambiando solo las variables.",
+        "Aplicar estilos distintos según un atributo del `body`, como el modo de la página."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-07-sec-1",
+          "title": "1. Variables CSS",
+          "body": "Una variable CSS se declara con dos guiones y se usa con `var()`. Si la declaras en `:root`, está disponible en toda la página.\n\nLa ventaja es enorme en un proyecto real: el color principal, los radios, las sombras y las tipografías se definen una vez. Cambiar la identidad de la página es editar unas pocas líneas.",
+          "codeLanguage": "css",
+          "codeSnippet": ":root {\n  --color-principal: #0b5cad;\n  --peligro: #c62828;\n  --ok: #2e7d32;\n  --radio: 10px;\n  --fuente: \"Inter\", system-ui, sans-serif;\n}\n.btn { background: var(--color-principal); border-radius: var(--radio); }\n.estado-atrasado { color: var(--peligro); }",
+          "keyTakeaway": "Define los valores de diseño una sola vez en variables y úsalos en todas las reglas."
+        },
+        {
+          "id": "lec-07-sec-2",
+          "title": "2. Modo oscuro sin duplicar reglas",
+          "body": "Para un modo oscuro no reescribes cada regla: **redefines las variables** cuando el `body` (o `html`) tiene un atributo o clase. Todas las reglas que usan esas variables cambian solas.\n\nTambién puedes respetar la preferencia del sistema con `@media (prefers-color-scheme: dark)`.",
+          "codeLanguage": "css",
+          "codeSnippet": ":root { --fondo: #ffffff; --texto: #1d2430; --borde: #d9dee6; }\nbody.oscuro { --fondo: #12161c; --texto: #e7ebf0; --borde: #2a313b; }\n\nbody { background: var(--fondo); color: var(--texto); }\n.tarjeta { border: 1px solid var(--borde); }",
+          "keyTakeaway": "Un tema es un conjunto de valores para las mismas variables."
+        },
+        {
+          "id": "lec-07-sec-3",
+          "title": "3. Estilos según el modo de la página",
+          "body": "Tu página tiene **modos** (por ejemplo uno para el planificador y otro para el técnico) y JavaScript los indica con un atributo en el `body`. Con un selector de atributo puedes mostrar, ocultar o cambiar cosas según el modo, sin tocar JavaScript.",
+          "codeLanguage": "css",
+          "codeSnippet": "/* body data-modo=\"tecnico\" lo pone JavaScript al cambiar de modo */\nbody[data-modo=\"tecnico\"] .solo-planificador { display: none; }\nbody[data-modo=\"tecnico\"] { --color-principal: #2e7d32; }",
+          "keyTakeaway": "Un atributo en el body + selectores de atributo = estilos por modo sin duplicar hojas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo manejar colores y temas como un profesional.",
+        "rules": [
+          "Ningún color suelto en las reglas: todos vienen de una variable.",
+          "Nombra las variables por su función (`--peligro`, `--fondo-tarjeta`), no por el color (`--rojo`).",
+          "Comprueba el contraste en ambos temas.",
+          "Si el proyecto tiene un archivo de apariencia en `config/`, las variables viven ahí."
+        ]
+      },
+      "comparison": {
+        "scenario": "Tu jefe pide que el azul de la página sea un poco más oscuro.",
+        "juniorLabel": "Así no",
+        "juniorCode": ".btn { background: #0b5cad; }\n.menu button.activo { border-color: #0b5cad; }\n.titulo { color: #0b5cad; }\n/* … y 30 lugares más con el mismo código de color */",
+        "juniorFlaws": [
+          "Hay que buscar y cambiar el color en decenas de lugares.",
+          "Es fácil olvidar uno y quedar con dos azules distintos."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": ":root { --color-principal: #094e94; } /* una sola línea cambiada */",
+        "intermediateBenefits": [
+          "El cambio es una línea.",
+          "Todos los elementos se mantienen coherentes."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-07-ej-1",
+          "title": "Práctica 1: Variables de estado",
+          "difficulty": "Básico",
+          "prompt": "Crea variables para los colores de tres estados (pendiente, en curso, finalizado) y una clase `.chip-estado` que use una variable `--chip` con fondo semitransparente.",
+          "hint": "Cada clase de estado solo cambia el valor de `--chip`.",
+          "solutionExplanation": "La clase base define la forma una vez; cada estado solo asigna su color. Agregar un estado nuevo es una línea más (lo harás en el Proyecto 3).",
+          "solutionCode": ":root {\n  --estado-pendiente: #b26a00;\n  --estado-curso: #0b5cad;\n  --estado-finalizado: #2e7d32;\n}\n.chip-estado {\n  color: var(--chip);\n  background: color-mix(in srgb, var(--chip) 14%, transparent);\n  border-radius: 999px;\n  padding: 2px 10px;\n}\n.chip-estado.pendiente  { --chip: var(--estado-pendiente); }\n.chip-estado.en-curso   { --chip: var(--estado-curso); }\n.chip-estado.finalizado { --chip: var(--estado-finalizado); }",
+          "codeLanguage": "css"
+        },
+        {
+          "id": "lec-07-ej-2",
+          "title": "Práctica 2: Encuentra la configuración de apariencia",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* abre el archivo de apariencia de la carpeta `config/` y localiza la variable del color principal. Cámbiala en tu copia, recarga y anota qué partes de la página cambiaron.",
+          "hint": "Busca `:root` o `--` dentro de `config/`.",
+          "solutionExplanation": "Todo lo que cambió depende de esa variable. Lo que no cambió tiene un color escrito directamente: es candidato a pasarse a variable."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-07-q1",
+          "question": "¿Cómo se usa una variable CSS llamada --radio?",
+          "options": [
+            "border-radius: @radio;",
+            "border-radius: $radio;",
+            "border-radius: --radio;",
+            "border-radius: var(--radio);"
+          ],
+          "correctIndex": 3,
+          "explanation": "Las custom properties se leen con la función `var()`."
+        },
+        {
+          "id": "lec-07-q2",
+          "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
+          "options": [
+            "Crear un segundo index.html.",
+            "Redefinir las variables de color cuando el body tiene una clase o atributo.",
+            "Usar filter: invert(1) en toda la página.",
+            "Copiar toda la hoja de estilos y cambiar cada color."
+          ],
+          "correctIndex": 1,
+          "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
+        },
+        {
+          "id": "lec-07-q3",
+          "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
+          "options": [
+            "Muestra todo en modo técnico.",
+            "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
+            "Cambia el id del body.",
+            "Borra el modo técnico."
+          ],
+          "correctIndex": 1,
+          "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
+        }
+      ],
       "order": 8
     },
     {
@@ -442,7 +1036,125 @@
       "title": "Flexbox",
       "subtitle": "Barras, menús y filas de tarjetas que se alinean solas.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Alinear elementos en fila o columna con `display: flex`.",
+        "Controlar el reparto de espacio con `justify-content`, `align-items`, `gap` y `flex`.",
+        "Construir una barra superior y una fila de botones que se adapta al ancho."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-08-sec-1",
+          "title": "1. El contenedor flex",
+          "body": "`display: flex` convierte a un elemento en **contenedor flexible**: sus hijos directos se colocan en una fila (o columna con `flex-direction: column`).\n- `justify-content`: reparto en el eje principal (`flex-start`, `center`, `space-between`, `flex-end`).\n- `align-items`: alineación en el eje cruzado (`center` es el más usado).\n- `gap`: espacio entre hijos, sin márgenes raros.\n- `flex-wrap: wrap`: si no caben, pasan a la siguiente línea.",
+          "codeLanguage": "css",
+          "codeSnippet": ".barra-superior {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 8px 16px;\n}",
+          "keyTakeaway": "Flexbox es para colocar elementos en una dirección: una fila o una columna."
+        },
+        {
+          "id": "lec-08-sec-2",
+          "title": "2. Que un hijo ocupe el espacio sobrante",
+          "body": "En los hijos, `flex: 1` significa \"toma todo el espacio que sobre\". Es perfecto para el buscador de una barra: el logo y los botones miden lo que miden, y el buscador se estira.\n\n`margin-left: auto` en un hijo lo empuja al extremo derecho.",
+          "codeLanguage": "css",
+          "codeSnippet": ".barra-superior .buscador { flex: 1; max-width: 480px; }\n.barra-superior .usuario   { margin-left: auto; }\n\n.acciones { display: flex; flex-wrap: wrap; gap: 8px; }",
+          "keyTakeaway": "flex: 1 estira un hijo; margin-left: auto lo empuja a la derecha."
+        },
+        {
+          "id": "lec-08-sec-3",
+          "title": "3. Filas de tarjetas",
+          "body": "Con `flex-wrap` y un tamaño base (`flex: 1 1 220px`) las tarjetas se reparten la fila y bajan cuando no caben. Para cuadrículas de verdad, con columnas alineadas en varias filas, usarás Grid en la próxima lección.",
+          "codeLanguage": "css",
+          "codeSnippet": ".fila-tarjetas { display: flex; flex-wrap: wrap; gap: 12px; }\n.fila-tarjetas .tarjeta { flex: 1 1 220px; }  /* crece, encoge, base 220px */",
+          "keyTakeaway": "flex: 1 1 220px = 'al menos unos 220px, y repártanse el resto'."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Buenas prácticas con Flexbox.",
+        "rules": [
+          "Usa `gap` en lugar de márgenes entre hijos.",
+          "Usa `align-items: center` para alinear íconos con texto.",
+          "Usa `flex-wrap: wrap` en filas de botones para que no se salgan en el celular.",
+          "Usa Flexbox para una dimensión y Grid para dos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Alinear el logo a la izquierda y el botón de usuario a la derecha en la barra.",
+        "juniorLabel": "Así no",
+        "juniorCode": ".logo { float: left; }\n.usuario { float: right; margin-top: 7px; } /* número mágico para centrar */",
+        "juniorFlaws": [
+          "`float` es una técnica vieja para texto alrededor de imágenes.",
+          "El 7px solo funciona con ese tamaño de letra.",
+          "Se rompe si cambia la altura de la barra."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": ".barra-superior { display: flex; align-items: center; }\n.usuario { margin-left: auto; }",
+        "intermediateBenefits": [
+          "Centrado vertical real, sin números mágicos.",
+          "Funciona con cualquier altura y contenido."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-08-ej-1",
+          "title": "Práctica 1: Barra de filtros",
+          "difficulty": "Básico",
+          "prompt": "Escribe el CSS de una `.barra-filtros` con: un buscador que se estira, dos selects de tamaño natural y un botón \"Limpiar\" pegado a la derecha. En pantallas estrechas los elementos deben bajar de línea.",
+          "hint": "flex, flex-wrap, gap, flex: 1 en el buscador y margin-left: auto en el botón.",
+          "solutionExplanation": "El buscador toma el espacio libre; el botón se empuja a la derecha; con wrap, nada se sale de la pantalla.",
+          "solutionCode": ".barra-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }\n.barra-filtros .buscar  { flex: 1 1 200px; }\n.barra-filtros .limpiar { margin-left: auto; }",
+          "codeLanguage": "css"
+        },
+        {
+          "id": "lec-08-ej-2",
+          "title": "Práctica 2: Centrar un aviso",
+          "difficulty": "Básico",
+          "prompt": "Centra horizontal y verticalmente un mensaje \"Sin actividades para hoy\" dentro de un contenedor de 200px de alto.",
+          "hint": "Un contenedor flex con justify-content y align-items en center.",
+          "solutionExplanation": "Es la forma más simple de centrar en ambos ejes.",
+          "solutionCode": ".vacio { display: flex; justify-content: center; align-items: center; height: 200px; }",
+          "codeLanguage": "css"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-08-q1",
+          "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
+          "options": [
+            "spacing",
+            "padding",
+            "gap",
+            "margin-between"
+          ],
+          "correctIndex": 2,
+          "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
+        },
+        {
+          "id": "lec-08-q2",
+          "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
+          "options": [
+            "flex: 1",
+            "display: block",
+            "align-items: stretch",
+            "width: auto"
+          ],
+          "correctIndex": 0,
+          "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
+        },
+        {
+          "id": "lec-08-q3",
+          "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
+          "options": [
+            "Lo centra.",
+            "Le quita el margen.",
+            "Lo empuja hacia el extremo derecho.",
+            "Lo oculta."
+          ],
+          "correctIndex": 2,
+          "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
+        }
+      ],
       "order": 9
     },
     {
@@ -453,7 +1165,125 @@
       "title": "CSS Grid",
       "subtitle": "Tableros e indicadores en cuadrícula con fr y minmax().",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Crear cuadrículas con `grid-template-columns` y la unidad `fr`.",
+        "Hacer cuadrículas automáticas con `repeat(auto-fill, minmax())`.",
+        "Colocar un elemento ocupando varias columnas."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-09-sec-1",
+          "title": "1. Columnas con fr",
+          "body": "`display: grid` coloca a los hijos en filas y columnas. La unidad **`fr`** reparte el espacio libre: `1fr 2fr` hace que la segunda columna mida el doble.\n\nUna distribución típica de aplicación: menú lateral fijo y contenido flexible.",
+          "codeLanguage": "css",
+          "codeSnippet": ".app {\n  display: grid;\n  grid-template-columns: 240px 1fr;   /* menú fijo, contenido flexible */\n  min-height: 100vh;\n}",
+          "keyTakeaway": "Grid controla dos dimensiones a la vez; fr reparte el espacio sobrante."
+        },
+        {
+          "id": "lec-09-sec-2",
+          "title": "2. Tableros que se acomodan solos",
+          "body": "La receta más útil de Grid para indicadores: `repeat(auto-fill, minmax(200px, 1fr))`. Significa: \"pon tantas columnas como quepan, cada una de al menos 200px, y repártanse el resto\". En una pantalla grande salen cinco tarjetas por fila; en el celular, una.",
+          "codeLanguage": "css",
+          "codeSnippet": ".indicadores {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n  gap: 12px;\n}",
+          "keyTakeaway": "repeat(auto-fill, minmax(…, 1fr)) da cuadrículas responsive sin media queries."
+        },
+        {
+          "id": "lec-09-sec-3",
+          "title": "3. Elementos que ocupan varias celdas",
+          "body": "Con `grid-column: span 2` un elemento ocupa dos columnas (por ejemplo un gráfico ancho entre tarjetas pequeñas). `grid-column: 1 / -1` lo estira de la primera a la última columna.",
+          "codeLanguage": "css",
+          "codeSnippet": ".indicadores .grafico-ancho { grid-column: span 2; }\n.indicadores .aviso { grid-column: 1 / -1; }  /* fila completa */",
+          "keyTakeaway": "span N para ocupar varias columnas; 1 / -1 para toda la fila."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cuándo y cómo usar Grid.",
+        "rules": [
+          "Grid para cuadrículas y la estructura de la página; Flexbox para alinear dentro de un componente.",
+          "Prefiere `auto-fill` + `minmax` a fijar el número de columnas.",
+          "Usa `gap` para el espaciado.",
+          "Combina: una tarjeta en Grid puede tener su contenido interno en Flexbox."
+        ]
+      },
+      "comparison": {
+        "scenario": "Cuatro tarjetas de indicadores en el Inicio.",
+        "juniorLabel": "Así no",
+        "juniorCode": ".tarjeta { width: 23%; margin-right: 2%; display: inline-block; }",
+        "juniorFlaws": [
+          "Los porcentajes y márgenes dejan huecos y saltos raros.",
+          "En el celular las tarjetas quedan diminutas.",
+          "Agregar una quinta tarjeta rompe la fila."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": ".indicadores {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n  gap: 12px;\n}",
+        "intermediateBenefits": [
+          "Se adapta a cualquier ancho y cantidad de tarjetas.",
+          "Sin cálculos de porcentajes ni márgenes."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-09-ej-1",
+          "title": "Práctica 1: Distribución de la aplicación",
+          "difficulty": "Básico",
+          "prompt": "Escribe una cuadrícula para `.app` con un encabezado arriba que ocupa todo el ancho, un menú de 220px a la izquierda y el contenido a la derecha.",
+          "hint": "Usa grid-template-columns y grid-template-rows, y haz que el encabezado ocupe 1 / -1.",
+          "solutionExplanation": "Dos columnas y dos filas; el encabezado se estira por encima de ambas columnas.",
+          "solutionCode": ".app {\n  display: grid;\n  grid-template-columns: 220px 1fr;\n  grid-template-rows: auto 1fr;\n  min-height: 100vh;\n}\n.app > header { grid-column: 1 / -1; }",
+          "codeLanguage": "css"
+        },
+        {
+          "id": "lec-09-ej-2",
+          "title": "Práctica 2: Tablero con gráfico ancho",
+          "difficulty": "Intermedio",
+          "prompt": "Haz una cuadrícula de indicadores automática (mínimo 180px) donde el elemento `.grafico` ocupe dos columnas, excepto en el celular, donde debe ocupar la fila entera.",
+          "hint": "En pantallas estrechas solo hay una columna: span 2 crearía una columna fantasma. Usa una media query.",
+          "solutionExplanation": "En el celular, `grid-column: 1 / -1` evita que el span cree columnas implícitas.",
+          "solutionCode": ".indicadores {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 12px;\n}\n.indicadores .grafico { grid-column: span 2; }\n@media (max-width: 480px) {\n  .indicadores .grafico { grid-column: 1 / -1; }\n}",
+          "codeLanguage": "css"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-09-q1",
+          "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
+          "options": [
+            "Una columna de 3 píxeles.",
+            "Tres columnas de igual ancho que se reparten el espacio.",
+            "Tres columnas de 1 píxel.",
+            "Tres filas iguales."
+          ],
+          "correctIndex": 1,
+          "explanation": "`fr` es una fracción del espacio disponible."
+        },
+        {
+          "id": "lec-09-q2",
+          "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
+          "options": [
+            "Tantas columnas como quepan, cada una de al menos 200px.",
+            "Exactamente 200 columnas.",
+            "Columnas de 1px.",
+            "Una sola columna de 200px."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es la receta para cuadrículas que se adaptan al ancho sin media queries."
+        },
+        {
+          "id": "lec-09-q3",
+          "question": "¿Cuándo es mejor Flexbox que Grid?",
+          "options": [
+            "Para alinear elementos en una sola dirección, como una barra de botones.",
+            "Nunca.",
+            "Solo para tablas.",
+            "Para cualquier tablero de dos dimensiones."
+          ],
+          "correctIndex": 0,
+          "explanation": "Flexbox es unidimensional; Grid controla filas y columnas a la vez."
+        }
+      ],
       "order": 10
     },
     {
@@ -464,7 +1294,126 @@
       "title": "Diseño responsive",
       "subtitle": "Que tu página funcione bien en el celular de un técnico.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Configurar la etiqueta `viewport` y entender por qué es imprescindible.",
+        "Escribir media queries para adaptar el diseño al ancho de pantalla.",
+        "Aplicar reglas prácticas: botones tocables, menú plegable y tablas desplazables."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-10-sec-1",
+          "title": "1. La etiqueta viewport",
+          "body": "Sin esta línea en el `<head>`, el celular finge ser una pantalla de 980px y lo encoge todo. Con ella, la página usa el ancho real del dispositivo.",
+          "codeLanguage": "html",
+          "codeSnippet": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+          "keyTakeaway": "Sin viewport no hay diseño responsive: es lo primero que se revisa."
+        },
+        {
+          "id": "lec-10-sec-2",
+          "title": "2. Media queries",
+          "body": "Una media query aplica reglas solo cuando se cumple una condición, normalmente el ancho. Escribe primero el estilo general y luego ajusta para pantallas pequeñas (o al revés, *mobile first*: primero el celular y luego `min-width` para pantallas grandes). Lo importante es ser coherente en todo el proyecto.",
+          "codeLanguage": "css",
+          "codeSnippet": "/* Escritorio: menú lateral visible */\n.app { display: grid; grid-template-columns: 220px 1fr; }\n\n/* Celular: una columna y menú como panel desplegable */\n@media (max-width: 760px) {\n  .app { grid-template-columns: 1fr; }\n  .menu-lateral { position: fixed; inset: 0 30% 0 0; transform: translateX(-100%); transition: transform .2s; }\n  body.menu-abierto .menu-lateral { transform: none; }\n}",
+          "keyTakeaway": "Las media queries cambian la distribución según el ancho; el contenido es el mismo."
+        },
+        {
+          "id": "lec-10-sec-3",
+          "title": "3. Reglas prácticas para el celular",
+          "body": "Lo que más se nota cuando un técnico usa la página en el campo:\n- **Áreas táctiles** de al menos 44×44 px en botones.\n- **Letra base** de 16px en los campos (si es menor, el iPhone hace zoom al escribir).\n- **Tablas** en un contenedor con `overflow-x: auto` (lección 05).\n- **Formularios** en una sola columna.\n- **Nada con ancho fijo** mayor que la pantalla: usa `max-width: 100%`.\n\nPrueba en las DevTools con el **modo dispositivo** (`Ctrl+Shift+M`) y, mejor aún, en un celular real.",
+          "codeLanguage": "css",
+          "codeSnippet": "button, .btn { min-height: 44px; padding: 0 14px; }\ninput, select, textarea { font-size: 16px; }\nimg, svg { max-width: 100%; height: auto; }\n@media (max-width: 760px) {\n  .form-grid { grid-template-columns: 1fr; }\n}",
+          "keyTakeaway": "Piensa en dedos, sol y prisa: botones grandes, letra legible y una columna."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Checklist responsive antes de publicar.",
+        "rules": [
+          "Etiqueta viewport presente.",
+          "Probado a 360px de ancho sin desplazamiento horizontal de la página.",
+          "Botones de al menos 44px de alto.",
+          "Campos con letra de 16px.",
+          "Tablas anchas en contenedores desplazables.",
+          "Menú accesible en el celular (botón de abrir y cerrar)."
+        ]
+      },
+      "comparison": {
+        "scenario": "La pantalla de actividades se ve cortada en el celular.",
+        "juniorLabel": "Así no",
+        "juniorCode": ".contenido { width: 1200px; }\n.tabla { font-size: 9px; }",
+        "juniorFlaws": [
+          "El ancho fijo obliga a desplazar toda la página de lado.",
+          "Letra de 9px ilegible en el campo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": ".contenido { max-width: 1200px; width: 100%; }\n.tabla-contenedor { overflow-x: auto; }",
+        "intermediateBenefits": [
+          "La página nunca es más ancha que la pantalla.",
+          "Solo la tabla se desliza, con la letra a tamaño normal."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-10-ej-1",
+          "title": "Práctica 1: Formulario en dos columnas que pasa a una",
+          "difficulty": "Básico",
+          "prompt": "Escribe el CSS de `.form-grid` con dos columnas en escritorio y una columna por debajo de 640px.",
+          "hint": "Grid con dos columnas iguales y una media query con max-width: 640px.",
+          "solutionExplanation": "En pantallas pequeñas cada campo ocupa todo el ancho, más fácil de tocar.",
+          "solutionCode": ".form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }\n@media (max-width: 640px) {\n  .form-grid { grid-template-columns: 1fr; }\n}",
+          "codeLanguage": "css"
+        },
+        {
+          "id": "lec-10-ej-2",
+          "title": "Práctica 2: Auditoría en el celular",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* abre el modo dispositivo de las DevTools a 375px y recorre cada pantalla. Anota: (a) dónde aparece desplazamiento horizontal de toda la página, (b) botones demasiado pequeños, (c) textos ilegibles.",
+          "hint": "Para encontrar el elemento que desborda, prueba en la consola: `[...document.querySelectorAll('*')].filter(e => e.scrollWidth > innerWidth)`.",
+          "solutionExplanation": "Esa expresión lista los elementos más anchos que la ventana. Cada uno se corrige con `max-width: 100%`, un contenedor desplazable o una media query.",
+          "solutionCode": "[...document.querySelectorAll('*')]\n  .filter(e => e.scrollWidth > innerWidth)\n  .map(e => e.className || e.tagName)",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-10-q1",
+          "question": "¿Qué pasa si falta la etiqueta meta viewport?",
+          "options": [
+            "Nada.",
+            "La página no carga.",
+            "Se desactiva JavaScript.",
+            "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto."
+          ],
+          "correctIndex": 3,
+          "explanation": "Sin viewport, el navegador móvil simula un ancho de escritorio y escala la página."
+        },
+        {
+          "id": "lec-10-q2",
+          "question": "¿Qué hace `@media (max-width: 760px) { … }`?",
+          "options": [
+            "Aplica las reglas solo en pantallas mayores de 760px.",
+            "Limita la página a 760px.",
+            "Oculta la página en el celular.",
+            "Aplica esas reglas solo cuando la pantalla mide 760px o menos."
+          ],
+          "correctIndex": 3,
+          "explanation": "max-width = 'hasta este ancho'."
+        },
+        {
+          "id": "lec-10-q3",
+          "question": "¿Por qué conviene que los campos de formulario tengan letra de 16px en el celular?",
+          "options": [
+            "Por compatibilidad con Excel.",
+            "Para ahorrar datos.",
+            "Porque los formularios no aceptan otros tamaños.",
+            "Porque con menos, algunos celulares hacen zoom automático al escribir."
+          ],
+          "correctIndex": 3,
+          "explanation": "Safari en iPhone amplía la página al enfocar campos con letra menor de 16px."
+        }
+      ],
       "order": 11
     },
     {
@@ -475,7 +1424,128 @@
       "title": "Variables, tipos, funciones y condiciones",
       "subtitle": "Los cimientos de JavaScript: let, const, funciones flecha, if y comparaciones.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Declarar variables con `const` y `let` y reconocer los tipos básicos.",
+        "Escribir funciones normales y flecha, con parámetros y valor de retorno.",
+        "Tomar decisiones con `if`, `else`, el operador ternario y comparaciones estrictas.",
+        "Evitar los errores clásicos con `null`, `undefined` y números guardados como texto."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-11-sec-1",
+          "title": "1. Variables y tipos",
+          "body": "- `const`: el nombre no se puede reasignar. Úsalo **por defecto**.\n- `let`: cuando el valor tiene que cambiar (un contador, un total que vas sumando).\n- `var`: forma antigua; no la uses en código nuevo.\n\nTipos que verás todo el tiempo: texto (`'Pendiente'`), número (`3`, `1250.5`), booleano (`true`/`false`), `null` (vacío a propósito), `undefined` (sin valor), arrays (`[]`) y objetos (`{}`).\n\nCuidado con los datos que vienen de formularios o de Excel: **llegan como texto**. `'5' + 1` da `'51'`. Convierte con `Number()` antes de calcular.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const TARIFA_KM = 12;          // no cambia\nlet total = 0;                 // va a cambiar\nconst cantidad = Number(campoCantidad.value);  // '3' → 3\ntotal = total + cantidad * TARIFA_KM;\ntypeof total;                  // 'number'",
+          "keyTakeaway": "const por defecto, let si debe cambiar, y Number() a todo lo que llegue de un campo o un Excel."
+        },
+        {
+          "id": "lec-11-sec-2",
+          "title": "2. Funciones",
+          "body": "Una función agrupa pasos con un nombre. Recibe **parámetros** y devuelve un resultado con `return`. Una buena función hace **una sola cosa** y su nombre lo dice.\n\nLas **funciones flecha** son una forma corta, muy usada como argumento de `filter`, `map` y eventos.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function costoDeTraslado(km, tarifa) {\n  return km * tarifa;\n}\n\n// La misma idea como función flecha\nconst costoDeTraslado2 = (km, tarifa) => km * tarifa;\n\n// Parámetro con valor por defecto\nconst saludo = (nombre = 'técnico') => `Hola, ${nombre}`;",
+          "keyTakeaway": "Funciones pequeñas con nombre claro: calcularDieta, esAtrasada, nombreDelTecnico."
+        },
+        {
+          "id": "lec-11-sec-3",
+          "title": "3. Condiciones y comparaciones",
+          "body": "Usa siempre **`===`** y **`!==`** (comparación estricta). `==` convierte tipos y produce sorpresas: `0 == ''` es `true`.\n\n- `&&` (y), `||` (o), `!` (no).\n- `??` da un valor por defecto solo si algo es `null` o `undefined`: `a.km ?? 0`.\n- `?.` evita errores al leer algo que puede no existir: `tecnico?.nombre`.\n- El ternario `condición ? a : b` sirve para elegir entre dos valores en una línea.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function claseDeEstado(act, hoy) {\n  if (act.estado === 'Finalizado') return 'finalizado';\n  if (act.fecha < hoy) return 'atrasada';\n  return act.estado === 'En curso' ? 'en-curso' : 'pendiente';\n}\n\nconst km = actividad.km ?? 0;\nconst nombre = tecnico?.nombre ?? 'Sin asignar';",
+          "keyTakeaway": "=== siempre; ?? para valores por defecto; ?. para leer propiedades que pueden faltar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "JavaScript limpio desde el primer día.",
+        "rules": [
+          "`const` por defecto; `let` solo si se reasigna; nunca `var`.",
+          "Comparación estricta (`===`, `!==`).",
+          "Nombres en español claro y camelCase: `totalDeDietas`, `esFinDeSemana`.",
+          "Constantes de configuración en MAYÚSCULAS: `TARIFA_KM`.",
+          "Retorno temprano (`if (…) return`) en vez de muchos `else` anidados."
+        ]
+      },
+      "comparison": {
+        "scenario": "Calcular el total de una actividad con datos que vienen de un formulario.",
+        "juniorLabel": "Así no",
+        "juniorCode": "var total = campoCant.value + campoKm.value * 12;\nif (total == 0) { … }",
+        "juniorFlaws": [
+          "`value` es texto: el `+` concatena en lugar de sumar.",
+          "`var` y `==` causan errores difíciles de ver.",
+          "El 12 es un número mágico sin explicación."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const TARIFA_KM = 12;\nconst cantidad = Number(campoCant.value) || 0;\nconst km = Number(campoKm.value) || 0;\nconst total = cantidad + km * TARIFA_KM;\nif (total === 0) { … }",
+        "intermediateBenefits": [
+          "Los valores se convierten a número antes de operar.",
+          "La tarifa tiene nombre.",
+          "Comparación estricta."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-11-ej-1",
+          "title": "Práctica 1: ¿Es fin de semana?",
+          "difficulty": "Básico",
+          "prompt": "Escribe una función `esFinDeSemana(fechaISO)` que reciba un texto como `'2026-11-15'` y devuelva `true` si es sábado o domingo.",
+          "hint": "Crea la fecha con `new Date(fechaISO + 'T00:00')` para evitar el desfase de zona horaria y usa `getDay()` (0 = domingo, 6 = sábado).",
+          "solutionExplanation": "Agregar `T00:00` hace que la fecha se interprete en hora local (lo verás a fondo en la lección 15).",
+          "solutionCode": "function esFinDeSemana(fechaISO) {\n  const dia = new Date(fechaISO + 'T00:00').getDay();\n  return dia === 0 || dia === 6;\n}\nesFinDeSemana('2026-11-15'); // true (domingo)",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-11-ej-2",
+          "title": "Práctica 2: Prioridad de una actividad",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `prioridad(act, hoyISO)` que devuelva `'alta'` si la actividad no está finalizada y su fecha ya pasó, `'media'` si es para hoy y `'normal'` en otro caso. Si `act` es `null`, debe devolver `'normal'` sin error.",
+          "hint": "Las fechas ISO (AAAA-MM-DD) se pueden comparar como texto. Usa retorno temprano.",
+          "solutionExplanation": "Con retorno temprano cada caso se lee en una línea. El primer `if` protege contra `null`.",
+          "solutionCode": "function prioridad(act, hoyISO) {\n  if (!act || act.estado === 'Finalizado') return 'normal';\n  if (act.fecha < hoyISO) return 'alta';\n  if (act.fecha === hoyISO) return 'media';\n  return 'normal';\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-11-q1",
+          "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
+          "options": [
+            "6",
+            "NaN",
+            "'51'",
+            "Error"
+          ],
+          "correctIndex": 2,
+          "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
+        },
+        {
+          "id": "lec-11-q2",
+          "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
+          "options": [
+            "undefined",
+            "0",
+            "null",
+            "Un error"
+          ],
+          "correctIndex": 1,
+          "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
+        },
+        {
+          "id": "lec-11-q3",
+          "question": "¿Cuándo debes usar `let` en lugar de `const`?",
+          "options": [
+            "Siempre.",
+            "Cuando la variable es un número.",
+            "Cuando la variable se va a reasignar.",
+            "Cuando la variable es un array."
+          ],
+          "correctIndex": 2,
+          "explanation": "`const` impide reasignar el nombre; usa `let` solo si el valor cambia (un contador, un acumulador)."
+        }
+      ],
       "order": 12
     },
     {
@@ -486,7 +1556,129 @@
       "title": "Arrays: filter, map, find, reduce y sort",
       "subtitle": "Cómo se buscan, cuentan y ordenan las actividades.",
       "estimatedMinutes": 50,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Filtrar, transformar y buscar elementos de una lista sin bucles manuales.",
+        "Sumar y agrupar con `reduce`.",
+        "Ordenar textos, números y fechas con `sort` sin modificar la lista original.",
+        "Encadenar métodos para responder preguntas reales sobre tus datos."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-12-sec-1",
+          "title": "1. filter, map y find",
+          "body": "Tu página guarda las actividades, los técnicos y los vehículos como **arrays de objetos**. Casi todo lo que se ve en pantalla sale de combinar tres métodos:\n- `filter(cond)`: devuelve una lista nueva con los elementos que cumplen la condición.\n- `map(fn)`: devuelve una lista nueva transformando cada elemento.\n- `find(cond)`: devuelve el **primer** elemento que cumple (o `undefined`).\n\nTambién: `some` (¿alguno cumple?), `every` (¿todos cumplen?), `includes` (¿está este valor?).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const pendientes = actividades.filter(a => a.estado === 'Pendiente');\nconst clientes    = actividades.map(a => a.cliente);\nconst tecnico     = tecnicos.find(t => t.id === act.tecnicoId);\nconst hayAtrasos  = actividades.some(a => a.fecha < hoy && a.estado !== 'Finalizado');",
+          "keyTakeaway": "filter elige, map transforma, find busca uno. Ninguno modifica la lista original."
+        },
+        {
+          "id": "lec-12-sec-2",
+          "title": "2. reduce: sumar y agrupar",
+          "body": "`reduce` recorre la lista acumulando un resultado. Recibe una función `(acumulado, elemento) => nuevoAcumulado` y un valor inicial.\n\nSirve para totales (suma de montos, de kilómetros) y para **agrupar** (cuántas actividades por técnico o por estado), que es la base de cualquier indicador o gráfico.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const totalKm = actividades.reduce((suma, a) => suma + (a.km || 0), 0);\n\nconst porEstado = actividades.reduce((cuenta, a) => {\n  cuenta[a.estado] = (cuenta[a.estado] || 0) + 1;\n  return cuenta;\n}, {});\n// { Pendiente: 12, 'En curso': 3, Finalizado: 40 }",
+          "keyTakeaway": "reduce con valor inicial 0 para sumar, y con {} para contar por grupo."
+        },
+        {
+          "id": "lec-12-sec-3",
+          "title": "3. Ordenar sin sorpresas",
+          "body": "`sort` **modifica** la lista original y, sin función, ordena todo como texto (`[10, 9, 1]` queda `[1, 10, 9]`). Reglas:\n- Copia antes de ordenar: `[...lista].sort(…)` o `lista.toSorted(…)`.\n- Números: `(a, b) => a - b`.\n- Textos con acentos: `(a, b) => a.localeCompare(b, 'es')`.\n- Fechas ISO: se ordenan bien como texto con `localeCompare`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const porFecha  = [...actividades].sort((a, b) => a.fecha.localeCompare(b.fecha));\nconst porNombre = [...tecnicos].sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));\nconst topKm     = [...vehiculos].sort((a, b) => b.km - a.km).slice(0, 5);",
+          "keyTakeaway": "Copia antes de ordenar y da siempre una función de comparación."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Trabajar con listas de datos.",
+        "rules": [
+          "Prefiere `filter`/`map`/`find`/`reduce` a bucles `for` con índices.",
+          "Nunca ordenes la lista original de los datos guardados: ordena una copia.",
+          "Protege los valores que pueden faltar (`a.km || 0`).",
+          "Encadena con un método por línea para que se lea como una frase."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "const kmPorTecnico = actividades\n  .filter(a => a.estado === 'Finalizado')\n  .reduce((acc, a) => ({ ...acc, [a.tecnicoId]: (acc[a.tecnicoId] || 0) + (a.km || 0) }), {});"
+      },
+      "comparison": {
+        "scenario": "Mostrar las actividades de hoy ordenadas por cliente.",
+        "juniorLabel": "Así no",
+        "juniorCode": "S.acts.sort((a, b) => a.cliente > b.cliente ? 1 : -1);\nconst hoyLista = [];\nfor (var i = 0; i < S.acts.length; i++) {\n  if (S.acts[i].fecha == hoy) hoyLista.push(S.acts[i]);\n}",
+        "juniorFlaws": [
+          "Desordena la lista guardada: el orden de los datos cambia para toda la aplicación.",
+          "El comparador no maneja acentos ni empates.",
+          "El bucle manual es largo y fácil de equivocar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const deHoy = S.acts\n  .filter(a => a.fecha === hoy)\n  .toSorted((a, b) => a.cliente.localeCompare(b.cliente, 'es'));",
+        "intermediateBenefits": [
+          "Los datos originales no se tocan.",
+          "Ordena bien con acentos.",
+          "Se lee como la pregunta: las de hoy, ordenadas por cliente."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-12-ej-1",
+          "title": "Práctica 1: Indicadores básicos",
+          "difficulty": "Básico",
+          "prompt": "Dado un array `actividades` con objetos `{ estado, fecha, km }`, calcula: (a) cuántas están finalizadas, (b) el total de kilómetros de las finalizadas, (c) la lista de fechas distintas.",
+          "hint": "Para valores distintos usa `new Set(...)` y conviértelo de nuevo en array.",
+          "solutionExplanation": "`Set` elimina duplicados; con `[...new Set(lista)]` vuelves a tener un array.",
+          "solutionCode": "const finalizadas = actividades.filter(a => a.estado === 'Finalizado');\nconst cuantas = finalizadas.length;\nconst km = finalizadas.reduce((s, a) => s + (a.km || 0), 0);\nconst fechas = [...new Set(actividades.map(a => a.fecha))].sort();",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-12-ej-2",
+          "title": "Práctica 2: Ranking de técnicos",
+          "difficulty": "Intermedio",
+          "prompt": "Con `actividades` (`{ tecnicoId, estado }`) y `tecnicos` (`{ id, nombre }`), obtén una lista `[{ nombre, total }]` con los técnicos ordenados de más a menos actividades finalizadas.",
+          "hint": "Primero cuenta por tecnicoId con reduce; luego recorre los técnicos con map para ponerles su total; al final ordena.",
+          "solutionExplanation": "Separar contar → unir con nombres → ordenar hace el código fácil de revisar. Es el mismo patrón de cualquier gráfico de barras.",
+          "solutionCode": "const conteo = actividades\n  .filter(a => a.estado === 'Finalizado')\n  .reduce((acc, a) => { acc[a.tecnicoId] = (acc[a.tecnicoId] || 0) + 1; return acc; }, {});\n\nconst ranking = tecnicos\n  .map(t => ({ nombre: t.nombre, total: conteo[t.id] || 0 }))\n  .sort((a, b) => b.total - a.total);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-12-q1",
+          "question": "¿Qué devuelve `find` si ningún elemento cumple la condición?",
+          "options": [
+            "Un array vacío",
+            "null",
+            "undefined",
+            "false"
+          ],
+          "correctIndex": 2,
+          "explanation": "`find` devuelve el primer elemento que cumple o `undefined`. `filter` devolvería un array vacío."
+        },
+        {
+          "id": "lec-12-q2",
+          "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
+          "options": [
+            "[10, 9, 1]",
+            "Error",
+            "[1, 9, 10]",
+            "[1, 10, 9]"
+          ],
+          "correctIndex": 3,
+          "explanation": "Sin función de comparación, sort ordena como texto. Para números usa `(a, b) => a - b`."
+        },
+        {
+          "id": "lec-12-q3",
+          "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
+          "options": [
+            "Porque es más rápido.",
+            "Porque sort no funciona sin los tres puntos.",
+            "Porque sort modifica la lista original y así se ordena una copia.",
+            "No hay diferencia."
+          ],
+          "correctIndex": 2,
+          "explanation": "Ordenar los datos guardados cambiaría el orden en toda la aplicación."
+        }
+      ],
       "order": 13
     },
     {
@@ -497,7 +1689,125 @@
       "title": "Objetos y JSON",
       "subtitle": "El objeto de datos de la aplicación, copiar sin romper y convertir a texto.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Leer, crear y modificar propiedades de objetos.",
+        "Entender la forma del objeto de datos central de tu página.",
+        "Copiar objetos sin modificar el original (spread y `structuredClone`).",
+        "Convertir datos a JSON y de vuelta, y manejar errores al leerlo."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-13-sec-1",
+          "title": "1. Objetos",
+          "body": "Un objeto agrupa datos con nombre: `{ clave: valor }`. Se lee con punto (`act.cliente`) o con corchetes cuando la clave está en una variable (`act[campo]`).\n\n`Object.keys`, `Object.values` y `Object.entries` convierten un objeto en listas para recorrerlo con los métodos de array.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const actividad = {\n  id: 'a7f3',\n  fecha: '2026-11-16',\n  cliente: 'Cliente Demo',\n  estado: 'Pendiente',\n  equipos: [{ chasis: 'XYZ123', tipo: 'GPS' }],\n};\nactividad.estado = 'En curso';\nconst campo = 'cliente';\nactividad[campo];                    // 'Cliente Demo'\nObject.entries({ a: 1, b: 2 });      // [['a', 1], ['b', 2]]",
+          "keyTakeaway": "Punto para claves fijas, corchetes para claves en variables."
+        },
+        {
+          "id": "lec-13-sec-2",
+          "title": "2. El objeto de datos de tu página",
+          "body": "Tu página guarda **todo** en un único objeto global (en tu proyecto se llama `S`): listas de actividades, técnicos, vehículos, clientes, y ajustes. Cada pantalla lee de ahí y cada acción modifica ahí. Luego se guarda completo en el navegador.\n\nConocer su forma es la mitad del trabajo para modificar la página. Consúltala en la consola o en la documentación del proyecto (busca el archivo que describe los datos).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Forma simplificada (genérica) de un estado de aplicación\nconst S = {\n  version: 3,\n  acts: [],        // actividades\n  tecs: [],        // técnicos\n  vehs: [],        // vehículos\n  clientes: [],\n  ajustes: { modo: 'planificador' },\n};\nObject.keys(S);    // ver qué hay\nS.acts[0];         // ver la forma de una actividad",
+          "keyTakeaway": "Antes de cambiar una pantalla, mira en la consola la forma de los datos que usa."
+        },
+        {
+          "id": "lec-13-sec-3",
+          "title": "3. Copiar y convertir a JSON",
+          "body": "Asignar un objeto **no lo copia**: `const b = a` hace que ambos nombres apunten al mismo objeto. Para copiar:\n- `{ ...obj }`: copia superficial (los objetos internos siguen compartidos).\n- `structuredClone(obj)`: copia profunda completa.\n\n**JSON** es el formato de texto de los datos. `JSON.stringify` convierte un objeto a texto (para guardarlo o exportarlo) y `JSON.parse` lo convierte de vuelta. `JSON.parse` lanza un error si el texto está dañado: envuélvelo siempre en `try/catch`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const borrador = structuredClone(actividad);   // editar sin tocar el original\nborrador.estado = 'Finalizado';\n\nconst texto = JSON.stringify(S);               // objeto → texto\nlet datos;\ntry {\n  datos = JSON.parse(texto);                   // texto → objeto\n} catch (e) {\n  console.error('Respaldo dañado', e);\n  datos = null;\n}",
+          "keyTakeaway": "Copia con structuredClone antes de editar; nunca hagas JSON.parse sin try/catch."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Datos que no se corrompen.",
+        "rules": [
+          "Cada registro tiene un `id` único y estable (no uses la posición en la lista).",
+          "Edita una copia y guárdala solo cuando el usuario confirme.",
+          "Envuelve `JSON.parse` en `try/catch` y ofrece un mensaje claro.",
+          "No agregues propiedades al estado sin documentarlas y sin migración (lección 20)."
+        ]
+      },
+      "comparison": {
+        "scenario": "Abrir un formulario para editar una actividad con opción de cancelar.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const edicion = S.acts.find(a => a.id === id);\nedicion.cliente = campoCliente.value;  // ya modificó el dato real\n// … el usuario pulsa Cancelar, pero el cambio ya está hecho",
+        "juniorFlaws": [
+          "`edicion` y el registro guardado son el mismo objeto.",
+          "Cancelar no deshace nada."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const original = S.acts.find(a => a.id === id);\nconst edicion = structuredClone(original);\nedicion.cliente = campoCliente.value;\n// Al guardar:\nObject.assign(original, edicion);",
+        "intermediateBenefits": [
+          "Se edita una copia independiente.",
+          "Solo al guardar se aplica el cambio al dato real."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-13-ej-1",
+          "title": "Práctica 1: Contar por propiedad",
+          "difficulty": "Básico",
+          "prompt": "Escribe `contarPor(lista, campo)` que devuelva un objeto con cuántos elementos hay por cada valor de `campo`. Por ejemplo `contarPor(acts, 'estado')`.",
+          "hint": "Usa reduce con corchetes: `acc[x[campo]]`.",
+          "solutionExplanation": "Al recibir el nombre del campo como parámetro, la misma función sirve para estados, clientes, técnicos o localidades.",
+          "solutionCode": "function contarPor(lista, campo) {\n  return lista.reduce((acc, x) => {\n    const clave = x[campo] ?? '(vacío)';\n    acc[clave] = (acc[clave] || 0) + 1;\n    return acc;\n  }, {});\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-13-ej-2",
+          "title": "Práctica 2: Leer un respaldo de forma segura",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `leerRespaldo(texto)` que devuelva el objeto si el JSON es válido y tiene una propiedad `acts` que sea un array; si no, debe devolver `null` sin lanzar errores.",
+          "hint": "try/catch para el parse y `Array.isArray` para la comprobación.",
+          "solutionExplanation": "Nunca confíes en un archivo externo: valida la forma antes de reemplazar tus datos.",
+          "solutionCode": "function leerRespaldo(texto) {\n  try {\n    const datos = JSON.parse(texto);\n    return datos && Array.isArray(datos.acts) ? datos : null;\n  } catch {\n    return null;\n  }\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-13-q1",
+          "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
+          "options": [
+            "Da error.",
+            "undefined.",
+            "El valor anterior de a.x.",
+            "5, porque a y b son el mismo objeto."
+          ],
+          "correctIndex": 3,
+          "explanation": "Asignar un objeto copia la referencia, no el contenido."
+        },
+        {
+          "id": "lec-13-q2",
+          "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
+          "options": [
+            "Devuelve null.",
+            "Devuelve un objeto vacío.",
+            "Repara el texto.",
+            "Lanza un error."
+          ],
+          "correctIndex": 3,
+          "explanation": "Por eso siempre se envuelve en try/catch."
+        },
+        {
+          "id": "lec-13-q3",
+          "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
+          "options": [
+            "obj->campo",
+            "obj.campo",
+            "obj{campo}",
+            "obj[campo]"
+          ],
+          "correctIndex": 3,
+          "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
+        }
+      ],
       "order": 14
     },
     {
@@ -508,7 +1818,123 @@
       "title": "Plantillas de texto y HTML seguro",
       "subtitle": "Generar filas de tabla con template literals sin abrir agujeros de seguridad.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Construir textos y HTML con template literals (comillas invertidas).",
+        "Generar las filas de una tabla a partir de un array con `map` y `join`.",
+        "Escapar los datos para que un texto no se convierta en HTML ejecutable."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-14-sec-1",
+          "title": "1. Template literals",
+          "body": "Con comillas invertidas (el acento grave, a la izquierda del 1 en muchos teclados) puedes escribir texto en varias líneas e insertar valores con `${…}`. Dentro de `${}` va cualquier expresión: una variable, un cálculo o un ternario.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const resumen = `${tecnico.nombre} tiene ${pendientes.length} pendientes`;\nconst chip = `<span class=\"chip-estado ${claseDeEstado(act)}\">${act.estado}</span>`;",
+          "keyTakeaway": "Comillas invertidas + ${} para mezclar texto y datos."
+        },
+        {
+          "id": "lec-14-sec-2",
+          "title": "2. Tablas a partir de datos",
+          "body": "El patrón que usa tu página para dibujar tablas: `map` convierte cada registro en un texto `<tr>…</tr>`, `join('')` los une y se asigna una sola vez a `innerHTML` del `tbody`. Asignar una sola vez es mucho más rápido que agregar fila por fila.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function filasActividades(lista) {\n  return lista.map(a => `\n    <tr data-id=\"${esc(a.id)}\">\n      <td>${esc(a.fecha)}</td>\n      <td>${esc(a.cliente)}</td>\n      <td>${esc(a.estado)}</td>\n      <td><button type=\"button\" data-act=\"editar-actividad\" data-id=\"${esc(a.id)}\">Editar</button></td>\n    </tr>`).join('');\n}\ndocument.getElementById('tb-actividades').innerHTML =\n  filasActividades(deHoy) || '<tr><td colspan=\"4\">Sin actividades</td></tr>';",
+          "keyTakeaway": "map → join('') → innerHTML una vez. Y siempre un mensaje para la lista vacía."
+        },
+        {
+          "id": "lec-14-sec-3",
+          "title": "3. Escapar: la regla de seguridad más importante",
+          "body": "Si un dato contiene `<` o `>`, `innerHTML` lo interpreta como HTML. Un cliente escrito como `<img src=x onerror=alert(1)>` ejecutaría código en la página. Esto se llama **XSS**.\n\nLa solución es **escapar** todo dato antes de meterlo en HTML: convertir `& < > \" '` en sus entidades. Tu página tiene su propia función corta para esto en `js/nucleo/`; búscala y úsala siempre. Si solo necesitas poner texto (no HTML), usa `textContent`, que nunca interpreta etiquetas.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function esc(valor) {\n  return String(valor ?? '')\n    .replaceAll('&', '&amp;')\n    .replaceAll('<', '&lt;')\n    .replaceAll('>', '&gt;')\n    .replaceAll('\"', '&quot;')\n    .replaceAll(\"'\", '&#39;');\n}\ncelda.textContent = act.cliente;   // texto puro, seguro sin escapar",
+          "keyTakeaway": "Todo dato que va dentro de innerHTML pasa por la función de escape. Sin excepciones."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "HTML generado con seguridad.",
+        "rules": [
+          "Escapa cada `${dato}` que va a `innerHTML`, también los atributos (`data-id`).",
+          "Usa `textContent` cuando solo pones texto.",
+          "Construye todas las filas y asigna `innerHTML` una vez.",
+          "Muestra un mensaje cuando la lista está vacía.",
+          "No construyas HTML con eventos en línea (`onclick=`); usa `data-act`."
+        ]
+      },
+      "comparison": {
+        "scenario": "Mostrar las observaciones que escribe un técnico.",
+        "juniorLabel": "Así no",
+        "juniorCode": "td.innerHTML = `<b>Obs:</b> ${act.observacion}`;",
+        "juniorFlaws": [
+          "Si la observación contiene `<`, se interpreta como HTML.",
+          "Un texto malicioso o accidental puede romper la tabla o ejecutar código."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "td.innerHTML = `<b>Obs:</b> ${esc(act.observacion)}`;\n// o, si no necesitas negrita:\ntd.textContent = act.observacion;",
+        "intermediateBenefits": [
+          "El texto se muestra tal cual, sin ejecutarse.",
+          "La tabla no se rompe por caracteres especiales."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-14-ej-1",
+          "title": "Práctica 1: Lista de técnicos",
+          "difficulty": "Básico",
+          "prompt": "Escribe `htmlTecnicos(tecnicos)` que devuelva un `<ul>` con un `<li>` por técnico mostrando nombre y rol, escapados. Si la lista está vacía, devuelve `<p>No hay técnicos.</p>`.",
+          "hint": "Comprueba `length` primero; luego map + join dentro del ul.",
+          "solutionExplanation": "La comprobación de lista vacía va primero; cada dato pasa por `esc`.",
+          "solutionCode": "function htmlTecnicos(tecnicos) {\n  if (!tecnicos.length) return '<p>No hay técnicos.</p>';\n  return `<ul>${tecnicos\n    .map(t => `<li>${esc(t.nombre)} <small>${esc(t.rol)}</small></li>`)\n    .join('')}</ul>`;\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-14-ej-2",
+          "title": "Práctica 2: Busca un punto inseguro",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* busca `innerHTML` en todo el proyecto (Ctrl+Shift+F). Revisa tres resultados y comprueba que todos los datos que vienen del usuario o de Excel pasan por la función de escape.",
+          "hint": "Busca los `${` dentro de cada plantilla y mira si llevan la función de escape alrededor.",
+          "solutionExplanation": "Los números calculados por la propia página son seguros; lo que escribe el usuario o llega de un archivo, no. Si encuentras uno sin escapar, es una corrección pequeña y valiosa."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-14-q1",
+          "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
+          "options": [
+            "Que la página cargue lento.",
+            "Que se borre el localStorage.",
+            "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS).",
+            "Que los números se sumen como texto."
+          ],
+          "correctIndex": 2,
+          "explanation": "El escape convierte < y > en entidades, así el navegador los muestra en lugar de interpretarlos."
+        },
+        {
+          "id": "lec-14-q2",
+          "question": "¿Cuándo es seguro no escapar un dato?",
+          "options": [
+            "Nunca hace falta escapar.",
+            "Cuando viene de Excel.",
+            "Cuando el dato es corto.",
+            "Cuando lo asignas con textContent."
+          ],
+          "correctIndex": 3,
+          "explanation": "`textContent` siempre trata el valor como texto plano."
+        },
+        {
+          "id": "lec-14-q3",
+          "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
+          "options": [
+            "Para unir el array de textos en un solo texto sin comas.",
+            "Para ordenar las filas.",
+            "Para eliminar duplicados.",
+            "Para escapar el HTML."
+          ],
+          "correctIndex": 0,
+          "explanation": "Asignar un array a innerHTML lo convertiría con comas entre los elementos."
+        }
+      ],
       "order": 15
     },
     {
@@ -519,7 +1945,126 @@
       "title": "Fechas y dinero",
       "subtitle": "Fechas sin errores de zona horaria y montos en RD$.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Guardar fechas como texto ISO (AAAA-MM-DD) y obtener la fecha de hoy sin desfases.",
+        "Sumar días, calcular diferencias y obtener el día de la semana.",
+        "Formatear fechas y montos para mostrarlos con `Intl`.",
+        "Evitar errores de redondeo con decimales en dinero."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-15-sec-1",
+          "title": "1. Fechas: el error del día anterior",
+          "body": "`new Date('2026-11-16')` se interpreta en **UTC**. En República Dominicana (UTC−4) eso es el 15 de noviembre a las 8 de la noche: el famoso \"me sale un día antes\".\n\nReglas que te ahorran horas:\n- **Guarda** las fechas como texto `'AAAA-MM-DD'`. Se comparan y ordenan bien como texto.\n- **Construye** objetos `Date` en hora local con `new Date(iso + 'T00:00')`.\n- **Obtén hoy** sin `toISOString()` (que pasa a UTC y de noche te da mañana).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function fechaIso(d = new Date()) {\n  const a = d.getFullYear();\n  const m = String(d.getMonth() + 1).padStart(2, '0');\n  const dia = String(d.getDate()).padStart(2, '0');\n  return `${a}-${m}-${dia}`;\n}\nconst hoy = fechaIso();                       // '2026-11-16' en hora local\nconst d = new Date('2026-11-16' + 'T00:00');  // medianoche local",
+          "keyTakeaway": "Guarda texto ISO; crea Date con 'T00:00'; nunca uses toISOString() para la fecha de hoy."
+        },
+        {
+          "id": "lec-15-sec-2",
+          "title": "2. Operar con fechas",
+          "body": "- Sumar días: `d.setDate(d.getDate() + n)` (maneja solo los cambios de mes y año).\n- Diferencia en días: resta dos fechas (da milisegundos) y divide entre 86 400 000. Redondea con `Math.round` por los cambios de horario.\n- Día de la semana: `getDay()` (0 domingo … 6 sábado).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function sumarDias(iso, n) {\n  const d = new Date(iso + 'T00:00');\n  d.setDate(d.getDate() + n);\n  return fechaIso(d);\n}\nfunction diasEntre(desde, hasta) {\n  const ms = new Date(hasta + 'T00:00') - new Date(desde + 'T00:00');\n  return Math.round(ms / 86_400_000);\n}\nsumarDias('2026-11-28', 5);         // '2026-12-03'\ndiasEntre('2026-11-01', '2026-11-16'); // 15",
+          "keyTakeaway": "Opera con objetos Date, pero guarda y compara texto ISO."
+        },
+        {
+          "id": "lec-15-sec-3",
+          "title": "3. Mostrar fechas y dinero",
+          "body": "`Intl` formatea según el idioma y país, sin librerías:\n- Fechas: `Intl.DateTimeFormat('es-DO', { … })`.\n- Dinero: `Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' })`.\n\nCon decimales, `0.1 + 0.2` da `0.30000000000000004`. Para montos, **redondea al final** a 2 decimales, o calcula en centavos (enteros) y divide al mostrar.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const fmtFecha = new Intl.DateTimeFormat('es-DO', { weekday: 'short', day: 'numeric', month: 'short' });\nfmtFecha.format(new Date('2026-11-16T00:00'));   // 'lun, 16 nov'\n\nconst fmtPesos = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' });\nfmtPesos.format(1250.5);                          // 'RD$1,250.50'\n\nconst redondear2 = n => Math.round(n * 100) / 100;",
+          "keyTakeaway": "Intl para mostrar; redondeo a 2 decimales al final de cualquier cálculo de dinero."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Fechas y montos confiables.",
+        "rules": [
+          "Una sola función para 'hoy' en todo el proyecto (tu página ya tiene una en `js/nucleo/`).",
+          "Fechas guardadas siempre como 'AAAA-MM-DD'.",
+          "Formatea solo al mostrar; guarda el número sin formato.",
+          "Los valores de tarifas y montos viven en la configuración, no repartidos por el código.",
+          "Prueba los cálculos con fechas de fin de mes y de fin de año."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar la fecha de hoy al crear una actividad a las 9 de la noche.",
+        "juniorLabel": "Así no",
+        "juniorCode": "act.fecha = new Date().toISOString().slice(0, 10);",
+        "juniorFlaws": [
+          "toISOString usa UTC: después de las 8 p. m. en RD guarda la fecha de mañana.",
+          "El error solo aparece de noche, así que parece aleatorio."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "act.fecha = fechaIso();   // usa los componentes locales",
+        "intermediateBenefits": [
+          "Siempre la fecha local correcta.",
+          "Una sola función reutilizada en todo el proyecto."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-15-ej-1",
+          "title": "Práctica 1: Días de atraso",
+          "difficulty": "Básico",
+          "prompt": "Escribe `diasDeAtraso(act, hoyISO)` que devuelva 0 si la actividad está finalizada o no está vencida, y los días transcurridos desde su fecha en caso contrario.",
+          "hint": "Reutiliza `diasEntre` y `Math.max(0, …)`.",
+          "solutionExplanation": "`Math.max(0, n)` evita números negativos para las actividades futuras.",
+          "solutionCode": "function diasDeAtraso(act, hoyISO) {\n  if (act.estado === 'Finalizado') return 0;\n  return Math.max(0, diasEntre(act.fecha, hoyISO));\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-15-ej-2",
+          "title": "Práctica 2: Total en pesos",
+          "difficulty": "Intermedio",
+          "prompt": "Dada una lista de gastos `{ concepto, monto }` donde algunos montos vienen como texto (`'350.50'`), calcula el total, redondéalo a 2 decimales y muéstralo como RD$.",
+          "hint": "Convierte con Number() dentro del reduce y redondea al final.",
+          "solutionExplanation": "Convertir en el momento de sumar y redondear una sola vez al final es lo más seguro.",
+          "solutionCode": "const total = gastos.reduce((s, g) => s + (Number(g.monto) || 0), 0);\nconst texto = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' })\n  .format(Math.round(total * 100) / 100);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-15-q1",
+          "question": "¿Por qué `new Date().toISOString().slice(0,10)` puede dar la fecha de mañana?",
+          "options": [
+            "Porque el navegador tiene un error.",
+            "Nunca pasa.",
+            "Porque slice corta mal.",
+            "Porque toISOString convierte a UTC, que va 4 horas adelante de RD."
+          ],
+          "correctIndex": 3,
+          "explanation": "De noche en RD ya es el día siguiente en UTC."
+        },
+        {
+          "id": "lec-15-q2",
+          "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
+          "options": [
+            "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
+            "Porque ocupan menos memoria que un número.",
+            "Porque JavaScript no tiene fechas.",
+            "Porque Excel no acepta otro formato."
+          ],
+          "correctIndex": 0,
+          "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
+        },
+        {
+          "id": "lec-15-q3",
+          "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
+          "options": [
+            "0.3",
+            "0.30000000000000004",
+            "0.12",
+            "Error"
+          ],
+          "correctIndex": 1,
+          "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
+        }
+      ],
       "order": 16
     },
     {
