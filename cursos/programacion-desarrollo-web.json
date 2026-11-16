@@ -94,21 +94,21 @@
           "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
           "options": [
             "Primero las más pequeñas.",
-            "En el orden en que aparecen en el HTML.",
             "En orden alfabético por nombre de archivo.",
-            "Todas al mismo tiempo, sin orden."
+            "Todas al mismo tiempo, sin orden.",
+            "En el orden en que aparecen en el HTML."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Los scripts normales se ejecutan uno tras otro en el orden del documento. Por eso en tu página `app.js` se carga al final: usa funciones definidas en los archivos anteriores."
         },
         {
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En la librería de Excel.",
             "En el logotipo.",
+            "En cada archivo de CSS.",
             "En la carpeta de configuración, donde están los ajustes como los estados.",
-            "En cada archivo de CSS."
+            "En la librería de Excel."
           ],
           "correctIndex": 2,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
@@ -117,12 +117,12 @@
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "Un lenguaje de estilos.",
             "Un servidor de base de datos.",
-            "El nombre del archivo principal.",
-            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar."
+            "Un lenguaje de estilos.",
+            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
+            "El nombre del archivo principal."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
         }
       ],
@@ -217,34 +217,34 @@
           "id": "lec-01-q1",
           "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
           "options": [
-            "Ctrl+D",
-            "Ctrl+Shift+F",
             "Ctrl+F",
-            "Ctrl+P"
+            "Ctrl+D",
+            "Ctrl+P",
+            "Ctrl+Shift+F"
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Ctrl+F busca solo en el archivo abierto; Ctrl+Shift+F busca en toda la carpeta."
         },
         {
           "id": "lec-01-q2",
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
-            "Porque Live Server solo funciona con carpetas vacías.",
-            "Porque los archivos sueltos no se pueden guardar.",
             "No hay diferencia.",
-            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos."
+            "Porque los archivos sueltos no se pueden guardar.",
+            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
+            "Porque Live Server solo funciona con carpetas vacías."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
         },
         {
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Ejecuta la página.",
+            "Comenta la línea.",
             "Salta al lugar donde la función está definida.",
-            "Borra la función.",
-            "Comenta la línea."
+            "Ejecuta la página.",
+            "Borra la función."
           ],
           "correctIndex": 1,
           "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
@@ -345,8 +345,8 @@
           "question": "¿Qué muestra la pestaña Elements de las DevTools?",
           "options": [
             "Solo el archivo HTML tal como está en el disco.",
-            "Los errores de red.",
             "Los datos guardados en el navegador.",
+            "Los errores de red.",
             "El DOM actual de la página, incluido lo que agregó JavaScript."
           ],
           "correctIndex": 3,
@@ -357,23 +357,23 @@
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
             "Que la regla se borrará al guardar.",
-            "Que el navegador no soporta CSS.",
             "Que el archivo CSS no existe.",
-            "Que otra regla con más prioridad le está ganando."
+            "Que otra regla con más prioridad le está ganando.",
+            "Que el navegador no soporta CSS."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
         },
         {
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
+            "Porque se borra al instante.",
             "Porque un error de formato puede impedir que la página lea sus datos.",
-            "Porque está prohibido por el navegador.",
             "Porque solo se puede editar desde Excel.",
-            "Porque se borra al instante."
+            "Porque está prohibido por el navegador."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
         }
       ],
@@ -477,36 +477,36 @@
           "id": "lec-03-q1",
           "question": "¿Qué atributo usa tu página para ocultar las pantallas que no se están viendo?",
           "options": [
+            "hidden",
             "class=\"oculto\" obligatoriamente",
             "alt",
-            "hidden",
             "display"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
         },
         {
           "id": "lec-03-q2",
           "question": "¿Cuál es la diferencia principal entre id y class?",
           "options": [
-            "No hay diferencia.",
             "El id solo sirve para estilos.",
+            "El id es único en la página; la class puede repetirse en muchos elementos.",
             "La class es única y el id se repite.",
-            "El id es único en la página; la class puede repetirse en muchos elementos."
+            "No hay diferencia."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
         },
         {
           "id": "lec-03-q3",
           "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
           "options": [
-            "Porque los div no pueden tener texto.",
-            "Porque los div no se pueden pintar con CSS.",
             "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra.",
+            "Porque los div no se pueden pintar con CSS.",
+            "Porque los div no pueden tener texto.",
             "Porque button es más rápido de escribir."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Las etiquetas nativas traen accesibilidad y comportamiento gratis: foco con Tab, activación con Enter y Espacio."
         }
       ],
@@ -609,24 +609,24 @@
           "id": "lec-04-q1",
           "question": "¿Qué conecta un `<label>` con su campo?",
           "options": [
-            "El atributo for del label igual al id del campo.",
-            "El atributo name del label.",
             "Que estén en la misma línea.",
-            "El atributo class."
+            "El atributo for del label igual al id del campo.",
+            "El atributo class.",
+            "El atributo name del label."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
         },
         {
           "id": "lec-04-q2",
           "question": "Quieres sugerir clientes existentes pero permitir escribir uno nuevo. ¿Qué usas?",
           "options": [
-            "Un select.",
-            "Un checkbox.",
             "Un textarea.",
-            "Un input con datalist."
+            "Un checkbox.",
+            "Un input con datalist.",
+            "Un select."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
         },
         {
@@ -634,8 +634,8 @@
           "question": "¿Cómo lee JavaScript el atributo `data-id=\"v12\"` de un botón?",
           "options": [
             "boton.getData()",
-            "boton.data-id",
             "boton.id",
+            "boton.data-id",
             "boton.dataset.id"
           ],
           "correctIndex": 3,
@@ -738,24 +738,24 @@
           "id": "lec-05-q1",
           "question": "¿Dónde van los encabezados de columna de una tabla?",
           "options": [
-            "En el atributo title de la tabla.",
-            "En celdas th dentro de thead.",
+            "En un div encima de la tabla.",
             "En celdas td dentro de tbody.",
-            "En un div encima de la tabla."
+            "En celdas th dentro de thead.",
+            "En el atributo title de la tabla."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
         },
         {
           "id": "lec-05-q2",
           "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
           "options": [
-            "Reducir la letra a 6 píxeles.",
+            "Envolverla en un contenedor con overflow-x: auto.",
             "Convertirla en una imagen.",
-            "Ocultar la tabla en el celular.",
-            "Envolverla en un contenedor con overflow-x: auto."
+            "Reducir la letra a 6 píxeles.",
+            "Ocultar la tabla en el celular."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
         },
         {
@@ -763,11 +763,11 @@
           "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
           "options": [
             "Nada, el ícono es suficiente.",
-            "Un color más oscuro.",
+            "Un aria-label que describa la acción, como \"Editar actividad\".",
             "Un id.",
-            "Un aria-label que describa la acción, como \"Editar actividad\"."
+            "Un color más oscuro."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Sin texto, un lector de pantalla no sabe qué hace el botón; `aria-label` le da nombre."
         }
       ],
@@ -867,12 +867,12 @@
           "id": "lec-06-q1",
           "question": "¿Cuál de estos selectores tiene más especificidad?",
           "options": [
-            ".tarjeta:hover",
-            "#v-inicio .tarjeta",
             "main section div p",
-            ".panel .tarjeta .titulo"
+            ".panel .tarjeta .titulo",
+            ".tarjeta:hover",
+            "#v-inicio .tarjeta"
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Un id pesa más que cualquier cantidad de clases o etiquetas."
         },
         {
@@ -880,9 +880,9 @@
           "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
           "options": [
             "La que aparece después.",
+            "No se aplica ninguna.",
             "La que aparece primero.",
-            "La más corta.",
-            "No se aplica ninguna."
+            "La más corta."
           ],
           "correctIndex": 0,
           "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
@@ -891,12 +891,12 @@
           "id": "lec-06-q3",
           "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
           "options": [
+            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
             "Por compatibilidad con Excel.",
             "Porque el navegador ignora los archivos sin número.",
-            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
             "Para que pesen menos."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
         }
       ],
@@ -993,8 +993,8 @@
           "id": "lec-07-q1",
           "question": "¿Cómo se usa una variable CSS llamada --radio?",
           "options": [
-            "border-radius: $radio;",
             "border-radius: @radio;",
+            "border-radius: $radio;",
             "border-radius: var(--radio);",
             "border-radius: --radio;"
           ],
@@ -1006,23 +1006,23 @@
           "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
           "options": [
             "Copiar toda la hoja de estilos y cambiar cada color.",
+            "Usar filter: invert(1) en toda la página.",
             "Redefinir las variables de color cuando el body tiene una clase o atributo.",
-            "Crear un segundo index.html.",
-            "Usar filter: invert(1) en toda la página."
+            "Crear un segundo index.html."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
         },
         {
           "id": "lec-07-q3",
           "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
           "options": [
-            "Cambia el id del body.",
             "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
-            "Muestra todo en modo técnico.",
-            "Borra el modo técnico."
+            "Cambia el id del body.",
+            "Borra el modo técnico.",
+            "Muestra todo en modo técnico."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
         }
       ],
@@ -1123,23 +1123,23 @@
           "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
           "options": [
             "spacing",
-            "padding",
             "margin-between",
-            "gap"
+            "gap",
+            "padding"
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
         },
         {
           "id": "lec-08-q2",
           "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
           "options": [
+            "flex: 1",
             "display: block",
             "align-items: stretch",
-            "flex: 1",
             "width: auto"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
         },
         {
@@ -1147,9 +1147,9 @@
           "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
           "options": [
             "Lo empuja hacia el extremo derecho.",
-            "Le quita el margen.",
             "Lo oculta.",
-            "Lo centra."
+            "Lo centra.",
+            "Le quita el margen."
           ],
           "correctIndex": 0,
           "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
@@ -1251,36 +1251,36 @@
           "id": "lec-09-q1",
           "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
           "options": [
+            "Tres columnas de igual ancho que se reparten el espacio.",
             "Tres columnas de 1 píxel.",
             "Tres filas iguales.",
-            "Tres columnas de igual ancho que se reparten el espacio.",
             "Una columna de 3 píxeles."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`fr` es una fracción del espacio disponible."
         },
         {
           "id": "lec-09-q2",
           "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
           "options": [
-            "Tantas columnas como quepan, cada una de al menos 200px.",
-            "Columnas de 1px.",
+            "Una sola columna de 200px.",
             "Exactamente 200 columnas.",
-            "Una sola columna de 200px."
+            "Columnas de 1px.",
+            "Tantas columnas como quepan, cada una de al menos 200px."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Es la receta para cuadrículas que se adaptan al ancho sin media queries."
         },
         {
           "id": "lec-09-q3",
           "question": "¿Cuándo es mejor Flexbox que Grid?",
           "options": [
-            "Solo para tablas.",
+            "Para alinear elementos en una sola dirección, como una barra de botones.",
             "Para cualquier tablero de dos dimensiones.",
-            "Nunca.",
-            "Para alinear elementos en una sola dirección, como una barra de botones."
+            "Solo para tablas.",
+            "Nunca."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Flexbox es unidimensional; Grid controla filas y columnas a la vez."
         }
       ],
@@ -1381,22 +1381,22 @@
           "id": "lec-10-q1",
           "question": "¿Qué pasa si falta la etiqueta meta viewport?",
           "options": [
-            "Nada.",
             "Se desactiva JavaScript.",
             "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto.",
-            "La página no carga."
+            "La página no carga.",
+            "Nada."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Sin viewport, el navegador móvil simula un ancho de escritorio y escala la página."
         },
         {
           "id": "lec-10-q2",
           "question": "¿Qué hace `@media (max-width: 760px) { … }`?",
           "options": [
-            "Aplica las reglas solo en pantallas mayores de 760px.",
             "Limita la página a 760px.",
+            "Oculta la página en el celular.",
             "Aplica esas reglas solo cuando la pantalla mide 760px o menos.",
-            "Oculta la página en el celular."
+            "Aplica las reglas solo en pantallas mayores de 760px."
           ],
           "correctIndex": 2,
           "explanation": "max-width = 'hasta este ancho'."
@@ -1407,10 +1407,10 @@
           "options": [
             "Por compatibilidad con Excel.",
             "Porque los formularios no aceptan otros tamaños.",
-            "Porque con menos, algunos celulares hacen zoom automático al escribir.",
-            "Para ahorrar datos."
+            "Para ahorrar datos.",
+            "Porque con menos, algunos celulares hacen zoom automático al escribir."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Safari en iPhone amplía la página al enfocar campos con letra menor de 16px."
         }
       ],
@@ -1514,35 +1514,35 @@
           "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
           "options": [
             "NaN",
+            "Error",
             "'51'",
-            "6",
-            "Error"
+            "6"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
         },
         {
           "id": "lec-11-q2",
           "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
           "options": [
+            "null",
             "0",
             "Un error",
-            "null",
             "undefined"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
         },
         {
           "id": "lec-11-q3",
           "question": "¿Cuándo debes usar `let` en lugar de `const`?",
           "options": [
+            "Cuando la variable es un número.",
             "Siempre.",
             "Cuando la variable se va a reasignar.",
-            "Cuando la variable es un número.",
             "Cuando la variable es un array."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`const` impide reasignar el nombre; usa `let` solo si el valor cambia (un contador, un acumulador)."
         }
       ],
@@ -1646,36 +1646,36 @@
           "id": "lec-12-q1",
           "question": "¿Qué devuelve `find` si ningún elemento cumple la condición?",
           "options": [
-            "false",
             "Un array vacío",
-            "undefined",
-            "null"
+            "false",
+            "null",
+            "undefined"
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "`find` devuelve el primer elemento que cumple o `undefined`. `filter` devolvería un array vacío."
         },
         {
           "id": "lec-12-q2",
           "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
           "options": [
-            "[10, 9, 1]",
-            "[1, 10, 9]",
             "Error",
-            "[1, 9, 10]"
+            "[1, 9, 10]",
+            "[1, 10, 9]",
+            "[10, 9, 1]"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Sin función de comparación, sort ordena como texto. Para números usa `(a, b) => a - b`."
         },
         {
           "id": "lec-12-q3",
           "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
           "options": [
-            "Porque sort no funciona sin los tres puntos.",
-            "No hay diferencia.",
+            "Porque sort modifica la lista original y así se ordena una copia.",
             "Porque es más rápido.",
-            "Porque sort modifica la lista original y así se ordena una copia."
+            "No hay diferencia.",
+            "Porque sort no funciona sin los tres puntos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Ordenar los datos guardados cambiaría el orden en toda la aplicación."
         }
       ],
@@ -1776,11 +1776,11 @@
           "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
           "options": [
             "El valor anterior de a.x.",
-            "undefined.",
+            "5, porque a y b son el mismo objeto.",
             "Da error.",
-            "5, porque a y b son el mismo objeto."
+            "undefined."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Asignar un objeto copia la referencia, no el contenido."
         },
         {
@@ -1788,9 +1788,9 @@
           "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
           "options": [
             "Lanza un error.",
-            "Repara el texto.",
             "Devuelve null.",
-            "Devuelve un objeto vacío."
+            "Devuelve un objeto vacío.",
+            "Repara el texto."
           ],
           "correctIndex": 0,
           "explanation": "Por eso siempre se envuelve en try/catch."
@@ -1799,12 +1799,12 @@
           "id": "lec-13-q3",
           "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
           "options": [
+            "obj{campo}",
             "obj->campo",
             "obj[campo]",
-            "obj.campo",
-            "obj{campo}"
+            "obj.campo"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
         }
       ],
@@ -1902,8 +1902,8 @@
           "id": "lec-14-q1",
           "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
           "options": [
-            "Que la página cargue lento.",
             "Que se borre el localStorage.",
+            "Que la página cargue lento.",
             "Que los números se sumen como texto.",
             "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS)."
           ],
@@ -1914,24 +1914,24 @@
           "id": "lec-14-q2",
           "question": "¿Cuándo es seguro no escapar un dato?",
           "options": [
-            "Cuando viene de Excel.",
             "Cuando el dato es corto.",
-            "Cuando lo asignas con textContent.",
-            "Nunca hace falta escapar."
+            "Nunca hace falta escapar.",
+            "Cuando viene de Excel.",
+            "Cuando lo asignas con textContent."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "`textContent` siempre trata el valor como texto plano."
         },
         {
           "id": "lec-14-q3",
           "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
           "options": [
-            "Para ordenar las filas.",
+            "Para escapar el HTML.",
             "Para eliminar duplicados.",
-            "Para unir el array de textos en un solo texto sin comas.",
-            "Para escapar el HTML."
+            "Para ordenar las filas.",
+            "Para unir el array de textos en un solo texto sin comas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Asignar un array a innerHTML lo convertiría con comas entre los elementos."
         }
       ],
@@ -2032,12 +2032,12 @@
           "id": "lec-15-q1",
           "question": "¿Por qué `new Date().toISOString().slice(0,10)` puede dar la fecha de mañana?",
           "options": [
+            "Porque slice corta mal.",
             "Nunca pasa.",
             "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
-            "Porque el navegador tiene un error.",
-            "Porque slice corta mal."
+            "Porque el navegador tiene un error."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "De noche en RD ya es el día siguiente en UTC."
         },
         {
@@ -2045,9 +2045,9 @@
           "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
           "options": [
             "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
-            "Porque JavaScript no tiene fechas.",
+            "Porque ocupan menos memoria que un número.",
             "Porque Excel no acepta otro formato.",
-            "Porque ocupan menos memoria que un número."
+            "Porque JavaScript no tiene fechas."
           ],
           "correctIndex": 0,
           "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
@@ -2056,12 +2056,12 @@
           "id": "lec-15-q3",
           "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
           "options": [
-            "0.30000000000000004",
-            "0.12",
             "Error",
+            "0.12",
+            "0.30000000000000004",
             "0.3"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
         }
       ],
@@ -2292,12 +2292,12 @@
           "id": "lec-17-q1",
           "question": "¿Qué hace `e.preventDefault()` en el evento submit de un formulario?",
           "options": [
-            "Borra los campos.",
-            "Valida el formulario.",
+            "Detiene todos los scripts.",
             "Evita que el navegador envíe el formulario y recargue la página.",
-            "Detiene todos los scripts."
+            "Valida el formulario.",
+            "Borra los campos."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Cancela la acción por defecto; tu código se encarga de guardar los datos."
         },
         {
@@ -2305,23 +2305,23 @@
           "question": "¿Para qué sirve `e.target.closest('[data-act]')`?",
           "options": [
             "Para buscar el elemento más cercano en pantalla.",
-            "Para eliminar el atributo data-act.",
             "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno.",
-            "Para cerrar la ventana."
+            "Para cerrar la ventana.",
+            "Para eliminar el atributo data-act."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "closest sube por los ancestros hasta encontrar el primero que coincide con el selector."
         },
         {
           "id": "lec-17-q3",
           "question": "¿Por qué la delegación de eventos es ideal para tablas que se redibujan?",
           "options": [
-            "Porque evita usar data-act.",
             "Porque es más bonita.",
             "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
+            "Porque evita usar data-act.",
             "Porque desactiva el burbujeo."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "El evento burbujea hasta el documento, donde un único escuchador lo atiende."
         }
       ],
@@ -2423,8 +2423,8 @@
           "question": "¿Qué campos recoge `new FormData(form)`?",
           "options": [
             "Solo los de tipo text.",
-            "Solo los obligatorios.",
             "Todos los inputs, tengan o no name.",
+            "Solo los obligatorios.",
             "Los que tienen atributo name (y las casillas solo si están marcadas)."
           ],
           "correctIndex": 3,
@@ -2435,9 +2435,9 @@
           "question": "¿Cómo puede un mismo formulario servir para crear y para editar?",
           "options": [
             "Con un campo oculto con el id: vacío al crear, con valor al editar.",
+            "Recargando la página.",
             "No es posible.",
-            "Con dos botones submit.",
-            "Recargando la página."
+            "Con dos botones submit."
           ],
           "correctIndex": 0,
           "explanation": "Al guardar, la presencia del id decide si se actualiza o se agrega."
@@ -2446,12 +2446,12 @@
           "id": "lec-18-q3",
           "question": "¿Qué método abre un `<dialog>` como ventana modal?",
           "options": [
-            "open()",
-            "show(true)",
             "showModal()",
-            "display()"
+            "show(true)",
+            "display()",
+            "open()"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "showModal() lo abre por encima del resto, bloquea el fondo y permite cerrar con Escape."
         }
       ],
@@ -2547,36 +2547,36 @@
           "id": "lec-19-q1",
           "question": "Según la arquitectura de tu página, ¿qué debe pasar después de que una acción modifica los datos?",
           "options": [
-            "Cambiar el color de la fila con style.",
             "Nada, el navegador lo actualiza solo.",
-            "Recargar la página.",
-            "Guardar el estado y redibujar las pantallas."
+            "Cambiar el color de la fila con style.",
+            "Guardar el estado y redibujar las pantallas.",
+            "Recargar la página."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El ciclo es acción → datos → guardar → redibujar."
         },
         {
           "id": "lec-19-q2",
           "question": "¿Por qué el script de arranque (app.js) va al final?",
           "options": [
-            "Porque el navegador ignora el último script.",
-            "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
+            "Porque es el más grande.",
             "Por orden alfabético.",
-            "Porque es el más grande."
+            "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
+            "Porque el navegador ignora el último script."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Sin sistema de módulos, cada archivo solo puede usar lo que ya se cargó antes."
         },
         {
           "id": "lec-19-q3",
           "question": "Quieres cambiar lo que hace un botón. ¿Cuál es el primer paso más eficiente?",
           "options": [
-            "Leer todos los archivos JS de arriba abajo.",
-            "Inspeccionarlo y buscar su data-act en el proyecto.",
+            "Cambiar su texto.",
             "Borrar el botón y crearlo de nuevo.",
-            "Cambiar su texto."
+            "Inspeccionarlo y buscar su data-act en el proyecto.",
+            "Leer todos los archivos JS de arriba abajo."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "El data-act te lleva directo a la acción registrada."
         }
       ],
@@ -2676,36 +2676,36 @@
           "id": "lec-20-q1",
           "question": "¿Qué tipo de dato guarda localStorage?",
           "options": [
+            "Archivos de Excel.",
             "Imágenes.",
             "Solo texto; los objetos se convierten con JSON.stringify.",
-            "Archivos de Excel.",
             "Objetos de JavaScript directamente."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Por eso el estado se guarda como JSON y se lee con JSON.parse."
         },
         {
           "id": "lec-20-q2",
           "question": "Abres tu página en otro computador. ¿Por qué no ves tus datos?",
           "options": [
-            "Porque localStorage es propio de cada navegador y equipo.",
             "Porque GitHub los elimina.",
+            "Porque localStorage es propio de cada navegador y equipo.",
             "Porque se borran cada día.",
             "Porque falta internet."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Los datos viven en el navegador. Para moverlos se usa un respaldo (o una base de datos en la nube)."
         },
         {
           "id": "lec-20-q3",
           "question": "¿Para qué sirve una migración?",
           "options": [
+            "Para borrar datos viejos.",
             "Para adaptar los datos guardados con una versión anterior a la nueva estructura.",
-            "Para mover la página a otro servidor.",
             "Para comprimir el localStorage.",
-            "Para borrar datos viejos."
+            "Para mover la página a otro servidor."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Rellena o transforma los registros antiguos para que el código nuevo pueda usarlos."
         }
       ],
@@ -2808,34 +2808,34 @@
           "id": "lec-21-q1",
           "question": "¿Qué hace `await archivo.arrayBuffer()`?",
           "options": [
+            "Sube el archivo a internet.",
             "Espera a que el navegador termine de leer el archivo y devuelve su contenido binario.",
             "Borra el archivo.",
-            "Sube el archivo a internet.",
             "Convierte el archivo en Excel."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "arrayBuffer devuelve una promesa; await espera su resultado."
         },
         {
           "id": "lec-21-q2",
           "question": "¿Qué devuelve `XLSX.utils.sheet_to_json(hoja)`?",
           "options": [
-            "Un array de objetos, uno por fila, con los encabezados como claves.",
+            "Un texto JSON.",
             "Un archivo .xlsx.",
             "Una tabla HTML.",
-            "Un texto JSON."
+            "Un array de objetos, uno por fila, con los encabezados como claves."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Usa la primera fila de la hoja como nombres de las propiedades."
         },
         {
           "id": "lec-21-q3",
           "question": "¿Por qué se normalizan las filas antes de agregarlas a los datos?",
           "options": [
-            "Para que el archivo pese menos.",
+            "No hace falta normalizar.",
             "Porque SheetJS lo exige.",
             "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos.",
-            "No hace falta normalizar."
+            "Para que el archivo pese menos."
           ],
           "correctIndex": 2,
           "explanation": "Normalizar convierte lo que venga del archivo en la forma exacta que espera tu código."
@@ -2939,34 +2939,34 @@
           "id": "lec-22-q1",
           "question": "En SVG, ¿hacia dónde crece la coordenada y?",
           "options": [
-            "Hacia arriba.",
+            "Depende del navegador.",
             "Hacia la derecha.",
-            "Hacia abajo.",
-            "Depende del navegador."
+            "Hacia arriba.",
+            "Hacia abajo."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Por eso una barra alta tiene una y pequeña: empieza más arriba."
         },
         {
           "id": "lec-22-q2",
           "question": "¿Para qué sirve el atributo viewBox?",
           "options": [
-            "Carga una imagen externa.",
-            "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG.",
             "Pone un borde al gráfico.",
-            "Hace el SVG invisible."
+            "Hace el SVG invisible.",
+            "Carga una imagen externa.",
+            "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Permite dibujar en unidades cómodas y que el gráfico sea responsive."
         },
         {
           "id": "lec-22-q3",
           "question": "¿Por qué se usa `Math.max(1, ...valores)` al escalar?",
           "options": [
-            "Para ordenar los valores.",
             "Para que la barra mínima mida 1.",
+            "Para redondear.",
             "Para evitar dividir entre cero cuando todos los valores son 0.",
-            "Para redondear."
+            "Para ordenar los valores."
           ],
           "correctIndex": 2,
           "explanation": "Si el máximo fuera 0, la división daría NaN y el SVG se rompería."
@@ -3067,11 +3067,11 @@
           "question": "En la pila de un error, ¿qué línea conviene mirar primero?",
           "options": [
             "Cualquiera, todas son iguales.",
-            "La que dice <anonymous>.",
             "La primera que pertenece a tu propio código.",
+            "La que dice <anonymous>.",
             "La última de todas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Las líneas de librerías o del navegador rara vez son la causa; la primera de tu código sí suele serlo."
         },
         {
@@ -3079,9 +3079,9 @@
           "question": "¿Qué indica normalmente `x is not defined`?",
           "options": [
             "Que el nombre está mal escrito o el archivo que lo define no se cargó antes.",
+            "Que x vale null.",
             "Que x es un número.",
-            "Que falta internet.",
-            "Que x vale null."
+            "Que falta internet."
           ],
           "correctIndex": 0,
           "explanation": "ReferenceError: el nombre no existe en ese momento."
@@ -3090,12 +3090,12 @@
           "id": "lec-23-q3",
           "question": "¿Por qué un solo SyntaxError puede hacer que 'no funcione nada' de un archivo?",
           "options": [
-            "Porque borra el localStorage.",
             "Porque desactiva el CSS.",
             "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
-            "Porque detiene el navegador."
+            "Porque detiene el navegador.",
+            "Porque borra el localStorage."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Un error de sintaxis impide ejecutar el archivo completo."
         }
       ],
@@ -3194,24 +3194,24 @@
           "id": "lec-24-q1",
           "question": "¿Qué hace un linter como ESLint?",
           "options": [
-            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas.",
             "Comprime las imágenes.",
+            "Ejecuta la página más rápido.",
             "Publica la página en internet.",
-            "Ejecuta la página más rápido."
+            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Es un análisis estático del código."
         },
         {
           "id": "lec-24-q2",
           "question": "¿Qué comando instala las herramientas de revisión del proyecto la primera vez?",
           "options": [
-            "npm install",
-            "git push",
+            "npm run revisar",
             "node index.html",
-            "npm run revisar"
+            "npm install",
+            "git push"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "npm install descarga las dependencias listadas en package.json."
         },
         {
@@ -3220,8 +3220,8 @@
           "options": [
             "Borrar la línea.",
             "Buscar el nombre de la regla, entender el aviso y corregir el código.",
-            "Desactivar el linter en todo el archivo.",
-            "Ignorarlo y subir el cambio."
+            "Ignorarlo y subir el cambio.",
+            "Desactivar el linter en todo el archivo."
           ],
           "correctIndex": 1,
           "explanation": "Cada regla tiene documentación con ejemplos de código correcto e incorrecto."
@@ -3321,36 +3321,36 @@
           "id": "lec-25-q1",
           "question": "¿Qué funciones son las más fáciles y útiles de probar?",
           "options": [
+            "Las que dibujan la pantalla.",
             "Las funciones puras que reciben datos y devuelven un resultado.",
             "Las que guardan en localStorage.",
-            "Las que abren diálogos.",
-            "Las que dibujan la pantalla."
+            "Las que abren diálogos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "No dependen de la pantalla ni del almacenamiento, así que se prueban con datos de ejemplo."
         },
         {
           "id": "lec-25-q2",
           "question": "Arreglaste un error en el cálculo de días de atraso. ¿Qué deberías hacer además?",
           "options": [
-            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
+            "Nada más.",
             "Borrar las pruebas antiguas.",
-            "Cambiar el nombre de la función.",
-            "Nada más."
+            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
+            "Cambiar el nombre de la función."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Es la práctica que evita que los errores 'resuciten' en cambios futuros."
         },
         {
           "id": "lec-25-q3",
           "question": "¿Por qué la página de pruebas no debe usar los datos reales del navegador?",
           "options": [
+            "No hay ningún motivo.",
             "Para no modificarlos por accidente y para que los resultados esperados sean siempre los mismos.",
             "Porque está prohibido leer localStorage.",
-            "Porque las pruebas son más lentas con datos.",
-            "No hay ningún motivo."
+            "Porque las pruebas son más lentas con datos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Las pruebas deben ser repetibles y no tener efectos sobre los datos de trabajo."
         }
       ],
@@ -3452,36 +3452,36 @@
           "id": "lec-26-q1",
           "question": "¿Qué es un commit?",
           "options": [
-            "Una versión guardada del proyecto con un mensaje que describe el cambio.",
-            "La página publicada.",
+            "Un error de Git.",
             "Un archivo de respaldo .zip.",
-            "Un error de Git."
+            "La página publicada.",
+            "Una versión guardada del proyecto con un mensaje que describe el cambio."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Cada commit registra el estado de los archivos y permite volver a él."
         },
         {
           "id": "lec-26-q2",
           "question": "¿Para qué sirve trabajar en una rama?",
           "options": [
-            "Para hacer cambios sin afectar a main hasta que estén listos.",
             "Para tener dos páginas publicadas.",
             "Para que la página cargue más rápido.",
+            "Para hacer cambios sin afectar a main hasta que estén listos.",
             "Para borrar archivos más rápido."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "La rama aísla el trabajo en curso."
         },
         {
           "id": "lec-26-q3",
           "question": "Un commit dañino ya está en GitHub y otros lo descargaron. ¿Cómo lo deshaces con seguridad?",
           "options": [
-            "git reset --hard y push --force.",
             "git revert con el id del commit.",
+            "Editando el historial a mano.",
             "Borrando el repositorio.",
-            "Editando el historial a mano."
+            "git reset --hard y push --force."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "revert agrega un commit que invierte el cambio sin reescribir la historia compartida."
         }
       ],
@@ -3576,9 +3576,9 @@
           "id": "lec-27-q1",
           "question": "¿Qué hace `git pull`?",
           "options": [
+            "Borra la rama actual.",
             "Publica la página.",
             "Sube tus commits a GitHub.",
-            "Borra la rama actual.",
             "Descarga e integra los commits del remoto que aún no tienes."
           ],
           "correctIndex": 3,
@@ -3588,12 +3588,12 @@
           "id": "lec-27-q2",
           "question": "¿Qué es un pull request?",
           "options": [
+            "Un error de GitHub.",
             "Una propuesta para unir una rama a main, con revisión del cambio.",
             "Una petición a un servidor.",
-            "Una copia del repositorio.",
-            "Un error de GitHub."
+            "Una copia del repositorio."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Permite revisar el diff y las comprobaciones automáticas antes de unir."
         },
         {
@@ -3601,9 +3601,9 @@
           "question": "Uniste un cambio a main y la página publicada aún no lo muestra. ¿Qué es lo más probable?",
           "options": [
             "GitHub Pages tarda uno o dos minutos en publicar y el navegador puede tener la versión anterior en caché.",
-            "El cambio se perdió.",
             "Hay que borrar el repositorio.",
-            "GitHub Pages solo publica una vez al día."
+            "GitHub Pages solo publica una vez al día.",
+            "El cambio se perdió."
           ],
           "correctIndex": 0,
           "explanation": "Espera a que termine el despliegue y recarga sin caché (Ctrl+Shift+R)."
@@ -3702,35 +3702,35 @@
           "question": "¿Qué hace que un pedido de cambio sea bueno?",
           "options": [
             "Que no mencione archivos.",
-            "Dice qué, dónde, las restricciones y cómo comprobarlo.",
+            "Que sea lo más corto posible.",
             "Que pida muchos cambios a la vez.",
-            "Que sea lo más corto posible."
+            "Dice qué, dónde, las restricciones y cómo comprobarlo."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Un pedido acotado produce un cambio que puedes revisar y probar."
         },
         {
           "id": "lec-28-q2",
           "question": "Un cambio propuesto agrega un campo nuevo a los datos guardados. ¿Qué debes verificar?",
           "options": [
-            "Nada especial.",
             "Que cambie el color principal.",
-            "Que borre el localStorage.",
-            "Que incluya una migración para los datos antiguos."
+            "Nada especial.",
+            "Que incluya una migración para los datos antiguos.",
+            "Que borre el localStorage."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Sin migración, los registros guardados antes no tendrán el campo."
         },
         {
           "id": "lec-28-q3",
           "question": "¿Cuál es la forma más segura de incorporar un cambio hecho con IA?",
           "options": [
-            "Directo en main para ahorrar tiempo.",
-            "Desactivando las revisiones automáticas.",
             "Copiando el código sin leerlo.",
-            "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido."
+            "Directo en main para ahorrar tiempo.",
+            "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido.",
+            "Desactivando las revisiones automáticas."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El mismo proceso que para cualquier cambio: rama, revisión, prueba, unión."
         }
       ],
@@ -3829,36 +3829,36 @@
           "id": "proy-1-q1",
           "question": "¿Por qué se escribe la migración antes que el formulario y la tabla?",
           "options": [
-            "Porque así lo exige GitHub.",
             "No importa el orden.",
-            "Porque el formulario no funciona sin internet.",
-            "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo."
+            "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo.",
+            "Porque así lo exige GitHub.",
+            "Porque el formulario no funciona sin internet."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Con los datos completos, la tabla y la exportación no necesitan manejar el caso 'falta el campo'."
         },
         {
           "id": "proy-1-q2",
           "question": "¿Dónde conviene definir la lista de prioridades permitidas?",
           "options": [
+            "En localStorage.",
             "Repetida en cada archivo que la usa.",
-            "En la configuración, junto a otros valores del negocio como los estados.",
             "En el CSS.",
-            "En localStorage."
+            "En la configuración, junto a otros valores del negocio como los estados."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Un solo lugar para los valores evita inconsistencias."
         },
         {
           "id": "proy-1-q3",
           "question": "¿Cuál es la mejor prueba final de un campo nuevo?",
           "options": [
+            "Subir a main y esperar quejas.",
             "Restaurar un respaldo anterior en una copia y comprobar crear, editar, filtrar y exportar.",
-            "Mirar el código sin abrir la página.",
             "Crear una sola actividad nueva.",
-            "Subir a main y esperar quejas."
+            "Mirar el código sin abrir la página."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Los datos antiguos son los que revelan migraciones incompletas."
         }
       ],
@@ -3956,32 +3956,32 @@
           "id": "proy-2-q1",
           "question": "¿Por qué el cálculo del indicador va en una función separada de la tarjeta?",
           "options": [
-            "Para poder probarlo y reutilizarlo sin depender de la pantalla.",
             "No hay ventaja.",
-            "Porque las tarjetas no admiten JavaScript.",
-            "Para que cargue más rápido."
+            "Para que cargue más rápido.",
+            "Para poder probarlo y reutilizarlo sin depender de la pantalla.",
+            "Porque las tarjetas no admiten JavaScript."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Las funciones puras se prueban con datos de ejemplo."
         },
         {
           "id": "proy-2-q2",
           "question": "¿Por qué no conviene guardar el valor del indicador en los datos?",
           "options": [
-            "Porque los indicadores son secretos.",
             "Porque se puede calcular en cada redibujado y guardado quedaría desactualizado.",
+            "Por el tamaño del Excel.",
             "Porque localStorage no admite números.",
-            "Por el tamaño del Excel."
+            "Porque los indicadores son secretos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Lo que se deriva de los datos se calcula; no se guarda dos veces."
         },
         {
           "id": "proy-2-q3",
           "question": "¿Cómo debe encontrar el código la tarjeta del indicador?",
           "options": [
-            "Por su color.",
             "Por su texto.",
+            "Por su color.",
             "Por su posición, con nth-child.",
             "Por un id propio, como kpi-atrasos."
           ],
@@ -4083,12 +4083,12 @@
           "id": "proy-3-q1",
           "question": "¿Qué pasa si renombras un estado solo en la configuración?",
           "options": [
+            "Todo se actualiza solo.",
             "Los datos guardados con el nombre anterior dejan de reconocerse.",
             "Nada.",
-            "Se borran las actividades.",
-            "Todo se actualiza solo."
+            "Se borran las actividades."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Los datos guardan el texto del estado; hace falta una migración."
         },
         {
@@ -4096,9 +4096,9 @@
           "question": "¿Por qué conviene contar las actividades abiertas con una propiedad de la configuración en vez de una lista de textos?",
           "options": [
             "Porque así un estado nuevo se incluye automáticamente sin tocar el cálculo.",
+            "Porque es más corto de escribir.",
             "Porque los Set son obligatorios.",
-            "No hay diferencia.",
-            "Porque es más corto de escribir."
+            "No hay diferencia."
           ],
           "correctIndex": 0,
           "explanation": "La lógica sigue a la configuración en lugar de depender de textos repetidos."
@@ -4108,9 +4108,9 @@
           "question": "¿Cuál es la mejor forma de encontrar los lugares que dependen de los estados?",
           "options": [
             "Buscar en todo el proyecto los nombres de los estados existentes.",
+            "Esperar a que aparezca un error.",
             "Leer solo el CSS.",
-            "Revisar solo index.html.",
-            "Esperar a que aparezca un error."
+            "Revisar solo index.html."
           ],
           "correctIndex": 0,
           "explanation": "La búsqueda global encuentra comparaciones, filtros, colores e importaciones."
@@ -4212,22 +4212,22 @@
           "options": [
             "No importa.",
             "Porque es más rápido.",
-            "Para que entren en los respaldos, migraciones y el ciclo de guardar y redibujar.",
-            "Porque localStorage solo admite una clave."
+            "Porque localStorage solo admite una clave.",
+            "Para que entren en los respaldos, migraciones y el ciclo de guardar y redibujar."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Todo lo que la aplicación guarda debe seguir el mismo camino."
         },
         {
           "id": "proy-4-q2",
           "question": "¿Dónde se coloca el script del módulo nuevo en index.html?",
           "options": [
-            "En otro archivo HTML.",
-            "Al principio del head.",
             "Junto a los otros módulos, antes del script de arranque.",
-            "Después de app.js."
+            "Después de app.js.",
+            "En otro archivo HTML.",
+            "Al principio del head."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Debe usar las utilidades ya cargadas y existir cuando arranca la aplicación."
         },
         {
@@ -4236,8 +4236,8 @@
           "options": [
             "Un único commit gigante.",
             "Commits pequeños por pieza, descripción con pasos de prueba y revisión en verde.",
-            "Desactivar las Actions.",
-            "No tener descripción."
+            "No tener descripción.",
+            "Desactivar las Actions."
           ],
           "correctIndex": 1,
           "explanation": "Quien revisa (tú incluido) puede seguir el cambio paso a paso."
@@ -4249,7 +4249,7 @@
       "id": "lec-29",
       "kind": "chapter",
       "code": "Lec. 29",
-      "module": "10 · Nube: Firebase",
+      "module": "10 · Nube y servidores",
       "title": "Firebase: de la página local a la nube",
       "subtitle": "Qué es un backend, crear el proyecto y conectar el SDK.",
       "estimatedMinutes": 40,
@@ -4276,7 +4276,7 @@
         {
           "id": "lec-29-sec-3",
           "title": "3. Conectar el SDK en tu página",
-          "body": "Firebase se usa con `import` desde su servidor (CDN). Por eso el archivo que lo carga debe ser `type=\"module\"` (verás los módulos a fondo en la lección 37). Copia la URL exacta con la versión que te muestre la consola.\n\n**Sobre la `apiKey`**: en las apps web de Firebase, esa configuración **no es secreta**; identifica el proyecto y viaja a todos los navegadores. Lo que protege tus datos son las **reglas de seguridad** (lección 32). Lo que nunca debe ir en el repositorio son contraseñas, claves de cuentas de servicio o claves de otras APIs.",
+          "body": "Firebase se usa con `import` desde su servidor (CDN). Por eso el archivo que lo carga debe ser `type=\"module\"` (verás los módulos a fondo en la lección 43). Copia la URL exacta con la versión que te muestre la consola.\n\n**Sobre la `apiKey`**: en las apps web de Firebase, esa configuración **no es secreta**; identifica el proyecto y viaja a todos los navegadores. Lo que protege tus datos son las **reglas de seguridad** (lección 32). Lo que nunca debe ir en el repositorio son contraseñas, claves de cuentas de servicio o claves de otras APIs.",
           "codeLanguage": "javascript",
           "codeSnippet": "// En index.html:  <script type=\"module\" src=\"js/datos/nube.js\"></script>\n// js/datos/nube.js\nimport { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';\nimport { getAuth } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';\nimport { getFirestore } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nconst app = initializeApp({\n  apiKey: '…',\n  authDomain: 'mi-proyecto.firebaseapp.com',\n  projectId: 'mi-proyecto',\n  // …el resto que copiaste de la consola\n});\nexport const auth = getAuth(app);\nexport const db = getFirestore(app);",
           "keyTakeaway": "La configuración web es pública; la seguridad la ponen las reglas. Secretos de verdad: nunca en el repositorio."
@@ -4335,9 +4335,9 @@
           "question": "¿Qué problema de localStorage resuelve Firestore?",
           "options": [
             "Que cada navegador tiene sus propios datos y no se comparten.",
-            "Que localStorage es más lento que Excel.",
             "Que localStorage no guarda texto.",
-            "Que localStorage necesita internet."
+            "Que localStorage necesita internet.",
+            "Que localStorage es más lento que Excel."
           ],
           "correctIndex": 0,
           "explanation": "Firestore guarda los datos en un solo lugar en la nube, accesible desde todos los equipos."
@@ -4346,9 +4346,9 @@
           "id": "lec-29-q2",
           "question": "¿Qué protege realmente los datos de una app web de Firebase?",
           "options": [
+            "Esconder la apiKey.",
             "El nombre del proyecto.",
             "Que el repositorio sea privado.",
-            "Esconder la apiKey.",
             "Las reglas de seguridad configuradas en Firebase."
           ],
           "correctIndex": 3,
@@ -4358,12 +4358,12 @@
           "id": "lec-29-q3",
           "question": "¿Por qué el archivo que importa Firebase debe tener `type=\"module\"`?",
           "options": [
-            "Porque usa import, que solo funciona en scripts de tipo módulo.",
+            "Para que cargue más rápido.",
             "Porque así se oculta la apiKey.",
             "Porque Firebase lo exige por seguridad.",
-            "Para que cargue más rápido."
+            "Porque usa import, que solo funciona en scripts de tipo módulo."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Sin type=\"module\", la palabra import produce un error de sintaxis."
         }
       ],
@@ -4373,7 +4373,7 @@
       "id": "lec-30",
       "kind": "chapter",
       "code": "Lec. 30",
-      "module": "10 · Nube: Firebase",
+      "module": "10 · Nube y servidores",
       "title": "Inicio de sesión con Firebase Authentication",
       "subtitle": "Usuarios, sesión que se recuerda y pantallas según quién entra.",
       "estimatedMinutes": 45,
@@ -4466,33 +4466,33 @@
           "id": "lec-30-q1",
           "question": "¿Por qué conviene usar onAuthStateChanged en lugar de comprobar el usuario una sola vez?",
           "options": [
-            "Porque es más corto.",
             "Porque avisa al cargar y cada vez que alguien entra o sale, incluida la sesión recordada.",
-            "Porque es la única forma de cerrar sesión.",
-            "Porque crea usuarios."
+            "Porque es más corto.",
+            "Porque crea usuarios.",
+            "Porque es la única forma de cerrar sesión."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "La sesión puede restaurarse sola o cambiar en cualquier momento."
         },
         {
           "id": "lec-30-q2",
           "question": "¿Por qué un mensaje de error no debe decir 'ese correo no existe'?",
           "options": [
-            "Porque confunde al técnico.",
-            "Porque es muy largo.",
+            "Porque ayudaría a un atacante a averiguar qué correos están registrados.",
             "Porque Firebase no lo permite.",
-            "Porque ayudaría a un atacante a averiguar qué correos están registrados."
+            "Porque es muy largo.",
+            "Porque confunde al técnico."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Un mensaje genérico protege la lista de usuarios."
         },
         {
           "id": "lec-30-q3",
           "question": "¿Dónde deben guardarse las contraseñas de los usuarios?",
           "options": [
-            "En el archivo de configuración.",
-            "En ningún lugar de tu código ni de tus datos: las gestiona Firebase Authentication.",
             "En localStorage.",
+            "En ningún lugar de tu código ni de tus datos: las gestiona Firebase Authentication.",
+            "En el archivo de configuración.",
             "En un documento de Firestore."
           ],
           "correctIndex": 1,
@@ -4505,7 +4505,7 @@
       "id": "lec-31",
       "kind": "chapter",
       "code": "Lec. 31",
-      "module": "10 · Nube: Firebase",
+      "module": "10 · Nube y servidores",
       "title": "Firestore: guardar y leer datos compartidos",
       "subtitle": "Colecciones, documentos, consultas, tiempo real y modo sin conexión.",
       "estimatedMinutes": 50,
@@ -4596,36 +4596,36 @@
           "id": "lec-31-q1",
           "question": "¿Cómo conviene guardar la lista de actividades en Firestore?",
           "options": [
-            "Como un archivo Excel.",
             "En una sola cadena de texto.",
             "Como una colección con un documento por actividad.",
+            "Como un archivo Excel.",
             "Todo el estado en un único documento."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Un documento por registro evita el límite de tamaño y los choques entre usuarios."
         },
         {
           "id": "lec-31-q2",
           "question": "¿Qué hace onSnapshot?",
           "options": [
+            "Llama a tu función con los datos ahora y cada vez que cambian.",
             "Toma una captura de pantalla.",
             "Lee los datos una sola vez.",
-            "Llama a tu función con los datos ahora y cada vez que cambian.",
             "Borra la colección."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Es la base del tiempo real: cualquier cambio llega a todos los equipos."
         },
         {
           "id": "lec-31-q3",
           "question": "En una app web, ¿cómo se consigue que Firestore funcione sin conexión entre sesiones?",
           "options": [
-            "Viene activado siempre y no se puede cambiar.",
             "Activando la caché persistente al inicializar Firestore.",
-            "Guardando todo en localStorage a mano.",
-            "No es posible en la web."
+            "Viene activado siempre y no se puede cambiar.",
+            "No es posible en la web.",
+            "Guardando todo en localStorage a mano."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "En la web la persistencia está desactivada por defecto; se activa con persistentLocalCache."
         }
       ],
@@ -4635,7 +4635,7 @@
       "id": "lec-32",
       "kind": "chapter",
       "code": "Lec. 32",
-      "module": "10 · Nube: Firebase",
+      "module": "10 · Nube y servidores",
       "title": "Reglas de seguridad y roles",
       "subtitle": "Quién puede leer y cambiar qué: planificador y técnico.",
       "estimatedMinutes": 45,
@@ -4725,9 +4725,9 @@
           "id": "lec-32-q1",
           "question": "¿Por qué ocultar un botón no es suficiente para impedir una acción?",
           "options": [
-            "Porque Firebase muestra todos los botones.",
-            "Porque los botones ocultos siguen visibles.",
             "Sí es suficiente.",
+            "Porque los botones ocultos siguen visibles.",
+            "Porque Firebase muestra todos los botones.",
             "Porque cualquiera puede ejecutar la operación desde la consola del navegador; solo las reglas del servidor la impiden."
           ],
           "correctIndex": 3,
@@ -4737,24 +4737,24 @@
           "id": "lec-32-q2",
           "question": "¿Qué representa `request.resource.data` en una regla?",
           "options": [
-            "La lista de colecciones.",
-            "El usuario que hace la petición.",
             "El documento tal como está ahora.",
-            "Cómo quedaría el documento si se permite la escritura."
+            "Cómo quedaría el documento si se permite la escritura.",
+            "La lista de colecciones.",
+            "El usuario que hace la petición."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "resource.data es el estado actual; request.resource.data, el estado propuesto."
         },
         {
           "id": "lec-32-q3",
           "question": "¿Dónde conviene guardar el rol de cada usuario?",
           "options": [
-            "En el nombre del correo.",
             "En un documento de usuarios que el propio usuario no puede modificar.",
+            "En el nombre del correo.",
             "En una variable de la página.",
             "En localStorage del usuario."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Si el usuario pudiera escribir su rol, podría darse permisos de planificador."
         }
       ],
@@ -4764,7 +4764,7 @@
       "id": "proy-5",
       "kind": "chapter",
       "code": "Proy. 5",
-      "module": "10 · Nube: Firebase",
+      "module": "10 · Nube y servidores",
       "title": "Llevar tus datos a Firestore",
       "subtitle": "Migrar el respaldo, sincronizar en tiempo real y poder volver atrás.",
       "estimatedMinutes": 120,
@@ -4854,32 +4854,32 @@
           "id": "proy-5-q1",
           "question": "¿Por qué conviene conservar los ids originales al subir los datos?",
           "options": [
+            "Para que las relaciones entre registros (como tecnicoId) sigan funcionando.",
             "Porque Firestore no puede generar ids.",
             "Para que ocupen menos espacio.",
-            "No hay ventaja.",
-            "Para que las relaciones entre registros (como tecnicoId) sigan funcionando."
+            "No hay ventaja."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Si los ids cambian, las actividades apuntarían a técnicos que no existen."
         },
         {
           "id": "proy-5-q2",
           "question": "¿Para qué sirve el interruptor USAR_NUBE?",
           "options": [
-            "Para apagar internet.",
-            "Para volver rápidamente al modo local si la nube da problemas.",
+            "Para borrar Firestore.",
             "Para cambiar de usuario.",
-            "Para borrar Firestore."
+            "Para apagar internet.",
+            "Para volver rápidamente al modo local si la nube da problemas."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Es el plan de retorno de la migración."
         },
         {
           "id": "proy-5-q3",
           "question": "En modo nube, ¿por qué la acción no llama a redibujarTodo después de updateDoc?",
           "options": [
-            "Porque redibujar está prohibido con Firebase.",
             "Por error.",
+            "Porque redibujar está prohibido con Firebase.",
             "Porque onSnapshot recibe el cambio y redibuja en todos los equipos.",
             "Porque updateDoc borra la pantalla."
           ],
@@ -4893,6 +4893,893 @@
       "id": "lec-33",
       "kind": "chapter",
       "code": "Lec. 33",
+      "module": "10 · Nube y servidores",
+      "title": "Dónde publicar: tipos de hosting",
+      "subtitle": "Hosting estático, compartido, VPS, servidor privado y nube: cuál conviene y por qué.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Distinguir hosting estático, hosting compartido, VPS, servidor privado y nube.",
+        "Elegir dónde publicar según privacidad, costo, control y trabajo de mantenimiento.",
+        "Publicar con Firebase Hosting desde la terminal."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-33-sec-1",
+          "title": "1. Tu página es estática (y eso es una ventaja)",
+          "body": "Una página **estática** es un conjunto de archivos (HTML, CSS, JS, imágenes) que el servidor solo **entrega**, sin ejecutar nada. Tu página de mantenimiento es así: toda la lógica corre en el navegador, y si usas Firebase, los datos van directo del navegador a Firestore.\n\nPor eso puede vivir en **cualquier** tipo de servidor: desde uno gratuito hasta una PC de la oficina. Lo que cambia entre opciones no es si funciona, sino **quién puede verla, cuánto cuesta y cuánto trabajo te da**.\n\nSi algún día necesitas código en el servidor (enviar correos, conectar con SAP, generar informes pesados), ya no basta un hosting estático: necesitarás funciones en la nube (como Cloud Functions de Firebase) o un VPS.",
+          "keyTakeaway": "Una página estática puede vivir en cualquier servidor; la elección es de privacidad, costo y mantenimiento."
+        },
+        {
+          "id": "lec-33-sec-2",
+          "title": "2. Las opciones, de menos a más trabajo",
+          "body": "- **Hosting estático gestionado** (GitHub Pages, Firebase Hosting, Cloudflare Pages, Netlify, Vercel): subes los archivos o conectas el repositorio y listo. HTTPS incluido, casi siempre con plan gratuito. Ojo: GitHub Pages desde un repositorio **privado** requiere un plan de pago de GitHub, y sus términos no lo plantean para uso comercial; Cloudflare Pages, en cambio, no limita el ancho de banda de archivos estáticos en su plan gratuito y permite uso comercial.\n- **Hosting compartido** (el clásico \"hosting web\" con cPanel): un servidor compartido con otros clientes, con panel de control, correo y PHP. Barato y conocido; subes por el administrador de archivos o por FTP/SFTP (lección 35).\n- **VPS** (servidor privado virtual): una máquina Linux en la nube solo para ti. Control total, pero tú instalas, actualizas y aseguras todo (lección 36).\n- **Servidor privado en la empresa** (intranet): una PC o servidor dentro de la red de la oficina. Los datos no salen del edificio, pero solo se accede desde esa red, y el HTTPS da más trabajo (lección 37).\n- **Nube grande** (AWS, Google Cloud, Azure): almacenamiento de archivos estáticos con CDN. Muy potente y escalable, pero con facturación por uso y más configuración: para cuando tu proyecto crezca mucho.\n\nLos precios y límites de los planes cambian con frecuencia: revisa siempre la página oficial de precios antes de decidir.",
+          "keyTakeaway": "Gestionado para empezar; compartido si ya lo pagas; VPS si quieres control; intranet si los datos no deben salir."
+        },
+        {
+          "id": "lec-33-sec-3",
+          "title": "3. Publicar con Firebase Hosting",
+          "body": "Si ya usas Firebase para los datos, su Hosting es la opción más natural: mismo proyecto, HTTPS y dominio propio gratis. Se usa con la herramienta de terminal **firebase-tools** (necesita Node.js, lección 24).\n\n`firebase init hosting` pregunta la carpeta pública (usa `.` si tu `index.html` está en la raíz, y responde **No** a \"configure as a single-page app\" si tu página no usa rutas propias). Crea `firebase.json`, donde también puedes excluir archivos que no deben publicarse.",
+          "codeLanguage": "bash",
+          "codeSnippet": "npm install -g firebase-tools\nfirebase login                    # abre el navegador para autorizar\nfirebase init hosting             # elige tu proyecto y la carpeta pública\nfirebase hosting:channel:deploy prueba   # versión de prueba con URL temporal\nfirebase deploy --only hosting    # publicar en https://mi-proyecto.web.app",
+          "keyTakeaway": "Primero un canal de prueba con URL temporal; luego el deploy definitivo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo decidir dónde publicar.",
+        "rules": [
+          "Si la página maneja datos de clientes o internos, no la publiques en un sitio abierto sin inicio de sesión.",
+          "Prefiere opciones con HTTPS automático.",
+          "Elige la opción que puedas mantener tú: un VPS sin actualizar es un riesgo.",
+          "Revisa términos y precios oficiales (uso comercial, repositorios privados, límites de tráfico).",
+          "Documenta en el proyecto dónde está publicada la página y cómo se publica."
+        ],
+        "codeLanguage": "json",
+        "referenceCode": "{\n  \"hosting\": {\n    \"public\": \".\",\n    \"ignore\": [\"firebase.json\", \"**/.*\", \"**/node_modules/**\", \"pruebas/**\", \"documentacion/**\"]\n  }\n}"
+      },
+      "comparison": {
+        "scenario": "La empresa pide que la página no sea accesible para cualquiera en internet.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# Publicarla en GitHub Pages desde un repositorio público\n# y \"esconderla\" con una URL difícil de adivinar",
+        "juniorFlaws": [
+          "Una URL secreta no es seguridad: se comparte, queda en historiales y buscadores.",
+          "El código y, si hay datos en archivos, los datos, quedan públicos en el repositorio."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# Opción A: Firebase Hosting + inicio de sesión + reglas de Firestore (lecciones 30-32)\n# Opción B: servidor privado en la red de la empresa (lección 37)\n# Opción C: hosting con acceso protegido por usuario y contraseña del servidor",
+        "intermediateBenefits": [
+          "El acceso se controla con usuarios o con la red, no con un secreto en la URL.",
+          "El repositorio puede ser privado."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-33-ej-1",
+          "title": "Práctica 1: Elige el hosting",
+          "difficulty": "Básico",
+          "prompt": "Para cada caso, elige el tipo de hosting y explica por qué:\n1. Tu plataforma de estudio personal.\n2. La página de mantenimiento, usada por 10 personas desde la calle, con datos en Firestore.\n3. Una página que solo debe funcionar dentro de la oficina y cuyos datos no pueden salir del edificio.\n4. La empresa ya paga un hosting con cPanel para su sitio corporativo.",
+          "hint": "Piensa en quién la usa, desde dónde y qué datos maneja.",
+          "solutionExplanation": "1. Hosting estático gestionado (GitHub Pages o Cloudflare Pages): gratis y sin mantenimiento.\n2. Firebase Hosting: mismo proyecto que los datos, HTTPS y control de acceso con Authentication.\n3. Servidor privado en la red interna.\n4. Un subdominio en ese hosting compartido (por ejemplo `planificador.empresa.com`), si la empresa lo autoriza."
+        },
+        {
+          "id": "lec-33-ej-2",
+          "title": "Práctica 2: Tu primer deploy en Firebase",
+          "difficulty": "Intermedio",
+          "prompt": "Con tu proyecto de prueba de Firebase, publica una copia de tu página: instala firebase-tools, `firebase init hosting`, configura `ignore` para no subir `pruebas/` ni `documentacion/`, publica primero en un canal de prueba y luego con `firebase deploy`.",
+          "hint": "Si al abrir la URL ves la página de bienvenida de Firebase, `init` creó un index.html de ejemplo: no reemplaces el tuyo cuando lo pregunte.",
+          "solutionExplanation": "Tendrás tu página en https://tu-proyecto.web.app con HTTPS, lista para conectarle un dominio en la próxima lección."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-33-q1",
+          "question": "¿Por qué una página como la tuya puede publicarse en casi cualquier servidor?",
+          "options": [
+            "Porque es estática: el servidor solo entrega archivos y la lógica corre en el navegador.",
+            "Porque usa Excel.",
+            "Porque Firebase la convierte en un programa de Windows.",
+            "Porque no tiene CSS."
+          ],
+          "correctIndex": 0,
+          "explanation": "Un servidor que sabe entregar archivos basta para una página estática."
+        },
+        {
+          "id": "lec-33-q2",
+          "question": "¿Qué implica elegir un VPS?",
+          "options": [
+            "Que no se puede usar HTTPS.",
+            "Control total, pero tú instalas, actualizas y aseguras el servidor.",
+            "Que siempre es gratis.",
+            "Que no hace falta saber nada de Linux."
+          ],
+          "correctIndex": 1,
+          "explanation": "Más control significa más responsabilidad de mantenimiento."
+        },
+        {
+          "id": "lec-33-q3",
+          "question": "¿Es seguro proteger una página interna con una URL difícil de adivinar?",
+          "options": [
+            "No: las URL se comparten y filtran; el acceso debe controlarse con usuarios o con la red.",
+            "Sí, si está en GitHub Pages.",
+            "Sí, si tiene más de 20 caracteres.",
+            "Sí, si no tiene imágenes."
+          ],
+          "correctIndex": 0,
+          "explanation": "La seguridad por ocultamiento no protege los datos."
+        }
+      ],
+      "order": 39
+    },
+    {
+      "id": "lec-34",
+      "kind": "chapter",
+      "code": "Lec. 34",
+      "module": "10 · Nube y servidores",
+      "title": "Dominio, DNS y HTTPS",
+      "subtitle": "Tu propia dirección web, registros DNS y certificados que se renuevan solos.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es un dominio y cómo el DNS lo traduce a un servidor.",
+        "Configurar los registros A, CNAME y TXT para conectar un dominio o subdominio.",
+        "Entender los certificados HTTPS y por qué su renovación debe ser automática."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-34-sec-1",
+          "title": "1. Dominio y DNS",
+          "body": "Un **dominio** (`empresa.com`, `empresa.com.do`) es un nombre que alquilas por año a un registrador. El **DNS** es la agenda de internet: traduce ese nombre a la dirección IP del servidor.\n\nPuedes usar un **subdominio** sin comprar nada nuevo si la empresa ya tiene dominio: `planificador.empresa.com`. Solo hace falta que quien administra el DNS agregue un registro.\n\nRegistros que vas a usar:\n- **A**: nombre → dirección IPv4 (`203.0.113.10`). Para un VPS o un servidor propio.\n- **AAAA**: igual, pero IPv6.\n- **CNAME**: nombre → otro nombre (`planificador` → `mi-proyecto.web.app`). Para servicios gestionados.\n- **TXT**: texto de verificación; Firebase, Google y otros lo piden para comprobar que el dominio es tuyo.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "; Ejemplos de registros en el panel DNS de empresa.com\nplanificador   CNAME   usuario.github.io.          ; GitHub Pages\napp            A       203.0.113.10                ; un VPS\n@              TXT     \"hosting-site=mi-proyecto\"  ; verificación (ejemplo)",
+          "keyTakeaway": "A apunta a una IP, CNAME apunta a otro nombre y TXT verifica que el dominio es tuyo."
+        },
+        {
+          "id": "lec-34-sec-2",
+          "title": "2. Conectar y comprobar",
+          "body": "Cada plataforma te dice qué registros crear: en Firebase Hosting (*Agregar dominio personalizado*), en GitHub Pages (*Settings → Pages → Custom domain*), en Cloudflare Pages o en tu VPS (un registro A a su IP).\n\nLos cambios de DNS tardan en verse (la **propagación**): desde minutos hasta unas horas, según el **TTL** del registro. Compruébalo desde la terminal en vez de recargar el navegador sin parar.",
+          "codeLanguage": "bash",
+          "codeSnippet": "nslookup planificador.empresa.com        # Windows, macOS y Linux\ndig +short planificador.empresa.com       # macOS y Linux\ndig +short TXT empresa.com                # ver los registros TXT\ncurl -I https://planificador.empresa.com  # ver la respuesta y el certificado",
+          "keyTakeaway": "Verifica el DNS con nslookup o dig; la propagación puede tardar según el TTL."
+        },
+        {
+          "id": "lec-34-sec-3",
+          "title": "3. HTTPS y certificados",
+          "body": "**HTTPS** cifra la conexión y demuestra que el servidor es quien dice ser. Sin HTTPS no funcionan los service workers, la instalación como app ni el acceso a la cámara (módulo 11), y el navegador marca la página como \"No segura\".\n\nLas plataformas gestionadas emiten y renuevan el certificado solas. En un VPS o hosting compartido se usa normalmente **Let's Encrypt** (gratis), a través de Certbot o del AutoSSL del panel.\n\nLos certificados duran cada vez menos: Let's Encrypt emite hoy certificados de 90 días por defecto y pasará a 64 días en febrero de 2027 y a 45 días en febrero de 2028, siguiendo las reglas de la industria. Conclusión práctica: **la renovación debe ser automática**; renovar a mano es un apagón esperando su fecha.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Ver hasta cuándo es válido el certificado de un sitio\necho | openssl s_client -connect planificador.empresa.com:443 -servername planificador.empresa.com 2>/dev/null \\\n  | openssl x509 -noout -dates",
+          "keyTakeaway": "HTTPS siempre, y certificados con renovación automática y comprobada."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Dominios y certificados sin sorpresas.",
+        "rules": [
+          "El dominio a nombre de la empresa (o tuyo), nunca del proveedor ni de un tercero.",
+          "Renovación automática del dominio activada y un correo de contacto que alguien lea.",
+          "Documenta en el proyecto qué registros DNS existen y para qué.",
+          "Redirige siempre HTTP a HTTPS.",
+          "Revisa la fecha de vencimiento del certificado de vez en cuando o con un monitor."
+        ]
+      },
+      "comparison": {
+        "scenario": "Conectar `planificador.empresa.com` a tu página en Firebase Hosting.",
+        "juniorLabel": "Así no",
+        "juniorCode": "; Poner un registro A con la IP que salió en un ping a mi-proyecto.web.app\nplanificador   A   199.36.158.100",
+        "juniorFlaws": [
+          "Las IP de servicios gestionados pueden cambiar o no ser las indicadas para dominios propios.",
+          "Firebase no verifica el dominio y no emite el certificado."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "; Exactamente los registros que muestra Firebase en \"Agregar dominio personalizado\"\n; (verificación TXT + los registros que indique), luego esperar la propagación\n; y la emisión automática del certificado",
+        "intermediateBenefits": [
+          "El proveedor verifica el dominio y emite el certificado.",
+          "Si cambian su infraestructura, siguen respondiendo."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "lec-34-ej-1",
+          "title": "Práctica 1: Lee los registros DNS",
+          "difficulty": "Básico",
+          "prompt": "Con `nslookup` o `dig`, consulta los registros A y TXT de tres dominios que conozcas (por ejemplo el de tu empresa y dos sitios grandes). Anota qué IP tiene cada uno y si alguno usa CNAME.",
+          "hint": "dig +short CNAME www.dominio.com muestra si www es un alias.",
+          "solutionExplanation": "Leer DNS reales te prepara para configurar el tuyo y para diagnosticar cuando un dominio 'no carga'.",
+          "solutionCode": "dig +short A empresa.com\ndig +short CNAME www.empresa.com\ndig +short TXT empresa.com",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "lec-34-ej-2",
+          "title": "Práctica 2: Pide un subdominio",
+          "difficulty": "Intermedio",
+          "prompt": "Redacta el mensaje para el encargado de TI de tu empresa pidiendo el subdominio `planificador.empresa.com` para tu página en Firebase Hosting: qué registros necesitas, para qué es la página y quién la administra.",
+          "hint": "Los registros exactos los obtienes primero en Firebase → Hosting → Agregar dominio personalizado.",
+          "solutionExplanation": "Un pedido claro, con los registros exactos y el propósito, se aprueba mucho más rápido."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-34-q1",
+          "question": "¿Qué registro DNS usas para apuntar un subdominio a un servicio gestionado como GitHub Pages?",
+          "options": [
+            "PTR",
+            "SOA",
+            "MX",
+            "CNAME"
+          ],
+          "correctIndex": 3,
+          "explanation": "CNAME apunta un nombre a otro nombre; MX es para correo."
+        },
+        {
+          "id": "lec-34-q2",
+          "question": "Cambiaste un registro DNS y aún no ves el cambio. ¿Qué es lo más probable?",
+          "options": [
+            "El navegador no admite DNS.",
+            "La propagación todavía no termina, según el TTL del registro.",
+            "El dominio se borró.",
+            "Hay que reinstalar el sistema."
+          ],
+          "correctIndex": 1,
+          "explanation": "Los servidores DNS guardan la respuesta anterior durante el TTL."
+        },
+        {
+          "id": "lec-34-q3",
+          "question": "¿Por qué la renovación de certificados debe ser automática?",
+          "options": [
+            "Porque el DNS lo exige.",
+            "Porque renovarlos a mano está prohibido.",
+            "Porque así son más baratos.",
+            "Porque duran cada vez menos y olvidar una renovación deja la página sin HTTPS."
+          ],
+          "correctIndex": 3,
+          "explanation": "Con vigencias de 45 a 90 días, la renovación manual no es sostenible."
+        }
+      ],
+      "order": 40
+    },
+    {
+      "id": "lec-35",
+      "kind": "chapter",
+      "code": "Lec. 35",
+      "module": "10 · Nube y servidores",
+      "title": "Hosting compartido: cPanel, FTP y SFTP",
+      "subtitle": "Subir archivos a un hosting web tradicional y configurarlo con .htaccess.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Ubicar la carpeta pública de un hosting compartido y subir tu página.",
+        "Usar SFTP con un cliente como FileZilla, y saber por qué evitar FTP sin cifrar.",
+        "Configurar Apache con `.htaccess`: HTTPS obligatorio, caché y protección de carpetas."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-35-sec-1",
+          "title": "1. Dónde van los archivos",
+          "body": "En un hosting con **cPanel** (u otro panel como Plesk o DirectAdmin), el sitio principal se sirve desde la carpeta **`public_html`**. Un subdominio suele tener su propia carpeta (por ejemplo `public_html/planificador` o `planificador.empresa.com`); el panel te la muestra al crearlo en *Dominios*.\n\nDos formas de subir:\n- **Administrador de archivos** del panel: sube un `.zip` de tu proyecto y usa *Extraer*. Rápido para la primera vez.\n- **SFTP** con un programa como FileZilla o WinSCP: arrastras carpetas y solo subes lo que cambió.\n\nNo subas `.git`, `node_modules`, `pruebas` ni documentación interna: solo lo que la página necesita.",
+          "keyTakeaway": "public_html (o la carpeta del subdominio) es la raíz pública: todo lo que pongas ahí se puede descargar."
+        },
+        {
+          "id": "lec-35-sec-2",
+          "title": "2. SFTP, no FTP",
+          "body": "**FTP** envía usuario, contraseña y archivos **sin cifrar**: cualquiera en la misma red podría leerlos. Usa **SFTP** (por el puerto 22, sobre SSH) o, si el hosting no lo permite, **FTPS** (FTP con TLS).\n\nDatos para conectarte (te los da el hosting): servidor, usuario, contraseña o clave, y puerto. Crea en el panel una **cuenta FTP limitada** a la carpeta del subdominio en lugar de usar la cuenta principal del hosting.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# SFTP desde la terminal (también funciona en Windows 10/11)\nsftp -P 22 usuario@servidor.mihosting.com\nsftp> cd public_html/planificador\nsftp> put -r css\nsftp> put index.html\nsftp> bye",
+          "keyTakeaway": "SFTP o FTPS siempre; una cuenta FTP limitada a la carpeta de tu página."
+        },
+        {
+          "id": "lec-35-sec-3",
+          "title": "3. Configurar con .htaccess",
+          "body": "La mayoría de los hostings compartidos usan el servidor **Apache**, que lee el archivo **`.htaccess`** de cada carpeta. Con él puedes forzar HTTPS, controlar la caché del navegador y bloquear el acceso a archivos que no deben verse.\n\nActiva el certificado gratuito en el panel (*SSL/TLS* o *AutoSSL*) antes de forzar HTTPS. Algunos hostings usan LiteSpeed, que entiende las mismas reglas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "# .htaccess en la carpeta de la página\nRewriteEngine On\n# 1. Forzar HTTPS\nRewriteCond %{HTTPS} off\nRewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]\n\n# 2. No listar el contenido de las carpetas\nOptions -Indexes\n\n# 3. Bloquear archivos ocultos y de configuración\n<FilesMatch \"^\\.|\\.(md|json|lock)$\">\n  Require all denied\n</FilesMatch>\n<Files \"manifest.webmanifest\">\n  Require all granted\n</Files>\n\n# 4. Caché: archivos estáticos un mes; index.html siempre se revalida\n<IfModule mod_headers.c>\n  <FilesMatch \"\\.(css|js|png|svg|webp|woff2)$\">\n    Header set Cache-Control \"public, max-age=2592000\"\n  </FilesMatch>\n  <FilesMatch \"^(index\\.html|sw\\.js)$\">\n    Header set Cache-Control \"no-cache\"\n  </FilesMatch>\n</IfModule>",
+          "keyTakeaway": "Con .htaccess: HTTPS obligatorio, sin listado de carpetas, archivos internos bloqueados y caché controlada."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hosting compartido ordenado.",
+        "rules": [
+          "Un subdominio y una carpeta propios para la página, separados del sitio corporativo.",
+          "SFTP o FTPS con una cuenta limitada a esa carpeta.",
+          "SSL activado y redirección a HTTPS.",
+          "`index.html` y `sw.js` sin caché larga; el resto sí, cambiando el nombre o la versión cuando cambian.",
+          "Guarda una copia de la versión anterior en tu computadora antes de reemplazar archivos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Subir una actualización de la página al hosting.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# FTP sin cifrar con la cuenta principal del hosting,\n# arrastrando la carpeta completa del proyecto (con .git, pruebas y respaldos .json)",
+        "juniorFlaws": [
+          "La contraseña principal viaja sin cifrar.",
+          "Quedan públicos el historial de Git y los respaldos con datos.",
+          "Un error puede borrar el sitio corporativo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# SFTP con una cuenta limitada a public_html/planificador\n# subiendo solo: index.html, manifest.webmanifest, sw.js, css/, js/, config/, recursos/",
+        "intermediateBenefits": [
+          "Conexión cifrada y permisos mínimos.",
+          "Nada interno queda expuesto.",
+          "El resto del hosting no corre riesgo."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-35-ej-1",
+          "title": "Práctica 1: Lista de archivos públicos",
+          "difficulty": "Básico",
+          "prompt": "*En tu proyecto:* escribe la lista exacta de archivos y carpetas que deben subirse a un hosting y la de los que **no** deben subirse, con la razón de cada uno.",
+          "hint": "Piensa en qué necesita el navegador para mostrar la página y qué solo usas tú al desarrollar.",
+          "solutionExplanation": "Suben: index.html, manifest, sw.js, css, js, config, recursos y librerías. No suben: .git, .github, node_modules, pruebas, documentacion, package.json, archivos de configuración de linters y cualquier respaldo .json con datos."
+        },
+        {
+          "id": "lec-35-ej-2",
+          "title": "Práctica 2: Prueba el .htaccess",
+          "difficulty": "Intermedio",
+          "prompt": "Si tienes acceso a un hosting con Apache (o en uno de prueba), sube el `.htaccess` de la lección y comprueba con `curl -I` que: http redirige a https, una carpeta sin index no se lista y `index.html` devuelve `Cache-Control: no-cache`.",
+          "hint": "curl -I muestra solo los encabezados de la respuesta.",
+          "solutionExplanation": "Comprobar con curl evita depender de la caché del navegador, que puede engañarte.",
+          "solutionCode": "curl -I http://planificador.empresa.com          # 301 hacia https\ncurl -I https://planificador.empresa.com/css/    # 403 Forbidden\ncurl -I https://planificador.empresa.com/index.html | grep -i cache-control",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-35-q1",
+          "question": "¿Por qué no conviene usar FTP sin cifrar?",
+          "options": [
+            "Porque el usuario, la contraseña y los archivos viajan sin protección.",
+            "Porque cPanel lo prohíbe.",
+            "Porque no admite archivos HTML.",
+            "Porque es más lento que el correo."
+          ],
+          "correctIndex": 0,
+          "explanation": "SFTP o FTPS cifran la conexión."
+        },
+        {
+          "id": "lec-35-q2",
+          "question": "¿Qué hace `Options -Indexes` en un .htaccess?",
+          "options": [
+            "Impide que el servidor muestre la lista de archivos de una carpeta sin index.",
+            "Activa HTTPS.",
+            "Borra los archivos index.",
+            "Comprime las imágenes."
+          ],
+          "correctIndex": 0,
+          "explanation": "Evita exponer el contenido de carpetas por accidente."
+        },
+        {
+          "id": "lec-35-q3",
+          "question": "¿Por qué index.html y sw.js deben tener `Cache-Control: no-cache`?",
+          "options": [
+            "Porque son archivos privados.",
+            "Para que el navegador compruebe siempre si hay una versión nueva.",
+            "Para que carguen sin internet.",
+            "Para que no se descarguen nunca."
+          ],
+          "correctIndex": 1,
+          "explanation": "Si se guardan en caché mucho tiempo, los usuarios no reciben las actualizaciones."
+        }
+      ],
+      "order": 41
+    },
+    {
+      "id": "lec-36",
+      "kind": "chapter",
+      "code": "Lec. 36",
+      "module": "10 · Nube y servidores",
+      "title": "Servidor VPS con Linux y Nginx",
+      "subtitle": "SSH, firewall, Nginx, HTTPS con Certbot y subir cambios con rsync.",
+      "estimatedMinutes": 60,
+      "status": "published",
+      "objectives": [
+        "Conectarte a un VPS con SSH usando llaves y asegurarlo con lo básico.",
+        "Instalar Nginx y configurarlo para servir una página estática.",
+        "Obtener HTTPS con Certbot y comprobar su renovación automática.",
+        "Publicar cambios con rsync."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-36-sec-1",
+          "title": "1. Entrar y asegurar el servidor",
+          "body": "Al crear un VPS (en proveedores como DigitalOcean, Hetzner, Linode, Vultr o los VPS de tu hosting) eliges un sistema: usa una versión LTS de **Ubuntu** o **Debian**. Te dan una IP y acceso **SSH**.\n\nPrimeros pasos, siempre:\n1. Entrar con una **llave SSH** (no con contraseña).\n2. Actualizar el sistema y activar las actualizaciones de seguridad automáticas.\n3. Crear un usuario propio con `sudo` y no trabajar como `root`.\n4. Activar el **firewall** dejando pasar solo SSH, HTTP y HTTPS.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# En tu computadora: crear una llave y copiarla al servidor\nssh-keygen -t ed25519 -C \"mi-laptop\"\nssh-copy-id root@203.0.113.10\n\n# En el servidor\napt update && apt upgrade -y\napt install -y unattended-upgrades ufw\nadduser aronis && usermod -aG sudo aronis\nmkdir -p /home/aronis/.ssh && cp ~/.ssh/authorized_keys /home/aronis/.ssh/ && chown -R aronis: /home/aronis/.ssh\nufw allow OpenSSH && ufw allow 'Nginx Full' && ufw enable   # 'Nginx Full' existe tras instalar Nginx",
+          "keyTakeaway": "Llave SSH, sistema actualizado, usuario propio y firewall: antes de cualquier otra cosa."
+        },
+        {
+          "id": "lec-36-sec-2",
+          "title": "2. Nginx para una página estática",
+          "body": "**Nginx** es un servidor web rápido y liviano. Para una página estática solo necesitas indicarle el dominio y la carpeta. Guarda la configuración en `/etc/nginx/sites-available/` y actívala con un enlace en `sites-enabled`. Antes de recargar, **prueba la configuración** con `nginx -t`: un error de sintaxis podría tumbar todos los sitios del servidor.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "# /etc/nginx/sites-available/planificador\nserver {\n    listen 80;\n    server_name planificador.empresa.com;\n    root /var/www/planificador;\n    index index.html;\n\n    location / {\n        try_files $uri $uri/ =404;\n    }\n    location ~ /\\.(?!well-known) { deny all; }      # .git, .htaccess… (sin bloquear Certbot)\n    location ~* \\.(css|js|png|svg|webp|woff2)$ {\n        expires 30d;\n    }\n    location = /sw.js { add_header Cache-Control \"no-cache\"; }\n    location = /index.html { add_header Cache-Control \"no-cache\"; }\n}",
+          "keyTakeaway": "Un bloque server por sitio, prohibir archivos ocultos y caché distinta para index.html y sw.js."
+        },
+        {
+          "id": "lec-36-sec-3",
+          "title": "3. HTTPS y publicar",
+          "body": "Con el DNS apuntando a la IP del VPS (lección 34), **Certbot** obtiene el certificado de Let's Encrypt, modifica la configuración de Nginx para HTTPS y deja programada la renovación. Comprueba la renovación con un simulacro.\n\nPara publicar, **rsync** copia solo los archivos que cambiaron y puede excluir los que no deben subir. `--delete` borra en el servidor lo que ya no existe en tu carpeta: úsalo con cuidado y siempre con la carpeta correcta.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# En el servidor\nsudo apt install -y nginx certbot python3-certbot-nginx\nsudo mkdir -p /var/www/planificador && sudo chown aronis: /var/www/planificador\nsudo ln -s /etc/nginx/sites-available/planificador /etc/nginx/sites-enabled/\nsudo nginx -t && sudo systemctl reload nginx\nsudo certbot --nginx -d planificador.empresa.com --redirect\nsudo certbot renew --dry-run          # simulacro de renovación\n\n# En tu computadora: publicar\nrsync -avz --delete \\\n  --exclude '.git' --exclude 'node_modules' --exclude 'pruebas' --exclude 'documentacion' \\\n  ./ aronis@203.0.113.10:/var/www/planificador/",
+          "keyTakeaway": "Certbot para HTTPS con renovación probada; rsync con exclusiones para publicar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Un VPS que no se convierte en problema.",
+        "rules": [
+          "Solo acceso por llave SSH; desactiva el acceso con contraseña y el login de root cuando tu usuario funcione.",
+          "Actualizaciones de seguridad automáticas.",
+          "Firewall con solo los puertos necesarios.",
+          "`nginx -t` antes de cada recarga.",
+          "Copias de seguridad o instantáneas (snapshots) del proveedor activadas.",
+          "Anota en la documentación del proyecto la IP, el usuario y cómo se publica (nunca las contraseñas)."
+        ]
+      },
+      "comparison": {
+        "scenario": "Publicar una corrección en el VPS.",
+        "juniorLabel": "Así no",
+        "juniorCode": "ssh root@203.0.113.10          # con contraseña\nnano /var/www/planificador/js/modulos/actividades.js   # editar en producción",
+        "juniorFlaws": [
+          "Los cambios hechos en el servidor no quedan en Git y se pierden en la próxima publicación.",
+          "Trabajar como root con contraseña es un riesgo de seguridad.",
+          "Sin pruebas ni revisión antes de que lo vea el equipo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# Cambio en una rama → PR con revisión en verde → merge a main →\nrsync -avz --delete --exclude '.git' ./ aronis@203.0.113.10:/var/www/planificador/\n# (o automático con GitHub Actions, lección 38)",
+        "intermediateBenefits": [
+          "Git es la única fuente de verdad.",
+          "El servidor recibe exactamente lo que se revisó.",
+          "Acceso con llave y usuario sin privilegios."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-36-ej-1",
+          "title": "Práctica 1: Nginx en tu computadora",
+          "difficulty": "Intermedio",
+          "prompt": "Sin pagar un VPS: en Linux, en WSL de Windows o en una máquina virtual, instala Nginx, crea la configuración de la lección con `server_name localhost` y sirve una copia de tu página. Ábrela en `http://localhost`.",
+          "hint": "En WSL: `sudo apt install nginx` y `sudo service nginx start`.",
+          "solutionExplanation": "Practicar en local te da confianza con los comandos y los archivos de configuración antes de tocar un servidor real.",
+          "solutionCode": "sudo apt install -y nginx\nsudo mkdir -p /var/www/planificador\nsudo cp -r ~/copia-pagina/* /var/www/planificador/\nsudo nano /etc/nginx/sites-available/planificador     # pega la configuración\nsudo ln -s /etc/nginx/sites-available/planificador /etc/nginx/sites-enabled/\nsudo rm /etc/nginx/sites-enabled/default\nsudo nginx -t && sudo service nginx reload",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "lec-36-ej-2",
+          "title": "Práctica 2: Checklist de seguridad",
+          "difficulty": "Básico",
+          "prompt": "Escribe tu propia lista de verificación para un VPS nuevo, en orden, con el comando de cada paso. Debe incluir al menos: llave SSH, actualizaciones, usuario sin root, firewall, Nginx, HTTPS y simulacro de renovación.",
+          "hint": "Usa como base las secciones 1 y 3.",
+          "solutionExplanation": "Una lista propia, probada, te permite montar un servidor nuevo en minutos y sin olvidar pasos de seguridad."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-36-q1",
+          "question": "¿Por qué se ejecuta `nginx -t` antes de recargar Nginx?",
+          "options": [
+            "Para crear el certificado.",
+            "Para instalar Nginx.",
+            "Para borrar la caché.",
+            "Para comprobar que la configuración no tiene errores y no dejar caídos los sitios."
+          ],
+          "correctIndex": 3,
+          "explanation": "Una configuración inválida puede impedir que Nginx funcione."
+        },
+        {
+          "id": "lec-36-q2",
+          "question": "¿Qué hace `certbot renew --dry-run`?",
+          "options": [
+            "Simula la renovación de los certificados para comprobar que funcionará.",
+            "Borra los certificados.",
+            "Renueva el dominio.",
+            "Reinicia el servidor."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es la forma de probar la renovación automática sin esperar al vencimiento."
+        },
+        {
+          "id": "lec-36-q3",
+          "question": "¿Por qué no conviene editar los archivos directamente en el servidor?",
+          "options": [
+            "Porque esos cambios no quedan en Git y se pierden en la siguiente publicación.",
+            "Porque los archivos se vuelven más pesados.",
+            "Porque Nginx se borra.",
+            "Porque Linux no permite editar archivos."
+          ],
+          "correctIndex": 0,
+          "explanation": "El servidor debe recibir solo lo que está en el repositorio y fue revisado."
+        }
+      ],
+      "order": 42
+    },
+    {
+      "id": "lec-37",
+      "kind": "chapter",
+      "code": "Lec. 37",
+      "module": "10 · Nube y servidores",
+      "title": "Servidor privado en la empresa",
+      "subtitle": "Publicar en la red interna: IIS o Nginx, acceso por IP y el problema del HTTPS.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Publicar la página en un equipo de la red interna con IIS (Windows) o Nginx (Linux).",
+        "Acceder por IP o nombre interno y reservar una IP fija.",
+        "Entender por qué una dirección http interna limita funciones como el service worker, y cómo resolverlo.",
+        "Conocer opciones seguras de acceso desde fuera de la oficina."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-37-sec-1",
+          "title": "1. Cuándo y cómo",
+          "body": "Un servidor interno tiene sentido cuando **los datos no deben salir de la empresa** o la política de TI no permite servicios externos. Puede ser un servidor Windows, una PC dedicada con Linux o incluso un NAS que sirva páginas.\n\nLo que necesitas:\n- Un equipo **siempre encendido**, con **IP fija** (reservada en el router o asignada por TI).\n- Un servidor web: **IIS** en Windows (*Activar características de Windows → Internet Information Services*) o **Nginx** en Linux (lección 36).\n- Permiso de TI y una regla del **firewall** que permita el puerto 80/443 **solo dentro de la red**.\n\nEn IIS: crea un sitio nuevo, apúntalo a la carpeta de la página (por ejemplo `C:\\inetpub\\planificador`) y asigna el puerto. Agrega el tipo MIME `.webmanifest` → `application/manifest+json` si IIS no lo trae.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Prueba rápida sin instalar nada (desde la carpeta de la página):\npython -m http.server 8080 --bind 0.0.0.0\n# Desde otro equipo de la red: http://192.168.1.50:8080\n# (solo para probar; no lo dejes como servidor permanente)",
+          "keyTakeaway": "Equipo siempre encendido, IP fija, servidor web de verdad y firewall limitado a la red interna."
+        },
+        {
+          "id": "lec-37-sec-2",
+          "title": "2. El problema del HTTPS en la red interna",
+          "body": "Los navegadores solo permiten funciones como los **service workers**, la instalación como app o la cámara en un **contexto seguro**: páginas por `https://` o abiertas como `http://localhost`. Una dirección como `http://192.168.1.50` **no** es un contexto seguro, así que ahí no funcionará el modo sin conexión del módulo 11.\n\nSoluciones, de la más recomendable a la menos:\n- **Certificado de la empresa**: si TI tiene una autoridad certificadora interna (común con Active Directory), te emite un certificado para `planificador.empresa.local` y los equipos de la empresa ya confían en ella.\n- **Dominio real con certificado público**: un subdominio de la empresa (`planificador.interno.empresa.com`) que resuelve a la IP interna, con un certificado obtenido por validación DNS.\n- **Para pruebas**: herramientas como mkcert crean una autoridad local en tu equipo; no sirve para distribuir a todo el equipo sin instalarla en cada dispositivo.\n\nSi la página usa Firebase, recuerda que igual necesita **internet** para sincronizar: el servidor interno solo entrega los archivos.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Comprobar en la consola si la página está en un contexto seguro\nwindow.isSecureContext;   // false en http://192.168.1.50 → no habrá service worker",
+          "keyTakeaway": "Sin HTTPS (o localhost) no hay service worker ni instalación: planifica el certificado desde el inicio."
+        },
+        {
+          "id": "lec-37-sec-3",
+          "title": "3. Acceso desde fuera de la oficina",
+          "body": "Los técnicos en la calle no están en la red interna. **No abras el puerto del servidor en el router hacia internet**: expondrías un equipo interno a ataques. Opciones seguras:\n- **VPN de la empresa**: el técnico se conecta y queda \"dentro\" de la red.\n- **Redes privadas tipo malla** (como Tailscale o ZeroTier): cada dispositivo autorizado se une a una red privada cifrada; sencillo para equipos pequeños.\n- **Túneles con control de acceso** (como Cloudflare Tunnel con Cloudflare Access): publica el sitio sin abrir puertos y exige iniciar sesión antes de llegar a él.\n\nCualquiera de estas opciones requiere la aprobación de TI: son decisiones de seguridad de toda la empresa.",
+          "keyTakeaway": "Nunca abras puertos del router hacia un servidor interno: usa VPN, red privada o túnel con control de acceso."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Servidor interno responsable.",
+        "rules": [
+          "Aprobación de TI antes de instalar o exponer cualquier servicio.",
+          "IP fija y nombre interno documentados.",
+          "HTTPS con certificado de confianza para que funcionen todas las funciones de la página.",
+          "Firewall limitado a la red interna.",
+          "Copias de seguridad del equipo y plan si se apaga o se daña.",
+          "Acceso externo solo por VPN, red privada o túnel con autenticación."
+        ]
+      },
+      "comparison": {
+        "scenario": "Los técnicos necesitan abrir la página interna desde la calle.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# Router: redirigir el puerto 80 público hacia 192.168.1.50:80\n# y compartir la IP pública de la oficina por WhatsApp",
+        "juniorFlaws": [
+          "El servidor queda expuesto a escaneos y ataques de internet.",
+          "Sin HTTPS, todo viaja sin cifrar.",
+          "TI no sabe que existe ese acceso."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# Con aprobación de TI:\n# VPN de la empresa, o red privada (Tailscale/ZeroTier) con los celulares autorizados,\n# o túnel con inicio de sesión obligatorio delante del sitio",
+        "intermediateBenefits": [
+          "Ningún puerto abierto en el router.",
+          "Solo dispositivos o personas autorizadas llegan a la página.",
+          "Conexión cifrada de punta a punta."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-37-ej-1",
+          "title": "Práctica 1: Servidor de prueba en la red",
+          "difficulty": "Básico",
+          "prompt": "En tu computadora, levanta el servidor de prueba de Python desde una copia de la página y ábrela desde tu celular conectado al mismo Wi-Fi. En la consola (o con `isSecureContext` en una pestaña de depuración remota), comprueba que no es un contexto seguro.",
+          "hint": "Para ver tu IP local: `ipconfig` en Windows o `ip a` en Linux. Si no abre, revisa el firewall de Windows.",
+          "solutionExplanation": "Verás la página, pero el service worker no se registrará: es la limitación que explica la sección 2."
+        },
+        {
+          "id": "lec-37-ej-2",
+          "title": "Práctica 2: Propuesta para TI",
+          "difficulty": "Intermedio",
+          "prompt": "Redacta una propuesta breve para el departamento de TI con: propósito de la página, equipo donde correría, nombre interno deseado, necesidad de certificado HTTPS y cómo accederían los técnicos desde fuera. Incluye los riesgos y cómo se mitigan.",
+          "hint": "Usa las secciones 2 y 3 como guía para los puntos técnicos.",
+          "solutionExplanation": "Una propuesta que ya trae resueltas las preguntas de seguridad tiene muchas más posibilidades de aprobarse."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-37-q1",
+          "question": "¿Por qué el service worker no funciona en `http://192.168.1.50`?",
+          "options": [
+            "Porque las IP privadas no admiten JavaScript.",
+            "Porque no es un contexto seguro: hace falta HTTPS o localhost.",
+            "Porque falta el manifest.",
+            "Porque IIS no sirve archivos .js."
+          ],
+          "correctIndex": 1,
+          "explanation": "Los service workers solo se registran en contextos seguros."
+        },
+        {
+          "id": "lec-37-q2",
+          "question": "¿Cuál es una forma segura de dar acceso externo a una página interna?",
+          "options": [
+            "Publicar la IP pública en un grupo.",
+            "Abrir el puerto 80 del router hacia el servidor.",
+            "Desactivar el firewall.",
+            "Una VPN o red privada autorizada por TI."
+          ],
+          "correctIndex": 3,
+          "explanation": "El acceso pasa por un canal cifrado y autenticado, sin exponer el servidor."
+        },
+        {
+          "id": "lec-37-q3",
+          "question": "¿Para qué sirve `python -m http.server`?",
+          "options": [
+            "Para hacer pruebas rápidas sirviendo una carpeta, no como servidor permanente.",
+            "Para instalar IIS.",
+            "Para configurar el DNS.",
+            "Para crear certificados."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es un servidor mínimo de desarrollo."
+        }
+      ],
+      "order": 43
+    },
+    {
+      "id": "lec-38",
+      "kind": "chapter",
+      "code": "Lec. 38",
+      "module": "10 · Nube y servidores",
+      "title": "Despliegue automático a cualquier servidor",
+      "subtitle": "GitHub Actions hacia Firebase Hosting, un VPS o un hosting por FTP.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Guardar credenciales de despliegue como secretos de GitHub.",
+        "Crear workflows que publiquen al unir cambios a main: Firebase Hosting, VPS por SSH y hosting por FTP.",
+        "Hacer que la revisión y las pruebas sean requisito para publicar."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-38-sec-1",
+          "title": "1. La idea y los secretos",
+          "body": "Publicar a mano tiene dos riesgos: olvidar un paso y publicar algo que no pasó la revisión. Con **GitHub Actions** (lección 27) el servidor se actualiza solo cada vez que se une un cambio a `main`, **después** de que la revisión automática pasa.\n\nLas credenciales (llave SSH, contraseña de FTP, cuenta de servicio de Firebase) **nunca** van en el código: se guardan en *Settings → Secrets and variables → Actions* del repositorio. El workflow las lee como `${{ secrets.NOMBRE }}` y GitHub las oculta en los registros.\n\nCrea credenciales **exclusivas para el despliegue**, con el mínimo permiso: una llave SSH solo para eso, una cuenta FTP limitada a la carpeta de la página.",
+          "keyTakeaway": "Credenciales de despliegue exclusivas, con permisos mínimos y guardadas como secretos."
+        },
+        {
+          "id": "lec-38-sec-2",
+          "title": "2. Hacia Firebase Hosting",
+          "body": "Firebase genera el workflow por ti: `firebase init hosting:github` crea la cuenta de servicio, guarda el secreto en tu repositorio y escribe el archivo. Así se ve, con un paso de revisión antes de publicar:",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# .github/workflows/publicar-firebase.yml\nname: Publicar en Firebase Hosting\non:\n  push:\n    branches: [main]\njobs:\n  publicar:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20 }\n      - run: npm ci && npm run revisar          # si la revisión falla, no se publica\n      - uses: FirebaseExtended/action-hosting-deploy@v0\n        with:\n          repoToken: ${{ secrets.GITHUB_TOKEN }}\n          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}\n          channelId: live\n          projectId: mi-proyecto",
+          "keyTakeaway": "Revisión primero, publicación después: si algo falla, la versión publicada no cambia."
+        },
+        {
+          "id": "lec-38-sec-3",
+          "title": "3. Hacia un VPS o un hosting por FTP",
+          "body": "**VPS**: el workflow carga una llave SSH de despliegue y usa rsync, igual que harías tú (lección 36). Guarda también la huella del servidor (`known_hosts`) para evitar conexiones a un servidor falso.\n\n**Hosting compartido**: una acción de FTP/FTPS sube solo los archivos que cambiaron. Prefiere FTPS o SFTP según lo que permita el hosting.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# .github/workflows/publicar-vps.yml  (fragmento de pasos)\n      - name: Preparar SSH\n        run: |\n          mkdir -p ~/.ssh\n          echo \"${{ secrets.SSH_LLAVE_DESPLIEGUE }}\" > ~/.ssh/id_ed25519\n          chmod 600 ~/.ssh/id_ed25519\n          echo \"${{ secrets.SSH_KNOWN_HOSTS }}\" > ~/.ssh/known_hosts\n      - name: Publicar con rsync\n        run: |\n          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude 'node_modules' \\\n            --exclude 'pruebas' --exclude 'documentacion' \\\n            ./ despliegue@${{ secrets.VPS_IP }}:/var/www/planificador/\n\n# .github/workflows/publicar-ftp.yml  (fragmento de pasos)\n      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5\n        with:\n          server: ${{ secrets.FTP_SERVIDOR }}\n          username: ${{ secrets.FTP_USUARIO }}\n          password: ${{ secrets.FTP_CLAVE }}\n          protocol: ftps\n          server-dir: public_html/planificador/\n          exclude: |\n            **/.git*/**\n            **/node_modules/**\n            pruebas/**\n            documentacion/**",
+          "keyTakeaway": "rsync por SSH para un VPS; una acción de FTPS para un hosting compartido. Siempre con exclusiones."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Despliegue automático confiable.",
+        "rules": [
+          "Solo se publica desde `main`, después de la revisión y las pruebas.",
+          "Credenciales exclusivas de despliegue, con el permiso mínimo, guardadas como secretos.",
+          "Fija las versiones de las acciones (`@v4`, `@v4.3.5`) y actualízalas a propósito.",
+          "Exclusiones explícitas: nada de `.git`, pruebas, documentación ni datos.",
+          "Si una publicación sale mal: `git revert` del cambio y el workflow vuelve a publicar la versión anterior."
+        ]
+      },
+      "comparison": {
+        "scenario": "Configurar la publicación automática en un VPS.",
+        "juniorLabel": "Así no",
+        "juniorCode": "      - run: sshpass -p \"MiClave123\" rsync -avz ./ root@203.0.113.10:/var/www/planificador/",
+        "juniorFlaws": [
+          "La contraseña de root queda escrita en el repositorio y en su historial para siempre.",
+          "Se publica como root, con acceso total al servidor.",
+          "Sin exclusiones: se suben .git y archivos internos."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "      - run: |\n          rsync -avz --delete --exclude '.git' --exclude '.github' \\\n            ./ despliegue@${{ secrets.VPS_IP }}:/var/www/planificador/\n# llave SSH exclusiva en secrets; el usuario 'despliegue' solo puede escribir en esa carpeta",
+        "intermediateBenefits": [
+          "Ningún secreto en el código.",
+          "Permisos mínimos.",
+          "Solo los archivos públicos llegan al servidor."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "lec-38-ej-1",
+          "title": "Práctica 1: Workflow de Firebase",
+          "difficulty": "Intermedio",
+          "prompt": "En tu repositorio de prueba, ejecuta `firebase init hosting:github`, revisa el workflow que crea y agrégale el paso `npm ci && npm run revisar` antes de publicar. Haz un PR con un cambio pequeño, únelo y comprueba que la página se actualiza sola.",
+          "hint": "El asistente te pregunta si quieres publicar al unir a main y si quieres vistas previas de los PR: di que sí a ambos.",
+          "solutionExplanation": "Con las vistas previas, cada PR tendrá su propia URL temporal para probar antes de unir."
+        },
+        {
+          "id": "lec-38-ej-2",
+          "title": "Práctica 2: Usuario de despliegue",
+          "difficulty": "Avanzado",
+          "prompt": "En un VPS de prueba, crea un usuario `despliegue` que solo pueda escribir en `/var/www/planificador`, genera una llave SSH exclusiva para él y guarda la privada como secreto del repositorio. Obtén el contenido para `SSH_KNOWN_HOSTS` con `ssh-keyscan`.",
+          "hint": "El usuario no debe estar en el grupo sudo.",
+          "solutionExplanation": "Si esa llave se filtrara, el daño se limita a la carpeta de la página, no a todo el servidor.",
+          "solutionCode": "sudo adduser --disabled-password despliegue\nsudo chown -R despliegue: /var/www/planificador\nssh-keygen -t ed25519 -f llave-despliegue -C \"github-actions\" -N \"\"\nsudo mkdir -p /home/despliegue/.ssh\nsudo sh -c 'cat llave-despliegue.pub >> /home/despliegue/.ssh/authorized_keys'\nsudo chown -R despliegue: /home/despliegue/.ssh\nssh-keyscan 203.0.113.10        # copiar la salida al secreto SSH_KNOWN_HOSTS",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-38-q1",
+          "question": "¿Dónde deben guardarse la llave SSH o la contraseña de FTP que usa un workflow?",
+          "options": [
+            "En un comentario del código.",
+            "En los secretos del repositorio en GitHub.",
+            "En el README.",
+            "En el archivo del workflow."
+          ],
+          "correctIndex": 1,
+          "explanation": "Los secretos no aparecen en el código ni en los registros."
+        },
+        {
+          "id": "lec-38-q2",
+          "question": "¿Por qué el paso de revisión va antes del paso de publicación?",
+          "options": [
+            "Para que, si la revisión falla, no se publique nada y siga la versión anterior.",
+            "Para que la publicación sea más rápida.",
+            "No importa el orden.",
+            "Porque GitHub lo exige."
+          ],
+          "correctIndex": 0,
+          "explanation": "Un paso fallido detiene el workflow."
+        },
+        {
+          "id": "lec-38-q3",
+          "question": "Una publicación automática dejó un error en producción. ¿Qué haces?",
+          "options": [
+            "Desactivar GitHub Actions.",
+            "Editar el archivo directamente en el servidor.",
+            "Borrar el repositorio.",
+            "git revert del cambio; el workflow vuelve a publicar la versión anterior."
+          ],
+          "correctIndex": 3,
+          "explanation": "El repositorio sigue siendo la única fuente de verdad."
+        }
+      ],
+      "order": 44
+    },
+    {
+      "id": "proy-6",
+      "kind": "chapter",
+      "code": "Proy. 6",
+      "module": "10 · Nube y servidores",
+      "title": "Publicar tu página en tu propio servidor",
+      "subtitle": "Elegir dónde, conectar el dominio, HTTPS, despliegue automático y plan de retorno.",
+      "estimatedMinutes": 120,
+      "status": "published",
+      "objectives": [
+        "Tomar y documentar la decisión de dónde publicar la página.",
+        "Dejarla funcionando con dominio o nombre propio y HTTPS.",
+        "Automatizar la publicación desde main y tener un plan para volver atrás.",
+        "Vigilar que siga en línea."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-6-sec-1",
+          "title": "1. Decide y documenta",
+          "body": "Escribe en `documentacion/` un documento corto de **decisión de publicación**:\n- **Dónde**: Firebase Hosting, hosting compartido, VPS o servidor interno, y por qué.\n- **Dirección**: dominio o subdominio, o nombre interno.\n- **Quién administra** el servidor y el DNS.\n- **Cómo se publica**: workflow automático y, como respaldo, el procedimiento manual.\n- **Cómo se vuelve atrás**.\n\nEste documento es lo que permite que otra persona (o tú dentro de un año) mantenga la página sin adivinar.",
+          "keyTakeaway": "Una decisión escrita vale más que un servidor perfecto que solo tú entiendes."
+        },
+        {
+          "id": "proy-6-sec-2",
+          "title": "2. Plan de retorno",
+          "body": "Toda publicación debe poder deshacerse en minutos:\n- **Firebase Hosting** guarda el historial de versiones: en la consola puedes **revertir** a una anterior con un clic.\n- **Con Git y un workflow**: `git revert` del commit y el workflow publica de nuevo.\n- **En un VPS publicado a mano**: guarda una copia antes de reemplazar.\n\nPrueba el retorno **antes** de necesitarlo.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# VPS: copia de la versión actual antes de publicar\nssh aronis@203.0.113.10 'cp -a /var/www/planificador /var/www/planificador-anterior'\nrsync -avz --delete --exclude '.git' ./ aronis@203.0.113.10:/var/www/planificador/\n# Si algo sale mal:\nssh aronis@203.0.113.10 'rsync -a --delete /var/www/planificador-anterior/ /var/www/planificador/'",
+          "keyTakeaway": "Volver atrás debe ser un comando o un clic, probado de antemano."
+        },
+        {
+          "id": "proy-6-sec-3",
+          "title": "3. Vigilar que siga en línea",
+          "body": "Una página publicada puede caerse por un certificado vencido, un dominio sin renovar o un servidor apagado. Un **monitor de disponibilidad** (hay servicios con plan gratuito, como UptimeRobot o Better Stack) visita la página cada pocos minutos y te avisa por correo si no responde o si el certificado está por vencer.\n\nTambién puedes programar una comprobación propia con GitHub Actions.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# .github/workflows/vigilar.yml\nname: Comprobar que la página responde\non:\n  schedule:\n    - cron: '0 */6 * * *'     # cada 6 horas (hora UTC)\n  workflow_dispatch:\njobs:\n  comprobar:\n    runs-on: ubuntu-latest\n    steps:\n      - run: curl --fail --silent --show-error --max-time 20 https://planificador.empresa.com/ > /dev/null",
+          "keyTakeaway": "Si el workflow falla, GitHub te avisa por correo: un monitor gratuito y sencillo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Definición de terminado.",
+        "rules": [
+          "Documento de decisión de publicación en el repositorio.",
+          "Página accesible con HTTPS en su dirección definitiva.",
+          "Publicación automática desde main con revisión previa.",
+          "Retorno probado al menos una vez.",
+          "Monitor de disponibilidad activo.",
+          "Ningún secreto en el repositorio."
+        ]
+      },
+      "comparison": {
+        "scenario": "Entregar la publicación al equipo.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# \"Ya está en el servidor; si se cae, me avisan\" ",
+        "juniorFlaws": [
+          "Nadie más sabe cómo se publica ni cómo se arregla.",
+          "Los problemas se descubren cuando el equipo no puede trabajar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# documentacion/publicacion.md + workflow + retorno probado + monitor\n# y una prueba con el equipo: abrir, iniciar sesión, registrar una actividad",
+        "intermediateBenefits": [
+          "El conocimiento queda escrito.",
+          "Los problemas avisan antes de que el equipo los sufra."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "proy-6-ej-1",
+          "title": "Reto 1: Haz el proyecto",
+          "difficulty": "Avanzado",
+          "prompt": "Publica tu página en la opción que elijas (puede ser Firebase Hosting si no tienes otro servidor), con dirección definitiva, HTTPS, workflow de publicación, retorno probado y monitor. Entrega el documento de decisión por PR.",
+          "hint": "Si aún no tienes dominio, usa la dirección del proveedor (como mi-proyecto.web.app) y deja el paso del dominio documentado como pendiente.",
+          "solutionExplanation": "Lo importante es el proceso completo: decisión, publicación automática, retorno y vigilancia."
+        },
+        {
+          "id": "proy-6-ej-2",
+          "title": "Reto 2: Publica en dos lugares",
+          "difficulty": "Avanzado",
+          "prompt": "Configura dos workflows: uno que publique en Firebase Hosting y otro en un segundo destino (un VPS de prueba, un hosting compartido o Cloudflare Pages). Compara en tu documento: facilidad, velocidad, costo y trabajo de mantenimiento.",
+          "hint": "Cloudflare Pages puede conectarse directamente al repositorio sin escribir un workflow.",
+          "solutionExplanation": "Comparar con experiencia propia te da criterio para recomendar opciones a tu empresa o a otros clientes."
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-6-q1",
+          "question": "¿Por qué documentar la decisión de dónde y cómo se publica?",
+          "options": [
+            "Para que la página cargue más rápido.",
+            "No hace falta documentarlo.",
+            "Porque Firebase lo exige.",
+            "Para que otra persona pueda mantener la página sin adivinar."
+          ],
+          "correctIndex": 3,
+          "explanation": "El conocimiento que solo está en tu cabeza es un riesgo para el equipo."
+        },
+        {
+          "id": "proy-6-q2",
+          "question": "¿Qué ofrece Firebase Hosting para volver atrás?",
+          "options": [
+            "Un historial de versiones con la opción de revertir desde la consola.",
+            "Nada, hay que reinstalar.",
+            "Solo copias en papel.",
+            "Un botón para borrar el proyecto."
+          ],
+          "correctIndex": 0,
+          "explanation": "Cada deploy queda guardado y se puede restaurar."
+        },
+        {
+          "id": "proy-6-q3",
+          "question": "¿Para qué sirve un monitor de disponibilidad?",
+          "options": [
+            "Para crear usuarios.",
+            "Para acelerar la página.",
+            "Para traducir la página.",
+            "Para recibir un aviso si la página deja de responder o el certificado está por vencer."
+          ],
+          "correctIndex": 3,
+          "explanation": "Detecta problemas antes de que el equipo se dé cuenta."
+        }
+      ],
+      "order": 45
+    },
+    {
+      "id": "lec-39",
+      "kind": "chapter",
+      "code": "Lec. 39",
       "module": "11 · App en el campo",
       "title": "PWA: instalar tu página como app",
       "subtitle": "Manifest, íconos y el botón de instalar en el celular.",
@@ -4905,13 +5792,13 @@
       ],
       "theorySections": [
         {
-          "id": "lec-33-sec-1",
+          "id": "lec-39-sec-1",
           "title": "1. Qué es una PWA",
-          "body": "Una **PWA** es una página web que se puede **instalar** como una app: ícono en la pantalla de inicio, se abre a pantalla completa sin barra del navegador y puede funcionar sin conexión. Sigue siendo tu misma página: no pasa por tiendas de apps ni hay que reprogramarla.\n\nNecesita tres cosas:\n- **HTTPS**: GitHub Pages y Firebase Hosting ya lo dan.\n- Un **manifest**: un archivo JSON con el nombre, los colores y los íconos.\n- Un **service worker**: un script que controla la caché y el modo sin conexión (lección 34).",
+          "body": "Una **PWA** es una página web que se puede **instalar** como una app: ícono en la pantalla de inicio, se abre a pantalla completa sin barra del navegador y puede funcionar sin conexión. Sigue siendo tu misma página: no pasa por tiendas de apps ni hay que reprogramarla.\n\nNecesita tres cosas:\n- **HTTPS**: GitHub Pages y Firebase Hosting ya lo dan.\n- Un **manifest**: un archivo JSON con el nombre, los colores y los íconos.\n- Un **service worker**: un script que controla la caché y el modo sin conexión (lección 40).",
           "keyTakeaway": "PWA = HTTPS + manifest + service worker. Tu página ya tiene la primera."
         },
         {
-          "id": "lec-33-sec-2",
+          "id": "lec-39-sec-2",
           "title": "2. El manifest",
           "body": "Crea `manifest.webmanifest` en la raíz y enlázalo desde el `<head>`. Usa rutas **relativas** (`./`): en GitHub Pages tu página vive en una subcarpeta (`usuario.github.io/proyecto/`) y una ruta que empiece por `/` apuntaría a la raíz del dominio.\n\nLos íconos: al menos uno de 192×192 y otro de 512×512 en PNG. El de 512 con `\"purpose\": \"maskable\"` se adapta a los íconos redondos de Android si dejas margen alrededor del logo.",
           "codeLanguage": "json",
@@ -4919,7 +5806,7 @@
           "keyTakeaway": "Rutas relativas, nombre corto legible bajo el ícono y dos tamaños de ícono."
         },
         {
-          "id": "lec-33-sec-3",
+          "id": "lec-39-sec-3",
           "title": "3. Enlazarlo y ofrecer la instalación",
           "body": "En Android y en Chrome de escritorio, el navegador dispara el evento `beforeinstallprompt` cuando la página es instalable. Puedes guardarlo y mostrar tu propio botón \"Instalar app\". En iPhone no existe ese evento: se instala desde **Compartir → Agregar a pantalla de inicio**, así que muestra esa instrucción a quienes usan Safari.\n\nPara comprobar todo: DevTools → **Application → Manifest** muestra errores y los íconos detectados.",
           "codeLanguage": "html",
@@ -4956,15 +5843,15 @@
       },
       "exercises": [
         {
-          "id": "lec-33-ej-1",
+          "id": "lec-39-ej-1",
           "title": "Práctica 1: Manifest de tu página",
           "difficulty": "Básico",
           "prompt": "En una copia de tu página, crea los íconos de 192 y 512 px a partir del logo (con margen), escribe el manifest y enlázalo. Comprueba en DevTools → Application → Manifest que no hay errores.",
           "hint": "Cualquier editor de imágenes sirve; exporta en PNG con fondo de color sólido.",
-          "solutionExplanation": "La página aún no será instalable del todo hasta tener el service worker (lección 34), pero el manifest ya debe aparecer sin errores."
+          "solutionExplanation": "La página aún no será instalable del todo hasta tener el service worker (lección 40), pero el manifest ya debe aparecer sin errores."
         },
         {
-          "id": "lec-33-ej-2",
+          "id": "lec-39-ej-2",
           "title": "Práctica 2: Instrucciones para iPhone",
           "difficulty": "Intermedio",
           "prompt": "Muestra un aviso \"Para instalar: Compartir → Agregar a pantalla de inicio\" solo a quienes usan iPhone con Safari y aún no tienen la app instalada.",
@@ -4976,31 +5863,31 @@
       ],
       "exam": [
         {
-          "id": "lec-33-q1",
+          "id": "lec-39-q1",
           "question": "¿Qué tres cosas necesita una página para ser una PWA instalable?",
           "options": [
-            "HTTPS, un manifest y un service worker.",
             "Solo un ícono grande.",
-            "Firebase y React.",
-            "Un servidor propio, Java y una tienda de apps."
+            "Un servidor propio, Java y una tienda de apps.",
+            "HTTPS, un manifest y un service worker.",
+            "Firebase y React."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Son los requisitos básicos de instalación."
         },
         {
-          "id": "lec-33-q2",
+          "id": "lec-39-q2",
           "question": "¿Por qué en GitHub Pages conviene `\"start_url\": \"./\"` en vez de `\"/\"`?",
           "options": [
-            "No hay diferencia.",
-            "Porque './' carga más rápido.",
             "Porque GitHub no acepta barras.",
-            "Porque la página vive en una subcarpeta y '/' apunta a la raíz del dominio."
+            "Porque './' carga más rápido.",
+            "Porque la página vive en una subcarpeta y '/' apunta a la raíz del dominio.",
+            "No hay diferencia."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "La ruta relativa respeta la carpeta del proyecto."
         },
         {
-          "id": "lec-33-q3",
+          "id": "lec-39-q3",
           "question": "¿Cómo se instala una PWA en un iPhone?",
           "options": [
             "Con el evento beforeinstallprompt.",
@@ -5012,12 +5899,12 @@
           "explanation": "iOS no dispara beforeinstallprompt; se instala desde el menú de Compartir."
         }
       ],
-      "order": 39
+      "order": 46
     },
     {
-      "id": "lec-34",
+      "id": "lec-40",
       "kind": "chapter",
-      "code": "Lec. 34",
+      "code": "Lec. 40",
       "module": "11 · App en el campo",
       "title": "Service worker: funcionar sin conexión",
       "subtitle": "Caché de archivos, estrategias y avisar de versiones nuevas.",
@@ -5031,7 +5918,7 @@
       ],
       "theorySections": [
         {
-          "id": "lec-34-sec-1",
+          "id": "lec-40-sec-1",
           "title": "1. Qué es y cómo se registra",
           "body": "Un **service worker** es un script que el navegador ejecuta aparte de la página y que puede **interceptar las peticiones** de archivos. Si no hay conexión, responde con la copia guardada. No tiene acceso al DOM ni a localStorage.\n\nCiclo de vida: se **instala** (aprovechas para guardar archivos), se **activa** (borras cachés viejas) y luego **controla** las páginas. Se registra desde la página, con ruta relativa:",
           "codeLanguage": "javascript",
@@ -5039,7 +5926,7 @@
           "keyTakeaway": "Registra el service worker al cargar, con ruta relativa y sin romper si el navegador no lo soporta."
         },
         {
-          "id": "lec-34-sec-2",
+          "id": "lec-40-sec-2",
           "title": "2. El archivo sw.js",
           "body": "La estrategia más útil para una aplicación como la tuya:\n- **Archivos de la app** (HTML, CSS, JS, íconos): *primero la caché*, porque cambian solo cuando publicas.\n- **El `index.html`**: *primero la red*, para recibir versiones nuevas, y la caché si no hay conexión.\n- **Firestore**: no lo toques; el SDK ya maneja su propio modo sin conexión (lección 31). Solo intercepta peticiones `GET` de tu propio sitio.\n\nCambia `VERSION` cada vez que publiques: así se crea una caché nueva y se borra la anterior.",
           "codeLanguage": "javascript",
@@ -5047,7 +5934,7 @@
           "keyTakeaway": "Red primero para la página, caché primero para los archivos, y una versión por publicación."
         },
         {
-          "id": "lec-34-sec-3",
+          "id": "lec-40-sec-3",
           "title": "3. Avisar de una versión nueva",
           "body": "El error clásico de las PWA: publicas una corrección y los técnicos siguen viendo la versión vieja durante días. Cuando el navegador descarga un `sw.js` distinto, el nuevo queda **esperando**. Detecta ese momento, muestra un aviso \"Hay una versión nueva\" y, si el usuario acepta, pídele que se active y recarga.",
           "codeLanguage": "javascript",
@@ -5084,7 +5971,7 @@
       },
       "exercises": [
         {
-          "id": "lec-34-ej-1",
+          "id": "lec-40-ej-1",
           "title": "Práctica 1: Sin conexión",
           "difficulty": "Intermedio",
           "prompt": "En tu copia, crea `sw.js` con la lista de archivos de tu página, regístralo y publícalo en una rama de GitHub Pages o en local con Live Server. En DevTools → Network marca Offline y recarga: la página debe abrir.",
@@ -5092,7 +5979,7 @@
           "solutionExplanation": "Para obtener la lista de archivos, copia las rutas de los `<link>` y `<script>` de tu index.html."
         },
         {
-          "id": "lec-34-ej-2",
+          "id": "lec-40-ej-2",
           "title": "Práctica 2: Lista de archivos automática",
           "difficulty": "Intermedio",
           "prompt": "Escribe en la consola de tu página una expresión que genere la lista `ARCHIVOS` a partir de los `<link rel=\"stylesheet\">` y `<script src>` del documento, con rutas relativas.",
@@ -5104,48 +5991,48 @@
       ],
       "exam": [
         {
-          "id": "lec-34-q1",
+          "id": "lec-40-q1",
           "question": "¿Qué puede hacer un service worker que la página no puede?",
           "options": [
-            "Modificar el DOM directamente.",
+            "Leer localStorage.",
             "Instalar programas en el equipo.",
-            "Interceptar peticiones de archivos y responder desde la caché sin conexión.",
-            "Leer localStorage."
+            "Modificar el DOM directamente.",
+            "Interceptar peticiones de archivos y responder desde la caché sin conexión."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Funciona como intermediario entre la página y la red; no tiene acceso al DOM."
         },
         {
-          "id": "lec-34-q2",
+          "id": "lec-40-q2",
           "question": "¿Por qué se cambia la constante VERSION en cada publicación?",
           "options": [
-            "Para cerrar sesión.",
-            "Para cambiar el ícono.",
+            "Porque el navegador lo exige cada día.",
             "Para crear una caché nueva y que se borre la vieja, entregando los archivos actualizados.",
-            "Porque el navegador lo exige cada día."
+            "Para cerrar sesión.",
+            "Para cambiar el ícono."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Si la versión no cambia, los usuarios pueden quedarse con archivos antiguos."
         },
         {
-          "id": "lec-34-q3",
+          "id": "lec-40-q3",
           "question": "¿Qué estrategia conviene para el index.html?",
           "options": [
-            "Solo caché, nunca la red.",
             "No incluirlo nunca.",
-            "Solo red, nunca caché.",
-            "Primero la red y, si falla, la copia en caché."
+            "Primero la red y, si falla, la copia en caché.",
+            "Solo caché, nunca la red.",
+            "Solo red, nunca caché."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Así se reciben las versiones nuevas cuando hay conexión y la app abre igual sin ella."
         }
       ],
-      "order": 40
+      "order": 47
     },
     {
-      "id": "lec-35",
+      "id": "lec-41",
       "kind": "chapter",
-      "code": "Lec. 35",
+      "code": "Lec. 41",
       "module": "11 · App en el campo",
       "title": "IndexedDB: más espacio en el navegador",
       "subtitle": "Una base de datos local para miles de registros y fotos.",
@@ -5159,13 +6046,13 @@
       ],
       "theorySections": [
         {
-          "id": "lec-35-sec-1",
+          "id": "lec-41-sec-1",
           "title": "1. ¿Por qué otra forma de guardar?",
           "body": "`localStorage` (lección 20) es simple, pero:\n- Tiene unos **5 MB** y guarda solo texto.\n- Es **síncrono**: guardar un estado grande congela la página un instante.\n\n**IndexedDB** es una base de datos dentro del navegador:\n- Permite **mucho más espacio** (cientos de MB, según el equipo).\n- Es **asíncrona**: no congela la interfaz.\n- Guarda **objetos y archivos** (`Blob`), como las fotos que toma un técnico.\n\nSi usas Firestore con caché persistente, Firebase ya usa IndexedDB por dentro. Úsalo tú directamente para lo que **no** va a la nube: borradores, fotos pendientes de subir o un modo local con muchos datos.",
           "keyTakeaway": "localStorage para ajustes pequeños; IndexedDB para muchos registros o archivos."
         },
         {
-          "id": "lec-35-sec-2",
+          "id": "lec-41-sec-2",
           "title": "2. Una envoltura con promesas",
           "body": "La API original de IndexedDB usa eventos y es incómoda. Con unas pocas líneas la conviertes en funciones que se usan con `await`. Una base tiene **almacenes** (object stores), parecidos a las colecciones; cada registro se guarda por su `id`.",
           "codeLanguage": "javascript",
@@ -5173,7 +6060,7 @@
           "keyTakeaway": "Cuatro funciones (guardar, leer, todos, borrar) y ya no vuelves a pelear con los eventos."
         },
         {
-          "id": "lec-35-sec-3",
+          "id": "lec-41-sec-3",
           "title": "3. Fotos de evidencia",
           "body": "Un `<input type=\"file\" accept=\"image/*\" capture=\"environment\">` abre la cámara trasera del celular. El archivo elegido es un `Blob` que IndexedDB guarda tal cual, sin convertirlo a texto (convertir a base64 lo haría un tercio más pesado).\n\nPara mostrar la foto, crea una URL temporal con `URL.createObjectURL` y libérala cuando ya no la necesites.",
           "codeLanguage": "javascript",
@@ -5210,7 +6097,7 @@
       },
       "exercises": [
         {
-          "id": "lec-35-ej-1",
+          "id": "lec-41-ej-1",
           "title": "Práctica 1: Borradores que no se pierden",
           "difficulty": "Intermedio",
           "prompt": "Usando las funciones de la lección, guarda en el almacén `borradores` el contenido del formulario de actividad cada vez que el usuario escribe (evento `input`), y al abrir el formulario ofrece recuperarlo. Recuerda crear el almacén en `onupgradeneeded` subiendo la versión de la base a 2.",
@@ -5220,7 +6107,7 @@
           "codeLanguage": "javascript"
         },
         {
-          "id": "lec-35-ej-2",
+          "id": "lec-41-ej-2",
           "title": "Práctica 2: ¿Cuánto espacio tengo?",
           "difficulty": "Básico",
           "prompt": "En la consola de tu página, usa `navigator.storage.estimate()` para ver cuánto espacio usa y cuánto tiene disponible, en megabytes.",
@@ -5232,48 +6119,48 @@
       ],
       "exam": [
         {
-          "id": "lec-35-q1",
+          "id": "lec-41-q1",
           "question": "¿Cuándo conviene IndexedDB en lugar de localStorage?",
           "options": [
-            "Para guardar un solo ajuste pequeño.",
-            "Solo cuando hay internet.",
             "Nunca, son iguales.",
-            "Cuando hay muchos registros o archivos como fotos."
+            "Para guardar un solo ajuste pequeño.",
+            "Cuando hay muchos registros o archivos como fotos.",
+            "Solo cuando hay internet."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "IndexedDB tiene más espacio, es asíncrono y guarda archivos."
         },
         {
-          "id": "lec-35-q2",
+          "id": "lec-41-q2",
           "question": "¿Dónde se crean los almacenes (object stores) de una base IndexedDB?",
           "options": [
             "En el service worker obligatoriamente.",
-            "En cualquier momento con put.",
             "En el manifest.",
+            "En cualquier momento con put.",
             "En el evento onupgradeneeded, al crear la base o subir su versión."
           ],
           "correctIndex": 3,
           "explanation": "La estructura solo puede cambiar durante una actualización de versión."
         },
         {
-          "id": "lec-35-q3",
+          "id": "lec-41-q3",
           "question": "¿Por qué no conviene guardar las fotos como texto base64?",
           "options": [
+            "Porque IndexedDB no acepta texto.",
             "Porque base64 no existe en el navegador.",
             "Porque ocupan aproximadamente un tercio más y hay que convertirlas.",
-            "Porque IndexedDB no acepta texto.",
             "Porque se ven en blanco y negro."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "IndexedDB guarda Blob directamente, sin conversión ni sobrepeso."
         }
       ],
-      "order": 41
+      "order": 48
     },
     {
-      "id": "lec-36",
+      "id": "lec-42",
       "kind": "chapter",
-      "code": "Lec. 36",
+      "code": "Lec. 42",
       "module": "11 · App en el campo",
       "title": "Imprimir y generar PDF",
       "subtitle": "Órdenes de trabajo y reportes con @media print.",
@@ -5286,7 +6173,7 @@
       ],
       "theorySections": [
         {
-          "id": "lec-36-sec-1",
+          "id": "lec-42-sec-1",
           "title": "1. @media print",
           "body": "Al imprimir (`Ctrl+P` o `window.print()`), el navegador aplica las reglas dentro de `@media print`. La receta básica:\n- **Ocultar** menú, botones, filtros y todo lo interactivo.\n- **Mostrar** solo el contenido del documento, a todo el ancho.\n- **Colores sobrios**: fondo blanco y texto negro (ahorra tinta y se lee mejor).\n- **Mostrar** cosas que solo existen en papel, como un encabezado con logo y fecha.\n\n\"Guardar como PDF\" está en el mismo diálogo de impresión de todos los navegadores: no necesitas ninguna librería.",
           "codeLanguage": "css",
@@ -5294,7 +6181,7 @@
           "keyTakeaway": "En impresión: ocultar la interfaz, mostrar el documento, blanco y negro."
         },
         {
-          "id": "lec-36-sec-2",
+          "id": "lec-42-sec-2",
           "title": "2. Página, márgenes y saltos",
           "body": "- `@page { size: letter; margin: 15mm; }` define el tamaño y los márgenes (en RD se usa mucho el tamaño carta).\n- `break-inside: avoid` evita que una fila de tabla o una tarjeta quede partida entre dos hojas.\n- `break-before: page` fuerza una hoja nueva (por ejemplo, una orden por hoja).\n- `thead { display: table-header-group; }` repite los encabezados de la tabla en cada hoja.\n- `print-color-adjust: exact` respeta los colores de fondo cuando de verdad importan (como los chips de estado).",
           "codeLanguage": "css",
@@ -5302,7 +6189,7 @@
           "keyTakeaway": "Tamaño carta, nada partido entre hojas y encabezados repetidos."
         },
         {
-          "id": "lec-36-sec-3",
+          "id": "lec-42-sec-3",
           "title": "3. Una orden de trabajo desde los datos",
           "body": "La orden imprimible es otra plantilla (lección 14) que se llena con una actividad y se coloca en un contenedor `.solo-impresion`. Luego llamas a `window.print()`. Incluye lo que el papel necesita y la pantalla no: número de orden, fecha de impresión y espacios para firmas.",
           "codeLanguage": "javascript",
@@ -5340,7 +6227,7 @@
       },
       "exercises": [
         {
-          "id": "lec-36-ej-1",
+          "id": "lec-42-ej-1",
           "title": "Práctica 1: Vista de impresión de tu página",
           "difficulty": "Básico",
           "prompt": "En tu copia, agrega `@media print` que oculte el menú, los filtros y los botones, y ponga la tabla de actividades a todo el ancho con encabezados repetidos. Pruébalo con la emulación de impresión de las DevTools.",
@@ -5348,7 +6235,7 @@
           "solutionExplanation": "Con la emulación ves el resultado sin gastar papel ni abrir el diálogo cada vez."
         },
         {
-          "id": "lec-36-ej-2",
+          "id": "lec-42-ej-2",
           "title": "Práctica 2: Reporte semanal por técnico",
           "difficulty": "Intermedio",
           "prompt": "Escribe `htmlReporteSemanal(acts, tecs, desde, hasta)` que genere una sección por técnico (cada una en una hoja nueva) con sus actividades finalizadas en ese rango y el total.",
@@ -5360,48 +6247,48 @@
       ],
       "exam": [
         {
-          "id": "lec-36-q1",
+          "id": "lec-42-q1",
           "question": "¿Qué hace el bloque `@media print { … }`?",
           "options": [
-            "Aplica esas reglas solo al imprimir o guardar como PDF.",
             "Convierte la página a PDF.",
             "Solo funciona en impresoras láser.",
+            "Aplica esas reglas solo al imprimir o guardar como PDF.",
             "Imprime la página automáticamente."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Es una media query para el medio impreso."
         },
         {
-          "id": "lec-36-q2",
+          "id": "lec-42-q2",
           "question": "¿Qué evita `break-inside: avoid` en una fila de tabla?",
           "options": [
-            "Que la fila se imprima.",
             "Que la tabla tenga bordes.",
             "Que el texto se ajuste.",
+            "Que la fila se imprima.",
             "Que la fila quede partida entre dos hojas."
           ],
           "correctIndex": 3,
           "explanation": "La fila se mueve completa a la hoja siguiente si no cabe."
         },
         {
-          "id": "lec-36-q3",
+          "id": "lec-42-q3",
           "question": "¿Cómo genera un usuario un PDF de la orden de trabajo sin librerías?",
           "options": [
             "Con localStorage.",
-            "Exportando a Excel.",
+            "No es posible sin librerías.",
             "Eligiendo 'Guardar como PDF' en el diálogo de impresión.",
-            "No es posible sin librerías."
+            "Exportando a Excel."
           ],
           "correctIndex": 2,
           "explanation": "Todos los navegadores modernos incluyen esa opción."
         }
       ],
-      "order": 42
+      "order": 49
     },
     {
-      "id": "proy-6",
+      "id": "proy-7",
       "kind": "chapter",
-      "code": "Proy. 6",
+      "code": "Proy. 7",
       "module": "11 · App en el campo",
       "title": "Página instalable con reporte imprimible",
       "subtitle": "Manifest, service worker y una orden de trabajo lista para imprimir.",
@@ -5414,13 +6301,13 @@
       ],
       "theorySections": [
         {
-          "id": "proy-6-sec-1",
+          "id": "proy-7-sec-1",
           "title": "1. Lo que vas a entregar",
-          "body": "Al terminar, un técnico podrá instalar la página en su celular, abrirla sin señal, y el planificador podrá imprimir o guardar como PDF la orden de cada actividad. Piezas:\n1. Íconos y `manifest.webmanifest` (lección 33).\n2. `sw.js` con la lista de archivos, versión y estrategias (lección 34).\n3. Registro del service worker y aviso de versión nueva.\n4. Hoja `@media print` en la capa de estilos (lección 36).\n5. Plantilla de orden de trabajo y botón \"Imprimir\" en cada actividad.\n6. Reporte del día imprimible desde la pantalla de actividades.\n\nTrabaja en la rama `app-instalable`, con commits por pieza.",
+          "body": "Al terminar, un técnico podrá instalar la página en su celular, abrirla sin señal, y el planificador podrá imprimir o guardar como PDF la orden de cada actividad. Piezas:\n1. Íconos y `manifest.webmanifest` (lección 39).\n2. `sw.js` con la lista de archivos, versión y estrategias (lección 40).\n3. Registro del service worker y aviso de versión nueva.\n4. Hoja `@media print` en la capa de estilos (lección 42).\n5. Plantilla de orden de trabajo y botón \"Imprimir\" en cada actividad.\n6. Reporte del día imprimible desde la pantalla de actividades.\n\nTrabaja en la rama `app-instalable`, con commits por pieza.",
           "keyTakeaway": "Seis piezas, un commit por pieza y una rama propia."
         },
         {
-          "id": "proy-6-sec-2",
+          "id": "proy-7-sec-2",
           "title": "2. Mantener sw.js al día",
           "body": "El riesgo de una PWA es olvidar actualizar la lista de archivos o la versión al publicar. Hazlo parte del proceso:\n- Una línea en tu guía de publicación: \"¿Cambié `VERSION` en `sw.js`?\".\n- Mejor aún, una prueba simple que compare los archivos de `index.html` con la lista de `sw.js` y falle si falta alguno.",
           "codeLanguage": "javascript",
@@ -5428,7 +6315,7 @@
           "keyTakeaway": "Convierte el 'no olvidar' en una prueba automática."
         },
         {
-          "id": "proy-6-sec-3",
+          "id": "proy-7-sec-3",
           "title": "3. Probar en el campo",
           "body": "Antes de dar por terminado el proyecto, prueba lo que vivirá el técnico:\n- Instalar desde un Android y desde un iPhone.\n- Modo avión: abrir la app, ver actividades y (si usas Firestore) cambiar un estado; al recuperar señal, comprobar que llegó.\n- Publicar un cambio y ver aparecer el aviso de versión nueva.\n- Imprimir una orden y guardarla como PDF desde el celular y desde la PC.",
           "keyTakeaway": "Prueba en dispositivos reales, en modo avión y con una publicación nueva."
@@ -5463,7 +6350,7 @@
       },
       "exercises": [
         {
-          "id": "proy-6-ej-1",
+          "id": "proy-7-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
           "prompt": "Implementa las seis piezas en tu página y entrégalas por PR, con capturas de: la app instalada, la página abierta en modo avión y una orden de trabajo en PDF.",
@@ -5471,7 +6358,7 @@
           "solutionExplanation": "La impresión da valor inmediato aunque la parte de PWA tarde más en quedar perfecta."
         },
         {
-          "id": "proy-6-ej-2",
+          "id": "proy-7-ej-2",
           "title": "Reto 2: Indicador de conexión",
           "difficulty": "Intermedio",
           "prompt": "Muestra en la barra superior un indicador \"Sin conexión\" cuando el equipo pierde internet y ocúltalo al recuperarla.",
@@ -5483,31 +6370,31 @@
       ],
       "exam": [
         {
-          "id": "proy-6-q1",
+          "id": "proy-7-q1",
           "question": "¿Por qué conviene una prueba que compare index.html con la lista de sw.js?",
           "options": [
+            "Para cambiar el ícono.",
             "Para borrar la caché.",
             "Para que no se publique una versión a la que le falte un archivo en la caché.",
-            "Para que la página cargue más rápido.",
-            "Para cambiar el ícono."
+            "Para que la página cargue más rápido."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Un archivo olvidado haría que la app falle sin conexión."
         },
         {
-          "id": "proy-6-q2",
+          "id": "proy-7-q2",
           "question": "¿Cuál es la mejor prueba de que la app funciona en el campo?",
           "options": [
-            "Abrirla en la PC con internet.",
+            "Revisar solo el código.",
             "Instalarla en celulares reales y usarla en modo avión.",
             "Preguntar a un compañero si le gusta.",
-            "Revisar solo el código."
+            "Abrirla en la PC con internet."
           ],
           "correctIndex": 1,
           "explanation": "Reproduce las condiciones reales del técnico."
         },
         {
-          "id": "proy-6-q3",
+          "id": "proy-7-q3",
           "question": "¿Por qué empezar el proyecto por la impresión?",
           "options": [
             "Porque el manifest la incluye.",
@@ -5519,12 +6406,12 @@
           "explanation": "Entregar primero lo independiente y útil reduce el riesgo del proyecto."
         }
       ],
-      "order": 43
+      "order": 50
     },
     {
-      "id": "lec-37",
+      "id": "lec-43",
       "kind": "chapter",
-      "code": "Lec. 37",
+      "code": "Lec. 43",
       "module": "12 · Calidad avanzada",
       "title": "Módulos de JavaScript: import y export",
       "subtitle": "Adiós al orden frágil de los scripts.",
@@ -5538,7 +6425,7 @@
       ],
       "theorySections": [
         {
-          "id": "lec-37-sec-1",
+          "id": "lec-43-sec-1",
           "title": "1. El problema de los scripts globales",
           "body": "En tu página, cada `<script>` deja sus funciones en el ámbito global y el siguiente las usa (lección 19). Funciona, pero:\n- El **orden** de los scripts es una dependencia invisible: si lo cambias, algo se rompe.\n- Dos archivos pueden usar **el mismo nombre** sin darse cuenta y uno pisa al otro.\n- Para saber de dónde viene una función hay que buscar en todo el proyecto.\n\nCon **módulos**, cada archivo dice explícitamente qué **exporta** y qué **importa**. El navegador resuelve el orden solo.",
           "codeLanguage": "javascript",
@@ -5546,7 +6433,7 @@
           "keyTakeaway": "Cada archivo declara lo que ofrece (export) y lo que necesita (import)."
         },
         {
-          "id": "lec-37-sec-2",
+          "id": "lec-43-sec-2",
           "title": "2. Lo que cambia con type=\"module\"",
           "body": "Un `<script type=\"module\">`:\n- Tiene **ámbito propio**: lo que declara no es global. Por eso el código de la consola ya no ve `S` ni tus funciones (puedes exponer a propósito lo que necesites: `window.S = S`).\n- Va en **modo estricto** automáticamente.\n- Se ejecuta **diferido** (después de leer el HTML), como si tuviera `defer`.\n- Las rutas de `import` deben ser relativas (`./`, `../`) o URL completas, **con la extensión `.js`**.\n- **No funciona abriendo el archivo con doble clic** (`file://`): el navegador lo bloquea por seguridad. Necesitas un servidor: Live Server en VS Code, GitHub Pages o Firebase Hosting.\n\nCon un solo punto de entrada en el HTML basta: `app.js` importa lo que necesita, y esos archivos importan lo suyo.",
           "codeLanguage": "html",
@@ -5554,7 +6441,7 @@
           "keyTakeaway": "Un módulo no es global, va diferido y necesita un servidor: el doble clic deja de servir."
         },
         {
-          "id": "lec-37-sec-3",
+          "id": "lec-43-sec-3",
           "title": "3. Migrar poco a poco",
           "body": "No hace falta convertir toda la página de golpe. Un camino seguro:\n1. Empieza por las **utilidades** (no dependen de nada): conviértelas en módulo y, para no romper el resto, exponlas también en `window` temporalmente.\n2. Sigue con **un módulo de pantalla** pequeño.\n3. Cuando todo sea módulo, quita los `window.` temporales y deja un solo `<script type=\"module\">`.\n4. Ajusta la configuración de ESLint para módulos (`sourceType: 'module'`).\n\nLos botones con `data-act` siguen funcionando igual: la delegación (lección 17) no depende de variables globales.",
           "codeLanguage": "javascript",
@@ -5592,7 +6479,7 @@
       },
       "exercises": [
         {
-          "id": "lec-37-ej-1",
+          "id": "lec-43-ej-1",
           "title": "Práctica 1: Tu primer módulo",
           "difficulty": "Básico",
           "prompt": "Crea `calculos.js` que exporte `diasEntre` y `sumarDias` (lección 15), y un `principal.js` que los importe y muestre en la consola los días entre dos fechas. Cárgalo con `type=\"module\"` y ábrelo con Live Server.",
@@ -5602,7 +6489,7 @@
           "codeLanguage": "javascript"
         },
         {
-          "id": "lec-37-ej-2",
+          "id": "lec-43-ej-2",
           "title": "Práctica 2: Plan de migración",
           "difficulty": "Intermedio",
           "prompt": "*En tu página:* lista los archivos de `js/` en el orden en que aparecen en `index.html` y marca cuáles no dependen de ningún otro. Esos serán los primeros en convertirse a módulo. Escribe el plan por etapas en un archivo de la carpeta `documentacion/`.",
@@ -5612,23 +6499,23 @@
       ],
       "exam": [
         {
-          "id": "lec-37-q1",
+          "id": "lec-43-q1",
           "question": "¿Qué problema principal resuelven los módulos de JavaScript?",
           "options": [
             "Permiten usar Excel.",
-            "Hacen que la página no necesite HTML.",
+            "Eliminan la necesidad de CSS.",
             "Hacen explícitas las dependencias entre archivos y eliminan el orden frágil de los scripts.",
-            "Eliminan la necesidad de CSS."
+            "Hacen que la página no necesite HTML."
           ],
           "correctIndex": 2,
           "explanation": "Cada archivo declara qué importa y qué exporta."
         },
         {
-          "id": "lec-37-q2",
+          "id": "lec-43-q2",
           "question": "¿Por qué una página con módulos deja de funcionar al abrirla con doble clic?",
           "options": [
-            "Porque solo funcionan en celulares.",
             "Porque necesitan Firebase.",
+            "Porque solo funcionan en celulares.",
             "Porque los módulos requieren internet.",
             "Porque el navegador bloquea los módulos cargados desde file:// y hace falta un servidor."
           ],
@@ -5636,7 +6523,7 @@
           "explanation": "Usa Live Server, GitHub Pages o Firebase Hosting."
         },
         {
-          "id": "lec-37-q3",
+          "id": "lec-43-q3",
           "question": "En un script de tipo módulo, ¿las funciones declaradas quedan disponibles en la consola?",
           "options": [
             "Solo las que empiezan con mayúscula.",
@@ -5648,12 +6535,12 @@
           "explanation": "El ámbito propio evita choques de nombres entre archivos."
         }
       ],
-      "order": 44
+      "order": 51
     },
     {
-      "id": "lec-38",
+      "id": "lec-44",
       "kind": "chapter",
-      "code": "Lec. 38",
+      "code": "Lec. 44",
       "module": "12 · Calidad avanzada",
       "title": "Tipos con JSDoc y @ts-check",
       "subtitle": "Que VS Code encuentre errores de datos antes de abrir la página.",
@@ -5666,7 +6553,7 @@
       ],
       "theorySections": [
         {
-          "id": "lec-38-sec-1",
+          "id": "lec-44-sec-1",
           "title": "1. Tipos sin cambiar de lenguaje",
           "body": "JavaScript no revisa los tipos: `act.fehca` (con una errata) simplemente da `undefined` y el error aparece después, lejos de la causa. **TypeScript** resuelve esto, pero obliga a compilar. Hay un punto medio: VS Code ya trae el revisor de TypeScript y puede leer **comentarios JSDoc** en archivos `.js` normales.\n\nEscribe `// @ts-check` en la primera línea de un archivo y VS Code empezará a subrayar errores. No cambia en nada cómo se ejecuta la página: son solo comentarios.",
           "codeLanguage": "javascript",
@@ -5674,7 +6561,7 @@
           "keyTakeaway": "@ts-check en la primera línea activa la revisión; JSDoc le dice qué tipos esperar."
         },
         {
-          "id": "lec-38-sec-2",
+          "id": "lec-44-sec-2",
           "title": "2. Describir tus datos",
           "body": "Con `@typedef` defines la forma de una actividad una vez, y la usas en todo el proyecto. VS Code te ofrecerá **autocompletado** de los campos y marcará las erratas. Es, además, la mejor documentación de los datos que puede tener tu proyecto.",
           "codeLanguage": "javascript",
@@ -5682,7 +6569,7 @@
           "keyTakeaway": "Un @typedef por tipo de registro; @param y @returns en las funciones importantes."
         },
         {
-          "id": "lec-38-sec-3",
+          "id": "lec-44-sec-3",
           "title": "3. Activarlo en todo el proyecto",
           "body": "En lugar de poner `// @ts-check` en cada archivo, crea `jsconfig.json` en la raíz con `checkJs: true`. Si un archivo da demasiados avisos al principio, pon `// @ts-nocheck` en él y ve corrigiéndolo poco a poco.\n\nAvisos frecuentes y su solución:\n- *Object is possibly 'null'*: `getElementById` puede devolver null → `$('x')?.…` o comprobar antes.\n- *Property 'x' does not exist on type*: errata, o falta el campo en el `@typedef`.\n- *Argument of type 'string' is not assignable to 'number'*: falta un `Number()`.",
           "codeLanguage": "json",
@@ -5719,7 +6606,7 @@
       },
       "exercises": [
         {
-          "id": "lec-38-ej-1",
+          "id": "lec-44-ej-1",
           "title": "Práctica 1: Tipos de tus datos",
           "difficulty": "Intermedio",
           "prompt": "*En tu página:* crea `js/datos/tipos.js` con un `@typedef` para Actividad, Técnico y Vehículo según la forma real de tus datos (mírala en la consola con `S.acts[0]`). Luego activa `@ts-check` en un módulo y corrige los avisos.",
@@ -5727,7 +6614,7 @@
           "solutionExplanation": "Escribir los tipos te obliga a decidir qué campos son obligatorios: muchas veces descubres datos inconsistentes."
         },
         {
-          "id": "lec-38-ej-2",
+          "id": "lec-44-ej-2",
           "title": "Práctica 2: Corrige los avisos",
           "difficulty": "Básico",
           "prompt": "Con `@ts-check`, este código da tres avisos. Corrígelos:\n```\nconst campo = document.getElementById('f-km');\nconst km = campo.value * 2;\nmostrar(km.toFixed(1), 'km');\n/** @param {string} texto */\nfunction mostrar(texto) { … }\n```",
@@ -5739,48 +6626,48 @@
       ],
       "exam": [
         {
-          "id": "lec-38-q1",
+          "id": "lec-44-q1",
           "question": "¿Qué hace `// @ts-check` al inicio de un archivo .js?",
           "options": [
             "Hace que el navegador revise los tipos.",
             "Activa la revisión de tipos de VS Code en ese archivo, sin cambiar cómo se ejecuta.",
-            "Convierte el archivo en TypeScript.",
-            "Borra los comentarios."
+            "Borra los comentarios.",
+            "Convierte el archivo en TypeScript."
           ],
           "correctIndex": 1,
           "explanation": "Es solo para el editor; el navegador lo ve como un comentario."
         },
         {
-          "id": "lec-38-q2",
+          "id": "lec-44-q2",
           "question": "¿Para qué sirve `@typedef`?",
           "options": [
-            "Para crear una tabla HTML.",
             "Para declarar una variable global.",
             "Para importar un archivo.",
+            "Para crear una tabla HTML.",
             "Para describir la forma de un objeto, como una actividad, y reutilizarla."
           ],
           "correctIndex": 3,
           "explanation": "Le da nombre a una forma de datos y activa el autocompletado de sus campos."
         },
         {
-          "id": "lec-38-q3",
+          "id": "lec-44-q3",
           "question": "¿Qué archivo activa la revisión de tipos en todo el proyecto?",
           "options": [
             "package-lock.json.",
             "jsconfig.json con checkJs en true.",
-            "manifest.webmanifest.",
-            "index.html."
+            "index.html.",
+            "manifest.webmanifest."
           ],
           "correctIndex": 1,
           "explanation": "jsconfig.json configura el revisor de JavaScript de VS Code."
         }
       ],
-      "order": 45
+      "order": 52
     },
     {
-      "id": "lec-39",
+      "id": "lec-45",
       "kind": "chapter",
-      "code": "Lec. 39",
+      "code": "Lec. 45",
       "module": "12 · Calidad avanzada",
       "title": "Lighthouse: rendimiento y accesibilidad",
       "subtitle": "Medir, entender las métricas y corregir lo que importa.",
@@ -5794,7 +6681,7 @@
       ],
       "theorySections": [
         {
-          "id": "lec-39-sec-1",
+          "id": "lec-45-sec-1",
           "title": "1. Ejecutar la auditoría",
           "body": "**Lighthouse** viene dentro de Chrome: DevTools → pestaña **Lighthouse** → elige *Mobile* → *Analyze page load*. Evalúa cuatro categorías de 0 a 100:\n- **Performance**: qué tan rápido carga y responde.\n- **Accessibility**: parte de las pautas de accesibilidad (contraste, etiquetas, nombres de botones…).\n- **Best Practices**: HTTPS, errores en la consola, librerías inseguras.\n- **SEO**: lo básico para buscadores (en una app interna importa poco).\n\nHaz la prueba en una ventana de incógnito (las extensiones alteran los resultados) y repítela un par de veces: los números varían un poco.",
           "codeLanguage": "bash",
@@ -5802,13 +6689,13 @@
           "keyTakeaway": "Lighthouse en incógnito, modo móvil, y mira primero Accessibility y Performance."
         },
         {
-          "id": "lec-39-sec-2",
+          "id": "lec-45-sec-2",
           "title": "2. Las métricas de velocidad",
           "body": "Las tres métricas principales (Core Web Vitals) y sus metas:\n- **LCP** (Largest Contentful Paint): cuánto tarda en verse el contenido principal. Meta: menos de 2,5 s.\n- **INP** (Interaction to Next Paint): cuánto tarda la página en responder a un toque o clic. Meta: menos de 200 ms. En una app como la tuya es **la más importante**: una tabla de 2000 filas que se redibuja entera en cada tecla del buscador la empeora.\n- **CLS** (Cumulative Layout Shift): cuánto \"salta\" el contenido mientras carga. Meta: menos de 0,1.\n\nPara ver qué hace lenta una interacción: pestaña **Performance** → grabar → hacer la acción → detener. Las barras largas en *Main* muestran qué función tardó.",
           "keyTakeaway": "Para una app de trabajo, INP es la métrica clave: cada toque debe responder en menos de 200 ms."
         },
         {
-          "id": "lec-39-sec-3",
+          "id": "lec-45-sec-3",
           "title": "3. Correcciones típicas",
           "body": "Los problemas que más aparecen en páginas como la tuya y su solución:\n- **Buscador que redibuja en cada tecla** → esperar a que el usuario deje de escribir (*debounce*).\n- **Tablas enormes** → mostrar las primeras 200 filas y un botón \"Ver más\", o paginar.\n- **Librerías pesadas cargadas al inicio** (como la de Excel) → cargarlas solo al importar o exportar.\n- **Imágenes grandes** → reducir el logo a su tamaño real y usar WebP.\n- **Accesibilidad**: botones sin nombre, contraste bajo y campos sin etiqueta: lecciones 04 y 05.",
           "codeLanguage": "javascript",
@@ -5844,7 +6731,7 @@
       },
       "exercises": [
         {
-          "id": "lec-39-ej-1",
+          "id": "lec-45-ej-1",
           "title": "Práctica 1: Auditoría de tu página",
           "difficulty": "Básico",
           "prompt": "*En tu página:* ejecuta Lighthouse en modo móvil en una ventana de incógnito. Anota las cuatro puntuaciones y los tres primeros problemas de Accessibility y de Performance. Corrige al menos uno de cada categoría en tu copia y vuelve a medir.",
@@ -5852,7 +6739,7 @@
           "solutionExplanation": "Guardar el antes y el después en el PR documenta la mejora y te enseña qué cambios valen la pena."
         },
         {
-          "id": "lec-39-ej-2",
+          "id": "lec-45-ej-2",
           "title": "Práctica 2: Mostrar solo las primeras filas",
           "difficulty": "Intermedio",
           "prompt": "Modifica el dibujo de una tabla para mostrar como máximo 200 filas y, si hay más, una fila final con un botón \"Ver 200 más\" que aumente el límite.",
@@ -5864,43 +6751,43 @@
       ],
       "exam": [
         {
-          "id": "lec-39-q1",
+          "id": "lec-45-q1",
           "question": "¿Qué mide INP?",
           "options": [
             "Cuánto tarda la página en responder visualmente a una interacción como un toque o clic.",
             "El tiempo hasta que llega el primer byte del servidor.",
-            "Cuántos usuarios hay conectados.",
-            "Cuánto pesa la página."
+            "Cuánto pesa la página.",
+            "Cuántos usuarios hay conectados."
           ],
           "correctIndex": 0,
           "explanation": "Es la métrica de capacidad de respuesta; la meta es menos de 200 ms."
         },
         {
-          "id": "lec-39-q2",
+          "id": "lec-45-q2",
           "question": "¿Qué técnica evita redibujar una tabla en cada tecla del buscador?",
           "options": [
-            "Usar más colores.",
+            "Recargar la página.",
             "Debounce: esperar a que el usuario deje de escribir un momento.",
-            "Desactivar el buscador.",
-            "Recargar la página."
+            "Usar más colores.",
+            "Desactivar el buscador."
           ],
           "correctIndex": 1,
           "explanation": "Reduce cientos de redibujados a uno solo."
         },
         {
-          "id": "lec-39-q3",
+          "id": "lec-45-q3",
           "question": "¿Por qué conviene ejecutar Lighthouse en una ventana de incógnito?",
           "options": [
-            "Porque solo funciona así.",
+            "Para iniciar sesión automáticamente.",
             "Porque las extensiones del navegador pueden alterar los resultados.",
             "Para no gastar datos.",
-            "Para iniciar sesión automáticamente."
+            "Porque solo funciona así."
           ],
           "correctIndex": 1,
           "explanation": "Las extensiones agregan scripts que afectan el rendimiento medido."
         }
       ],
-      "order": 46
+      "order": 53
     }
   ]
 }
