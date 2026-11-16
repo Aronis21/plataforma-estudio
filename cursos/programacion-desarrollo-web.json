@@ -93,10 +93,10 @@
           "id": "lec-00-q1",
           "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
           "options": [
-            "Todas al mismo tiempo, sin orden.",
-            "En el orden en que aparecen en el HTML.",
             "Primero las más pequeñas.",
-            "En orden alfabético por nombre de archivo."
+            "En el orden en que aparecen en el HTML.",
+            "En orden alfabético por nombre de archivo.",
+            "Todas al mismo tiempo, sin orden."
           ],
           "correctIndex": 1,
           "explanation": "Los scripts normales se ejecutan uno tras otro en el orden del documento. Por eso en tu página `app.js` se carga al final: usa funciones definidas en los archivos anteriores."
@@ -105,24 +105,24 @@
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En el logotipo.",
-            "En cada archivo de CSS.",
             "En la librería de Excel.",
-            "En la carpeta de configuración, donde están los ajustes como los estados."
+            "En el logotipo.",
+            "En la carpeta de configuración, donde están los ajustes como los estados.",
+            "En cada archivo de CSS."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
         },
         {
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
-            "El nombre del archivo principal.",
             "Un lenguaje de estilos.",
-            "Un servidor de base de datos."
+            "Un servidor de base de datos.",
+            "El nombre del archivo principal.",
+            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
         }
       ],
@@ -217,12 +217,12 @@
           "id": "lec-01-q1",
           "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
           "options": [
-            "Ctrl+Shift+F",
-            "Ctrl+P",
             "Ctrl+D",
-            "Ctrl+F"
+            "Ctrl+Shift+F",
+            "Ctrl+F",
+            "Ctrl+P"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Ctrl+F busca solo en el archivo abierto; Ctrl+Shift+F busca en toda la carpeta."
         },
         {
@@ -230,23 +230,23 @@
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
             "Porque Live Server solo funciona con carpetas vacías.",
-            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
+            "Porque los archivos sueltos no se pueden guardar.",
             "No hay diferencia.",
-            "Porque los archivos sueltos no se pueden guardar."
+            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
         },
         {
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Borra la función.",
-            "Comenta la línea.",
             "Ejecuta la página.",
-            "Salta al lugar donde la función está definida."
+            "Salta al lugar donde la función está definida.",
+            "Borra la función.",
+            "Comenta la línea."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
         }
       ],
@@ -346,34 +346,34 @@
           "options": [
             "Solo el archivo HTML tal como está en el disco.",
             "Los errores de red.",
-            "El DOM actual de la página, incluido lo que agregó JavaScript.",
-            "Los datos guardados en el navegador."
+            "Los datos guardados en el navegador.",
+            "El DOM actual de la página, incluido lo que agregó JavaScript."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Elements refleja la página viva. Por eso ahí ves las filas de una tabla que no existen en el archivo HTML."
         },
         {
           "id": "lec-02-q2",
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
-            "Que otra regla con más prioridad le está ganando.",
-            "Que el archivo CSS no existe.",
             "Que la regla se borrará al guardar.",
-            "Que el navegador no soporta CSS."
+            "Que el navegador no soporta CSS.",
+            "Que el archivo CSS no existe.",
+            "Que otra regla con más prioridad le está ganando."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
         },
         {
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
-            "Porque se borra al instante.",
-            "Porque solo se puede editar desde Excel.",
             "Porque un error de formato puede impedir que la página lea sus datos.",
-            "Porque está prohibido por el navegador."
+            "Porque está prohibido por el navegador.",
+            "Porque solo se puede editar desde Excel.",
+            "Porque se borra al instante."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
         }
       ],
@@ -477,36 +477,36 @@
           "id": "lec-03-q1",
           "question": "¿Qué atributo usa tu página para ocultar las pantallas que no se están viendo?",
           "options": [
-            "hidden",
-            "alt",
             "class=\"oculto\" obligatoriamente",
+            "alt",
+            "hidden",
             "display"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
         },
         {
           "id": "lec-03-q2",
           "question": "¿Cuál es la diferencia principal entre id y class?",
           "options": [
-            "La class es única y el id se repite.",
-            "El id es único en la página; la class puede repetirse en muchos elementos.",
             "No hay diferencia.",
-            "El id solo sirve para estilos."
+            "El id solo sirve para estilos.",
+            "La class es única y el id se repite.",
+            "El id es único en la página; la class puede repetirse en muchos elementos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
         },
         {
           "id": "lec-03-q3",
           "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
           "options": [
-            "Porque button es más rápido de escribir.",
-            "Porque los div no se pueden pintar con CSS.",
             "Porque los div no pueden tener texto.",
-            "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra."
+            "Porque los div no se pueden pintar con CSS.",
+            "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra.",
+            "Porque button es más rápido de escribir."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Las etiquetas nativas traen accesibilidad y comportamiento gratis: foco con Tab, activación con Enter y Espacio."
         }
       ],
@@ -611,8 +611,8 @@
           "options": [
             "El atributo for del label igual al id del campo.",
             "El atributo name del label.",
-            "El atributo class.",
-            "Que estén en la misma línea."
+            "Que estén en la misma línea.",
+            "El atributo class."
           ],
           "correctIndex": 0,
           "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
@@ -623,22 +623,22 @@
           "options": [
             "Un select.",
             "Un checkbox.",
-            "Un input con datalist.",
-            "Un textarea."
+            "Un textarea.",
+            "Un input con datalist."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
         },
         {
           "id": "lec-04-q3",
           "question": "¿Cómo lee JavaScript el atributo `data-id=\"v12\"` de un botón?",
           "options": [
-            "boton.dataset.id",
+            "boton.getData()",
             "boton.data-id",
             "boton.id",
-            "boton.getData()"
+            "boton.dataset.id"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Los atributos `data-*` quedan disponibles en `dataset`, sin el prefijo y en camelCase: `data-id` → `dataset.id`."
         }
       ],
@@ -738,33 +738,33 @@
           "id": "lec-05-q1",
           "question": "¿Dónde van los encabezados de columna de una tabla?",
           "options": [
-            "En celdas td dentro de tbody.",
             "En el atributo title de la tabla.",
             "En celdas th dentro de thead.",
+            "En celdas td dentro de tbody.",
             "En un div encima de la tabla."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
         },
         {
           "id": "lec-05-q2",
           "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
           "options": [
-            "Ocultar la tabla en el celular.",
+            "Reducir la letra a 6 píxeles.",
             "Convertirla en una imagen.",
-            "Envolverla en un contenedor con overflow-x: auto.",
-            "Reducir la letra a 6 píxeles."
+            "Ocultar la tabla en el celular.",
+            "Envolverla en un contenedor con overflow-x: auto."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
         },
         {
           "id": "lec-05-q3",
           "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
           "options": [
+            "Nada, el ícono es suficiente.",
             "Un color más oscuro.",
             "Un id.",
-            "Nada, el ícono es suficiente.",
             "Un aria-label que describa la acción, como \"Editar actividad\"."
           ],
           "correctIndex": 3,
@@ -869,8 +869,8 @@
           "options": [
             ".tarjeta:hover",
             "#v-inicio .tarjeta",
-            ".panel .tarjeta .titulo",
-            "main section div p"
+            "main section div p",
+            ".panel .tarjeta .titulo"
           ],
           "correctIndex": 1,
           "explanation": "Un id pesa más que cualquier cantidad de clases o etiquetas."
@@ -879,24 +879,24 @@
           "id": "lec-06-q2",
           "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
           "options": [
-            "La más corta.",
-            "La que aparece primero.",
             "La que aparece después.",
+            "La que aparece primero.",
+            "La más corta.",
             "No se aplica ninguna."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
         },
         {
           "id": "lec-06-q3",
           "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
           "options": [
-            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
-            "Para que pesen menos.",
+            "Por compatibilidad con Excel.",
             "Porque el navegador ignora los archivos sin número.",
-            "Por compatibilidad con Excel."
+            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
+            "Para que pesen menos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
         }
       ],
@@ -993,10 +993,10 @@
           "id": "lec-07-q1",
           "question": "¿Cómo se usa una variable CSS llamada --radio?",
           "options": [
-            "border-radius: --radio;",
+            "border-radius: $radio;",
             "border-radius: @radio;",
             "border-radius: var(--radio);",
-            "border-radius: $radio;"
+            "border-radius: --radio;"
           ],
           "correctIndex": 2,
           "explanation": "Las custom properties se leen con la función `var()`."
@@ -1005,24 +1005,24 @@
           "id": "lec-07-q2",
           "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
           "options": [
-            "Crear un segundo index.html.",
-            "Usar filter: invert(1) en toda la página.",
             "Copiar toda la hoja de estilos y cambiar cada color.",
-            "Redefinir las variables de color cuando el body tiene una clase o atributo."
+            "Redefinir las variables de color cuando el body tiene una clase o atributo.",
+            "Crear un segundo index.html.",
+            "Usar filter: invert(1) en toda la página."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
         },
         {
           "id": "lec-07-q3",
           "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
           "options": [
-            "Borra el modo técnico.",
             "Cambia el id del body.",
             "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
-            "Muestra todo en modo técnico."
+            "Muestra todo en modo técnico.",
+            "Borra el modo técnico."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
         }
       ],
@@ -1122,22 +1122,22 @@
           "id": "lec-08-q1",
           "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
           "options": [
-            "gap",
+            "spacing",
             "padding",
             "margin-between",
-            "spacing"
+            "gap"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
         },
         {
           "id": "lec-08-q2",
           "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
           "options": [
-            "width: auto",
+            "display: block",
             "align-items: stretch",
             "flex: 1",
-            "display: block"
+            "width: auto"
           ],
           "correctIndex": 2,
           "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
@@ -1146,12 +1146,12 @@
           "id": "lec-08-q3",
           "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
           "options": [
-            "Lo centra.",
             "Lo empuja hacia el extremo derecho.",
+            "Le quita el margen.",
             "Lo oculta.",
-            "Le quita el margen."
+            "Lo centra."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
         }
       ],
@@ -1251,24 +1251,24 @@
           "id": "lec-09-q1",
           "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
           "options": [
-            "Una columna de 3 píxeles.",
-            "Tres columnas de igual ancho que se reparten el espacio.",
+            "Tres columnas de 1 píxel.",
             "Tres filas iguales.",
-            "Tres columnas de 1 píxel."
+            "Tres columnas de igual ancho que se reparten el espacio.",
+            "Una columna de 3 píxeles."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`fr` es una fracción del espacio disponible."
         },
         {
           "id": "lec-09-q2",
           "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
           "options": [
-            "Exactamente 200 columnas.",
             "Tantas columnas como quepan, cada una de al menos 200px.",
-            "Una sola columna de 200px.",
-            "Columnas de 1px."
+            "Columnas de 1px.",
+            "Exactamente 200 columnas.",
+            "Una sola columna de 200px."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Es la receta para cuadrículas que se adaptan al ancho sin media queries."
         },
         {
@@ -1381,22 +1381,22 @@
           "id": "lec-10-q1",
           "question": "¿Qué pasa si falta la etiqueta meta viewport?",
           "options": [
-            "Se desactiva JavaScript.",
-            "La página no carga.",
             "Nada.",
-            "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto."
+            "Se desactiva JavaScript.",
+            "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto.",
+            "La página no carga."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Sin viewport, el navegador móvil simula un ancho de escritorio y escala la página."
         },
         {
           "id": "lec-10-q2",
           "question": "¿Qué hace `@media (max-width: 760px) { … }`?",
           "options": [
+            "Aplica las reglas solo en pantallas mayores de 760px.",
             "Limita la página a 760px.",
-            "Oculta la página en el celular.",
             "Aplica esas reglas solo cuando la pantalla mide 760px o menos.",
-            "Aplica las reglas solo en pantallas mayores de 760px."
+            "Oculta la página en el celular."
           ],
           "correctIndex": 2,
           "explanation": "max-width = 'hasta este ancho'."
@@ -1405,12 +1405,12 @@
           "id": "lec-10-q3",
           "question": "¿Por qué conviene que los campos de formulario tengan letra de 16px en el celular?",
           "options": [
-            "Porque con menos, algunos celulares hacen zoom automático al escribir.",
             "Por compatibilidad con Excel.",
             "Porque los formularios no aceptan otros tamaños.",
+            "Porque con menos, algunos celulares hacen zoom automático al escribir.",
             "Para ahorrar datos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Safari en iPhone amplía la página al enfocar campos con letra menor de 16px."
         }
       ],
@@ -1514,33 +1514,33 @@
           "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
           "options": [
             "NaN",
-            "Error",
+            "'51'",
             "6",
-            "'51'"
+            "Error"
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
         },
         {
           "id": "lec-11-q2",
           "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
           "options": [
-            "undefined",
-            "null",
             "0",
-            "Un error"
+            "Un error",
+            "null",
+            "undefined"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
         },
         {
           "id": "lec-11-q3",
           "question": "¿Cuándo debes usar `let` en lugar de `const`?",
           "options": [
-            "Cuando la variable es un array.",
-            "Cuando la variable se va a reasignar.",
             "Siempre.",
-            "Cuando la variable es un número."
+            "Cuando la variable se va a reasignar.",
+            "Cuando la variable es un número.",
+            "Cuando la variable es un array."
           ],
           "correctIndex": 1,
           "explanation": "`const` impide reasignar el nombre; usa `let` solo si el valor cambia (un contador, un acumulador)."
@@ -1646,10 +1646,10 @@
           "id": "lec-12-q1",
           "question": "¿Qué devuelve `find` si ningún elemento cumple la condición?",
           "options": [
-            "null",
             "false",
+            "Un array vacío",
             "undefined",
-            "Un array vacío"
+            "null"
           ],
           "correctIndex": 2,
           "explanation": "`find` devuelve el primer elemento que cumple o `undefined`. `filter` devolvería un array vacío."
@@ -1658,10 +1658,10 @@
           "id": "lec-12-q2",
           "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
           "options": [
-            "[1, 9, 10]",
+            "[10, 9, 1]",
             "[1, 10, 9]",
             "Error",
-            "[10, 9, 1]"
+            "[1, 9, 10]"
           ],
           "correctIndex": 1,
           "explanation": "Sin función de comparación, sort ordena como texto. Para números usa `(a, b) => a - b`."
@@ -1670,8 +1670,8 @@
           "id": "lec-12-q3",
           "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
           "options": [
-            "No hay diferencia.",
             "Porque sort no funciona sin los tres puntos.",
+            "No hay diferencia.",
             "Porque es más rápido.",
             "Porque sort modifica la lista original y así se ordena una copia."
           ],
@@ -1775,12 +1775,12 @@
           "id": "lec-13-q1",
           "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
           "options": [
-            "5, porque a y b son el mismo objeto.",
             "El valor anterior de a.x.",
             "undefined.",
-            "Da error."
+            "Da error.",
+            "5, porque a y b son el mismo objeto."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Asignar un objeto copia la referencia, no el contenido."
         },
         {
@@ -1788,8 +1788,8 @@
           "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
           "options": [
             "Lanza un error.",
-            "Devuelve null.",
             "Repara el texto.",
+            "Devuelve null.",
             "Devuelve un objeto vacío."
           ],
           "correctIndex": 0,
@@ -1799,12 +1799,12 @@
           "id": "lec-13-q3",
           "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
           "options": [
-            "obj[campo]",
-            "obj{campo}",
             "obj->campo",
-            "obj.campo"
+            "obj[campo]",
+            "obj.campo",
+            "obj{campo}"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
         }
       ],
@@ -1902,36 +1902,36 @@
           "id": "lec-14-q1",
           "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
           "options": [
+            "Que la página cargue lento.",
             "Que se borre el localStorage.",
             "Que los números se sumen como texto.",
-            "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS).",
-            "Que la página cargue lento."
+            "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS)."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "El escape convierte < y > en entidades, así el navegador los muestra en lugar de interpretarlos."
         },
         {
           "id": "lec-14-q2",
           "question": "¿Cuándo es seguro no escapar un dato?",
           "options": [
-            "Nunca hace falta escapar.",
-            "Cuando el dato es corto.",
             "Cuando viene de Excel.",
-            "Cuando lo asignas con textContent."
+            "Cuando el dato es corto.",
+            "Cuando lo asignas con textContent.",
+            "Nunca hace falta escapar."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`textContent` siempre trata el valor como texto plano."
         },
         {
           "id": "lec-14-q3",
           "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
           "options": [
-            "Para unir el array de textos en un solo texto sin comas.",
-            "Para eliminar duplicados.",
             "Para ordenar las filas.",
+            "Para eliminar duplicados.",
+            "Para unir el array de textos en un solo texto sin comas.",
             "Para escapar el HTML."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Asignar un array a innerHTML lo convertiría con comas entre los elementos."
         }
       ],
@@ -2034,8 +2034,8 @@
           "options": [
             "Nunca pasa.",
             "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
-            "Porque slice corta mal.",
-            "Porque el navegador tiene un error."
+            "Porque el navegador tiene un error.",
+            "Porque slice corta mal."
           ],
           "correctIndex": 1,
           "explanation": "De noche en RD ya es el día siguiente en UTC."
@@ -2045,9 +2045,9 @@
           "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
           "options": [
             "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
+            "Porque JavaScript no tiene fechas.",
             "Porque Excel no acepta otro formato.",
-            "Porque ocupan menos memoria que un número.",
-            "Porque JavaScript no tiene fechas."
+            "Porque ocupan menos memoria que un número."
           ],
           "correctIndex": 0,
           "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
@@ -2056,12 +2056,12 @@
           "id": "lec-15-q3",
           "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
           "options": [
-            "Error",
             "0.30000000000000004",
-            "0.3",
-            "0.12"
+            "0.12",
+            "Error",
+            "0.3"
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
         }
       ],
@@ -2161,36 +2161,36 @@
           "id": "lec-16-q1",
           "question": "¿Qué devuelve `document.getElementById('no-existe')`?",
           "options": [
-            "Lanza un error",
-            "null",
+            "Un elemento vacío",
             "undefined",
-            "Un elemento vacío"
+            "null",
+            "Lanza un error"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Devuelve null; el error aparece después, al intentar usar una propiedad de null."
         },
         {
           "id": "lec-16-q2",
           "question": "¿Qué diferencia hay entre querySelector y querySelectorAll?",
           "options": [
-            "querySelector devuelve una lista.",
-            "querySelectorAll solo busca por id.",
             "No hay diferencia.",
-            "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos."
+            "querySelector devuelve una lista.",
+            "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos.",
+            "querySelectorAll solo busca por id."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El 'All' indica que devuelve una lista (NodeList) con todas las coincidencias."
         },
         {
           "id": "lec-16-q3",
           "question": "¿Por qué es mejor `classList.add('activo')` que `className = 'activo'`?",
           "options": [
-            "Porque className no existe.",
-            "Porque classList es más antiguo.",
+            "Porque classList agrega la clase sin borrar las demás.",
             "Porque className solo funciona en botones.",
-            "Porque classList agrega la clase sin borrar las demás."
+            "Porque className no existe.",
+            "Porque classList es más antiguo."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Asignar className reemplaza todas las clases del elemento."
         }
       ],
@@ -2292,36 +2292,36 @@
           "id": "lec-17-q1",
           "question": "¿Qué hace `e.preventDefault()` en el evento submit de un formulario?",
           "options": [
+            "Borra los campos.",
             "Valida el formulario.",
             "Evita que el navegador envíe el formulario y recargue la página.",
-            "Borra los campos.",
             "Detiene todos los scripts."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Cancela la acción por defecto; tu código se encarga de guardar los datos."
         },
         {
           "id": "lec-17-q2",
           "question": "¿Para qué sirve `e.target.closest('[data-act]')`?",
           "options": [
-            "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno.",
             "Para buscar el elemento más cercano en pantalla.",
             "Para eliminar el atributo data-act.",
+            "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno.",
             "Para cerrar la ventana."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "closest sube por los ancestros hasta encontrar el primero que coincide con el selector."
         },
         {
           "id": "lec-17-q3",
           "question": "¿Por qué la delegación de eventos es ideal para tablas que se redibujan?",
           "options": [
-            "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
             "Porque evita usar data-act.",
-            "Porque desactiva el burbujeo.",
-            "Porque es más bonita."
+            "Porque es más bonita.",
+            "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
+            "Porque desactiva el burbujeo."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "El evento burbujea hasta el documento, donde un único escuchador lo atiende."
         }
       ],
@@ -2422,9 +2422,9 @@
           "id": "lec-18-q1",
           "question": "¿Qué campos recoge `new FormData(form)`?",
           "options": [
+            "Solo los de tipo text.",
             "Solo los obligatorios.",
             "Todos los inputs, tengan o no name.",
-            "Solo los de tipo text.",
             "Los que tienen atributo name (y las casillas solo si están marcadas)."
           ],
           "correctIndex": 3,
@@ -2434,24 +2434,24 @@
           "id": "lec-18-q2",
           "question": "¿Cómo puede un mismo formulario servir para crear y para editar?",
           "options": [
-            "No es posible.",
-            "Recargando la página.",
             "Con un campo oculto con el id: vacío al crear, con valor al editar.",
-            "Con dos botones submit."
+            "No es posible.",
+            "Con dos botones submit.",
+            "Recargando la página."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Al guardar, la presencia del id decide si se actualiza o se agrega."
         },
         {
           "id": "lec-18-q3",
           "question": "¿Qué método abre un `<dialog>` como ventana modal?",
           "options": [
-            "display()",
-            "showModal()",
             "open()",
-            "show(true)"
+            "show(true)",
+            "showModal()",
+            "display()"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "showModal() lo abre por encima del resto, bloquea el fondo y permite cerrar con Escape."
         }
       ],
@@ -2547,36 +2547,36 @@
           "id": "lec-19-q1",
           "question": "Según la arquitectura de tu página, ¿qué debe pasar después de que una acción modifica los datos?",
           "options": [
-            "Recargar la página.",
+            "Cambiar el color de la fila con style.",
             "Nada, el navegador lo actualiza solo.",
-            "Guardar el estado y redibujar las pantallas.",
-            "Cambiar el color de la fila con style."
+            "Recargar la página.",
+            "Guardar el estado y redibujar las pantallas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "El ciclo es acción → datos → guardar → redibujar."
         },
         {
           "id": "lec-19-q2",
           "question": "¿Por qué el script de arranque (app.js) va al final?",
           "options": [
-            "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
             "Porque el navegador ignora el último script.",
-            "Porque es el más grande.",
-            "Por orden alfabético."
+            "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
+            "Por orden alfabético.",
+            "Porque es el más grande."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Sin sistema de módulos, cada archivo solo puede usar lo que ya se cargó antes."
         },
         {
           "id": "lec-19-q3",
           "question": "Quieres cambiar lo que hace un botón. ¿Cuál es el primer paso más eficiente?",
           "options": [
-            "Inspeccionarlo y buscar su data-act en el proyecto.",
             "Leer todos los archivos JS de arriba abajo.",
-            "Cambiar su texto.",
-            "Borrar el botón y crearlo de nuevo."
+            "Inspeccionarlo y buscar su data-act en el proyecto.",
+            "Borrar el botón y crearlo de nuevo.",
+            "Cambiar su texto."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "El data-act te lleva directo a la acción registrada."
         }
       ],
@@ -2677,11 +2677,11 @@
           "question": "¿Qué tipo de dato guarda localStorage?",
           "options": [
             "Imágenes.",
-            "Objetos de JavaScript directamente.",
+            "Solo texto; los objetos se convierten con JSON.stringify.",
             "Archivos de Excel.",
-            "Solo texto; los objetos se convierten con JSON.stringify."
+            "Objetos de JavaScript directamente."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Por eso el estado se guarda como JSON y se lee con JSON.parse."
         },
         {
@@ -2689,9 +2689,9 @@
           "question": "Abres tu página en otro computador. ¿Por qué no ves tus datos?",
           "options": [
             "Porque localStorage es propio de cada navegador y equipo.",
-            "Porque falta internet.",
             "Porque GitHub los elimina.",
-            "Porque se borran cada día."
+            "Porque se borran cada día.",
+            "Porque falta internet."
           ],
           "correctIndex": 0,
           "explanation": "Los datos viven en el navegador. Para moverlos se usa un respaldo (o una base de datos en la nube)."
@@ -2700,12 +2700,12 @@
           "id": "lec-20-q3",
           "question": "¿Para qué sirve una migración?",
           "options": [
-            "Para borrar datos viejos.",
-            "Para comprimir el localStorage.",
+            "Para adaptar los datos guardados con una versión anterior a la nueva estructura.",
             "Para mover la página a otro servidor.",
-            "Para adaptar los datos guardados con una versión anterior a la nueva estructura."
+            "Para comprimir el localStorage.",
+            "Para borrar datos viejos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Rellena o transforma los registros antiguos para que el código nuevo pueda usarlos."
         }
       ],
@@ -2808,36 +2808,36 @@
           "id": "lec-21-q1",
           "question": "¿Qué hace `await archivo.arrayBuffer()`?",
           "options": [
-            "Convierte el archivo en Excel.",
-            "Sube el archivo a internet.",
             "Espera a que el navegador termine de leer el archivo y devuelve su contenido binario.",
-            "Borra el archivo."
+            "Borra el archivo.",
+            "Sube el archivo a internet.",
+            "Convierte el archivo en Excel."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "arrayBuffer devuelve una promesa; await espera su resultado."
         },
         {
           "id": "lec-21-q2",
           "question": "¿Qué devuelve `XLSX.utils.sheet_to_json(hoja)`?",
           "options": [
-            "Un texto JSON.",
             "Un array de objetos, uno por fila, con los encabezados como claves.",
+            "Un archivo .xlsx.",
             "Una tabla HTML.",
-            "Un archivo .xlsx."
+            "Un texto JSON."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Usa la primera fila de la hoja como nombres de las propiedades."
         },
         {
           "id": "lec-21-q3",
           "question": "¿Por qué se normalizan las filas antes de agregarlas a los datos?",
           "options": [
-            "No hace falta normalizar.",
-            "Porque SheetJS lo exige.",
             "Para que el archivo pese menos.",
-            "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos."
+            "Porque SheetJS lo exige.",
+            "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos.",
+            "No hace falta normalizar."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Normalizar convierte lo que venga del archivo en la forma exacta que espera tu código."
         }
       ],
@@ -2939,24 +2939,24 @@
           "id": "lec-22-q1",
           "question": "En SVG, ¿hacia dónde crece la coordenada y?",
           "options": [
-            "Hacia abajo.",
             "Hacia arriba.",
-            "Depende del navegador.",
-            "Hacia la derecha."
+            "Hacia la derecha.",
+            "Hacia abajo.",
+            "Depende del navegador."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Por eso una barra alta tiene una y pequeña: empieza más arriba."
         },
         {
           "id": "lec-22-q2",
           "question": "¿Para qué sirve el atributo viewBox?",
           "options": [
-            "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG.",
-            "Hace el SVG invisible.",
             "Carga una imagen externa.",
-            "Pone un borde al gráfico."
+            "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG.",
+            "Pone un borde al gráfico.",
+            "Hace el SVG invisible."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Permite dibujar en unidades cómodas y que el gráfico sea responsive."
         },
         {
@@ -2964,11 +2964,11 @@
           "question": "¿Por qué se usa `Math.max(1, ...valores)` al escalar?",
           "options": [
             "Para ordenar los valores.",
+            "Para que la barra mínima mida 1.",
             "Para evitar dividir entre cero cuando todos los valores son 0.",
-            "Para redondear.",
-            "Para que la barra mínima mida 1."
+            "Para redondear."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Si el máximo fuera 0, la división daría NaN y el SVG se rompería."
         }
       ],
@@ -3067,23 +3067,23 @@
           "question": "En la pila de un error, ¿qué línea conviene mirar primero?",
           "options": [
             "Cualquiera, todas son iguales.",
-            "La primera que pertenece a tu propio código.",
             "La que dice <anonymous>.",
+            "La primera que pertenece a tu propio código.",
             "La última de todas."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Las líneas de librerías o del navegador rara vez son la causa; la primera de tu código sí suele serlo."
         },
         {
           "id": "lec-23-q2",
           "question": "¿Qué indica normalmente `x is not defined`?",
           "options": [
-            "Que x es un número.",
-            "Que x vale null.",
             "Que el nombre está mal escrito o el archivo que lo define no se cargó antes.",
-            "Que falta internet."
+            "Que x es un número.",
+            "Que falta internet.",
+            "Que x vale null."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "ReferenceError: el nombre no existe en ese momento."
         },
         {
@@ -3091,11 +3091,11 @@
           "question": "¿Por qué un solo SyntaxError puede hacer que 'no funcione nada' de un archivo?",
           "options": [
             "Porque borra el localStorage.",
-            "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
             "Porque desactiva el CSS.",
+            "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
             "Porque detiene el navegador."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Un error de sintaxis impide ejecutar el archivo completo."
         }
       ],
@@ -3194,36 +3194,36 @@
           "id": "lec-24-q1",
           "question": "¿Qué hace un linter como ESLint?",
           "options": [
-            "Publica la página en internet.",
+            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas.",
             "Comprime las imágenes.",
-            "Ejecuta la página más rápido.",
-            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas."
+            "Publica la página en internet.",
+            "Ejecuta la página más rápido."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Es un análisis estático del código."
         },
         {
           "id": "lec-24-q2",
           "question": "¿Qué comando instala las herramientas de revisión del proyecto la primera vez?",
           "options": [
+            "npm install",
             "git push",
             "node index.html",
-            "npm run revisar",
-            "npm install"
+            "npm run revisar"
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "npm install descarga las dependencias listadas en package.json."
         },
         {
           "id": "lec-24-q3",
           "question": "El linter marca un aviso que no entiendes. ¿Qué es lo correcto?",
           "options": [
-            "Desactivar el linter en todo el archivo.",
             "Borrar la línea.",
             "Buscar el nombre de la regla, entender el aviso y corregir el código.",
+            "Desactivar el linter en todo el archivo.",
             "Ignorarlo y subir el cambio."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Cada regla tiene documentación con ejemplos de código correcto e incorrecto."
         }
       ],
@@ -3321,36 +3321,36 @@
           "id": "lec-25-q1",
           "question": "¿Qué funciones son las más fáciles y útiles de probar?",
           "options": [
-            "Las que abren diálogos.",
+            "Las funciones puras que reciben datos y devuelven un resultado.",
             "Las que guardan en localStorage.",
-            "Las que dibujan la pantalla.",
-            "Las funciones puras que reciben datos y devuelven un resultado."
+            "Las que abren diálogos.",
+            "Las que dibujan la pantalla."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "No dependen de la pantalla ni del almacenamiento, así que se prueban con datos de ejemplo."
         },
         {
           "id": "lec-25-q2",
           "question": "Arreglaste un error en el cálculo de días de atraso. ¿Qué deberías hacer además?",
           "options": [
-            "Nada más.",
+            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
             "Borrar las pruebas antiguas.",
             "Cambiar el nombre de la función.",
-            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir."
+            "Nada más."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Es la práctica que evita que los errores 'resuciten' en cambios futuros."
         },
         {
           "id": "lec-25-q3",
           "question": "¿Por qué la página de pruebas no debe usar los datos reales del navegador?",
           "options": [
-            "Porque está prohibido leer localStorage.",
-            "No hay ningún motivo.",
             "Para no modificarlos por accidente y para que los resultados esperados sean siempre los mismos.",
-            "Porque las pruebas son más lentas con datos."
+            "Porque está prohibido leer localStorage.",
+            "Porque las pruebas son más lentas con datos.",
+            "No hay ningún motivo."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Las pruebas deben ser repetibles y no tener efectos sobre los datos de trabajo."
         }
       ],
@@ -3452,33 +3452,33 @@
           "id": "lec-26-q1",
           "question": "¿Qué es un commit?",
           "options": [
+            "Una versión guardada del proyecto con un mensaje que describe el cambio.",
             "La página publicada.",
             "Un archivo de respaldo .zip.",
-            "Una versión guardada del proyecto con un mensaje que describe el cambio.",
             "Un error de Git."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Cada commit registra el estado de los archivos y permite volver a él."
         },
         {
           "id": "lec-26-q2",
           "question": "¿Para qué sirve trabajar en una rama?",
           "options": [
-            "Para que la página cargue más rápido.",
+            "Para hacer cambios sin afectar a main hasta que estén listos.",
             "Para tener dos páginas publicadas.",
-            "Para borrar archivos más rápido.",
-            "Para hacer cambios sin afectar a main hasta que estén listos."
+            "Para que la página cargue más rápido.",
+            "Para borrar archivos más rápido."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "La rama aísla el trabajo en curso."
         },
         {
           "id": "lec-26-q3",
           "question": "Un commit dañino ya está en GitHub y otros lo descargaron. ¿Cómo lo deshaces con seguridad?",
           "options": [
-            "Borrando el repositorio.",
-            "git revert con el id del commit.",
             "git reset --hard y push --force.",
+            "git revert con el id del commit.",
+            "Borrando el repositorio.",
             "Editando el historial a mano."
           ],
           "correctIndex": 1,
@@ -3576,36 +3576,36 @@
           "id": "lec-27-q1",
           "question": "¿Qué hace `git pull`?",
           "options": [
+            "Publica la página.",
             "Sube tus commits a GitHub.",
-            "Descarga e integra los commits del remoto que aún no tienes.",
             "Borra la rama actual.",
-            "Publica la página."
+            "Descarga e integra los commits del remoto que aún no tienes."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "push sube; pull baja."
         },
         {
           "id": "lec-27-q2",
           "question": "¿Qué es un pull request?",
           "options": [
+            "Una propuesta para unir una rama a main, con revisión del cambio.",
             "Una petición a un servidor.",
-            "Un error de GitHub.",
             "Una copia del repositorio.",
-            "Una propuesta para unir una rama a main, con revisión del cambio."
+            "Un error de GitHub."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Permite revisar el diff y las comprobaciones automáticas antes de unir."
         },
         {
           "id": "lec-27-q3",
           "question": "Uniste un cambio a main y la página publicada aún no lo muestra. ¿Qué es lo más probable?",
           "options": [
-            "GitHub Pages solo publica una vez al día.",
             "GitHub Pages tarda uno o dos minutos en publicar y el navegador puede tener la versión anterior en caché.",
+            "El cambio se perdió.",
             "Hay que borrar el repositorio.",
-            "El cambio se perdió."
+            "GitHub Pages solo publica una vez al día."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Espera a que termine el despliegue y recarga sin caché (Ctrl+Shift+R)."
         }
       ],
@@ -3701,12 +3701,12 @@
           "id": "lec-28-q1",
           "question": "¿Qué hace que un pedido de cambio sea bueno?",
           "options": [
-            "Dice qué, dónde, las restricciones y cómo comprobarlo.",
             "Que no mencione archivos.",
+            "Dice qué, dónde, las restricciones y cómo comprobarlo.",
             "Que pida muchos cambios a la vez.",
             "Que sea lo más corto posible."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Un pedido acotado produce un cambio que puedes revisar y probar."
         },
         {
@@ -3714,23 +3714,23 @@
           "question": "Un cambio propuesto agrega un campo nuevo a los datos guardados. ¿Qué debes verificar?",
           "options": [
             "Nada especial.",
-            "Que incluya una migración para los datos antiguos.",
+            "Que cambie el color principal.",
             "Que borre el localStorage.",
-            "Que cambie el color principal."
+            "Que incluya una migración para los datos antiguos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Sin migración, los registros guardados antes no tendrán el campo."
         },
         {
           "id": "lec-28-q3",
           "question": "¿Cuál es la forma más segura de incorporar un cambio hecho con IA?",
           "options": [
-            "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido.",
             "Directo en main para ahorrar tiempo.",
             "Desactivando las revisiones automáticas.",
-            "Copiando el código sin leerlo."
+            "Copiando el código sin leerlo.",
+            "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "El mismo proceso que para cualquier cambio: rama, revisión, prueba, unión."
         }
       ],
@@ -3829,22 +3829,22 @@
           "id": "proy-1-q1",
           "question": "¿Por qué se escribe la migración antes que el formulario y la tabla?",
           "options": [
-            "No importa el orden.",
             "Porque así lo exige GitHub.",
-            "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo.",
-            "Porque el formulario no funciona sin internet."
+            "No importa el orden.",
+            "Porque el formulario no funciona sin internet.",
+            "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Con los datos completos, la tabla y la exportación no necesitan manejar el caso 'falta el campo'."
         },
         {
           "id": "proy-1-q2",
           "question": "¿Dónde conviene definir la lista de prioridades permitidas?",
           "options": [
-            "En el CSS.",
+            "Repetida en cada archivo que la usa.",
             "En la configuración, junto a otros valores del negocio como los estados.",
-            "En localStorage.",
-            "Repetida en cada archivo que la usa."
+            "En el CSS.",
+            "En localStorage."
           ],
           "correctIndex": 1,
           "explanation": "Un solo lugar para los valores evita inconsistencias."
@@ -3853,12 +3853,12 @@
           "id": "proy-1-q3",
           "question": "¿Cuál es la mejor prueba final de un campo nuevo?",
           "options": [
+            "Restaurar un respaldo anterior en una copia y comprobar crear, editar, filtrar y exportar.",
             "Mirar el código sin abrir la página.",
             "Crear una sola actividad nueva.",
-            "Subir a main y esperar quejas.",
-            "Restaurar un respaldo anterior en una copia y comprobar crear, editar, filtrar y exportar."
+            "Subir a main y esperar quejas."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Los datos antiguos son los que revelan migraciones incompletas."
         }
       ],
@@ -3956,36 +3956,36 @@
           "id": "proy-2-q1",
           "question": "¿Por qué el cálculo del indicador va en una función separada de la tarjeta?",
           "options": [
-            "Para que cargue más rápido.",
-            "No hay ventaja.",
             "Para poder probarlo y reutilizarlo sin depender de la pantalla.",
-            "Porque las tarjetas no admiten JavaScript."
+            "No hay ventaja.",
+            "Porque las tarjetas no admiten JavaScript.",
+            "Para que cargue más rápido."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Las funciones puras se prueban con datos de ejemplo."
         },
         {
           "id": "proy-2-q2",
           "question": "¿Por qué no conviene guardar el valor del indicador en los datos?",
           "options": [
-            "Porque localStorage no admite números.",
-            "Por el tamaño del Excel.",
+            "Porque los indicadores son secretos.",
             "Porque se puede calcular en cada redibujado y guardado quedaría desactualizado.",
-            "Porque los indicadores son secretos."
+            "Porque localStorage no admite números.",
+            "Por el tamaño del Excel."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Lo que se deriva de los datos se calcula; no se guarda dos veces."
         },
         {
           "id": "proy-2-q3",
           "question": "¿Cómo debe encontrar el código la tarjeta del indicador?",
           "options": [
-            "Por su posición, con nth-child.",
-            "Por un id propio, como kpi-atrasos.",
+            "Por su color.",
             "Por su texto.",
-            "Por su color."
+            "Por su posición, con nth-child.",
+            "Por un id propio, como kpi-atrasos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Un id no depende del orden ni del diseño."
         }
       ],
@@ -4083,24 +4083,24 @@
           "id": "proy-3-q1",
           "question": "¿Qué pasa si renombras un estado solo en la configuración?",
           "options": [
+            "Los datos guardados con el nombre anterior dejan de reconocerse.",
             "Nada.",
-            "Todo se actualiza solo.",
             "Se borran las actividades.",
-            "Los datos guardados con el nombre anterior dejan de reconocerse."
+            "Todo se actualiza solo."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Los datos guardan el texto del estado; hace falta una migración."
         },
         {
           "id": "proy-3-q2",
           "question": "¿Por qué conviene contar las actividades abiertas con una propiedad de la configuración en vez de una lista de textos?",
           "options": [
-            "No hay diferencia.",
             "Porque así un estado nuevo se incluye automáticamente sin tocar el cálculo.",
             "Porque los Set son obligatorios.",
+            "No hay diferencia.",
             "Porque es más corto de escribir."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "La lógica sigue a la configuración en lugar de depender de textos repetidos."
         },
         {
@@ -4109,8 +4109,8 @@
           "options": [
             "Buscar en todo el proyecto los nombres de los estados existentes.",
             "Leer solo el CSS.",
-            "Esperar a que aparezca un error.",
-            "Revisar solo index.html."
+            "Revisar solo index.html.",
+            "Esperar a que aparezca un error."
           ],
           "correctIndex": 0,
           "explanation": "La búsqueda global encuentra comparaciones, filtros, colores e importaciones."
@@ -4211,9 +4211,9 @@
           "question": "¿Por qué los repuestos deben guardarse dentro del estado general S y no en otra clave de localStorage?",
           "options": [
             "No importa.",
-            "Porque localStorage solo admite una clave.",
+            "Porque es más rápido.",
             "Para que entren en los respaldos, migraciones y el ciclo de guardar y redibujar.",
-            "Porque es más rápido."
+            "Porque localStorage solo admite una clave."
           ],
           "correctIndex": 2,
           "explanation": "Todo lo que la aplicación guarda debe seguir el mismo camino."
@@ -4222,12 +4222,12 @@
           "id": "proy-4-q2",
           "question": "¿Dónde se coloca el script del módulo nuevo en index.html?",
           "options": [
-            "Junto a los otros módulos, antes del script de arranque.",
             "En otro archivo HTML.",
-            "Después de app.js.",
-            "Al principio del head."
+            "Al principio del head.",
+            "Junto a los otros módulos, antes del script de arranque.",
+            "Después de app.js."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Debe usar las utilidades ya cargadas y existir cuando arranca la aplicación."
         },
         {
@@ -4235,15 +4235,1672 @@
           "question": "¿Qué hace que un PR de una pantalla nueva sea fácil de revisar?",
           "options": [
             "Un único commit gigante.",
-            "Desactivar las Actions.",
             "Commits pequeños por pieza, descripción con pasos de prueba y revisión en verde.",
+            "Desactivar las Actions.",
             "No tener descripción."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Quien revisa (tú incluido) puede seguir el cambio paso a paso."
         }
       ],
       "order": 33
+    },
+    {
+      "id": "lec-29",
+      "kind": "chapter",
+      "code": "Lec. 29",
+      "module": "10 · Nube: Firebase",
+      "title": "Firebase: de la página local a la nube",
+      "subtitle": "Qué es un backend, crear el proyecto y conectar el SDK.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Explicar qué resuelve un backend que localStorage no puede resolver.",
+        "Crear un proyecto de Firebase y registrar tu página como app web.",
+        "Cargar el SDK modular desde el navegador, sin herramientas de compilación.",
+        "Distinguir la configuración pública de lo que sí es secreto."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-29-sec-1",
+          "title": "1. Por qué un backend",
+          "body": "Hasta ahora tu página guarda todo en el navegador (lección 20). Eso tiene tres límites:\n- **Cada equipo tiene sus propios datos**: lo que registra el planificador en su PC no lo ve el técnico en el celular.\n- **No hay usuarios**: cualquiera que abra la página puede cambiar todo.\n- **Si se borra el navegador, se pierde** lo que no esté respaldado.\n\nUn **backend** es un servicio en internet que guarda los datos en un solo lugar y decide quién puede leerlos o cambiarlos. **Firebase** (de Google) ofrece las piezas listas, sin tener que programar un servidor:\n- **Authentication**: usuarios e inicio de sesión.\n- **Firestore**: base de datos en la nube, en tiempo real y con modo sin conexión.\n- **Hosting**: publicar la página (alternativa a GitHub Pages).\n\nEl plan gratuito alcanza de sobra para un equipo de mantenimiento pequeño.",
+          "keyTakeaway": "Un backend da tres cosas que el navegador no da: datos compartidos, usuarios y seguridad."
+        },
+        {
+          "id": "lec-29-sec-2",
+          "title": "2. Crear el proyecto",
+          "body": "1. Entra a la consola de Firebase con tu cuenta de Google y crea un proyecto (puedes desactivar Analytics).\n2. En la página del proyecto pulsa el ícono **Web** (`</>`) para registrar una app. Ponle un nombre como \"planificador\".\n3. La consola te muestra un bloque de **configuración** (`apiKey`, `authDomain`, `projectId`…). Cópialo.\n4. En el menú, activa **Authentication** (método correo y contraseña) y crea la base de datos **Firestore** en modo producción, eligiendo una región cercana (por ejemplo una de Estados Unidos).\n\nTrabaja primero con un **proyecto de prueba** separado del que usará tu equipo, igual que con las ramas de Git.",
+          "keyTakeaway": "Un proyecto de prueba para aprender y otro para el equipo: nunca experimentes con los datos reales."
+        },
+        {
+          "id": "lec-29-sec-3",
+          "title": "3. Conectar el SDK en tu página",
+          "body": "Firebase se usa con `import` desde su servidor (CDN). Por eso el archivo que lo carga debe ser `type=\"module\"` (verás los módulos a fondo en la lección 37). Copia la URL exacta con la versión que te muestre la consola.\n\n**Sobre la `apiKey`**: en las apps web de Firebase, esa configuración **no es secreta**; identifica el proyecto y viaja a todos los navegadores. Lo que protege tus datos son las **reglas de seguridad** (lección 32). Lo que nunca debe ir en el repositorio son contraseñas, claves de cuentas de servicio o claves de otras APIs.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// En index.html:  <script type=\"module\" src=\"js/datos/nube.js\"></script>\n// js/datos/nube.js\nimport { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';\nimport { getAuth } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';\nimport { getFirestore } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nconst app = initializeApp({\n  apiKey: '…',\n  authDomain: 'mi-proyecto.firebaseapp.com',\n  projectId: 'mi-proyecto',\n  // …el resto que copiaste de la consola\n});\nexport const auth = getAuth(app);\nexport const db = getFirestore(app);",
+          "keyTakeaway": "La configuración web es pública; la seguridad la ponen las reglas. Secretos de verdad: nunca en el repositorio."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Empezar con Firebase sin sustos.",
+        "rules": [
+          "Un proyecto de prueba y otro de producción.",
+          "La conexión a Firebase vive en un solo archivo de `js/datos/`.",
+          "Mantén una versión fija del SDK y actualízala a propósito, no por accidente.",
+          "Nunca abras la base de datos en 'modo de prueba' (todo permitido) en el proyecto real.",
+          "Revisa el uso y los límites del plan gratuito en la consola de vez en cuando."
+        ]
+      },
+      "comparison": {
+        "scenario": "Compartir los datos entre el planificador y los técnicos.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Enviar el respaldo .json por WhatsApp cada mañana\n// y que cada técnico lo restaure en su celular",
+        "juniorFlaws": [
+          "Siempre hay alguien con datos viejos.",
+          "Los cambios del técnico no llegan al planificador.",
+          "Los archivos con datos de clientes circulan sin control."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Una sola fuente de verdad en Firestore\n// planificador y técnicos inician sesión y ven los mismos datos al instante\nimport { db } from './nube.js';",
+        "intermediateBenefits": [
+          "Todos ven lo mismo en tiempo real.",
+          "Cada persona entra con su usuario.",
+          "Las reglas controlan quién cambia qué."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-29-ej-1",
+          "title": "Práctica 1: Tu proyecto de prueba",
+          "difficulty": "Básico",
+          "prompt": "Crea un proyecto de Firebase de prueba, registra una app web, activa Authentication (correo y contraseña) y crea Firestore en modo producción. Guarda el bloque de configuración en un archivo de notas.",
+          "hint": "Todo se hace desde la consola de Firebase; no necesitas instalar nada.",
+          "solutionExplanation": "Con esto tienes el 'servidor' listo. En las próximas lecciones lo conectarás a una copia de tu página."
+        },
+        {
+          "id": "lec-29-ej-2",
+          "title": "Práctica 2: ¿Qué es secreto?",
+          "difficulty": "Intermedio",
+          "prompt": "Clasifica como *público* o *secreto*: (a) la `apiKey` de la configuración web de Firebase, (b) la contraseña de tu usuario administrador, (c) el archivo JSON de una cuenta de servicio de Google, (d) el `projectId`, (e) una clave de la API de un servicio de mapas de pago.",
+          "hint": "Piensa: ¿esto ya viaja a cualquier navegador que abre la página?",
+          "solutionExplanation": "Públicos: (a) y (d), porque Firebase los envía a todo navegador y la protección la dan las reglas. Secretos: (b), (c) y (e). Ninguno de esos tres debe subirse a GitHub ni ponerse en el código de la página."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-29-q1",
+          "question": "¿Qué problema de localStorage resuelve Firestore?",
+          "options": [
+            "Que cada navegador tiene sus propios datos y no se comparten.",
+            "Que localStorage es más lento que Excel.",
+            "Que localStorage no guarda texto.",
+            "Que localStorage necesita internet."
+          ],
+          "correctIndex": 0,
+          "explanation": "Firestore guarda los datos en un solo lugar en la nube, accesible desde todos los equipos."
+        },
+        {
+          "id": "lec-29-q2",
+          "question": "¿Qué protege realmente los datos de una app web de Firebase?",
+          "options": [
+            "El nombre del proyecto.",
+            "Que el repositorio sea privado.",
+            "Esconder la apiKey.",
+            "Las reglas de seguridad configuradas en Firebase."
+          ],
+          "correctIndex": 3,
+          "explanation": "La configuración web es pública; las reglas deciden quién puede leer y escribir."
+        },
+        {
+          "id": "lec-29-q3",
+          "question": "¿Por qué el archivo que importa Firebase debe tener `type=\"module\"`?",
+          "options": [
+            "Porque usa import, que solo funciona en scripts de tipo módulo.",
+            "Porque así se oculta la apiKey.",
+            "Porque Firebase lo exige por seguridad.",
+            "Para que cargue más rápido."
+          ],
+          "correctIndex": 0,
+          "explanation": "Sin type=\"module\", la palabra import produce un error de sintaxis."
+        }
+      ],
+      "order": 34
+    },
+    {
+      "id": "lec-30",
+      "kind": "chapter",
+      "code": "Lec. 30",
+      "module": "10 · Nube: Firebase",
+      "title": "Inicio de sesión con Firebase Authentication",
+      "subtitle": "Usuarios, sesión que se recuerda y pantallas según quién entra.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Crear usuarios y permitir iniciar y cerrar sesión con correo y contraseña.",
+        "Reaccionar al estado de la sesión con `onAuthStateChanged`.",
+        "Mostrar la aplicación o la pantalla de acceso según haya usuario.",
+        "Traducir los errores de inicio de sesión a mensajes claros."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-30-sec-1",
+          "title": "1. Iniciar y cerrar sesión",
+          "body": "Para un equipo pequeño lo más simple es **correo y contraseña**, con los usuarios creados por ti en la consola (Authentication → Usuarios → Agregar usuario). Así nadie de fuera puede registrarse solo.\n\nEl formulario de acceso es un formulario normal (lección 18); al enviarlo llamas a `signInWithEmailAndPassword`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';\nimport { auth } from './nube.js';\n\n$('form-acceso').addEventListener('submit', async e => {\n  e.preventDefault();\n  const { correo, clave } = Object.fromEntries(new FormData(e.target));\n  try {\n    await signInWithEmailAndPassword(auth, correo.trim(), clave);\n  } catch (err) {\n    $('error-acceso').textContent = mensajeDeError(err.code);\n  }\n});\n\nregistrarAccion('cerrar-sesion', () => signOut(auth));",
+          "keyTakeaway": "Usuarios creados por el administrador; el formulario solo inicia sesión."
+        },
+        {
+          "id": "lec-30-sec-2",
+          "title": "2. Escuchar el estado de la sesión",
+          "body": "Firebase **recuerda la sesión** en el navegador: si el técnico cerró la página ayer, hoy entra directo. Por eso no preguntes \"¿hay usuario?\" una vez: escucha los cambios con `onAuthStateChanged`. Se llama al cargar la página y cada vez que alguien entra o sale.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';\n\nonAuthStateChanged(auth, usuario => {\n  $('v-acceso').hidden = !!usuario;\n  $('app').hidden = !usuario;\n  if (usuario) {\n    $('nombre-usuario').textContent = usuario.email;\n    iniciarDatos(usuario);      // empezar a escuchar Firestore (lección 31)\n  } else {\n    detenerDatos();             // dejar de escuchar y limpiar la pantalla\n  }\n});",
+          "keyTakeaway": "Toda la lógica de 'quién entró' sale de onAuthStateChanged."
+        },
+        {
+          "id": "lec-30-sec-3",
+          "title": "3. Mensajes de error claros",
+          "body": "Los errores de Firebase traen un `code` en inglés (`auth/invalid-credential`, `auth/too-many-requests`…). Tradúcelos a mensajes útiles y **no** reveles si el correo existe o no (eso ayuda a un atacante).\n\nPara \"olvidé mi contraseña\", `sendPasswordResetEmail(auth, correo)` envía un correo para restablecerla.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function mensajeDeError(codigo) {\n  const mensajes = {\n    'auth/invalid-credential': 'Correo o contraseña incorrectos.',\n    'auth/invalid-email': 'Escribe un correo válido.',\n    'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos.',\n    'auth/network-request-failed': 'Sin conexión. Revisa tu internet.',\n  };\n  return mensajes[codigo] ?? 'No se pudo iniciar sesión. Intenta de nuevo.';\n}",
+          "keyTakeaway": "Un mensaje humano por cada error común y uno genérico para el resto."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Acceso seguro y cómodo.",
+        "rules": [
+          "Usuarios creados por el administrador; desactiva el registro libre si no lo necesitas.",
+          "Mensajes de error que no revelan si un correo existe.",
+          "Ofrece restablecer la contraseña.",
+          "Un botón visible de cerrar sesión, sobre todo en equipos compartidos.",
+          "Nunca guardes contraseñas en tus datos ni en localStorage: Firebase gestiona la sesión."
+        ]
+      },
+      "comparison": {
+        "scenario": "Proteger la página con una contraseña.",
+        "juniorLabel": "Así no",
+        "juniorCode": "if (prompt('Clave') !== 'taller2026') document.body.innerHTML = '';",
+        "juniorFlaws": [
+          "La clave está escrita en el código: cualquiera la ve con las DevTools.",
+          "Todos comparten la misma clave y no sabes quién hizo cada cambio.",
+          "Los datos siguen accesibles."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "onAuthStateChanged(auth, usuario => {\n  $('app').hidden = !usuario;\n  $('v-acceso').hidden = !!usuario;\n});\n// + reglas de Firestore que exigen request.auth (lección 32)",
+        "intermediateBenefits": [
+          "Cada persona tiene su usuario.",
+          "No hay claves en el código.",
+          "Las reglas protegen los datos en el servidor."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-30-ej-1",
+          "title": "Práctica 1: Pantalla de acceso",
+          "difficulty": "Intermedio",
+          "prompt": "En una copia de tu página, crea una `<section id=\"v-acceso\">` con un formulario (correo, contraseña, botón Entrar y un párrafo para errores). Conecta el inicio de sesión y `onAuthStateChanged` para mostrar la app solo con sesión. Crea dos usuarios de prueba en la consola.",
+          "hint": "Envuelve el resto de la aplicación en un contenedor con id `app` para mostrarlo u ocultarlo de una vez.",
+          "solutionExplanation": "Con esto la página ya distingue quién entra. En la lección 32 harás que el servidor también lo exija.",
+          "solutionCode": "<section id=\"v-acceso\" hidden>\n  <h2>Entrar</h2>\n  <form id=\"form-acceso\">\n    <label for=\"a-correo\">Correo</label>\n    <input id=\"a-correo\" name=\"correo\" type=\"email\" autocomplete=\"username\" required>\n    <label for=\"a-clave\">Contraseña</label>\n    <input id=\"a-clave\" name=\"clave\" type=\"password\" autocomplete=\"current-password\" required>\n    <button type=\"submit\">Entrar</button>\n    <p id=\"error-acceso\" role=\"alert\"></p>\n  </form>\n</section>",
+          "codeLanguage": "html"
+        },
+        {
+          "id": "lec-30-ej-2",
+          "title": "Práctica 2: Olvidé mi contraseña",
+          "difficulty": "Básico",
+          "prompt": "Agrega un botón \"Olvidé mi contraseña\" que use el correo escrito en el formulario y llame a `sendPasswordResetEmail`. Muestra siempre el mismo mensaje, exista o no el correo.",
+          "hint": "Importa sendPasswordResetEmail del mismo archivo de firebase-auth.",
+          "solutionExplanation": "Mostrar siempre el mismo mensaje evita que alguien use el formulario para averiguar qué correos existen.",
+          "solutionCode": "import { sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';\n\nregistrarAccion('restablecer-clave', async () => {\n  const correo = $('a-correo').value.trim();\n  if (!correo) return ($('error-acceso').textContent = 'Escribe tu correo primero.');\n  try { await sendPasswordResetEmail(auth, correo); } catch { /* mismo mensaje */ }\n  $('error-acceso').textContent = 'Si el correo está registrado, recibirás un enlace.';\n});",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-30-q1",
+          "question": "¿Por qué conviene usar onAuthStateChanged en lugar de comprobar el usuario una sola vez?",
+          "options": [
+            "Porque es más corto.",
+            "Porque avisa al cargar y cada vez que alguien entra o sale, incluida la sesión recordada.",
+            "Porque es la única forma de cerrar sesión.",
+            "Porque crea usuarios."
+          ],
+          "correctIndex": 1,
+          "explanation": "La sesión puede restaurarse sola o cambiar en cualquier momento."
+        },
+        {
+          "id": "lec-30-q2",
+          "question": "¿Por qué un mensaje de error no debe decir 'ese correo no existe'?",
+          "options": [
+            "Porque confunde al técnico.",
+            "Porque es muy largo.",
+            "Porque Firebase no lo permite.",
+            "Porque ayudaría a un atacante a averiguar qué correos están registrados."
+          ],
+          "correctIndex": 3,
+          "explanation": "Un mensaje genérico protege la lista de usuarios."
+        },
+        {
+          "id": "lec-30-q3",
+          "question": "¿Dónde deben guardarse las contraseñas de los usuarios?",
+          "options": [
+            "En el archivo de configuración.",
+            "En ningún lugar de tu código ni de tus datos: las gestiona Firebase Authentication.",
+            "En localStorage.",
+            "En un documento de Firestore."
+          ],
+          "correctIndex": 1,
+          "explanation": "Firebase guarda las contraseñas de forma segura; tu app nunca las almacena."
+        }
+      ],
+      "order": 35
+    },
+    {
+      "id": "lec-31",
+      "kind": "chapter",
+      "code": "Lec. 31",
+      "module": "10 · Nube: Firebase",
+      "title": "Firestore: guardar y leer datos compartidos",
+      "subtitle": "Colecciones, documentos, consultas, tiempo real y modo sin conexión.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Entender el modelo de Firestore: colecciones de documentos con id.",
+        "Crear, actualizar y borrar documentos.",
+        "Escuchar cambios en tiempo real con `onSnapshot` y redibujar.",
+        "Activar la caché persistente para trabajar sin conexión."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-31-sec-1",
+          "title": "1. Colecciones y documentos",
+          "body": "Firestore no tiene tablas: tiene **colecciones** que contienen **documentos**. Cada documento es un objeto (como los de tus datos) con un **id**. La traducción desde tu estado `S` es directa:\n- `S.acts` → colección `actividades`, un documento por actividad.\n- `S.tecs` → colección `tecnicos`.\n- `S.vehs` → colección `vehiculos`.\n\nCada documento tiene un límite de 1 MB, así que **no** guardes todo el estado en un único documento: un documento por registro.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { collection, doc, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp }\n  from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nconst actividades = collection(db, 'actividades');\n\n// Crear (Firestore genera el id)\nconst ref = await addDoc(actividades, { cliente: 'Cliente Demo', fecha: '2026-11-17', estado: 'Pendiente',\n                                        creado: serverTimestamp() });\n// Actualizar solo algunos campos\nawait updateDoc(doc(db, 'actividades', ref.id), { estado: 'Finalizado', finalizada: fechaIso() });\n// Borrar\nawait deleteDoc(doc(db, 'actividades', ref.id));",
+          "keyTakeaway": "Una colección por lista y un documento por registro; updateDoc para cambiar solo lo necesario."
+        },
+        {
+          "id": "lec-31-sec-2",
+          "title": "2. Tiempo real con onSnapshot",
+          "body": "En vez de leer una vez, **escucha**: `onSnapshot` llama a tu función ahora y cada vez que algo cambia (aunque lo cambie otra persona en otro celular). Ahí actualizas `S` y llamas a `redibujarTodo()`: tu arquitectura de la lección 19 sigue igual, solo cambia de dónde vienen los datos.\n\nCon `query`, `where` y `orderBy` traes solo lo necesario (por ejemplo, las actividades de los últimos 60 días), y gastas menos lecturas.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { onSnapshot, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nlet detener = null;\nfunction iniciarDatos() {\n  const desde = sumarDias(fechaIso(), -60);\n  const q = query(collection(db, 'actividades'), where('fecha', '>=', desde), orderBy('fecha'));\n  detener = onSnapshot(q, snap => {\n    S.acts = snap.docs.map(d => ({ id: d.id, ...d.data() }));\n    redibujarTodo();\n  }, err => aviso('No se pudieron cargar las actividades: ' + err.message));\n}\nfunction detenerDatos() { detener?.(); S.acts = []; redibujarTodo(); }",
+          "keyTakeaway": "onSnapshot → actualizar S → redibujarTodo. Y guarda la función para dejar de escuchar al cerrar sesión."
+        },
+        {
+          "id": "lec-31-sec-3",
+          "title": "3. Trabajar sin conexión",
+          "body": "En la web, la caché persistente de Firestore viene **desactivada**: actívala al iniciar. Con ella, la app muestra los últimos datos sin internet y las escrituras quedan **en cola** hasta que vuelve la conexión. Ideal para el técnico en una zona sin señal.\n\nComo esos datos quedan guardados en el equipo, si la página se usa en equipos compartidos, ofrece cerrar sesión y considera no activar la caché en ellos.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager }\n  from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nexport const db = initializeFirestore(app, {\n  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),\n});\n\n// Indicar al usuario si un dato aún no llegó al servidor\nonSnapshot(q, { includeMetadataChanges: true }, snap => {\n  $('sync').textContent = snap.metadata.hasPendingWrites ? 'Guardando…' : 'Al día';\n});",
+          "keyTakeaway": "Activa la caché persistente y muestra si hay cambios pendientes de subir."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Firestore ordenado y económico.",
+        "rules": [
+          "Un documento por registro; nada de 'todo el estado en un documento'.",
+          "Consultas acotadas (por fecha o estado) para no leer miles de documentos sin necesidad.",
+          "`updateDoc` con los campos que cambian, no reescribir el documento entero.",
+          "Detén los `onSnapshot` al cerrar sesión.",
+          "Muestra el estado de sincronización al usuario."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar los cambios en Firestore.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Copiar el estado completo a un solo documento en cada cambio\nawait setDoc(doc(db, 'estado', 'todo'), S);",
+        "juniorFlaws": [
+          "Supera rápido el límite de 1 MB por documento.",
+          "Si dos personas guardan a la vez, la última borra los cambios de la otra.",
+          "Cada cambio reescribe todo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Cada acción cambia solo su documento\nregistrarAccion('finalizar-actividad', ({ id }) =>\n  updateDoc(doc(db, 'actividades', id), { estado: 'Finalizado', finalizada: fechaIso() }));\n// onSnapshot trae el cambio y redibuja en todos los equipos",
+        "intermediateBenefits": [
+          "Cambios pequeños y sin pisarse entre usuarios.",
+          "Sin límite práctico de tamaño.",
+          "Todos los equipos se actualizan solos."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-31-ej-1",
+          "title": "Práctica 1: Técnicos en la nube",
+          "difficulty": "Intermedio",
+          "prompt": "En tu proyecto de prueba, haz que la lista de técnicos venga de la colección `tecnicos` con `onSnapshot`, y que el formulario de técnico use `addDoc` para crear y `updateDoc` para editar. Ábrela en dos navegadores y comprueba que un cambio aparece en el otro.",
+          "hint": "Reutiliza tu formulario de la lección 18: solo cambia la parte de guardar.",
+          "solutionExplanation": "Ver el cambio aparecer solo en el otro navegador es la mejor prueba de que la sincronización funciona.",
+          "solutionCode": "import { collection, doc, addDoc, updateDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nonSnapshot(collection(db, 'tecnicos'), snap => {\n  S.tecs = snap.docs.map(d => ({ id: d.id, ...d.data() }));\n  redibujarTodo();\n});\n\nasync function guardarTecnico(d) {\n  const { id, ...datos } = d;\n  if (id) await updateDoc(doc(db, 'tecnicos', id), datos);\n  else await addDoc(collection(db, 'tecnicos'), datos);\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-31-ej-2",
+          "title": "Práctica 2: Prueba sin conexión",
+          "difficulty": "Básico",
+          "prompt": "Con la caché persistente activa, abre las DevTools → Network → marca **Offline**. Cambia el estado de una actividad, recarga la página y comprueba que el cambio sigue ahí. Luego vuelve a **Online** y verifica en la consola de Firebase que el cambio llegó.",
+          "hint": "El indicador de sincronización debe pasar de 'Guardando…' a 'Al día' al volver la conexión.",
+          "solutionExplanation": "Así compruebas el comportamiento que tendrá el técnico en una zona sin señal."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-31-q1",
+          "question": "¿Cómo conviene guardar la lista de actividades en Firestore?",
+          "options": [
+            "Como un archivo Excel.",
+            "En una sola cadena de texto.",
+            "Como una colección con un documento por actividad.",
+            "Todo el estado en un único documento."
+          ],
+          "correctIndex": 2,
+          "explanation": "Un documento por registro evita el límite de tamaño y los choques entre usuarios."
+        },
+        {
+          "id": "lec-31-q2",
+          "question": "¿Qué hace onSnapshot?",
+          "options": [
+            "Toma una captura de pantalla.",
+            "Lee los datos una sola vez.",
+            "Llama a tu función con los datos ahora y cada vez que cambian.",
+            "Borra la colección."
+          ],
+          "correctIndex": 2,
+          "explanation": "Es la base del tiempo real: cualquier cambio llega a todos los equipos."
+        },
+        {
+          "id": "lec-31-q3",
+          "question": "En una app web, ¿cómo se consigue que Firestore funcione sin conexión entre sesiones?",
+          "options": [
+            "Viene activado siempre y no se puede cambiar.",
+            "Activando la caché persistente al inicializar Firestore.",
+            "Guardando todo en localStorage a mano.",
+            "No es posible en la web."
+          ],
+          "correctIndex": 1,
+          "explanation": "En la web la persistencia está desactivada por defecto; se activa con persistentLocalCache."
+        }
+      ],
+      "order": 36
+    },
+    {
+      "id": "lec-32",
+      "kind": "chapter",
+      "code": "Lec. 32",
+      "module": "10 · Nube: Firebase",
+      "title": "Reglas de seguridad y roles",
+      "subtitle": "Quién puede leer y cambiar qué: planificador y técnico.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Leer y escribir reglas de seguridad de Firestore.",
+        "Exigir sesión iniciada y validar la forma de los datos en el servidor.",
+        "Implementar roles (planificador y técnico) con una colección de usuarios.",
+        "Probar las reglas antes de publicarlas."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-32-sec-1",
+          "title": "1. Las reglas: el verdadero candado",
+          "body": "Ocultar un botón en la página no protege nada: cualquiera puede escribir código en la consola. Las **reglas de seguridad** se ejecutan en los servidores de Firebase y deciden, para cada lectura o escritura, si se permite.\n\nSe escriben en la consola (Firestore → Reglas). Estructura básica: `match` indica a qué documentos aplica, y `allow` qué operaciones se permiten y con qué condición. `request.auth` es el usuario (o `null`), `resource.data` el documento actual y `request.resource.data` cómo quedaría después del cambio.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    // Nadie sin sesión lee ni escribe nada\n    match /{documento=**} {\n      allow read, write: if false;\n    }\n    match /actividades/{id} {\n      allow read: if request.auth != null;\n      allow write: if request.auth != null;\n    }\n  }\n}",
+          "keyTakeaway": "La seguridad vive en las reglas del servidor; la interfaz solo acompaña."
+        },
+        {
+          "id": "lec-32-sec-2",
+          "title": "2. Roles con una colección de usuarios",
+          "body": "Crea la colección `usuarios` con un documento por persona cuyo **id es su uid** (lo ves en Authentication) y un campo `rol`: `planificador` o `tecnico`. Las reglas leen ese documento con `get()`:\n- El planificador crea, edita y borra.\n- El técnico solo puede cambiar **algunos campos** (estado, observación, fecha de cierre) de las actividades.\n- Nadie puede cambiarse el rol a sí mismo.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    function conSesion() { return request.auth != null; }\n    function rol() {\n      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol;\n    }\n    function soloCampos(campos) {\n      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos);\n    }\n\n    match /usuarios/{uid} {\n      allow read: if conSesion() && request.auth.uid == uid;\n      allow write: if false;               // los roles se asignan desde la consola\n    }\n    match /actividades/{id} {\n      allow read: if conSesion();\n      allow create, delete: if conSesion() && rol() == 'planificador';\n      allow update: if conSesion() && (rol() == 'planificador' ||\n        (rol() == 'tecnico' && soloCampos(['estado', 'observacion', 'finalizada'])));\n    }\n  }\n}",
+          "keyTakeaway": "Rol en un documento que el usuario no puede modificar, y reglas que lo consultan."
+        },
+        {
+          "id": "lec-32-sec-3",
+          "title": "3. Validar datos y probar",
+          "body": "Las reglas también pueden exigir la **forma** de los datos: que `fecha` sea texto de 10 caracteres, que `estado` sea uno de los permitidos. Es la misma idea que la validación del formulario (lección 18), pero imposible de saltarse.\n\nAntes de publicar, usa el **Simulador de reglas** de la consola: eliges la operación, la ruta y el usuario, y te dice si se permite y por qué línea. Prueba al menos: sin sesión, técnico y planificador.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "function actividadValida() {\n  let d = request.resource.data;\n  return d.fecha is string && d.fecha.size() == 10\n    && d.estado in ['Pendiente', 'En curso', 'En espera de repuesto', 'Finalizado']\n    && d.cliente is string && d.cliente.size() > 0;\n}\n// …\nallow create: if conSesion() && rol() == 'planificador' && actividadValida();",
+          "keyTakeaway": "Valida en el servidor lo que no puede estar mal nunca, y prueba con el simulador antes de publicar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Seguridad que se sostiene sola.",
+        "rules": [
+          "Regla por defecto: todo denegado; luego abre solo lo necesario.",
+          "Nunca `allow read, write: if true;` en el proyecto real.",
+          "Roles en documentos que solo el administrador puede escribir.",
+          "Valida en reglas los campos críticos (estado, fechas).",
+          "Prueba cada regla con el simulador para cada rol antes de publicar.",
+          "Guarda una copia de las reglas en el repositorio (archivo `firestore.rules`) para tener su historial en Git."
+        ]
+      },
+      "comparison": {
+        "scenario": "Impedir que el técnico borre actividades.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Solo en la página:\nif (usuarioRol === 'tecnico') $('btn-borrar').hidden = true;",
+        "juniorFlaws": [
+          "Desde la consola del navegador el técnico puede llamar a deleteDoc igual.",
+          "La protección depende de que nadie toque el código."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "match /actividades/{id} {\n  allow delete: if conSesion() && rol() == 'planificador';\n}\n// y además, por comodidad, ocultar el botón en la página",
+        "intermediateBenefits": [
+          "El servidor rechaza el borrado aunque alguien lo intente desde la consola.",
+          "La interfaz acompaña, pero no es la defensa."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "lec-32-ej-1",
+          "title": "Práctica 1: Reglas para técnicos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe las reglas para la colección `vehiculos`: cualquiera con sesión lee; solo el planificador crea y borra; el técnico solo puede actualizar el campo `kmActual`, y solo si el nuevo valor es un número mayor o igual al anterior.",
+          "hint": "Compara request.resource.data.kmActual con resource.data.kmActual.",
+          "solutionExplanation": "La regla impide que un odómetro 'retroceda' por error, una validación que en la página se podría saltar.",
+          "solutionCode": "match /vehiculos/{id} {\n  allow read: if conSesion();\n  allow create, delete: if conSesion() && rol() == 'planificador';\n  allow update: if conSesion() && (rol() == 'planificador' ||\n    (rol() == 'tecnico' && soloCampos(['kmActual'])\n      && request.resource.data.kmActual is number\n      && request.resource.data.kmActual >= resource.data.kmActual));\n}",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "lec-32-ej-2",
+          "title": "Práctica 2: Simulador",
+          "difficulty": "Básico",
+          "prompt": "En el simulador de reglas, prueba tres casos sobre `actividades/a1`: una lectura sin sesión, un `delete` como técnico y un `update` del campo `estado` como técnico. Anota el resultado esperado de cada uno y compruébalo.",
+          "hint": "Para simular un usuario con rol necesitas su uid y que exista su documento en usuarios.",
+          "solutionExplanation": "Esperado: lectura sin sesión denegada; delete como técnico denegado; update de estado como técnico permitido."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-32-q1",
+          "question": "¿Por qué ocultar un botón no es suficiente para impedir una acción?",
+          "options": [
+            "Porque Firebase muestra todos los botones.",
+            "Porque los botones ocultos siguen visibles.",
+            "Sí es suficiente.",
+            "Porque cualquiera puede ejecutar la operación desde la consola del navegador; solo las reglas del servidor la impiden."
+          ],
+          "correctIndex": 3,
+          "explanation": "La interfaz está en el equipo del usuario; las reglas se ejecutan en el servidor."
+        },
+        {
+          "id": "lec-32-q2",
+          "question": "¿Qué representa `request.resource.data` en una regla?",
+          "options": [
+            "La lista de colecciones.",
+            "El usuario que hace la petición.",
+            "El documento tal como está ahora.",
+            "Cómo quedaría el documento si se permite la escritura."
+          ],
+          "correctIndex": 3,
+          "explanation": "resource.data es el estado actual; request.resource.data, el estado propuesto."
+        },
+        {
+          "id": "lec-32-q3",
+          "question": "¿Dónde conviene guardar el rol de cada usuario?",
+          "options": [
+            "En el nombre del correo.",
+            "En un documento de usuarios que el propio usuario no puede modificar.",
+            "En una variable de la página.",
+            "En localStorage del usuario."
+          ],
+          "correctIndex": 1,
+          "explanation": "Si el usuario pudiera escribir su rol, podría darse permisos de planificador."
+        }
+      ],
+      "order": 37
+    },
+    {
+      "id": "proy-5",
+      "kind": "chapter",
+      "code": "Proy. 5",
+      "module": "10 · Nube: Firebase",
+      "title": "Llevar tus datos a Firestore",
+      "subtitle": "Migrar el respaldo, sincronizar en tiempo real y poder volver atrás.",
+      "estimatedMinutes": 120,
+      "status": "published",
+      "objectives": [
+        "Planificar una migración de localStorage a Firestore sin perder datos.",
+        "Subir un respaldo JSON a Firestore por lotes conservando los ids.",
+        "Cambiar el guardado de la página para que use Firestore manteniendo la arquitectura.",
+        "Tener un plan para volver atrás si algo falla."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-5-sec-1",
+          "title": "1. El plan",
+          "body": "Una migración real se hace por etapas, no de golpe:\n1. **Rama nueva** y **proyecto de Firebase de prueba**.\n2. **Respaldo** completo del estado actual (lección 20).\n3. **Script de subida**: lee el respaldo y crea los documentos conservando los ids.\n4. **Lectura desde Firestore** con `onSnapshot` → `S` → `redibujarTodo()`.\n5. **Escritura**: las acciones usan `updateDoc`/`addDoc` en lugar de `guardarEstado()`.\n6. **Reglas y roles** (lección 32).\n7. **Prueba con el equipo** durante unos días en paralelo, con el respaldo a mano.\n8. Solo entonces, el proyecto de producción.\n\nUn **interruptor** en la configuración (`USAR_NUBE = true/false`) te deja volver al modo local en un minuto si algo sale mal.",
+          "keyTakeaway": "Por etapas, con respaldo e interruptor para volver atrás."
+        },
+        {
+          "id": "proy-5-sec-2",
+          "title": "2. Subir el respaldo por lotes",
+          "body": "`writeBatch` agrupa escrituras que se aplican todas o ninguna, con un máximo de 500 operaciones por lote. Con `setDoc(doc(db, colección, id), datos)` conservas los ids que ya usan tus registros, así no se rompen las relaciones (por ejemplo `tecnicoId`).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { writeBatch, doc } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nasync function subirColeccion(nombre, lista) {\n  for (let i = 0; i < lista.length; i += 450) {\n    const lote = writeBatch(db);\n    for (const { id, ...datos } of lista.slice(i, i + 450)) {\n      lote.set(doc(db, nombre, id), datos);\n    }\n    await lote.commit();\n    console.log(`${nombre}: ${Math.min(i + 450, lista.length)} de ${lista.length}`);\n  }\n}\n\nasync function migrarRespaldo(respaldo) {\n  await subirColeccion('tecnicos', respaldo.tecs);\n  await subirColeccion('vehiculos', respaldo.vehs);\n  await subirColeccion('actividades', respaldo.acts);\n}",
+          "keyTakeaway": "Lotes de menos de 500 y los mismos ids que ya usas."
+        },
+        {
+          "id": "proy-5-sec-3",
+          "title": "3. Cambiar el guardado sin romper la arquitectura",
+          "body": "La arquitectura de la lección 19 se mantiene: las acciones siguen siendo el único lugar que cambia datos. Lo que cambia es **qué hacen al final**: en modo nube escriben en Firestore y **no** redibujan, porque `onSnapshot` traerá el cambio y redibujará en todos los equipos.\n\nConcentra esa diferencia en una sola función, para que los módulos no tengan que saber si están en modo local o nube.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// js/datos/guardar.js\nasync function guardarCambio(coleccion, id, cambios) {\n  if (!USAR_NUBE) {\n    Object.assign(S[CLAVE_LOCAL[coleccion]].find(x => x.id === id), cambios);\n    return guardarYRedibujar();\n  }\n  try {\n    await updateDoc(doc(db, coleccion, id), cambios);   // onSnapshot redibuja\n  } catch (e) {\n    aviso('No se pudo guardar: ' + (e.code === 'permission-denied' ? 'no tienes permiso.' : e.message));\n  }\n}\n\n// En los módulos, igual para ambos modos:\nregistrarAccion('finalizar-actividad', ({ id }) =>\n  guardarCambio('actividades', id, { estado: 'Finalizado', finalizada: fechaIso() }));",
+          "keyTakeaway": "Una función de guardado que oculta si estás en local o en la nube."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Migración sin pérdida de datos.",
+        "rules": [
+          "Respaldo antes de empezar y después de subir.",
+          "Comprueba los conteos: documentos en Firestore = registros del respaldo.",
+          "Conserva los ids para no romper relaciones.",
+          "Interruptor para volver al modo local.",
+          "Período de prueba en paralelo con el equipo antes de declarar terminada la migración.",
+          "Documenta el procedimiento en `documentacion/`."
+        ]
+      },
+      "comparison": {
+        "scenario": "El día de la migración.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Cambiar todo en main, publicar y avisar al equipo:\n// \"desde hoy usamos la nube\"\nlocalStorage.clear();",
+        "juniorFlaws": [
+          "Si algo falla, no hay forma de volver.",
+          "Se borran los datos locales que eran la única copia.",
+          "El equipo descubre los errores trabajando."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// 1. Respaldo descargado y guardado en dos lugares\n// 2. migrarRespaldo(respaldo) en el proyecto de prueba → conteos OK\n// 3. Rama 'nube' con USAR_NUBE = true probada por dos personas una semana\n// 4. Repetir en producción; localStorage se conserva un mes como copia",
+        "intermediateBenefits": [
+          "Siempre hay una copia de seguridad.",
+          "Los errores aparecen en pruebas, no en el trabajo diario.",
+          "Volver atrás es cambiar un valor."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "proy-5-ej-1",
+          "title": "Reto 1: Haz la migración en el proyecto de prueba",
+          "difficulty": "Avanzado",
+          "prompt": "Sigue las etapas 1 a 6 con tu proyecto de prueba y una copia de tus datos. Entrega por PR: la función de subida, la lectura con `onSnapshot`, `guardarCambio` usada en al menos tres acciones, las reglas en `firestore.rules` y el interruptor `USAR_NUBE`.",
+          "hint": "Empieza por una sola colección (técnicos), luego vehículos y al final actividades.",
+          "solutionExplanation": "Migrar colección por colección limita el riesgo: si algo falla, sabes exactamente en qué parte."
+        },
+        {
+          "id": "proy-5-ej-2",
+          "title": "Reto 2: Verifica los conteos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una función `verificarMigracion(respaldo)` que compare, para cada colección, cuántos registros hay en el respaldo y cuántos documentos hay en Firestore, y muestre una tabla en la consola.",
+          "hint": "getCountFromServer(collection(db, nombre)) devuelve el número de documentos sin descargarlos.",
+          "solutionExplanation": "Una migración no está terminada hasta que los números coinciden.",
+          "solutionCode": "import { getCountFromServer, collection } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';\n\nasync function verificarMigracion(respaldo) {\n  const pares = [['tecnicos', respaldo.tecs], ['vehiculos', respaldo.vehs], ['actividades', respaldo.acts]];\n  const filas = [];\n  for (const [nombre, lista] of pares) {\n    const snap = await getCountFromServer(collection(db, nombre));\n    filas.push({ coleccion: nombre, respaldo: lista.length, nube: snap.data().count });\n  }\n  console.table(filas);\n  return filas.every(f => f.respaldo === f.nube);\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-5-q1",
+          "question": "¿Por qué conviene conservar los ids originales al subir los datos?",
+          "options": [
+            "Porque Firestore no puede generar ids.",
+            "Para que ocupen menos espacio.",
+            "No hay ventaja.",
+            "Para que las relaciones entre registros (como tecnicoId) sigan funcionando."
+          ],
+          "correctIndex": 3,
+          "explanation": "Si los ids cambian, las actividades apuntarían a técnicos que no existen."
+        },
+        {
+          "id": "proy-5-q2",
+          "question": "¿Para qué sirve el interruptor USAR_NUBE?",
+          "options": [
+            "Para apagar internet.",
+            "Para volver rápidamente al modo local si la nube da problemas.",
+            "Para cambiar de usuario.",
+            "Para borrar Firestore."
+          ],
+          "correctIndex": 1,
+          "explanation": "Es el plan de retorno de la migración."
+        },
+        {
+          "id": "proy-5-q3",
+          "question": "En modo nube, ¿por qué la acción no llama a redibujarTodo después de updateDoc?",
+          "options": [
+            "Porque redibujar está prohibido con Firebase.",
+            "Por error.",
+            "Porque onSnapshot recibe el cambio y redibuja en todos los equipos.",
+            "Porque updateDoc borra la pantalla."
+          ],
+          "correctIndex": 2,
+          "explanation": "El cambio vuelve por el escuchador en tiempo real, una sola fuente de verdad."
+        }
+      ],
+      "order": 38
+    },
+    {
+      "id": "lec-33",
+      "kind": "chapter",
+      "code": "Lec. 33",
+      "module": "11 · App en el campo",
+      "title": "PWA: instalar tu página como app",
+      "subtitle": "Manifest, íconos y el botón de instalar en el celular.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es una Progressive Web App y qué necesita.",
+        "Escribir el archivo manifest con nombre, colores e íconos.",
+        "Ofrecer un botón de instalar y comprobar la instalación en las DevTools."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-33-sec-1",
+          "title": "1. Qué es una PWA",
+          "body": "Una **PWA** es una página web que se puede **instalar** como una app: ícono en la pantalla de inicio, se abre a pantalla completa sin barra del navegador y puede funcionar sin conexión. Sigue siendo tu misma página: no pasa por tiendas de apps ni hay que reprogramarla.\n\nNecesita tres cosas:\n- **HTTPS**: GitHub Pages y Firebase Hosting ya lo dan.\n- Un **manifest**: un archivo JSON con el nombre, los colores y los íconos.\n- Un **service worker**: un script que controla la caché y el modo sin conexión (lección 34).",
+          "keyTakeaway": "PWA = HTTPS + manifest + service worker. Tu página ya tiene la primera."
+        },
+        {
+          "id": "lec-33-sec-2",
+          "title": "2. El manifest",
+          "body": "Crea `manifest.webmanifest` en la raíz y enlázalo desde el `<head>`. Usa rutas **relativas** (`./`): en GitHub Pages tu página vive en una subcarpeta (`usuario.github.io/proyecto/`) y una ruta que empiece por `/` apuntaría a la raíz del dominio.\n\nLos íconos: al menos uno de 192×192 y otro de 512×512 en PNG. El de 512 con `\"purpose\": \"maskable\"` se adapta a los íconos redondos de Android si dejas margen alrededor del logo.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"name\": \"Planificador de mantenimiento\",\n  \"short_name\": \"Planificador\",\n  \"start_url\": \"./\",\n  \"scope\": \"./\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#ffffff\",\n  \"theme_color\": \"#0b5cad\",\n  \"icons\": [\n    { \"src\": \"recursos/icono-192.png\", \"sizes\": \"192x192\", \"type\": \"image/png\" },\n    { \"src\": \"recursos/icono-512.png\", \"sizes\": \"512x512\", \"type\": \"image/png\", \"purpose\": \"any maskable\" }\n  ]\n}",
+          "keyTakeaway": "Rutas relativas, nombre corto legible bajo el ícono y dos tamaños de ícono."
+        },
+        {
+          "id": "lec-33-sec-3",
+          "title": "3. Enlazarlo y ofrecer la instalación",
+          "body": "En Android y en Chrome de escritorio, el navegador dispara el evento `beforeinstallprompt` cuando la página es instalable. Puedes guardarlo y mostrar tu propio botón \"Instalar app\". En iPhone no existe ese evento: se instala desde **Compartir → Agregar a pantalla de inicio**, así que muestra esa instrucción a quienes usan Safari.\n\nPara comprobar todo: DevTools → **Application → Manifest** muestra errores y los íconos detectados.",
+          "codeLanguage": "html",
+          "codeSnippet": "<link rel=\"manifest\" href=\"manifest.webmanifest\">\n<meta name=\"theme-color\" content=\"#0b5cad\">\n<link rel=\"apple-touch-icon\" href=\"recursos/icono-192.png\">\n\n<button type=\"button\" id=\"btn-instalar\" hidden>Instalar app</button>\n<script>\n  let pedidoInstalacion = null;\n  addEventListener('beforeinstallprompt', e => {\n    e.preventDefault();\n    pedidoInstalacion = e;\n    document.getElementById('btn-instalar').hidden = false;\n  });\n  document.getElementById('btn-instalar').addEventListener('click', async () => {\n    pedidoInstalacion?.prompt();\n    await pedidoInstalacion?.userChoice;\n    pedidoInstalacion = null;\n    document.getElementById('btn-instalar').hidden = true;\n  });\n</script>",
+          "keyTakeaway": "Botón propio en Android y escritorio; instrucción de 'Agregar a inicio' para iPhone."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Una PWA bien hecha.",
+        "rules": [
+          "Rutas relativas en el manifest y en el registro del service worker.",
+          "Íconos de 192 y 512 px, con margen para la versión maskable.",
+          "`theme_color` igual al color principal del tema.",
+          "Revisa Application → Manifest sin errores antes de publicar.",
+          "Prueba la instalación en un Android y en un iPhone reales."
+        ]
+      },
+      "comparison": {
+        "scenario": "Configurar el manifest para una página en GitHub Pages.",
+        "juniorLabel": "Así no",
+        "juniorCode": "{ \"start_url\": \"/\", \"icons\": [{ \"src\": \"/icono.png\", \"sizes\": \"64x64\" }] }",
+        "juniorFlaws": [
+          "`/` apunta a la raíz del dominio, no a la carpeta del proyecto: la app abre una página 404.",
+          "Un ícono de 64 px se ve borroso y no cumple los tamaños mínimos."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "{ \"start_url\": \"./\", \"scope\": \"./\",\n  \"icons\": [{ \"src\": \"recursos/icono-192.png\", \"sizes\": \"192x192\", \"type\": \"image/png\" },\n            { \"src\": \"recursos/icono-512.png\", \"sizes\": \"512x512\", \"type\": \"image/png\" }] }",
+        "intermediateBenefits": [
+          "Funciona en la subcarpeta de GitHub Pages.",
+          "Íconos nítidos en cualquier pantalla."
+        ],
+        "codeLanguage": "json"
+      },
+      "exercises": [
+        {
+          "id": "lec-33-ej-1",
+          "title": "Práctica 1: Manifest de tu página",
+          "difficulty": "Básico",
+          "prompt": "En una copia de tu página, crea los íconos de 192 y 512 px a partir del logo (con margen), escribe el manifest y enlázalo. Comprueba en DevTools → Application → Manifest que no hay errores.",
+          "hint": "Cualquier editor de imágenes sirve; exporta en PNG con fondo de color sólido.",
+          "solutionExplanation": "La página aún no será instalable del todo hasta tener el service worker (lección 34), pero el manifest ya debe aparecer sin errores."
+        },
+        {
+          "id": "lec-33-ej-2",
+          "title": "Práctica 2: Instrucciones para iPhone",
+          "difficulty": "Intermedio",
+          "prompt": "Muestra un aviso \"Para instalar: Compartir → Agregar a pantalla de inicio\" solo a quienes usan iPhone con Safari y aún no tienen la app instalada.",
+          "hint": "`navigator.standalone` es true cuando la app ya se abrió instalada en iOS.",
+          "solutionExplanation": "Detectar el sistema por el userAgent no es perfecto, pero para un aviso informativo es suficiente.",
+          "solutionCode": "const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);\nconst instalada = navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;\n$('aviso-ios').hidden = !(esIOS && !instalada);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-33-q1",
+          "question": "¿Qué tres cosas necesita una página para ser una PWA instalable?",
+          "options": [
+            "HTTPS, un manifest y un service worker.",
+            "Solo un ícono grande.",
+            "Firebase y React.",
+            "Un servidor propio, Java y una tienda de apps."
+          ],
+          "correctIndex": 0,
+          "explanation": "Son los requisitos básicos de instalación."
+        },
+        {
+          "id": "lec-33-q2",
+          "question": "¿Por qué en GitHub Pages conviene `\"start_url\": \"./\"` en vez de `\"/\"`?",
+          "options": [
+            "No hay diferencia.",
+            "Porque './' carga más rápido.",
+            "Porque GitHub no acepta barras.",
+            "Porque la página vive en una subcarpeta y '/' apunta a la raíz del dominio."
+          ],
+          "correctIndex": 3,
+          "explanation": "La ruta relativa respeta la carpeta del proyecto."
+        },
+        {
+          "id": "lec-33-q3",
+          "question": "¿Cómo se instala una PWA en un iPhone?",
+          "options": [
+            "Con el evento beforeinstallprompt.",
+            "Desde la App Store.",
+            "No se puede instalar.",
+            "Desde Compartir → Agregar a pantalla de inicio en Safari."
+          ],
+          "correctIndex": 3,
+          "explanation": "iOS no dispara beforeinstallprompt; se instala desde el menú de Compartir."
+        }
+      ],
+      "order": 39
+    },
+    {
+      "id": "lec-34",
+      "kind": "chapter",
+      "code": "Lec. 34",
+      "module": "11 · App en el campo",
+      "title": "Service worker: funcionar sin conexión",
+      "subtitle": "Caché de archivos, estrategias y avisar de versiones nuevas.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es un service worker y su ciclo de vida (instalar, activar, controlar).",
+        "Guardar en caché los archivos de la página para abrirla sin conexión.",
+        "Elegir una estrategia de caché según el tipo de archivo.",
+        "Avisar al usuario cuando hay una versión nueva y evitar que se quede con la vieja."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-34-sec-1",
+          "title": "1. Qué es y cómo se registra",
+          "body": "Un **service worker** es un script que el navegador ejecuta aparte de la página y que puede **interceptar las peticiones** de archivos. Si no hay conexión, responde con la copia guardada. No tiene acceso al DOM ni a localStorage.\n\nCiclo de vida: se **instala** (aprovechas para guardar archivos), se **activa** (borras cachés viejas) y luego **controla** las páginas. Se registra desde la página, con ruta relativa:",
+          "codeLanguage": "javascript",
+          "codeSnippet": "if ('serviceWorker' in navigator) {\n  addEventListener('load', () => {\n    navigator.serviceWorker.register('./sw.js')\n      .catch(err => console.warn('Service worker no registrado', err));\n  });\n}",
+          "keyTakeaway": "Registra el service worker al cargar, con ruta relativa y sin romper si el navegador no lo soporta."
+        },
+        {
+          "id": "lec-34-sec-2",
+          "title": "2. El archivo sw.js",
+          "body": "La estrategia más útil para una aplicación como la tuya:\n- **Archivos de la app** (HTML, CSS, JS, íconos): *primero la caché*, porque cambian solo cuando publicas.\n- **El `index.html`**: *primero la red*, para recibir versiones nuevas, y la caché si no hay conexión.\n- **Firestore**: no lo toques; el SDK ya maneja su propio modo sin conexión (lección 31). Solo intercepta peticiones `GET` de tu propio sitio.\n\nCambia `VERSION` cada vez que publiques: así se crea una caché nueva y se borra la anterior.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const VERSION = 'v2026-11-17';\nconst ARCHIVOS = ['./', './index.html', './css/1-base.css', './js/nucleo/app.js', './manifest.webmanifest'];\n\nself.addEventListener('install', e => {\n  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)));\n});\n\nself.addEventListener('activate', e => {\n  e.waitUntil(caches.keys().then(claves =>\n    Promise.all(claves.filter(k => k !== VERSION).map(k => caches.delete(k)))));\n});\n\nself.addEventListener('fetch', e => {\n  const url = new URL(e.request.url);\n  if (e.request.method !== 'GET' || url.origin !== location.origin) return;\n  if (e.request.mode === 'navigate') {\n    e.respondWith(fetch(e.request).catch(() => caches.match('./index.html')));\n    return;\n  }\n  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));\n});",
+          "keyTakeaway": "Red primero para la página, caché primero para los archivos, y una versión por publicación."
+        },
+        {
+          "id": "lec-34-sec-3",
+          "title": "3. Avisar de una versión nueva",
+          "body": "El error clásico de las PWA: publicas una corrección y los técnicos siguen viendo la versión vieja durante días. Cuando el navegador descarga un `sw.js` distinto, el nuevo queda **esperando**. Detecta ese momento, muestra un aviso \"Hay una versión nueva\" y, si el usuario acepta, pídele que se active y recarga.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// En sw.js\nself.addEventListener('message', e => { if (e.data === 'activar') self.skipWaiting(); });\n\n// En la página\nnavigator.serviceWorker.register('./sw.js').then(reg => {\n  reg.addEventListener('updatefound', () => {\n    const nuevo = reg.installing;\n    nuevo.addEventListener('statechange', () => {\n      if (nuevo.state === 'installed' && navigator.serviceWorker.controller) {\n        $('aviso-version').hidden = false;          // \"Hay una versión nueva · Actualizar\"\n      }\n    });\n  });\n});\nregistrarAccion('actualizar-app', async () => {\n  const reg = await navigator.serviceWorker.getRegistration();\n  reg?.waiting?.postMessage('activar');\n});\nnavigator.serviceWorker.addEventListener('controllerchange', () => location.reload());",
+          "keyTakeaway": "Versión nueva = aviso visible + botón que activa y recarga."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Service workers sin dolores de cabeza.",
+        "rules": [
+          "Cambia la versión de la caché en cada publicación (puede ser la fecha).",
+          "Borra las cachés viejas en `activate`.",
+          "No caches respuestas de otros dominios ni peticiones que no sean GET.",
+          "Siempre un aviso de versión nueva.",
+          "Para depurar: DevTools → Application → Service workers → 'Update on reload' y 'Unregister'."
+        ]
+      },
+      "comparison": {
+        "scenario": "Publicaste una corrección urgente y un técnico sigue con el error.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// sw.js sin versión que cambia, todo 'primero caché'\nself.addEventListener('fetch', e =>\n  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));\n// → pedir a cada técnico: borra los datos del navegador y vuelve a entrar",
+        "juniorFlaws": [
+          "La página vieja se sirve de la caché para siempre.",
+          "Pedir a los técnicos que borren datos es lento y puede costar información."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const VERSION = 'v2026-11-17b';   // cambiada en la publicación\n// index.html con 'red primero' + aviso de versión nueva con botón Actualizar",
+        "intermediateBenefits": [
+          "Al publicar, todos reciben el aviso.",
+          "Un toque y tienen la corrección."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-34-ej-1",
+          "title": "Práctica 1: Sin conexión",
+          "difficulty": "Intermedio",
+          "prompt": "En tu copia, crea `sw.js` con la lista de archivos de tu página, regístralo y publícalo en una rama de GitHub Pages o en local con Live Server. En DevTools → Network marca Offline y recarga: la página debe abrir.",
+          "hint": "Si falta un archivo en la lista, `addAll` falla entero: revisa la consola del service worker en Application.",
+          "solutionExplanation": "Para obtener la lista de archivos, copia las rutas de los `<link>` y `<script>` de tu index.html."
+        },
+        {
+          "id": "lec-34-ej-2",
+          "title": "Práctica 2: Lista de archivos automática",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe en la consola de tu página una expresión que genere la lista `ARCHIVOS` a partir de los `<link rel=\"stylesheet\">` y `<script src>` del documento, con rutas relativas.",
+          "hint": "Usa getAttribute('href') y getAttribute('src') para obtener la ruta tal como está escrita.",
+          "solutionExplanation": "Así no se te olvida ningún archivo al crear o actualizar el service worker.",
+          "solutionCode": "const rutas = [\n  ...[...document.querySelectorAll('link[rel=\"stylesheet\"]')].map(l => l.getAttribute('href')),\n  ...[...document.querySelectorAll('script[src]')].map(s => s.getAttribute('src')),\n].filter(r => !r.startsWith('http')).map(r => './' + r.replace(/^\\.\\//, ''));\nJSON.stringify(['./', './index.html', ...rutas], null, 2);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-34-q1",
+          "question": "¿Qué puede hacer un service worker que la página no puede?",
+          "options": [
+            "Modificar el DOM directamente.",
+            "Instalar programas en el equipo.",
+            "Interceptar peticiones de archivos y responder desde la caché sin conexión.",
+            "Leer localStorage."
+          ],
+          "correctIndex": 2,
+          "explanation": "Funciona como intermediario entre la página y la red; no tiene acceso al DOM."
+        },
+        {
+          "id": "lec-34-q2",
+          "question": "¿Por qué se cambia la constante VERSION en cada publicación?",
+          "options": [
+            "Para cerrar sesión.",
+            "Para cambiar el ícono.",
+            "Para crear una caché nueva y que se borre la vieja, entregando los archivos actualizados.",
+            "Porque el navegador lo exige cada día."
+          ],
+          "correctIndex": 2,
+          "explanation": "Si la versión no cambia, los usuarios pueden quedarse con archivos antiguos."
+        },
+        {
+          "id": "lec-34-q3",
+          "question": "¿Qué estrategia conviene para el index.html?",
+          "options": [
+            "Solo caché, nunca la red.",
+            "No incluirlo nunca.",
+            "Solo red, nunca caché.",
+            "Primero la red y, si falla, la copia en caché."
+          ],
+          "correctIndex": 3,
+          "explanation": "Así se reciben las versiones nuevas cuando hay conexión y la app abre igual sin ella."
+        }
+      ],
+      "order": 40
+    },
+    {
+      "id": "lec-35",
+      "kind": "chapter",
+      "code": "Lec. 35",
+      "module": "11 · App en el campo",
+      "title": "IndexedDB: más espacio en el navegador",
+      "subtitle": "Una base de datos local para miles de registros y fotos.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Comparar localStorage e IndexedDB y saber cuándo conviene cada uno.",
+        "Abrir una base IndexedDB, crear almacenes y guardar y leer registros.",
+        "Envolver IndexedDB en funciones con promesas para usarlo con await.",
+        "Guardar archivos como fotos de evidencia sin convertirlos a texto."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-35-sec-1",
+          "title": "1. ¿Por qué otra forma de guardar?",
+          "body": "`localStorage` (lección 20) es simple, pero:\n- Tiene unos **5 MB** y guarda solo texto.\n- Es **síncrono**: guardar un estado grande congela la página un instante.\n\n**IndexedDB** es una base de datos dentro del navegador:\n- Permite **mucho más espacio** (cientos de MB, según el equipo).\n- Es **asíncrona**: no congela la interfaz.\n- Guarda **objetos y archivos** (`Blob`), como las fotos que toma un técnico.\n\nSi usas Firestore con caché persistente, Firebase ya usa IndexedDB por dentro. Úsalo tú directamente para lo que **no** va a la nube: borradores, fotos pendientes de subir o un modo local con muchos datos.",
+          "keyTakeaway": "localStorage para ajustes pequeños; IndexedDB para muchos registros o archivos."
+        },
+        {
+          "id": "lec-35-sec-2",
+          "title": "2. Una envoltura con promesas",
+          "body": "La API original de IndexedDB usa eventos y es incómoda. Con unas pocas líneas la conviertes en funciones que se usan con `await`. Una base tiene **almacenes** (object stores), parecidos a las colecciones; cada registro se guarda por su `id`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function abrirBD() {\n  return new Promise((ok, mal) => {\n    const pet = indexedDB.open('planificador', 1);\n    pet.onupgradeneeded = () => {            // solo al crear o subir la versión\n      const bd = pet.result;\n      if (!bd.objectStoreNames.contains('fotos')) bd.createObjectStore('fotos', { keyPath: 'id' });\n    };\n    pet.onsuccess = () => ok(pet.result);\n    pet.onerror = () => mal(pet.error);\n  });\n}\n\nasync function operar(almacen, modo, fn) {\n  const bd = await abrirBD();\n  return new Promise((ok, mal) => {\n    const tx = bd.transaction(almacen, modo);\n    const pet = fn(tx.objectStore(almacen));\n    tx.oncomplete = () => ok(pet?.result);\n    tx.onerror = () => mal(tx.error);\n  });\n}\n\nconst guardar = (almacen, obj) => operar(almacen, 'readwrite', s => s.put(obj));\nconst leer    = (almacen, id)  => operar(almacen, 'readonly',  s => s.get(id));\nconst todos   = almacen        => operar(almacen, 'readonly',  s => s.getAll());\nconst borrar  = (almacen, id)  => operar(almacen, 'readwrite', s => s.delete(id));",
+          "keyTakeaway": "Cuatro funciones (guardar, leer, todos, borrar) y ya no vuelves a pelear con los eventos."
+        },
+        {
+          "id": "lec-35-sec-3",
+          "title": "3. Fotos de evidencia",
+          "body": "Un `<input type=\"file\" accept=\"image/*\" capture=\"environment\">` abre la cámara trasera del celular. El archivo elegido es un `Blob` que IndexedDB guarda tal cual, sin convertirlo a texto (convertir a base64 lo haría un tercio más pesado).\n\nPara mostrar la foto, crea una URL temporal con `URL.createObjectURL` y libérala cuando ya no la necesites.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "$('foto-evidencia').addEventListener('change', async e => {\n  const archivo = e.target.files[0];\n  if (!archivo) return;\n  await guardar('fotos', {\n    id: crypto.randomUUID(), actividadId: actividadActual, fecha: fechaIso(),\n    archivo, pendiente: true,                 // pendiente de subir a la nube\n  });\n  dibujarFotos(actividadActual);\n});\n\nasync function dibujarFotos(actId) {\n  const fotos = (await todos('fotos')).filter(f => f.actividadId === actId);\n  $('galeria').replaceChildren(...fotos.map(f => {\n    const img = new Image();\n    img.src = URL.createObjectURL(f.archivo);\n    img.alt = 'Evidencia del ' + f.fecha;\n    img.onload = () => URL.revokeObjectURL(img.src);\n    return img;\n  }));\n}",
+          "keyTakeaway": "Guarda los Blob directamente y muestra con createObjectURL."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "IndexedDB con orden.",
+        "rules": [
+          "Cambia la estructura (nuevos almacenes o índices) solo en `onupgradeneeded`, subiendo la versión de la base.",
+          "Envuelve la API en funciones pequeñas con promesas.",
+          "Guarda archivos como `Blob`, no como base64.",
+          "Libera las URL temporales con `revokeObjectURL`.",
+          "Pide almacenamiento persistente con `navigator.storage.persist()` si los datos son importantes, y ofrece igual un respaldo."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar fotos de evidencia en el celular del técnico.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const lector = new FileReader();\nlector.onload = () => {\n  S.fotos.push(lector.result);              // base64 dentro del estado\n  localStorage.setItem(CLAVE, JSON.stringify(S));\n};\nlector.readAsDataURL(archivo);",
+        "juniorFlaws": [
+          "Unas pocas fotos llenan los 5 MB de localStorage y deja de guardarse todo.",
+          "Cada guardado convierte megas de texto y congela la página."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "await guardar('fotos', { id: crypto.randomUUID(), actividadId, archivo });",
+        "intermediateBenefits": [
+          "Mucho más espacio y sin congelar la página.",
+          "El estado principal sigue liviano."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-35-ej-1",
+          "title": "Práctica 1: Borradores que no se pierden",
+          "difficulty": "Intermedio",
+          "prompt": "Usando las funciones de la lección, guarda en el almacén `borradores` el contenido del formulario de actividad cada vez que el usuario escribe (evento `input`), y al abrir el formulario ofrece recuperarlo. Recuerda crear el almacén en `onupgradeneeded` subiendo la versión de la base a 2.",
+          "hint": "Usa un id fijo como 'form-actividad' para el borrador.",
+          "solutionExplanation": "Si el técnico cierra la app por accidente, no pierde lo que escribió.",
+          "solutionCode": "$('form-actividad').addEventListener('input', e => {\n  const datos = Object.fromEntries(new FormData(e.currentTarget));\n  guardar('borradores', { id: 'form-actividad', datos, cuando: Date.now() });\n});\n\nasync function ofrecerBorrador() {\n  const b = await leer('borradores', 'form-actividad');\n  if (b && confirm('Hay un borrador sin guardar. ¿Recuperarlo?')) abrirFormulario(b.datos);\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-35-ej-2",
+          "title": "Práctica 2: ¿Cuánto espacio tengo?",
+          "difficulty": "Básico",
+          "prompt": "En la consola de tu página, usa `navigator.storage.estimate()` para ver cuánto espacio usa y cuánto tiene disponible, en megabytes.",
+          "hint": "Devuelve una promesa con usage y quota en bytes.",
+          "solutionExplanation": "Te da una idea real del margen en cada equipo, que varía según el espacio libre del dispositivo.",
+          "solutionCode": "const { usage, quota } = await navigator.storage.estimate();\nconsole.log(`Usado: ${(usage / 1e6).toFixed(1)} MB de ${(quota / 1e6).toFixed(0)} MB`);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-35-q1",
+          "question": "¿Cuándo conviene IndexedDB en lugar de localStorage?",
+          "options": [
+            "Para guardar un solo ajuste pequeño.",
+            "Solo cuando hay internet.",
+            "Nunca, son iguales.",
+            "Cuando hay muchos registros o archivos como fotos."
+          ],
+          "correctIndex": 3,
+          "explanation": "IndexedDB tiene más espacio, es asíncrono y guarda archivos."
+        },
+        {
+          "id": "lec-35-q2",
+          "question": "¿Dónde se crean los almacenes (object stores) de una base IndexedDB?",
+          "options": [
+            "En el service worker obligatoriamente.",
+            "En cualquier momento con put.",
+            "En el manifest.",
+            "En el evento onupgradeneeded, al crear la base o subir su versión."
+          ],
+          "correctIndex": 3,
+          "explanation": "La estructura solo puede cambiar durante una actualización de versión."
+        },
+        {
+          "id": "lec-35-q3",
+          "question": "¿Por qué no conviene guardar las fotos como texto base64?",
+          "options": [
+            "Porque base64 no existe en el navegador.",
+            "Porque ocupan aproximadamente un tercio más y hay que convertirlas.",
+            "Porque IndexedDB no acepta texto.",
+            "Porque se ven en blanco y negro."
+          ],
+          "correctIndex": 1,
+          "explanation": "IndexedDB guarda Blob directamente, sin conversión ni sobrepeso."
+        }
+      ],
+      "order": 41
+    },
+    {
+      "id": "lec-36",
+      "kind": "chapter",
+      "code": "Lec. 36",
+      "module": "11 · App en el campo",
+      "title": "Imprimir y generar PDF",
+      "subtitle": "Órdenes de trabajo y reportes con @media print.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Crear una hoja de estilos para impresión que oculte la interfaz y muestre solo el documento.",
+        "Controlar el tamaño de página, los márgenes y los saltos de página.",
+        "Generar una orden de trabajo imprimible a partir de los datos y guardarla como PDF."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-36-sec-1",
+          "title": "1. @media print",
+          "body": "Al imprimir (`Ctrl+P` o `window.print()`), el navegador aplica las reglas dentro de `@media print`. La receta básica:\n- **Ocultar** menú, botones, filtros y todo lo interactivo.\n- **Mostrar** solo el contenido del documento, a todo el ancho.\n- **Colores sobrios**: fondo blanco y texto negro (ahorra tinta y se lee mejor).\n- **Mostrar** cosas que solo existen en papel, como un encabezado con logo y fecha.\n\n\"Guardar como PDF\" está en el mismo diálogo de impresión de todos los navegadores: no necesitas ninguna librería.",
+          "codeLanguage": "css",
+          "codeSnippet": ".solo-impresion { display: none; }\n\n@media print {\n  nav, .barra-superior, .barra-filtros, button, .no-imprimir { display: none !important; }\n  .solo-impresion { display: block; }\n  body { background: #fff; color: #000; font-size: 11pt; }\n  main { margin: 0; width: 100%; }\n  a { color: inherit; text-decoration: none; }\n}",
+          "keyTakeaway": "En impresión: ocultar la interfaz, mostrar el documento, blanco y negro."
+        },
+        {
+          "id": "lec-36-sec-2",
+          "title": "2. Página, márgenes y saltos",
+          "body": "- `@page { size: letter; margin: 15mm; }` define el tamaño y los márgenes (en RD se usa mucho el tamaño carta).\n- `break-inside: avoid` evita que una fila de tabla o una tarjeta quede partida entre dos hojas.\n- `break-before: page` fuerza una hoja nueva (por ejemplo, una orden por hoja).\n- `thead { display: table-header-group; }` repite los encabezados de la tabla en cada hoja.\n- `print-color-adjust: exact` respeta los colores de fondo cuando de verdad importan (como los chips de estado).",
+          "codeLanguage": "css",
+          "codeSnippet": "@page { size: letter; margin: 15mm; }\n\n@media print {\n  .orden-trabajo { break-after: page; }\n  .orden-trabajo:last-child { break-after: auto; }\n  tr, .tarjeta, .bloque-firma { break-inside: avoid; }\n  thead { display: table-header-group; }\n  .chip-estado { print-color-adjust: exact; -webkit-print-color-adjust: exact; }\n}",
+          "keyTakeaway": "Tamaño carta, nada partido entre hojas y encabezados repetidos."
+        },
+        {
+          "id": "lec-36-sec-3",
+          "title": "3. Una orden de trabajo desde los datos",
+          "body": "La orden imprimible es otra plantilla (lección 14) que se llena con una actividad y se coloca en un contenedor `.solo-impresion`. Luego llamas a `window.print()`. Incluye lo que el papel necesita y la pantalla no: número de orden, fecha de impresión y espacios para firmas.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function htmlOrden(act) {\n  const tec = S.tecs.find(t => t.id === act.tecnicoId);\n  return `<article class=\"orden-trabajo\">\n    <header>\n      <img src=\"recursos/logo.png\" alt=\"\" height=\"40\">\n      <h1>Orden de trabajo ${esc(act.numero ?? act.id.slice(0, 8))}</h1>\n      <p>Impresa el ${esc(fechaIso())}</p>\n    </header>\n    <dl>\n      <dt>Cliente</dt><dd>${esc(act.cliente)}</dd>\n      <dt>Fecha programada</dt><dd>${esc(act.fecha)}</dd>\n      <dt>Técnico</dt><dd>${esc(tec?.nombre ?? 'Sin asignar')}</dd>\n      <dt>Trabajo</dt><dd>${esc(act.descripcion ?? '')}</dd>\n    </dl>\n    <section class=\"bloque-firma\">\n      <p>Firma del técnico: ____________________</p>\n      <p>Firma del cliente: ____________________</p>\n    </section>\n  </article>`;\n}\nregistrarAccion('imprimir-orden', ({ id }) => {\n  $('zona-impresion').innerHTML = htmlOrden(S.acts.find(a => a.id === id));\n  window.print();\n});",
+          "keyTakeaway": "Una plantilla para papel, un contenedor solo-impresion y window.print()."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Documentos impresos profesionales.",
+        "rules": [
+          "Prueba la impresión con la vista previa del navegador y con la emulación de DevTools (Rendering → Emulate CSS media type: print).",
+          "Usa pt o mm en impresión; los px pueden variar.",
+          "Nada partido entre hojas: filas, tarjetas y firmas con `break-inside: avoid`.",
+          "Incluye fecha de impresión e identificador del documento.",
+          "Escapa los datos también en las plantillas de impresión."
+        ]
+      },
+      "comparison": {
+        "scenario": "Imprimir el listado de actividades del día.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Imprimir la pantalla tal cual\nwindow.print();   // salen el menú, los botones, el fondo oscuro y la tabla cortada",
+        "juniorFlaws": [
+          "Gasta tinta en la interfaz.",
+          "Filas partidas entre hojas.",
+          "Botones inútiles en papel."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Hoja de impresión + plantilla del reporte del día\n$('zona-impresion').innerHTML = htmlReporteDelDia(deHoy);\nwindow.print();\n/* @media print oculta la interfaz, repite encabezados y evita cortes */",
+        "intermediateBenefits": [
+          "Solo el contenido útil.",
+          "Legible y ordenado en papel o PDF."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-36-ej-1",
+          "title": "Práctica 1: Vista de impresión de tu página",
+          "difficulty": "Básico",
+          "prompt": "En tu copia, agrega `@media print` que oculte el menú, los filtros y los botones, y ponga la tabla de actividades a todo el ancho con encabezados repetidos. Pruébalo con la emulación de impresión de las DevTools.",
+          "hint": "DevTools → los tres puntos → More tools → Rendering → Emulate CSS media type.",
+          "solutionExplanation": "Con la emulación ves el resultado sin gastar papel ni abrir el diálogo cada vez."
+        },
+        {
+          "id": "lec-36-ej-2",
+          "title": "Práctica 2: Reporte semanal por técnico",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `htmlReporteSemanal(acts, tecs, desde, hasta)` que genere una sección por técnico (cada una en una hoja nueva) con sus actividades finalizadas en ese rango y el total.",
+          "hint": "Agrupa con filter por tecnicoId; usa la clase orden-trabajo o una similar con break-after: page.",
+          "solutionExplanation": "Es la misma idea que el ranking de la lección 12, ahora pensada para el papel.",
+          "solutionCode": "function htmlReporteSemanal(acts, tecs, desde, hasta) {\n  return tecs.map(t => {\n    const suyas = acts.filter(a => a.tecnicoId === t.id && a.estado === 'Finalizado'\n      && a.fecha >= desde && a.fecha <= hasta);\n    const filas = suyas.map(a => `<tr><td>${esc(a.fecha)}</td><td>${esc(a.cliente)}</td></tr>`).join('');\n    return `<section class=\"orden-trabajo\">\n      <h2>${esc(t.nombre)} · ${esc(desde)} a ${esc(hasta)}</h2>\n      <table><thead><tr><th>Fecha</th><th>Cliente</th></tr></thead><tbody>${filas}</tbody></table>\n      <p>Total: ${suyas.length}</p>\n    </section>`;\n  }).join('');\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-36-q1",
+          "question": "¿Qué hace el bloque `@media print { … }`?",
+          "options": [
+            "Aplica esas reglas solo al imprimir o guardar como PDF.",
+            "Convierte la página a PDF.",
+            "Solo funciona en impresoras láser.",
+            "Imprime la página automáticamente."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es una media query para el medio impreso."
+        },
+        {
+          "id": "lec-36-q2",
+          "question": "¿Qué evita `break-inside: avoid` en una fila de tabla?",
+          "options": [
+            "Que la fila se imprima.",
+            "Que la tabla tenga bordes.",
+            "Que el texto se ajuste.",
+            "Que la fila quede partida entre dos hojas."
+          ],
+          "correctIndex": 3,
+          "explanation": "La fila se mueve completa a la hoja siguiente si no cabe."
+        },
+        {
+          "id": "lec-36-q3",
+          "question": "¿Cómo genera un usuario un PDF de la orden de trabajo sin librerías?",
+          "options": [
+            "Con localStorage.",
+            "Exportando a Excel.",
+            "Eligiendo 'Guardar como PDF' en el diálogo de impresión.",
+            "No es posible sin librerías."
+          ],
+          "correctIndex": 2,
+          "explanation": "Todos los navegadores modernos incluyen esa opción."
+        }
+      ],
+      "order": 42
+    },
+    {
+      "id": "proy-6",
+      "kind": "chapter",
+      "code": "Proy. 6",
+      "module": "11 · App en el campo",
+      "title": "Página instalable con reporte imprimible",
+      "subtitle": "Manifest, service worker y una orden de trabajo lista para imprimir.",
+      "estimatedMinutes": 90,
+      "status": "published",
+      "objectives": [
+        "Convertir tu página en una PWA instalable que abre sin conexión.",
+        "Agregar el aviso de versión nueva para que nadie se quede con la vieja.",
+        "Imprimir órdenes de trabajo y el reporte del día desde los datos."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-6-sec-1",
+          "title": "1. Lo que vas a entregar",
+          "body": "Al terminar, un técnico podrá instalar la página en su celular, abrirla sin señal, y el planificador podrá imprimir o guardar como PDF la orden de cada actividad. Piezas:\n1. Íconos y `manifest.webmanifest` (lección 33).\n2. `sw.js` con la lista de archivos, versión y estrategias (lección 34).\n3. Registro del service worker y aviso de versión nueva.\n4. Hoja `@media print` en la capa de estilos (lección 36).\n5. Plantilla de orden de trabajo y botón \"Imprimir\" en cada actividad.\n6. Reporte del día imprimible desde la pantalla de actividades.\n\nTrabaja en la rama `app-instalable`, con commits por pieza.",
+          "keyTakeaway": "Seis piezas, un commit por pieza y una rama propia."
+        },
+        {
+          "id": "proy-6-sec-2",
+          "title": "2. Mantener sw.js al día",
+          "body": "El riesgo de una PWA es olvidar actualizar la lista de archivos o la versión al publicar. Hazlo parte del proceso:\n- Una línea en tu guía de publicación: \"¿Cambié `VERSION` en `sw.js`?\".\n- Mejor aún, una prueba simple que compare los archivos de `index.html` con la lista de `sw.js` y falle si falta alguno.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// En pruebas/pruebas.html (lee los dos archivos con fetch)\nprueba('sw.js incluye todos los archivos de index.html', async () => {\n  const html = await (await fetch('../index.html')).text();\n  const sw = await (await fetch('../sw.js')).text();\n  const rutas = [...html.matchAll(/(?:href|src)=\"((?:css|js)\\/[^\"]+)\"/g)].map(m => m[1]);\n  const faltan = rutas.filter(r => !sw.includes(r));\n  igual(faltan, []);\n});",
+          "keyTakeaway": "Convierte el 'no olvidar' en una prueba automática."
+        },
+        {
+          "id": "proy-6-sec-3",
+          "title": "3. Probar en el campo",
+          "body": "Antes de dar por terminado el proyecto, prueba lo que vivirá el técnico:\n- Instalar desde un Android y desde un iPhone.\n- Modo avión: abrir la app, ver actividades y (si usas Firestore) cambiar un estado; al recuperar señal, comprobar que llegó.\n- Publicar un cambio y ver aparecer el aviso de versión nueva.\n- Imprimir una orden y guardarla como PDF desde el celular y desde la PC.",
+          "keyTakeaway": "Prueba en dispositivos reales, en modo avión y con una publicación nueva."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Definición de terminado.",
+        "rules": [
+          "Application → Manifest sin errores e instalable.",
+          "Abre en modo avión.",
+          "Aviso de versión nueva probado con una publicación real.",
+          "Orden de trabajo en una hoja carta, sin cortes y con firmas.",
+          "Revisión automática y pruebas en verde.",
+          "Guía de publicación actualizada con el paso de VERSION."
+        ]
+      },
+      "comparison": {
+        "scenario": "Publicar la versión instalable al equipo.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Unir a main un viernes por la tarde sin probar en celulares\n// y sin aviso de versión nueva",
+        "juniorFlaws": [
+          "Si algo falla, los técnicos quedan con una app rota en caché todo el fin de semana."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Rama + PR, prueba en 2 celulares en modo avión,\n// aviso de versión nueva comprobado, publicación un martes por la mañana",
+        "intermediateBenefits": [
+          "Hay tiempo para corregir.",
+          "Si hace falta, la corrección llega a todos con el aviso."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "proy-6-ej-1",
+          "title": "Reto 1: Haz el proyecto",
+          "difficulty": "Avanzado",
+          "prompt": "Implementa las seis piezas en tu página y entrégalas por PR, con capturas de: la app instalada, la página abierta en modo avión y una orden de trabajo en PDF.",
+          "hint": "Empieza por la impresión (no depende de nada); luego manifest, luego service worker.",
+          "solutionExplanation": "La impresión da valor inmediato aunque la parte de PWA tarde más en quedar perfecta."
+        },
+        {
+          "id": "proy-6-ej-2",
+          "title": "Reto 2: Indicador de conexión",
+          "difficulty": "Intermedio",
+          "prompt": "Muestra en la barra superior un indicador \"Sin conexión\" cuando el equipo pierde internet y ocúltalo al recuperarla.",
+          "hint": "Eventos online y offline de window y la propiedad navigator.onLine.",
+          "solutionExplanation": "Le dice al técnico que lo que hace se guardará al volver la señal, en vez de dejarlo con la duda.",
+          "solutionCode": "function actualizarConexion() {\n  $('indicador-conexion').hidden = navigator.onLine;\n}\naddEventListener('online', actualizarConexion);\naddEventListener('offline', actualizarConexion);\nactualizarConexion();",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-6-q1",
+          "question": "¿Por qué conviene una prueba que compare index.html con la lista de sw.js?",
+          "options": [
+            "Para borrar la caché.",
+            "Para que no se publique una versión a la que le falte un archivo en la caché.",
+            "Para que la página cargue más rápido.",
+            "Para cambiar el ícono."
+          ],
+          "correctIndex": 1,
+          "explanation": "Un archivo olvidado haría que la app falle sin conexión."
+        },
+        {
+          "id": "proy-6-q2",
+          "question": "¿Cuál es la mejor prueba de que la app funciona en el campo?",
+          "options": [
+            "Abrirla en la PC con internet.",
+            "Instalarla en celulares reales y usarla en modo avión.",
+            "Preguntar a un compañero si le gusta.",
+            "Revisar solo el código."
+          ],
+          "correctIndex": 1,
+          "explanation": "Reproduce las condiciones reales del técnico."
+        },
+        {
+          "id": "proy-6-q3",
+          "question": "¿Por qué empezar el proyecto por la impresión?",
+          "options": [
+            "Porque el manifest la incluye.",
+            "Porque no depende de las otras piezas y da valor inmediato.",
+            "Porque es obligatorio por Firebase.",
+            "Porque el service worker la necesita."
+          ],
+          "correctIndex": 1,
+          "explanation": "Entregar primero lo independiente y útil reduce el riesgo del proyecto."
+        }
+      ],
+      "order": 43
+    },
+    {
+      "id": "lec-37",
+      "kind": "chapter",
+      "code": "Lec. 37",
+      "module": "12 · Calidad avanzada",
+      "title": "Módulos de JavaScript: import y export",
+      "subtitle": "Adiós al orden frágil de los scripts.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar qué problema resuelven los módulos frente a los scripts globales.",
+        "Exportar e importar funciones y constantes entre archivos.",
+        "Conocer las diferencias de un módulo: ámbito propio, modo estricto, carga diferida y la necesidad de un servidor.",
+        "Planificar una migración gradual de una página como la tuya."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-37-sec-1",
+          "title": "1. El problema de los scripts globales",
+          "body": "En tu página, cada `<script>` deja sus funciones en el ámbito global y el siguiente las usa (lección 19). Funciona, pero:\n- El **orden** de los scripts es una dependencia invisible: si lo cambias, algo se rompe.\n- Dos archivos pueden usar **el mismo nombre** sin darse cuenta y uno pisa al otro.\n- Para saber de dónde viene una función hay que buscar en todo el proyecto.\n\nCon **módulos**, cada archivo dice explícitamente qué **exporta** y qué **importa**. El navegador resuelve el orden solo.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// js/nucleo/utilidades.js\nexport const $ = id => document.getElementById(id);\nexport function esc(v) { /* … */ }\nexport function fechaIso(d = new Date()) { /* … */ }\n\n// js/modulos/repuestos.js\nimport { $, esc, fechaIso } from '../nucleo/utilidades.js';\nimport { registrarAccion } from '../nucleo/acciones.js';\n\nexport function dibujarRepuestos() { /* … */ }",
+          "keyTakeaway": "Cada archivo declara lo que ofrece (export) y lo que necesita (import)."
+        },
+        {
+          "id": "lec-37-sec-2",
+          "title": "2. Lo que cambia con type=\"module\"",
+          "body": "Un `<script type=\"module\">`:\n- Tiene **ámbito propio**: lo que declara no es global. Por eso el código de la consola ya no ve `S` ni tus funciones (puedes exponer a propósito lo que necesites: `window.S = S`).\n- Va en **modo estricto** automáticamente.\n- Se ejecuta **diferido** (después de leer el HTML), como si tuviera `defer`.\n- Las rutas de `import` deben ser relativas (`./`, `../`) o URL completas, **con la extensión `.js`**.\n- **No funciona abriendo el archivo con doble clic** (`file://`): el navegador lo bloquea por seguridad. Necesitas un servidor: Live Server en VS Code, GitHub Pages o Firebase Hosting.\n\nCon un solo punto de entrada en el HTML basta: `app.js` importa lo que necesita, y esos archivos importan lo suyo.",
+          "codeLanguage": "html",
+          "codeSnippet": "<!-- Antes: 15 scripts en orden estricto -->\n<!-- Después: un solo punto de entrada -->\n<script type=\"module\" src=\"js/nucleo/app.js\"></script>",
+          "keyTakeaway": "Un módulo no es global, va diferido y necesita un servidor: el doble clic deja de servir."
+        },
+        {
+          "id": "lec-37-sec-3",
+          "title": "3. Migrar poco a poco",
+          "body": "No hace falta convertir toda la página de golpe. Un camino seguro:\n1. Empieza por las **utilidades** (no dependen de nada): conviértelas en módulo y, para no romper el resto, exponlas también en `window` temporalmente.\n2. Sigue con **un módulo de pantalla** pequeño.\n3. Cuando todo sea módulo, quita los `window.` temporales y deja un solo `<script type=\"module\">`.\n4. Ajusta la configuración de ESLint para módulos (`sourceType: 'module'`).\n\nLos botones con `data-act` siguen funcionando igual: la delegación (lección 17) no depende de variables globales.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// js/nucleo/utilidades.js durante la transición\nexport const $ = id => document.getElementById(id);\nexport function esc(v) { return String(v ?? '').replace(/[&<>\"']/g, c => `&#${c.charCodeAt(0)};`); }\n\n// Puente temporal para los scripts que aún no son módulos\nObject.assign(window, { $, esc });",
+          "keyTakeaway": "Migra de abajo hacia arriba y usa un puente temporal en window mientras conviven ambos estilos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Módulos ordenados.",
+        "rules": [
+          "Exportaciones con nombre (`export function`) en lugar de `export default`: se buscan y renombran mejor.",
+          "Siempre la extensión `.js` en las rutas de import.",
+          "Un solo `<script type=\"module\">` como punto de entrada.",
+          "Sin dependencias circulares (A importa B y B importa A): si aparecen, mueve lo común a un tercer archivo.",
+          "Prueba con un servidor local, no con doble clic."
+        ]
+      },
+      "comparison": {
+        "scenario": "Agregar un archivo nuevo a la página.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<!-- Con scripts globales: encontrar el lugar exacto en una lista de 15 -->\n<script src=\"js/nucleo/utilidades.js\"></script>\n<script src=\"js/modulos/repuestos.js\"></script>   <!-- ¿antes o después de acciones.js? -->\n<script src=\"js/nucleo/acciones.js\"></script>",
+        "juniorFlaws": [
+          "Si queda en el lugar equivocado: 'registrarAccion is not defined'.",
+          "Nada en el código dice de qué depende el archivo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// js/modulos/repuestos.js\nimport { registrarAccion } from '../nucleo/acciones.js';\nimport { $, esc } from '../nucleo/utilidades.js';\n// y en app.js:\nimport './modulos/repuestos.js';",
+        "intermediateBenefits": [
+          "Las dependencias están escritas en el archivo.",
+          "El orden lo resuelve el navegador.",
+          "F12 sobre un import lleva directo a su origen."
+        ],
+        "codeLanguage": "html"
+      },
+      "exercises": [
+        {
+          "id": "lec-37-ej-1",
+          "title": "Práctica 1: Tu primer módulo",
+          "difficulty": "Básico",
+          "prompt": "Crea `calculos.js` que exporte `diasEntre` y `sumarDias` (lección 15), y un `principal.js` que los importe y muestre en la consola los días entre dos fechas. Cárgalo con `type=\"module\"` y ábrelo con Live Server.",
+          "hint": "Recuerda la extensión .js en el import y que con doble clic no funciona.",
+          "solutionExplanation": "Si ves un error de CORS o de 'file://', es la señal de que necesitas el servidor local.",
+          "solutionCode": "// calculos.js\nexport function fechaIso(d = new Date()) {\n  const m = String(d.getMonth() + 1).padStart(2, '0');\n  return `${d.getFullYear()}-${m}-${String(d.getDate()).padStart(2, '0')}`;\n}\nexport function sumarDias(iso, n) {\n  const d = new Date(iso + 'T00:00');\n  d.setDate(d.getDate() + n);\n  return fechaIso(d);   // nunca toISOString: daría la fecha en UTC (lección 15)\n}\nexport const diasEntre = (a, b) =>\n  Math.round((new Date(b + 'T00:00') - new Date(a + 'T00:00')) / 86_400_000);\n\n// principal.js\nimport { diasEntre } from './calculos.js';\nconsole.log(diasEntre('2026-11-01', '2026-11-17'));",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-37-ej-2",
+          "title": "Práctica 2: Plan de migración",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* lista los archivos de `js/` en el orden en que aparecen en `index.html` y marca cuáles no dependen de ningún otro. Esos serán los primeros en convertirse a módulo. Escribe el plan por etapas en un archivo de la carpeta `documentacion/`.",
+          "hint": "Los archivos de config y de utilidades suelen ser los que no dependen de nadie.",
+          "solutionExplanation": "Un plan escrito permite hacer la migración en varios PR pequeños, cada uno probado, en vez de un cambio gigante y riesgoso."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-37-q1",
+          "question": "¿Qué problema principal resuelven los módulos de JavaScript?",
+          "options": [
+            "Permiten usar Excel.",
+            "Hacen que la página no necesite HTML.",
+            "Hacen explícitas las dependencias entre archivos y eliminan el orden frágil de los scripts.",
+            "Eliminan la necesidad de CSS."
+          ],
+          "correctIndex": 2,
+          "explanation": "Cada archivo declara qué importa y qué exporta."
+        },
+        {
+          "id": "lec-37-q2",
+          "question": "¿Por qué una página con módulos deja de funcionar al abrirla con doble clic?",
+          "options": [
+            "Porque solo funcionan en celulares.",
+            "Porque necesitan Firebase.",
+            "Porque los módulos requieren internet.",
+            "Porque el navegador bloquea los módulos cargados desde file:// y hace falta un servidor."
+          ],
+          "correctIndex": 3,
+          "explanation": "Usa Live Server, GitHub Pages o Firebase Hosting."
+        },
+        {
+          "id": "lec-37-q3",
+          "question": "En un script de tipo módulo, ¿las funciones declaradas quedan disponibles en la consola?",
+          "options": [
+            "Solo las que empiezan con mayúscula.",
+            "Sí, siempre.",
+            "No, el módulo tiene su propio ámbito; hay que exponerlas a propósito en window si se quiere.",
+            "Solo en Firefox."
+          ],
+          "correctIndex": 2,
+          "explanation": "El ámbito propio evita choques de nombres entre archivos."
+        }
+      ],
+      "order": 44
+    },
+    {
+      "id": "lec-38",
+      "kind": "chapter",
+      "code": "Lec. 38",
+      "module": "12 · Calidad avanzada",
+      "title": "Tipos con JSDoc y @ts-check",
+      "subtitle": "Que VS Code encuentre errores de datos antes de abrir la página.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Activar la comprobación de tipos de VS Code en archivos JavaScript.",
+        "Describir la forma de tus datos con `@typedef` y documentar funciones con `@param` y `@returns`.",
+        "Interpretar y corregir los avisos de tipos."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-38-sec-1",
+          "title": "1. Tipos sin cambiar de lenguaje",
+          "body": "JavaScript no revisa los tipos: `act.fehca` (con una errata) simplemente da `undefined` y el error aparece después, lejos de la causa. **TypeScript** resuelve esto, pero obliga a compilar. Hay un punto medio: VS Code ya trae el revisor de TypeScript y puede leer **comentarios JSDoc** en archivos `.js` normales.\n\nEscribe `// @ts-check` en la primera línea de un archivo y VS Code empezará a subrayar errores. No cambia en nada cómo se ejecuta la página: son solo comentarios.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// @ts-check\nconst tarifa = 12;\ntarifa.toUpperCase();      // VS Code subraya: no existe toUpperCase en number\n\n/** @param {string} iso */\nfunction sumarUnDia(iso) { /* … */ }\nsumarUnDia(20261117);      // subraya: se esperaba string",
+          "keyTakeaway": "@ts-check en la primera línea activa la revisión; JSDoc le dice qué tipos esperar."
+        },
+        {
+          "id": "lec-38-sec-2",
+          "title": "2. Describir tus datos",
+          "body": "Con `@typedef` defines la forma de una actividad una vez, y la usas en todo el proyecto. VS Code te ofrecerá **autocompletado** de los campos y marcará las erratas. Es, además, la mejor documentación de los datos que puede tener tu proyecto.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// @ts-check\n/**\n * @typedef {'Pendiente' | 'En curso' | 'En espera de repuesto' | 'Finalizado'} Estado\n *\n * @typedef {Object} Actividad\n * @property {string} id\n * @property {string} fecha        AAAA-MM-DD\n * @property {string} cliente\n * @property {Estado} estado\n * @property {string} [tecnicoId]  opcional\n * @property {'Normal'|'Alta'|'Urgente'} prioridad\n */\n\n/**\n * Días de atraso de una actividad no finalizada.\n * @param {Actividad} act\n * @param {string} hoy  AAAA-MM-DD\n * @returns {number}\n */\nfunction diasDeAtraso(act, hoy) {\n  if (act.estado === 'Finalizado') return 0;\n  return Math.max(0, diasEntre(act.fecha, hoy));\n}",
+          "keyTakeaway": "Un @typedef por tipo de registro; @param y @returns en las funciones importantes."
+        },
+        {
+          "id": "lec-38-sec-3",
+          "title": "3. Activarlo en todo el proyecto",
+          "body": "En lugar de poner `// @ts-check` en cada archivo, crea `jsconfig.json` en la raíz con `checkJs: true`. Si un archivo da demasiados avisos al principio, pon `// @ts-nocheck` en él y ve corrigiéndolo poco a poco.\n\nAvisos frecuentes y su solución:\n- *Object is possibly 'null'*: `getElementById` puede devolver null → `$('x')?.…` o comprobar antes.\n- *Property 'x' does not exist on type*: errata, o falta el campo en el `@typedef`.\n- *Argument of type 'string' is not assignable to 'number'*: falta un `Number()`.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"compilerOptions\": {\n    \"checkJs\": true,\n    \"target\": \"es2022\",\n    \"lib\": [\"es2022\", \"dom\"]\n  },\n  \"include\": [\"js/**/*.js\", \"config/**/*.js\"]\n}",
+          "keyTakeaway": "jsconfig.json con checkJs para todo el proyecto; @ts-nocheck temporal en los archivos difíciles."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Tipos útiles sin burocracia.",
+        "rules": [
+          "Empieza por los datos: un `@typedef` por cada tipo de registro del estado.",
+          "Documenta con tipos las funciones de cálculo y de datos; no hace falta en todo.",
+          "No silencies avisos con `/** @type {any} */`: corrige la causa.",
+          "Guarda los `@typedef` en un archivo propio (por ejemplo `js/datos/tipos.js`).",
+          "Si cambias la forma de los datos, actualiza el `@typedef` en el mismo commit."
+        ]
+      },
+      "comparison": {
+        "scenario": "Un campo se renombró de `tec` a `tecnicoId`.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Buscar a mano y esperar no haber olvidado ninguno\nconst nombre = S.tecs.find(t => t.id === act.tec)?.nombre;   // da undefined en silencio",
+        "juniorFlaws": [
+          "El error no se ve hasta que alguien nota técnicos 'Sin asignar'.",
+          "La búsqueda manual puede saltarse un lugar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// @ts-check + @typedef Actividad con tecnicoId\nconst nombre = S.tecs.find(t => t.id === act.tec)?.nombre;\n//                                          ~~~ Property 'tec' does not exist on type 'Actividad'",
+        "intermediateBenefits": [
+          "VS Code marca cada lugar pendiente al instante.",
+          "Cero sorpresas en producción."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-38-ej-1",
+          "title": "Práctica 1: Tipos de tus datos",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* crea `js/datos/tipos.js` con un `@typedef` para Actividad, Técnico y Vehículo según la forma real de tus datos (mírala en la consola con `S.acts[0]`). Luego activa `@ts-check` en un módulo y corrige los avisos.",
+          "hint": "Los campos que no siempre existen van entre corchetes: [campo].",
+          "solutionExplanation": "Escribir los tipos te obliga a decidir qué campos son obligatorios: muchas veces descubres datos inconsistentes."
+        },
+        {
+          "id": "lec-38-ej-2",
+          "title": "Práctica 2: Corrige los avisos",
+          "difficulty": "Básico",
+          "prompt": "Con `@ts-check`, este código da tres avisos. Corrígelos:\n```\nconst campo = document.getElementById('f-km');\nconst km = campo.value * 2;\nmostrar(km.toFixed(1), 'km');\n/** @param {string} texto */\nfunction mostrar(texto) { … }\n```",
+          "hint": "Piensa en null, en texto que se multiplica y en el número de argumentos.",
+          "solutionExplanation": "1) El elemento puede ser null: compruébalo. 2) `value` es texto: usa `Number()`. 3) `mostrar` recibe un solo parámetro: quita el segundo argumento o agrégalo a la función.",
+          "solutionCode": "const campo = /** @type {HTMLInputElement | null} */ (document.getElementById('f-km'));\nif (campo) {\n  const km = Number(campo.value) * 2;\n  mostrar(km.toFixed(1) + ' km');\n}\n/** @param {string} texto */\nfunction mostrar(texto) { console.log(texto); }",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-38-q1",
+          "question": "¿Qué hace `// @ts-check` al inicio de un archivo .js?",
+          "options": [
+            "Hace que el navegador revise los tipos.",
+            "Activa la revisión de tipos de VS Code en ese archivo, sin cambiar cómo se ejecuta.",
+            "Convierte el archivo en TypeScript.",
+            "Borra los comentarios."
+          ],
+          "correctIndex": 1,
+          "explanation": "Es solo para el editor; el navegador lo ve como un comentario."
+        },
+        {
+          "id": "lec-38-q2",
+          "question": "¿Para qué sirve `@typedef`?",
+          "options": [
+            "Para crear una tabla HTML.",
+            "Para declarar una variable global.",
+            "Para importar un archivo.",
+            "Para describir la forma de un objeto, como una actividad, y reutilizarla."
+          ],
+          "correctIndex": 3,
+          "explanation": "Le da nombre a una forma de datos y activa el autocompletado de sus campos."
+        },
+        {
+          "id": "lec-38-q3",
+          "question": "¿Qué archivo activa la revisión de tipos en todo el proyecto?",
+          "options": [
+            "package-lock.json.",
+            "jsconfig.json con checkJs en true.",
+            "manifest.webmanifest.",
+            "index.html."
+          ],
+          "correctIndex": 1,
+          "explanation": "jsconfig.json configura el revisor de JavaScript de VS Code."
+        }
+      ],
+      "order": 45
+    },
+    {
+      "id": "lec-39",
+      "kind": "chapter",
+      "code": "Lec. 39",
+      "module": "12 · Calidad avanzada",
+      "title": "Lighthouse: rendimiento y accesibilidad",
+      "subtitle": "Medir, entender las métricas y corregir lo que importa.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Ejecutar una auditoría de Lighthouse y leer sus cuatro categorías.",
+        "Entender las métricas de velocidad (LCP, INP, CLS) y sus metas.",
+        "Corregir los problemas más comunes de una página como la tuya.",
+        "Medir una interacción lenta con el panel de rendimiento."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-39-sec-1",
+          "title": "1. Ejecutar la auditoría",
+          "body": "**Lighthouse** viene dentro de Chrome: DevTools → pestaña **Lighthouse** → elige *Mobile* → *Analyze page load*. Evalúa cuatro categorías de 0 a 100:\n- **Performance**: qué tan rápido carga y responde.\n- **Accessibility**: parte de las pautas de accesibilidad (contraste, etiquetas, nombres de botones…).\n- **Best Practices**: HTTPS, errores en la consola, librerías inseguras.\n- **SEO**: lo básico para buscadores (en una app interna importa poco).\n\nHaz la prueba en una ventana de incógnito (las extensiones alteran los resultados) y repítela un par de veces: los números varían un poco.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# También desde la terminal (genera un informe HTML)\nnpx lighthouse https://usuario.github.io/proyecto/ --view\n# Solo accesibilidad\nnpx lighthouse https://usuario.github.io/proyecto/ --only-categories=accessibility --view",
+          "keyTakeaway": "Lighthouse en incógnito, modo móvil, y mira primero Accessibility y Performance."
+        },
+        {
+          "id": "lec-39-sec-2",
+          "title": "2. Las métricas de velocidad",
+          "body": "Las tres métricas principales (Core Web Vitals) y sus metas:\n- **LCP** (Largest Contentful Paint): cuánto tarda en verse el contenido principal. Meta: menos de 2,5 s.\n- **INP** (Interaction to Next Paint): cuánto tarda la página en responder a un toque o clic. Meta: menos de 200 ms. En una app como la tuya es **la más importante**: una tabla de 2000 filas que se redibuja entera en cada tecla del buscador la empeora.\n- **CLS** (Cumulative Layout Shift): cuánto \"salta\" el contenido mientras carga. Meta: menos de 0,1.\n\nPara ver qué hace lenta una interacción: pestaña **Performance** → grabar → hacer la acción → detener. Las barras largas en *Main* muestran qué función tardó.",
+          "keyTakeaway": "Para una app de trabajo, INP es la métrica clave: cada toque debe responder en menos de 200 ms."
+        },
+        {
+          "id": "lec-39-sec-3",
+          "title": "3. Correcciones típicas",
+          "body": "Los problemas que más aparecen en páginas como la tuya y su solución:\n- **Buscador que redibuja en cada tecla** → esperar a que el usuario deje de escribir (*debounce*).\n- **Tablas enormes** → mostrar las primeras 200 filas y un botón \"Ver más\", o paginar.\n- **Librerías pesadas cargadas al inicio** (como la de Excel) → cargarlas solo al importar o exportar.\n- **Imágenes grandes** → reducir el logo a su tamaño real y usar WebP.\n- **Accesibilidad**: botones sin nombre, contraste bajo y campos sin etiqueta: lecciones 04 y 05.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Debounce: ejecutar solo cuando el usuario deja de escribir 250 ms\nfunction debounce(fn, ms = 250) {\n  let t;\n  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };\n}\n$('buscar').addEventListener('input', debounce(e => {\n  filtroTexto = e.target.value.trim().toLowerCase();\n  dibujarActividades();\n}));\n\n// Cargar SheetJS solo cuando hace falta\nasync function cargarXLSX() {\n  if (window.XLSX) return window.XLSX;\n  await new Promise((ok, mal) => {\n    const s = Object.assign(document.createElement('script'), { src: 'librerias/xlsx.full.min.js', onload: ok, onerror: mal });\n    document.head.append(s);\n  });\n  return window.XLSX;\n}",
+          "keyTakeaway": "Debounce en buscadores, límite de filas visibles y librerías pesadas bajo demanda."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Calidad medible.",
+        "rules": [
+          "Meta: Accessibility 100 y Performance de 90 o más en modo móvil.",
+          "Audita antes y después de cada cambio grande y guarda el informe en el PR.",
+          "Prueba con datos realistas (miles de actividades), no con cinco de ejemplo.",
+          "Cero errores en la consola en Best Practices.",
+          "Un número no es la meta: confirma que la mejora se siente en un celular real."
+        ]
+      },
+      "comparison": {
+        "scenario": "El buscador de actividades se siente lento en el celular.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// \"Comprar un celular mejor\" o quitar el buscador",
+        "juniorFlaws": [
+          "El problema sigue para todos los demás.",
+          "Se pierde una función útil."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// 1. Performance: grabar escribiendo en el buscador → dibujarActividades tarda 180 ms por tecla\n// 2. Aplicar debounce(…, 250) y limitar a 200 filas visibles\n// 3. Grabar otra vez → 25 ms; INP en verde",
+        "intermediateBenefits": [
+          "Se mide, se corrige la causa y se comprueba la mejora con números."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-39-ej-1",
+          "title": "Práctica 1: Auditoría de tu página",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* ejecuta Lighthouse en modo móvil en una ventana de incógnito. Anota las cuatro puntuaciones y los tres primeros problemas de Accessibility y de Performance. Corrige al menos uno de cada categoría en tu copia y vuelve a medir.",
+          "hint": "Cada problema tiene un enlace 'Learn more' con la explicación y cómo corregirlo.",
+          "solutionExplanation": "Guardar el antes y el después en el PR documenta la mejora y te enseña qué cambios valen la pena."
+        },
+        {
+          "id": "lec-39-ej-2",
+          "title": "Práctica 2: Mostrar solo las primeras filas",
+          "difficulty": "Intermedio",
+          "prompt": "Modifica el dibujo de una tabla para mostrar como máximo 200 filas y, si hay más, una fila final con un botón \"Ver 200 más\" que aumente el límite.",
+          "hint": "Guarda el límite en una variable; el botón usa data-act y vuelve a dibujar.",
+          "solutionExplanation": "La tabla responde rápido aunque haya miles de registros, y nadie pierde acceso a los datos.",
+          "solutionCode": "let limiteFilas = 200;\nfunction dibujarActividades() {\n  const lista = actividadesFiltradas();\n  const filas = lista.slice(0, limiteFilas).map(filaActividad).join('');\n  const mas = lista.length > limiteFilas\n    ? `<tr><td colspan=\"5\"><button type=\"button\" data-act=\"ver-mas-filas\">Ver 200 más (${lista.length - limiteFilas} restantes)</button></td></tr>`\n    : '';\n  $('tb-actividades').innerHTML = filas + mas;\n}\nregistrarAccion('ver-mas-filas', () => { limiteFilas += 200; dibujarActividades(); });",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-39-q1",
+          "question": "¿Qué mide INP?",
+          "options": [
+            "Cuánto tarda la página en responder visualmente a una interacción como un toque o clic.",
+            "El tiempo hasta que llega el primer byte del servidor.",
+            "Cuántos usuarios hay conectados.",
+            "Cuánto pesa la página."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es la métrica de capacidad de respuesta; la meta es menos de 200 ms."
+        },
+        {
+          "id": "lec-39-q2",
+          "question": "¿Qué técnica evita redibujar una tabla en cada tecla del buscador?",
+          "options": [
+            "Usar más colores.",
+            "Debounce: esperar a que el usuario deje de escribir un momento.",
+            "Desactivar el buscador.",
+            "Recargar la página."
+          ],
+          "correctIndex": 1,
+          "explanation": "Reduce cientos de redibujados a uno solo."
+        },
+        {
+          "id": "lec-39-q3",
+          "question": "¿Por qué conviene ejecutar Lighthouse en una ventana de incógnito?",
+          "options": [
+            "Porque solo funciona así.",
+            "Porque las extensiones del navegador pueden alterar los resultados.",
+            "Para no gastar datos.",
+            "Para iniciar sesión automáticamente."
+          ],
+          "correctIndex": 1,
+          "explanation": "Las extensiones agregan scripts que afectan el rendimiento medido."
+        }
+      ],
+      "order": 46
     }
   ]
 }
