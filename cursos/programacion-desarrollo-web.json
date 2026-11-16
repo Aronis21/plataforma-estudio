@@ -94,9 +94,9 @@
           "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
           "options": [
             "Todas al mismo tiempo, sin orden.",
-            "Primero las más pequeñas.",
+            "En orden alfabético por nombre de archivo.",
             "En el orden en que aparecen en el HTML.",
-            "En orden alfabético por nombre de archivo."
+            "Primero las más pequeñas."
           ],
           "correctIndex": 2,
           "explanation": "Los scripts normales se ejecutan uno tras otro en el orden del documento. Por eso en tu página `app.js` se carga al final: usa funciones definidas en los archivos anteriores."
@@ -105,24 +105,24 @@
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En el logotipo.",
-            "En cada archivo de CSS.",
             "En la librería de Excel.",
-            "En la carpeta de configuración, donde están los ajustes como los estados."
+            "En cada archivo de CSS.",
+            "En la carpeta de configuración, donde están los ajustes como los estados.",
+            "En el logotipo."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
         },
         {
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
             "Un servidor de base de datos.",
+            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
             "Un lenguaje de estilos.",
             "El nombre del archivo principal."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
         }
       ],
@@ -230,23 +230,23 @@
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
             "Porque Live Server solo funciona con carpetas vacías.",
-            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
             "No hay diferencia.",
+            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
             "Porque los archivos sueltos no se pueden guardar."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
         },
         {
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Borra la función.",
-            "Salta al lugar donde la función está definida.",
             "Ejecuta la página.",
-            "Comenta la línea."
+            "Comenta la línea.",
+            "Borra la función.",
+            "Salta al lugar donde la función está definida."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
         }
       ],
@@ -344,22 +344,22 @@
           "id": "lec-02-q1",
           "question": "¿Qué muestra la pestaña Elements de las DevTools?",
           "options": [
+            "El DOM actual de la página, incluido lo que agregó JavaScript.",
             "Solo el archivo HTML tal como está en el disco.",
             "Los errores de red.",
-            "Los datos guardados en el navegador.",
-            "El DOM actual de la página, incluido lo que agregó JavaScript."
+            "Los datos guardados en el navegador."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Elements refleja la página viva. Por eso ahí ves las filas de una tabla que no existen en el archivo HTML."
         },
         {
           "id": "lec-02-q2",
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
-            "Que el navegador no soporta CSS.",
             "Que el archivo CSS no existe.",
+            "Que la regla se borrará al guardar.",
             "Que otra regla con más prioridad le está ganando.",
-            "Que la regla se borrará al guardar."
+            "Que el navegador no soporta CSS."
           ],
           "correctIndex": 2,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
@@ -368,12 +368,12 @@
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
-            "Porque un error de formato puede impedir que la página lea sus datos.",
             "Porque solo se puede editar desde Excel.",
-            "Porque está prohibido por el navegador.",
-            "Porque se borra al instante."
+            "Porque un error de formato puede impedir que la página lea sus datos.",
+            "Porque se borra al instante.",
+            "Porque está prohibido por el navegador."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
         }
       ],
@@ -477,12 +477,12 @@
           "id": "lec-03-q1",
           "question": "¿Qué atributo usa tu página para ocultar las pantallas que no se están viendo?",
           "options": [
-            "hidden",
             "alt",
-            "class=\"oculto\" obligatoriamente",
-            "display"
+            "display",
+            "hidden",
+            "class=\"oculto\" obligatoriamente"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
         },
         {
@@ -490,23 +490,23 @@
           "question": "¿Cuál es la diferencia principal entre id y class?",
           "options": [
             "La class es única y el id se repite.",
-            "El id es único en la página; la class puede repetirse en muchos elementos.",
+            "El id solo sirve para estilos.",
             "No hay diferencia.",
-            "El id solo sirve para estilos."
+            "El id es único en la página; la class puede repetirse en muchos elementos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
         },
         {
           "id": "lec-03-q3",
           "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
           "options": [
-            "Porque button es más rápido de escribir.",
+            "Porque los div no se pueden pintar con CSS.",
             "Porque los div no pueden tener texto.",
-            "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra.",
-            "Porque los div no se pueden pintar con CSS."
+            "Porque button es más rápido de escribir.",
+            "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Las etiquetas nativas traen accesibilidad y comportamiento gratis: foco con Tab, activación con Enter y Espacio."
         }
       ],
@@ -610,9 +610,9 @@
           "question": "¿Qué conecta un `<label>` con su campo?",
           "options": [
             "El atributo for del label igual al id del campo.",
+            "Que estén en la misma línea.",
             "El atributo class.",
-            "El atributo name del label.",
-            "Que estén en la misma línea."
+            "El atributo name del label."
           ],
           "correctIndex": 0,
           "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
@@ -621,12 +621,12 @@
           "id": "lec-04-q2",
           "question": "Quieres sugerir clientes existentes pero permitir escribir uno nuevo. ¿Qué usas?",
           "options": [
-            "Un textarea.",
             "Un input con datalist.",
-            "Un checkbox.",
-            "Un select."
+            "Un select.",
+            "Un textarea.",
+            "Un checkbox."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
         },
         {
@@ -634,9 +634,9 @@
           "question": "¿Cómo lee JavaScript el atributo `data-id=\"v12\"` de un botón?",
           "options": [
             "boton.dataset.id",
-            "boton.id",
             "boton.data-id",
-            "boton.getData()"
+            "boton.getData()",
+            "boton.id"
           ],
           "correctIndex": 0,
           "explanation": "Los atributos `data-*` quedan disponibles en `dataset`, sin el prefijo y en camelCase: `data-id` → `dataset.id`."
@@ -738,10 +738,10 @@
           "id": "lec-05-q1",
           "question": "¿Dónde van los encabezados de columna de una tabla?",
           "options": [
-            "En el atributo title de la tabla.",
             "En celdas td dentro de tbody.",
+            "En un div encima de la tabla.",
             "En celdas th dentro de thead.",
-            "En un div encima de la tabla."
+            "En el atributo title de la tabla."
           ],
           "correctIndex": 2,
           "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
@@ -750,24 +750,24 @@
           "id": "lec-05-q2",
           "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
           "options": [
-            "Envolverla en un contenedor con overflow-x: auto.",
             "Ocultar la tabla en el celular.",
-            "Reducir la letra a 6 píxeles.",
-            "Convertirla en una imagen."
+            "Envolverla en un contenedor con overflow-x: auto.",
+            "Convertirla en una imagen.",
+            "Reducir la letra a 6 píxeles."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
         },
         {
           "id": "lec-05-q3",
           "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
           "options": [
-            "Un aria-label que describa la acción, como \"Editar actividad\".",
-            "Un id.",
             "Nada, el ícono es suficiente.",
-            "Un color más oscuro."
+            "Un aria-label que describa la acción, como \"Editar actividad\".",
+            "Un color más oscuro.",
+            "Un id."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Sin texto, un lector de pantalla no sabe qué hace el botón; `aria-label` le da nombre."
         }
       ],
@@ -869,8 +869,8 @@
           "options": [
             "main section div p",
             "#v-inicio .tarjeta",
-            ".tarjeta:hover",
-            ".panel .tarjeta .titulo"
+            ".panel .tarjeta .titulo",
+            ".tarjeta:hover"
           ],
           "correctIndex": 1,
           "explanation": "Un id pesa más que cualquier cantidad de clases o etiquetas."
@@ -879,24 +879,24 @@
           "id": "lec-06-q2",
           "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
           "options": [
-            "La que aparece primero.",
-            "La que aparece después.",
             "No se aplica ninguna.",
-            "La más corta."
+            "La más corta.",
+            "La que aparece después.",
+            "La que aparece primero."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
         },
         {
           "id": "lec-06-q3",
           "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
           "options": [
+            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
             "Porque el navegador ignora los archivos sin número.",
             "Por compatibilidad con Excel.",
-            "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
             "Para que pesen menos."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
         }
       ],
@@ -993,9 +993,9 @@
           "id": "lec-07-q1",
           "question": "¿Cómo se usa una variable CSS llamada --radio?",
           "options": [
-            "border-radius: @radio;",
-            "border-radius: $radio;",
             "border-radius: --radio;",
+            "border-radius: $radio;",
+            "border-radius: @radio;",
             "border-radius: var(--radio);"
           ],
           "correctIndex": 3,
@@ -1005,22 +1005,22 @@
           "id": "lec-07-q2",
           "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
           "options": [
-            "Crear un segundo index.html.",
             "Redefinir las variables de color cuando el body tiene una clase o atributo.",
+            "Copiar toda la hoja de estilos y cambiar cada color.",
             "Usar filter: invert(1) en toda la página.",
-            "Copiar toda la hoja de estilos y cambiar cada color."
+            "Crear un segundo index.html."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
         },
         {
           "id": "lec-07-q3",
           "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
           "options": [
-            "Muestra todo en modo técnico.",
+            "Borra el modo técnico.",
             "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
-            "Cambia el id del body.",
-            "Borra el modo técnico."
+            "Muestra todo en modo técnico.",
+            "Cambia el id del body."
           ],
           "correctIndex": 1,
           "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
@@ -1122,36 +1122,36 @@
           "id": "lec-08-q1",
           "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
           "options": [
-            "spacing",
-            "padding",
             "gap",
-            "margin-between"
+            "spacing",
+            "margin-between",
+            "padding"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
         },
         {
           "id": "lec-08-q2",
           "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
           "options": [
-            "flex: 1",
+            "width: auto",
             "display: block",
             "align-items: stretch",
-            "width: auto"
+            "flex: 1"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
         },
         {
           "id": "lec-08-q3",
           "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
           "options": [
-            "Lo centra.",
             "Le quita el margen.",
             "Lo empuja hacia el extremo derecho.",
+            "Lo centra.",
             "Lo oculta."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
         }
       ],
@@ -1251,12 +1251,12 @@
           "id": "lec-09-q1",
           "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
           "options": [
-            "Una columna de 3 píxeles.",
             "Tres columnas de igual ancho que se reparten el espacio.",
-            "Tres columnas de 1 píxel.",
-            "Tres filas iguales."
+            "Tres filas iguales.",
+            "Una columna de 3 píxeles.",
+            "Tres columnas de 1 píxel."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "`fr` es una fracción del espacio disponible."
         },
         {
@@ -1264,9 +1264,9 @@
           "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
           "options": [
             "Tantas columnas como quepan, cada una de al menos 200px.",
+            "Una sola columna de 200px.",
             "Exactamente 200 columnas.",
-            "Columnas de 1px.",
-            "Una sola columna de 200px."
+            "Columnas de 1px."
           ],
           "correctIndex": 0,
           "explanation": "Es la receta para cuadrículas que se adaptan al ancho sin media queries."
@@ -1275,12 +1275,12 @@
           "id": "lec-09-q3",
           "question": "¿Cuándo es mejor Flexbox que Grid?",
           "options": [
+            "Para cualquier tablero de dos dimensiones.",
             "Para alinear elementos en una sola dirección, como una barra de botones.",
-            "Nunca.",
             "Solo para tablas.",
-            "Para cualquier tablero de dos dimensiones."
+            "Nunca."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Flexbox es unidimensional; Grid controla filas y columnas a la vez."
         }
       ],
@@ -1382,8 +1382,8 @@
           "question": "¿Qué pasa si falta la etiqueta meta viewport?",
           "options": [
             "Nada.",
-            "La página no carga.",
             "Se desactiva JavaScript.",
+            "La página no carga.",
             "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto."
           ],
           "correctIndex": 3,
@@ -1393,9 +1393,9 @@
           "id": "lec-10-q2",
           "question": "¿Qué hace `@media (max-width: 760px) { … }`?",
           "options": [
-            "Aplica las reglas solo en pantallas mayores de 760px.",
             "Limita la página a 760px.",
             "Oculta la página en el celular.",
+            "Aplica las reglas solo en pantallas mayores de 760px.",
             "Aplica esas reglas solo cuando la pantalla mide 760px o menos."
           ],
           "correctIndex": 3,
@@ -1405,12 +1405,12 @@
           "id": "lec-10-q3",
           "question": "¿Por qué conviene que los campos de formulario tengan letra de 16px en el celular?",
           "options": [
-            "Por compatibilidad con Excel.",
-            "Para ahorrar datos.",
             "Porque los formularios no aceptan otros tamaños.",
-            "Porque con menos, algunos celulares hacen zoom automático al escribir."
+            "Porque con menos, algunos celulares hacen zoom automático al escribir.",
+            "Por compatibilidad con Excel.",
+            "Para ahorrar datos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Safari en iPhone amplía la página al enfocar campos con letra menor de 16px."
         }
       ],
@@ -1471,14 +1471,14 @@
       "comparison": {
         "scenario": "Calcular el total de una actividad con datos que vienen de un formulario.",
         "juniorLabel": "Así no",
-        "juniorCode": "var total = campoCant.value + campoKm.value * 12;\nif (total == 0) { … }",
+        "juniorCode": "var total = campoCant.value + campoKm.value * 12;\nif (total == 0) { /* … */ }",
         "juniorFlaws": [
           "`value` es texto: el `+` concatena en lugar de sumar.",
           "`var` y `==` causan errores difíciles de ver.",
           "El 12 es un número mágico sin explicación."
         ],
         "intermediateLabel": "Así sí",
-        "intermediateCode": "const TARIFA_KM = 12;\nconst cantidad = Number(campoCant.value) || 0;\nconst km = Number(campoKm.value) || 0;\nconst total = cantidad + km * TARIFA_KM;\nif (total === 0) { … }",
+        "intermediateCode": "const TARIFA_KM = 12;\nconst cantidad = Number(campoCant.value) || 0;\nconst km = Number(campoKm.value) || 0;\nconst total = cantidad + km * TARIFA_KM;\nif (total === 0) { /* … */ }",
         "intermediateBenefits": [
           "Los valores se convierten a número antes de operar.",
           "La tarifa tiene nombre.",
@@ -1513,24 +1513,24 @@
           "id": "lec-11-q1",
           "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
           "options": [
+            "'51'",
             "6",
             "NaN",
-            "'51'",
             "Error"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
         },
         {
           "id": "lec-11-q2",
           "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
           "options": [
-            "undefined",
             "0",
+            "undefined",
             "null",
             "Un error"
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
         },
         {
@@ -1658,24 +1658,24 @@
           "id": "lec-12-q2",
           "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
           "options": [
-            "[10, 9, 1]",
             "Error",
+            "[1, 10, 9]",
             "[1, 9, 10]",
-            "[1, 10, 9]"
+            "[10, 9, 1]"
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Sin función de comparación, sort ordena como texto. Para números usa `(a, b) => a - b`."
         },
         {
           "id": "lec-12-q3",
           "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
           "options": [
-            "Porque es más rápido.",
             "Porque sort no funciona sin los tres puntos.",
-            "Porque sort modifica la lista original y así se ordena una copia.",
-            "No hay diferencia."
+            "Porque es más rápido.",
+            "No hay diferencia.",
+            "Porque sort modifica la lista original y así se ordena una copia."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Ordenar los datos guardados cambiaría el orden en toda la aplicación."
         }
       ],
@@ -1775,21 +1775,21 @@
           "id": "lec-13-q1",
           "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
           "options": [
-            "Da error.",
+            "5, porque a y b son el mismo objeto.",
             "undefined.",
-            "El valor anterior de a.x.",
-            "5, porque a y b son el mismo objeto."
+            "Da error.",
+            "El valor anterior de a.x."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Asignar un objeto copia la referencia, no el contenido."
         },
         {
           "id": "lec-13-q2",
           "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
           "options": [
-            "Devuelve null.",
-            "Devuelve un objeto vacío.",
             "Repara el texto.",
+            "Devuelve un objeto vacío.",
+            "Devuelve null.",
             "Lanza un error."
           ],
           "correctIndex": 3,
@@ -1799,12 +1799,12 @@
           "id": "lec-13-q3",
           "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
           "options": [
-            "obj->campo",
-            "obj.campo",
             "obj{campo}",
-            "obj[campo]"
+            "obj->campo",
+            "obj[campo]",
+            "obj.campo"
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
         }
       ],
@@ -1902,12 +1902,12 @@
           "id": "lec-14-q1",
           "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
           "options": [
-            "Que la página cargue lento.",
-            "Que se borre el localStorage.",
             "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS).",
-            "Que los números se sumen como texto."
+            "Que la página cargue lento.",
+            "Que los números se sumen como texto.",
+            "Que se borre el localStorage."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "El escape convierte < y > en entidades, así el navegador los muestra en lugar de interpretarlos."
         },
         {
@@ -1915,11 +1915,11 @@
           "question": "¿Cuándo es seguro no escapar un dato?",
           "options": [
             "Nunca hace falta escapar.",
-            "Cuando viene de Excel.",
             "Cuando el dato es corto.",
-            "Cuando lo asignas con textContent."
+            "Cuando lo asignas con textContent.",
+            "Cuando viene de Excel."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`textContent` siempre trata el valor como texto plano."
         },
         {
@@ -1927,9 +1927,9 @@
           "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
           "options": [
             "Para unir el array de textos en un solo texto sin comas.",
-            "Para ordenar las filas.",
+            "Para escapar el HTML.",
             "Para eliminar duplicados.",
-            "Para escapar el HTML."
+            "Para ordenar las filas."
           ],
           "correctIndex": 0,
           "explanation": "Asignar un array a innerHTML lo convertiría con comas entre los elementos."
@@ -1972,7 +1972,7 @@
         {
           "id": "lec-15-sec-3",
           "title": "3. Mostrar fechas y dinero",
-          "body": "`Intl` formatea según el idioma y país, sin librerías:\n- Fechas: `Intl.DateTimeFormat('es-DO', { … })`.\n- Dinero: `Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' })`.\n\nCon decimales, `0.1 + 0.2` da `0.30000000000000004`. Para montos, **redondea al final** a 2 decimales, o calcula en centavos (enteros) y divide al mostrar.",
+          "body": "`Intl` formatea según el idioma y país, sin librerías:\n- Fechas: `Intl.DateTimeFormat('es-DO', { /* … */ })`.\n- Dinero: `Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' })`.\n\nCon decimales, `0.1 + 0.2` da `0.30000000000000004`. Para montos, **redondea al final** a 2 decimales, o calcula en centavos (enteros) y divide al mostrar.",
           "codeLanguage": "javascript",
           "codeSnippet": "const fmtFecha = new Intl.DateTimeFormat('es-DO', { weekday: 'short', day: 'numeric', month: 'short' });\nfmtFecha.format(new Date('2026-11-16T00:00'));   // 'lun, 16 nov'\n\nconst fmtPesos = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' });\nfmtPesos.format(1250.5);                          // 'RD$1,250.50'\n\nconst redondear2 = n => Math.round(n * 100) / 100;",
           "keyTakeaway": "Intl para mostrar; redondeo a 2 decimales al final de cualquier cálculo de dinero."
@@ -2032,36 +2032,36 @@
           "id": "lec-15-q1",
           "question": "¿Por qué `new Date().toISOString().slice(0,10)` puede dar la fecha de mañana?",
           "options": [
+            "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
             "Porque el navegador tiene un error.",
             "Nunca pasa.",
-            "Porque slice corta mal.",
-            "Porque toISOString convierte a UTC, que va 4 horas adelante de RD."
+            "Porque slice corta mal."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "De noche en RD ya es el día siguiente en UTC."
         },
         {
           "id": "lec-15-q2",
           "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
           "options": [
-            "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
-            "Porque ocupan menos memoria que un número.",
             "Porque JavaScript no tiene fechas.",
-            "Porque Excel no acepta otro formato."
+            "Porque Excel no acepta otro formato.",
+            "Porque ocupan menos memoria que un número.",
+            "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
         },
         {
           "id": "lec-15-q3",
           "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
           "options": [
+            "0.12",
             "0.3",
             "0.30000000000000004",
-            "0.12",
             "Error"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
         }
       ],
@@ -2075,7 +2075,125 @@
       "title": "Seleccionar y modificar el DOM",
       "subtitle": "getElementById, querySelector, classList, dataset y hidden.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Encontrar elementos con `getElementById`, `querySelector` y `querySelectorAll`.",
+        "Cambiar texto, clases, atributos y visibilidad.",
+        "Crear la función atajo `$` que usan muchos proyectos, y entender cuándo devuelve `null`."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-16-sec-1",
+          "title": "1. Encontrar elementos",
+          "body": "- `document.getElementById('tb-actividades')`: por id, el más rápido.\n- `document.querySelector('.barra .buscar')`: el **primero** que coincide con un selector CSS.\n- `document.querySelectorAll('main > section')`: **todos**, como una lista que puedes recorrer con `forEach` (o convertir con `[...lista]` para usar `map`/`filter`).\n\nSi no encuentra nada, `getElementById` y `querySelector` devuelven **`null`**. Leer una propiedad de `null` produce el error más común de la consola: *Cannot read properties of null*. Casi siempre significa un id mal escrito o que el script corrió antes de que existiera el elemento.\n\nMuchos proyectos (el tuyo incluido) definen un atajo de una línea para no escribir `document.getElementById` cada vez.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const $ = id => document.getElementById(id);\n\nconst tbody = $('tb-actividades');\nconst botones = document.querySelectorAll('[data-act]');\nbotones.forEach(b => console.log(b.dataset.act));",
+          "keyTakeaway": "Si sale 'Cannot read properties of null', revisa el id y el momento en que se ejecuta el script."
+        },
+        {
+          "id": "lec-16-sec-2",
+          "title": "2. Cambiar contenido, clases y atributos",
+          "body": "- `el.textContent = '…'`: texto seguro.\n- `el.innerHTML = '…'`: HTML (escapando los datos, lección 14).\n- `el.classList.add/remove/toggle('activo')`: clases sin pisar las demás.\n- `el.dataset.id`: atributos `data-*`.\n- `el.hidden = true/false`: mostrar u ocultar.\n- `el.setAttribute('aria-current', 'page')`, `el.disabled = true`, `campo.value`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "$('total-pendientes').textContent = pendientes.length;\nboton.classList.toggle('activo', esActual);   // segundo argumento: forzar sí/no\n$('aviso-atrasos').hidden = atrasadas.length === 0;\n$('btn-guardar').disabled = !formularioValido;",
+          "keyTakeaway": "classList y hidden en vez de reescribir className o style a mano."
+        },
+        {
+          "id": "lec-16-sec-3",
+          "title": "3. Crear elementos",
+          "body": "Para piezas pequeñas puedes crear elementos con `document.createElement` y agregarlos con `append`. Para tablas y listas grandes, el patrón de plantillas con `innerHTML` (lección 14) es más corto y rápido. Ambos son válidos; lo importante es escapar si usas HTML.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const chip = document.createElement('span');\nchip.className = 'chip-estado pendiente';\nchip.textContent = 'Pendiente';      // seguro sin escapar\n$('cabecera-actividad').append(chip);",
+          "keyTakeaway": "createElement + textContent para piezas sueltas; plantillas + esc para listas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Manipular el DOM con orden.",
+        "rules": [
+          "Busca los elementos una vez y guárdalos en una constante si los usas varias veces.",
+          "Usa `classList` y `hidden`; evita cambiar `style` desde JavaScript salvo valores dinámicos (como el ancho de una barra).",
+          "Comprueba `null` cuando un elemento puede no existir: `$('x')?.classList.add('y')`.",
+          "Los ids que usa JavaScript no se cambian en el HTML sin buscar antes dónde se usan."
+        ]
+      },
+      "comparison": {
+        "scenario": "Marcar como activo el botón del menú de la pantalla actual.",
+        "juniorLabel": "Así no",
+        "juniorCode": "botones[i].className = 'activo';\nbotones[i].style.background = 'blue';",
+        "juniorFlaws": [
+          "`className =` borra las otras clases del botón.",
+          "El color queda fijo en JavaScript y no respeta el tema."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "document.querySelectorAll('nav [data-view]').forEach(b => {\n  const activo = b.dataset.view === vista;\n  b.classList.toggle('activo', activo);\n  b.toggleAttribute('aria-current', activo);\n});",
+        "intermediateBenefits": [
+          "Respeta las otras clases.",
+          "El color lo decide el CSS con `.activo`.",
+          "Accesible con aria-current."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-16-ej-1",
+          "title": "Práctica 1: Indicador en pantalla",
+          "difficulty": "Básico",
+          "prompt": "Escribe código que ponga en el elemento `#kpi-pendientes` el número de actividades pendientes y le agregue la clase `alerta` si son más de 10.",
+          "hint": "textContent para el número y classList.toggle con segundo argumento para la clase.",
+          "solutionExplanation": "`toggle(clase, condición)` agrega o quita según la condición, en una línea.",
+          "solutionCode": "const n = S.acts.filter(a => a.estado === 'Pendiente').length;\nconst kpi = $('kpi-pendientes');\nkpi.textContent = n;\nkpi.classList.toggle('alerta', n > 10);",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-16-ej-2",
+          "title": "Práctica 2: Explora en vivo",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* en la consola, oculta temporalmente el menú con `hidden`, cambia el texto de un título y cuenta cuántos botones tienen `data-act`. Recarga para deshacer.",
+          "hint": "querySelector('nav'), querySelector('h2'), querySelectorAll('[data-act]').length.",
+          "solutionExplanation": "Practicar en la consola es la forma más segura de aprender: nada se guarda y recargar lo deja todo como estaba.",
+          "solutionCode": "document.querySelector('nav').hidden = true;\ndocument.querySelector('h2').textContent = 'Probando';\ndocument.querySelectorAll('[data-act]').length;",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-16-q1",
+          "question": "¿Qué devuelve `document.getElementById('no-existe')`?",
+          "options": [
+            "Un elemento vacío",
+            "null",
+            "Lanza un error",
+            "undefined"
+          ],
+          "correctIndex": 1,
+          "explanation": "Devuelve null; el error aparece después, al intentar usar una propiedad de null."
+        },
+        {
+          "id": "lec-16-q2",
+          "question": "¿Qué diferencia hay entre querySelector y querySelectorAll?",
+          "options": [
+            "querySelector devuelve una lista.",
+            "querySelectorAll solo busca por id.",
+            "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos.",
+            "No hay diferencia."
+          ],
+          "correctIndex": 2,
+          "explanation": "El 'All' indica que devuelve una lista (NodeList) con todas las coincidencias."
+        },
+        {
+          "id": "lec-16-q3",
+          "question": "¿Por qué es mejor `classList.add('activo')` que `className = 'activo'`?",
+          "options": [
+            "Porque className solo funciona en botones.",
+            "Porque classList es más antiguo.",
+            "Porque classList agrega la clase sin borrar las demás.",
+            "Porque className no existe."
+          ],
+          "correctIndex": 2,
+          "explanation": "Asignar className reemplaza todas las clases del elemento."
+        }
+      ],
       "order": 17
     },
     {
@@ -2086,7 +2204,127 @@
       "title": "Eventos y delegación",
       "subtitle": "Un solo escuchador para todos los botones: el patrón data-act.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Reaccionar a clics, cambios y teclas con `addEventListener`.",
+        "Entender la propagación de eventos y usar `closest`.",
+        "Aplicar la delegación de eventos con un registro de acciones `data-act`, como hace tu página."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-17-sec-1",
+          "title": "1. addEventListener",
+          "body": "Un evento es algo que pasa: un clic (`click`), un cambio en un campo (`change`), escribir (`input`), enviar un formulario (`submit`), una tecla (`keydown`). Con `addEventListener` dices qué función ejecutar.\n\nLa función recibe el **objeto evento** (`e`): `e.target` es el elemento donde ocurrió; `e.preventDefault()` cancela la acción por defecto (por ejemplo, que un formulario recargue la página).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "$('buscar').addEventListener('input', e => {\n  filtroTexto = e.target.value.trim().toLowerCase();\n  dibujarActividades();\n});\n$('form-tecnico').addEventListener('submit', e => {\n  e.preventDefault();         // no recargar la página\n  guardarTecnico();\n});",
+          "keyTakeaway": "input para reaccionar mientras se escribe; change cuando se confirma; submit para formularios."
+        },
+        {
+          "id": "lec-17-sec-2",
+          "title": "2. Propagación y closest",
+          "body": "Los eventos **suben** (burbujean) desde el elemento pulsado hasta el `document`. Un clic en un ícono dentro de un botón dentro de una fila pasa por el ícono, el botón, la celda, la fila… hasta el documento.\n\n`e.target.closest('[data-act]')` busca, desde donde se hizo clic hacia arriba, el primer elemento con `data-act`. Así no importa si el usuario tocó el ícono o el texto del botón.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "document.addEventListener('click', e => {\n  const boton = e.target.closest('[data-act]');\n  if (!boton) return;               // el clic no fue en un botón de acción\n  console.log(boton.dataset.act, boton.dataset.id);\n});",
+          "keyTakeaway": "closest('[data-act]') encuentra el botón aunque el clic caiga en un ícono interno."
+        },
+        {
+          "id": "lec-17-sec-3",
+          "title": "3. Delegación con un registro de acciones",
+          "body": "Las tablas de tu página se redibujan muchas veces: si pusieras un escuchador en cada botón, se perderían al redibujar. La solución es **delegar**: un único escuchador en el documento que mira el `data-act` del botón y busca la función correspondiente en un **registro de acciones**.\n\nPara agregar un botón nuevo solo necesitas: (1) un `data-act` en el HTML y (2) registrar esa acción. No tocas el escuchador. Busca en tu proyecto el archivo de acciones en `js/nucleo/` para ver la versión real.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const ACCIONES = {};\nfunction registrarAccion(nombre, fn) {\n  if (ACCIONES[nombre]) console.warn('Acción repetida:', nombre);\n  ACCIONES[nombre] = fn;\n}\ndocument.addEventListener('click', e => {\n  const el = e.target.closest('[data-act]');\n  if (!el) return;\n  const fn = ACCIONES[el.dataset.act];\n  if (!fn) return console.warn('Acción sin registrar:', el.dataset.act);\n  fn(el.dataset, el, e);\n});\n\n// En el módulo de cada pantalla:\nregistrarAccion('eliminar-actividad', ({ id }) => eliminarActividad(id));",
+          "keyTakeaway": "Botón nuevo = data-act en el HTML + registrarAccion en el módulo. El escuchador central no se toca."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Eventos que no se pierden ni se duplican.",
+        "rules": [
+          "Delegación para todo lo que está dentro de listas o tablas que se redibujan.",
+          "Un nombre de acción único, en minúsculas con guiones, que diga verbo + objeto.",
+          "Nunca `onclick=\"…\"` en el HTML.",
+          "No agregues escuchadores dentro de funciones que se ejecutan muchas veces (se duplican).",
+          "Confirma las acciones destructivas antes de ejecutarlas."
+        ]
+      },
+      "comparison": {
+        "scenario": "Botones 'Eliminar' en cada fila de la tabla.",
+        "juniorLabel": "Así no",
+        "juniorCode": "function dibujar() {\n  tbody.innerHTML = filas(S.acts);\n  tbody.querySelectorAll('.btn-eliminar').forEach(b =>\n    b.addEventListener('click', () => eliminar(b.dataset.id)));\n}",
+        "juniorFlaws": [
+          "Cada redibujado crea escuchadores nuevos (en elementos nuevos, pero hay que acordarse siempre).",
+          "Si otra función redibuja la tabla sin esta parte, los botones dejan de funcionar.",
+          "Mezcla dibujar con conectar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// En el HTML generado:  <button data-act=\"eliminar-actividad\" data-id=\"…\">\nregistrarAccion('eliminar-actividad', ({ id }) => {\n  if (!confirm('¿Eliminar esta actividad?')) return;\n  eliminar(id);\n});",
+        "intermediateBenefits": [
+          "Funciona siempre, sin importar cuántas veces se redibuje.",
+          "Dibujar solo dibuja; la acción vive en un lugar.",
+          "Incluye confirmación."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-17-ej-1",
+          "title": "Práctica 1: Filtro por estado",
+          "difficulty": "Básico",
+          "prompt": "Hay un `<select id=\"filtro-estado\">`. Escribe el código para que al cambiarlo se guarde el valor en una variable `filtroEstado` y se vuelva a dibujar la tabla con una función `dibujarActividades()`.",
+          "hint": "Evento change sobre el select.",
+          "solutionExplanation": "change se dispara al elegir una opción; con eso basta para un select.",
+          "solutionCode": "let filtroEstado = '';\n$('filtro-estado').addEventListener('change', e => {\n  filtroEstado = e.target.value;\n  dibujarActividades();\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-17-ej-2",
+          "title": "Práctica 2: Una acción nueva",
+          "difficulty": "Intermedio",
+          "prompt": "Agrega un botón 'Duplicar' a cada fila de actividades. Escribe el HTML del botón y registra la acción `duplicar-actividad`, que copie la actividad con un id nuevo, estado 'Pendiente', la agregue a la lista y vuelva a dibujar.",
+          "hint": "structuredClone para copiar, crypto.randomUUID() para el id, y la función de redibujar de tu proyecto.",
+          "solutionExplanation": "Es exactamente el flujo que seguirás en tu página: HTML con data-act → acción registrada → modificar datos → guardar y redibujar (lección 19).",
+          "solutionCode": "// En la plantilla de la fila:\n// <button type=\"button\" data-act=\"duplicar-actividad\" data-id=\"${esc(a.id)}\">Duplicar</button>\n\nregistrarAccion('duplicar-actividad', ({ id }) => {\n  const original = S.acts.find(a => a.id === id);\n  if (!original) return;\n  const copia = { ...structuredClone(original), id: crypto.randomUUID(), estado: 'Pendiente' };\n  S.acts.push(copia);\n  guardarYRedibujar();\n});",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-17-q1",
+          "question": "¿Qué hace `e.preventDefault()` en el evento submit de un formulario?",
+          "options": [
+            "Valida el formulario.",
+            "Evita que el navegador envíe el formulario y recargue la página.",
+            "Borra los campos.",
+            "Detiene todos los scripts."
+          ],
+          "correctIndex": 1,
+          "explanation": "Cancela la acción por defecto; tu código se encarga de guardar los datos."
+        },
+        {
+          "id": "lec-17-q2",
+          "question": "¿Para qué sirve `e.target.closest('[data-act]')`?",
+          "options": [
+            "Para eliminar el atributo data-act.",
+            "Para cerrar la ventana.",
+            "Para buscar el elemento más cercano en pantalla.",
+            "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno."
+          ],
+          "correctIndex": 3,
+          "explanation": "closest sube por los ancestros hasta encontrar el primero que coincide con el selector."
+        },
+        {
+          "id": "lec-17-q3",
+          "question": "¿Por qué la delegación de eventos es ideal para tablas que se redibujan?",
+          "options": [
+            "Porque desactiva el burbujeo.",
+            "Porque evita usar data-act.",
+            "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
+            "Porque es más bonita."
+          ],
+          "correctIndex": 2,
+          "explanation": "El evento burbujea hasta el documento, donde un único escuchador lo atiende."
+        }
+      ],
       "order": 18
     },
     {
@@ -2097,7 +2335,126 @@
       "title": "Formularios con JavaScript",
       "subtitle": "Leer, validar, crear y editar registros desde un formulario.",
       "estimatedMinutes": 50,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Leer todos los campos de un formulario con `FormData`.",
+        "Validar con reglas propias y mostrar errores claros.",
+        "Usar el mismo formulario para crear y para editar un registro.",
+        "Trabajar con `<dialog>` para formularios emergentes."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-18-sec-1",
+          "title": "1. Leer un formulario",
+          "body": "`new FormData(formulario)` recoge todos los campos que tienen `name`. Con `Object.fromEntries` lo conviertes en un objeto. Recuerda: **todo llega como texto**, y las casillas sin marcar no aparecen.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function leerFormulario(form) {\n  const datos = Object.fromEntries(new FormData(form));\n  datos.cant = Number(datos.cant) || 1;\n  datos.activo = form.elements.activo?.checked ?? false;\n  datos.cliente = (datos.cliente || '').trim();\n  return datos;\n}",
+          "keyTakeaway": "FormData + Object.fromEntries, y luego convertir números, casillas y espacios."
+        },
+        {
+          "id": "lec-18-sec-2",
+          "title": "2. Validar y avisar",
+          "body": "La validación nativa (lección 04) cubre lo básico. Para reglas del negocio (por ejemplo, que la fecha no sea anterior a hoy o que un chasis no esté repetido) escribe una función que devuelva una **lista de errores**. Si la lista está vacía, se guarda.\n\nMuestra el error junto al campo y pon el foco en el primero. `form.reportValidity()` dispara los mensajes nativos.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function validarActividad(d, existentes) {\n  const errores = [];\n  if (!d.cliente) errores.push({ campo: 'cliente', msg: 'Escribe el cliente.' });\n  if (!d.fecha) errores.push({ campo: 'fecha', msg: 'Elige la fecha.' });\n  if (existentes.some(a => a.chasis === d.chasis && a.id !== d.id))\n    errores.push({ campo: 'chasis', msg: 'Ese chasis ya tiene una actividad.' });\n  return errores;\n}",
+          "keyTakeaway": "Validar = devolver una lista de errores. Lista vacía = se puede guardar."
+        },
+        {
+          "id": "lec-18-sec-3",
+          "title": "3. Crear y editar con el mismo formulario",
+          "body": "Guarda el id del registro en un campo oculto (`<input type=\"hidden\" name=\"id\">`). Al abrir para **crear**, queda vacío; al abrir para **editar**, rellenas los campos con los datos del registro. Al guardar: si hay id, actualizas; si no, creas uno nuevo.\n\nEl elemento `<dialog>` hace ventanas emergentes accesibles: `showModal()` lo abre y `close()` lo cierra; la tecla Escape lo cierra sola.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function abrirFormulario(act = {}) {\n  const f = $('form-actividad');\n  f.reset();\n  for (const [k, v] of Object.entries(act)) if (f.elements[k]) f.elements[k].value = v;\n  $('dlg-actividad').showModal();\n}\n$('form-actividad').addEventListener('submit', e => {\n  e.preventDefault();\n  const d = leerFormulario(e.target);\n  const errores = validarActividad(d, S.acts);\n  if (errores.length) return mostrarErrores(e.target, errores);\n  if (d.id) Object.assign(S.acts.find(a => a.id === d.id), d);\n  else S.acts.push({ ...d, id: crypto.randomUUID(), estado: 'Pendiente' });\n  $('dlg-actividad').close();\n  guardarYRedibujar();\n});",
+          "keyTakeaway": "Un id oculto decide si se crea o se edita; dialog.showModal() para formularios emergentes."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Formularios robustos.",
+        "rules": [
+          "Limpia (`trim`) y convierte los datos al leerlos, no después.",
+          "Valida en una función separada y probable (lección 25).",
+          "Muestra el error junto al campo y enfoca el primero.",
+          "Resetea el formulario al abrirlo para no arrastrar datos del anterior.",
+          "Después de guardar: cerrar, guardar en el navegador y redibujar."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar un técnico nuevo.",
+        "juniorLabel": "Así no",
+        "juniorCode": "S.tecs.push({\n  nombre: document.querySelector('#t-nombre').value,\n  rol: document.querySelector('#t-rol').value,\n});",
+        "juniorFlaws": [
+          "Sin id: no se podrá editar ni borrar con seguridad.",
+          "Sin validar: se puede guardar un nombre vacío o con espacios.",
+          "No guarda ni redibuja: el técnico no aparece hasta recargar (y se pierde)."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const d = leerFormulario(form);\nif (!d.nombre) return mostrarErrores(form, [{ campo: 'nombre', msg: 'Escribe el nombre.' }]);\nS.tecs.push({ ...d, id: crypto.randomUUID() });\nguardarYRedibujar();",
+        "intermediateBenefits": [
+          "Id único.",
+          "Validación mínima.",
+          "Se guarda y se ve de inmediato."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-18-ej-1",
+          "title": "Práctica 1: Mostrar errores",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `mostrarErrores(form, errores)` que: quite los mensajes anteriores, agregue después de cada campo con error un `<small class=\"error\">` con el mensaje, marque el campo con `aria-invalid=\"true\"` y enfoque el primero.",
+          "hint": "form.elements[campo] para encontrar el campo; insertAdjacentElement('afterend', …) para colocar el mensaje.",
+          "solutionExplanation": "Quitar los mensajes viejos primero evita que se acumulen. aria-invalid ayuda a lectores de pantalla y permite un estilo `[aria-invalid=true]`.",
+          "solutionCode": "function mostrarErrores(form, errores) {\n  form.querySelectorAll('small.error').forEach(s => s.remove());\n  form.querySelectorAll('[aria-invalid]').forEach(c => c.removeAttribute('aria-invalid'));\n  for (const { campo, msg } of errores) {\n    const c = form.elements[campo];\n    if (!c) continue;\n    c.setAttribute('aria-invalid', 'true');\n    const s = document.createElement('small');\n    s.className = 'error';\n    s.textContent = msg;\n    c.insertAdjacentElement('afterend', s);\n  }\n  form.elements[errores[0]?.campo]?.focus();\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-18-ej-2",
+          "title": "Práctica 2: Editar en tu página",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* localiza el formulario de actividades en `index.html` y el código que lo guarda (busca su id). Identifica: ¿cómo distingue crear de editar? ¿dónde valida? ¿qué función llama al final?",
+          "hint": "Busca el id del formulario o la palabra submit en js/modulos.",
+          "solutionExplanation": "Reconocer estas tres piezas (crear/editar, validar, guardar y redibujar) en tu código es lo que te permitirá agregar un campo en el Proyecto 1."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-18-q1",
+          "question": "¿Qué campos recoge `new FormData(form)`?",
+          "options": [
+            "Solo los obligatorios.",
+            "Todos los inputs, tengan o no name.",
+            "Solo los de tipo text.",
+            "Los que tienen atributo name (y las casillas solo si están marcadas)."
+          ],
+          "correctIndex": 3,
+          "explanation": "FormData usa el name como clave; los checkbox sin marcar no se incluyen."
+        },
+        {
+          "id": "lec-18-q2",
+          "question": "¿Cómo puede un mismo formulario servir para crear y para editar?",
+          "options": [
+            "Con un campo oculto con el id: vacío al crear, con valor al editar.",
+            "No es posible.",
+            "Con dos botones submit.",
+            "Recargando la página."
+          ],
+          "correctIndex": 0,
+          "explanation": "Al guardar, la presencia del id decide si se actualiza o se agrega."
+        },
+        {
+          "id": "lec-18-q3",
+          "question": "¿Qué método abre un `<dialog>` como ventana modal?",
+          "options": [
+            "showModal()",
+            "show(true)",
+            "open()",
+            "display()"
+          ],
+          "correctIndex": 0,
+          "explanation": "showModal() lo abre por encima del resto, bloquea el fondo y permite cerrar con Escape."
+        }
+      ],
       "order": 19
     },
     {
@@ -2108,7 +2465,121 @@
       "title": "La arquitectura de tu página",
       "subtitle": "Datos, acción, guardar y redibujar; y el orden de los scripts.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Describir el ciclo completo: el usuario actúa → cambian los datos → se guarda → se redibuja.",
+        "Explicar por qué el orden de los `<script>` importa y dónde colocar un archivo nuevo.",
+        "Seguir el rastro de cualquier botón de tu página hasta el código que lo ejecuta."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-19-sec-1",
+          "title": "1. Un solo camino para los cambios",
+          "body": "Las páginas fáciles de mantener siguen una regla: **la pantalla es un reflejo de los datos**. Nadie cambia la pantalla directamente; se cambian los datos y luego se redibuja.\n\nEl ciclo de tu página:\n1. El usuario pulsa un botón con `data-act`.\n2. La **acción** registrada modifica el estado (`S`).\n3. Se **guarda** el estado en el navegador.\n4. Se **redibujan** las pantallas a partir del estado.\n\nSi respetas ese ciclo, nunca tendrás una pantalla que muestra algo distinto de lo guardado.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function guardarYRedibujar() {\n  guardarEstado();     // localStorage (lección 20)\n  redibujarTodo();     // cada módulo vuelve a dibujar su pantalla\n}\n\nregistrarAccion('finalizar-actividad', ({ id }) => {\n  const act = S.acts.find(a => a.id === id);\n  act.estado = 'Finalizado';\n  act.finalizada = fechaIso();\n  guardarYRedibujar();\n});",
+          "keyTakeaway": "Acción → datos → guardar → redibujar. Nunca modifiques la pantalla 'a mano' después de una acción."
+        },
+        {
+          "id": "lec-19-sec-2",
+          "title": "2. El orden de los scripts",
+          "body": "Como no hay sistema de módulos, cada archivo `<script>` define funciones globales que los siguientes pueden usar. Por eso el orden en `index.html` es una **dependencia**:\n1. Configuración (`config/…`): valores que todos leen.\n2. Núcleo (`js/nucleo/utilidades`, acciones): herramientas básicas.\n3. Datos (`js/datos/…`): cargar, guardar, migrar.\n4. Módulos (`js/modulos/…`): una pantalla cada uno; registran sus acciones.\n5. Arranque (`app.js`): carga el estado y dibuja por primera vez.\n\nUn archivo nuevo de pantalla va **con los módulos, antes del arranque**. Si lo pones después, sus acciones no existirán cuando la página empiece.",
+          "codeLanguage": "html",
+          "codeSnippet": "<script src=\"config/estados.js\"></script>\n<script src=\"js/nucleo/utilidades.js\"></script>\n<script src=\"js/nucleo/acciones.js\"></script>\n<script src=\"js/datos/almacenamiento.js\"></script>\n<script src=\"js/modulos/actividades.js\"></script>\n<script src=\"js/modulos/repuestos.js\"></script>   <!-- módulo nuevo: aquí -->\n<script src=\"js/nucleo/app.js\"></script>          <!-- siempre al final -->",
+          "keyTakeaway": "Cada script puede usar lo que definieron los anteriores. Lo nuevo va antes del arranque."
+        },
+        {
+          "id": "lec-19-sec-3",
+          "title": "3. Seguir el rastro de un botón",
+          "body": "Este es el método que usarás cada vez que quieras cambiar algo que hace un botón:\n1. **Inspecciona** el botón y copia su `data-act`.\n2. **Busca** en el proyecto (`Ctrl+Shift+F`) ese nombre: encontrarás `registrarAccion('ese-nombre', …)`.\n3. **Lee** la función: qué datos cambia.\n4. **Sigue** las funciones que llama con `F12`.\n5. **Comprueba** en la consola los datos antes y después.\n\nLa documentación de tu proyecto (`documentacion/`) tiene un mapa y una guía para agregar funciones. Léela junto con este módulo.",
+          "keyTakeaway": "Botón → data-act → registrarAccion → función → datos. Con eso puedes modificar cualquier comportamiento."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Respetar la arquitectura.",
+        "rules": [
+          "Toda modificación de datos ocurre dentro de una acción o una función llamada por una.",
+          "Después de modificar datos: guardar y redibujar, siempre por la misma función.",
+          "Cada pantalla en su módulo; cada módulo registra sus propias acciones.",
+          "No dupliques utilidades: si ya existe una función para fechas, escape o dinero, úsala.",
+          "Si agregas un archivo, actualiza el orden de scripts y la documentación."
+        ]
+      },
+      "comparison": {
+        "scenario": "Al finalizar una actividad, la fila debe ponerse verde.",
+        "juniorLabel": "Así no",
+        "juniorCode": "boton.closest('tr').style.background = 'lightgreen';\nboton.closest('tr').querySelector('.estado').textContent = 'Finalizado';",
+        "juniorFlaws": [
+          "Cambia la pantalla, no los datos: al recargar vuelve a 'Pendiente'.",
+          "El Inicio y los indicadores no se enteran del cambio.",
+          "El color queda fuera del CSS."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "registrarAccion('finalizar-actividad', ({ id }) => {\n  S.acts.find(a => a.id === id).estado = 'Finalizado';\n  guardarYRedibujar();   // la fila sale verde por su clase de estado\n});",
+        "intermediateBenefits": [
+          "Los datos y todas las pantallas quedan coherentes.",
+          "El color lo decide el CSS del estado.",
+          "Persiste al recargar."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-19-ej-1",
+          "title": "Práctica 1: Rastrea tres botones",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* elige tres botones distintos (por ejemplo uno de la tabla de actividades, uno de técnicos y uno de importar). Para cada uno anota: su `data-act`, el archivo donde se registra, qué datos de `S` modifica y si termina guardando y redibujando.",
+          "hint": "Inspecciona → copia data-act → Ctrl+Shift+F.",
+          "solutionExplanation": "Si los tres siguen el mismo ciclo, entendiste la arquitectura. Si alguno no guarda o no redibuja, encontraste algo para revisar con cuidado."
+        },
+        {
+          "id": "lec-19-ej-2",
+          "title": "Práctica 2: ¿Dónde va el script?",
+          "difficulty": "Básico",
+          "prompt": "Vas a crear `js/modulos/repuestos.js`, que usa `registrarAccion`, `esc` y la lista `S.repuestos`. ¿Entre qué scripts lo colocas y por qué?",
+          "hint": "Necesita que existan las utilidades y las acciones, y debe registrarse antes del arranque.",
+          "solutionExplanation": "Después de los archivos del núcleo y de datos (porque usa `esc`, `registrarAccion` y el estado) y antes de `app.js` (que dibuja todo al iniciar y necesita que el módulo ya exista)."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-19-q1",
+          "question": "Según la arquitectura de tu página, ¿qué debe pasar después de que una acción modifica los datos?",
+          "options": [
+            "Nada, el navegador lo actualiza solo.",
+            "Cambiar el color de la fila con style.",
+            "Recargar la página.",
+            "Guardar el estado y redibujar las pantallas."
+          ],
+          "correctIndex": 3,
+          "explanation": "El ciclo es acción → datos → guardar → redibujar."
+        },
+        {
+          "id": "lec-19-q2",
+          "question": "¿Por qué el script de arranque (app.js) va al final?",
+          "options": [
+            "Porque es el más grande.",
+            "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
+            "Porque el navegador ignora el último script.",
+            "Por orden alfabético."
+          ],
+          "correctIndex": 1,
+          "explanation": "Sin sistema de módulos, cada archivo solo puede usar lo que ya se cargó antes."
+        },
+        {
+          "id": "lec-19-q3",
+          "question": "Quieres cambiar lo que hace un botón. ¿Cuál es el primer paso más eficiente?",
+          "options": [
+            "Cambiar su texto.",
+            "Leer todos los archivos JS de arriba abajo.",
+            "Borrar el botón y crearlo de nuevo.",
+            "Inspeccionarlo y buscar su data-act en el proyecto."
+          ],
+          "correctIndex": 3,
+          "explanation": "El data-act te lleva directo a la acción registrada."
+        }
+      ],
       "order": 20
     },
     {
@@ -2119,7 +2590,125 @@
       "title": "Guardar en el navegador: localStorage y respaldos",
       "subtitle": "Que tus datos sobrevivan a recargas, errores y cambios de versión.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Guardar y cargar el estado con `localStorage` de forma segura.",
+        "Exportar e importar un respaldo como archivo JSON.",
+        "Agregar campos nuevos sin romper datos antiguos, usando versiones y migraciones."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-20-sec-1",
+          "title": "1. localStorage",
+          "body": "`localStorage` guarda **texto** por clave en el navegador, en ese equipo y para esa dirección. Por eso se guarda el estado con `JSON.stringify` y se lee con `JSON.parse`.\n\nLímites que debes conocer:\n- Unos 5 MB por sitio.\n- Cada navegador y cada equipo tiene sus propios datos: lo que guardas en tu PC no aparece en el celular.\n- Si el usuario borra los datos del navegador, se pierde. Por eso existen los **respaldos**.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const CLAVE = 'mi-app-v1';\n\nfunction guardarEstado() {\n  try {\n    localStorage.setItem(CLAVE, JSON.stringify(S));\n  } catch (e) {\n    alert('No se pudo guardar: el almacenamiento está lleno. Descarga un respaldo.');\n  }\n}\nfunction cargarEstado() {\n  try {\n    return JSON.parse(localStorage.getItem(CLAVE)) ?? estadoInicial();\n  } catch {\n    return estadoInicial();\n  }\n}",
+          "keyTakeaway": "Guardar con stringify dentro de try; cargar con parse dentro de try y un estado inicial de reserva."
+        },
+        {
+          "id": "lec-20-sec-2",
+          "title": "2. Respaldos: descargar y restaurar",
+          "body": "Un respaldo es el estado completo descargado como archivo `.json`. Para descargarlo se crea un `Blob`, se genera una URL temporal y se simula un clic en un enlace. Para restaurarlo se lee el archivo elegido (lección 21), se **valida** su forma y solo entonces se reemplaza el estado.\n\nTu página ya tiene esto en `js/datos/`. Úsalo antes de cualquier cambio importante: **respaldo primero, cambios después**.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function descargarRespaldo() {\n  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });\n  const url = URL.createObjectURL(blob);\n  const a = Object.assign(document.createElement('a'), {\n    href: url, download: `respaldo-${fechaIso()}.json`,\n  });\n  a.click();\n  URL.revokeObjectURL(url);\n}",
+          "keyTakeaway": "Antes de probar un cambio en la página real, descarga un respaldo."
+        },
+        {
+          "id": "lec-20-sec-3",
+          "title": "3. Versiones y migraciones",
+          "body": "Cuando agregas un campo nuevo (por ejemplo `prioridad` a las actividades), los datos guardados antes **no lo tienen**. Si el código asume que existe, falla.\n\nLa solución profesional: el estado tiene un número de **versión**, y una función de **migración** completa los datos antiguos al cargar. Cada cambio de forma de los datos sube la versión y agrega un paso. Busca el archivo de migraciones en `js/datos/` de tu proyecto: ahí es donde agregarás el tuyo en el Proyecto 1.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const VERSION_ACTUAL = 4;\n\nfunction migrar(estado) {\n  if (estado.version < 4) {\n    // v4: las actividades tienen prioridad\n    estado.acts.forEach(a => { a.prioridad ??= 'normal'; });\n    estado.version = 4;\n  }\n  return estado;\n}\nS = migrar(cargarEstado());",
+          "keyTakeaway": "Campo nuevo en los datos = versión nueva + paso de migración que rellena los registros antiguos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Datos que no se pierden.",
+        "rules": [
+          "Nunca cambies la clave de almacenamiento sin una migración que copie los datos antiguos.",
+          "Guarda después de cada acción que modifica datos.",
+          "Valida un respaldo antes de restaurarlo y avisa qué se va a reemplazar.",
+          "Cada cambio de estructura sube la versión y tiene su migración.",
+          "Recuerda a los usuarios descargar respaldos periódicos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Agregar el campo 'prioridad' a las actividades.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Solo se agrega en el formulario y en la tabla:\ntd.textContent = act.prioridad.toUpperCase();",
+        "juniorFlaws": [
+          "Las actividades guardadas antes no tienen `prioridad`: `undefined.toUpperCase()` rompe la tabla.",
+          "El error solo aparece con datos reales, no con los nuevos de prueba."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// En migraciones: rellenar los datos antiguos\nif (estado.version < 4) {\n  estado.acts.forEach(a => { a.prioridad ??= 'normal'; });\n  estado.version = 4;\n}\n// En la tabla, además, defensivo:\ntd.textContent = (act.prioridad ?? 'normal').toUpperCase();",
+        "intermediateBenefits": [
+          "Todos los registros tienen el campo.",
+          "La tabla no se rompe aunque falte."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-20-ej-1",
+          "title": "Práctica 1: ¿Cuánto ocupa?",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* en la consola, calcula cuántos kilobytes ocupan los datos guardados y cuántas claves usa la página en localStorage.",
+          "hint": "La longitud del texto guardado dividido entre 1024 da una aproximación en KB.",
+          "solutionExplanation": "Te dará una idea de cuánto margen queda antes del límite de ~5 MB.",
+          "solutionCode": "Object.keys(localStorage);\n(localStorage.getItem(Object.keys(localStorage)[0]) || '').length / 1024;",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-20-ej-2",
+          "title": "Práctica 2: Escribe una migración",
+          "difficulty": "Intermedio",
+          "prompt": "Los vehículos ahora deben tener `kmUltimoServicio` (número) y `activo` (booleano, por defecto `true`). Escribe el paso de migración de la versión 4 a la 5.",
+          "hint": "Usa ??= para no pisar valores que ya existan.",
+          "solutionExplanation": "`??=` asigna solo si el valor es null o undefined, así la migración es segura de ejecutar más de una vez.",
+          "solutionCode": "if (estado.version < 5) {\n  estado.vehs.forEach(v => {\n    v.kmUltimoServicio ??= 0;\n    v.activo ??= true;\n  });\n  estado.version = 5;\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-20-q1",
+          "question": "¿Qué tipo de dato guarda localStorage?",
+          "options": [
+            "Archivos de Excel.",
+            "Solo texto; los objetos se convierten con JSON.stringify.",
+            "Imágenes.",
+            "Objetos de JavaScript directamente."
+          ],
+          "correctIndex": 1,
+          "explanation": "Por eso el estado se guarda como JSON y se lee con JSON.parse."
+        },
+        {
+          "id": "lec-20-q2",
+          "question": "Abres tu página en otro computador. ¿Por qué no ves tus datos?",
+          "options": [
+            "Porque GitHub los elimina.",
+            "Porque localStorage es propio de cada navegador y equipo.",
+            "Porque falta internet.",
+            "Porque se borran cada día."
+          ],
+          "correctIndex": 1,
+          "explanation": "Los datos viven en el navegador. Para moverlos se usa un respaldo (o una base de datos en la nube)."
+        },
+        {
+          "id": "lec-20-q3",
+          "question": "¿Para qué sirve una migración?",
+          "options": [
+            "Para borrar datos viejos.",
+            "Para mover la página a otro servidor.",
+            "Para comprimir el localStorage.",
+            "Para adaptar los datos guardados con una versión anterior a la nueva estructura."
+          ],
+          "correctIndex": 3,
+          "explanation": "Rellena o transforma los registros antiguos para que el código nuevo pueda usarlos."
+        }
+      ],
       "order": 21
     },
     {
@@ -2130,7 +2719,128 @@
       "title": "Asincronía y archivos: leer Excel",
       "subtitle": "async/await, archivos, arrayBuffer y SheetJS.",
       "estimatedMinutes": 50,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Entender qué es una promesa y usar `async`/`await` con `try/catch`.",
+        "Leer un archivo elegido por el usuario.",
+        "Convertir una hoja de Excel en un array de objetos con SheetJS y limpiar sus datos.",
+        "Exportar datos de la página a un archivo Excel."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-21-sec-1",
+          "title": "1. async y await",
+          "body": "Algunas operaciones tardan (leer un archivo, pedir datos a internet). En lugar de bloquear la página, devuelven una **promesa**: un valor que llegará después. Con `await` esperas ese valor dentro de una función marcada `async`, y escribes el código de arriba abajo como si fuera inmediato. Los errores se atrapan con `try/catch`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "async function importar(archivo) {\n  try {\n    const buffer = await archivo.arrayBuffer();   // espera a leer el archivo\n    const filas = leerExcel(buffer);\n    aplicarImportacion(filas);\n  } catch (e) {\n    console.error(e);\n    alert('No se pudo leer el archivo. ¿Es un Excel válido?');\n  }\n}",
+          "keyTakeaway": "await solo funciona dentro de funciones async; envuélvelo en try/catch."
+        },
+        {
+          "id": "lec-21-sec-2",
+          "title": "2. Elegir el archivo y leer el Excel",
+          "body": "Un `<input type=\"file\" accept=\".xlsx,.xls,.csv\">` deja elegir un archivo; en su evento `change`, `e.target.files[0]` es el archivo. SheetJS (la librería `XLSX`, que tu página ya incluye) convierte el contenido en un libro, y `sheet_to_json` convierte una hoja en un array de objetos usando la primera fila como nombres de columna.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "$('archivo-excel').addEventListener('change', e => {\n  const archivo = e.target.files[0];\n  if (archivo) importar(archivo);\n  e.target.value = '';   // permitir elegir el mismo archivo otra vez\n});\n\nfunction leerExcel(buffer) {\n  const libro = XLSX.read(buffer, { cellDates: true });\n  const hoja = libro.Sheets[libro.SheetNames[0]];\n  return XLSX.utils.sheet_to_json(hoja, { defval: '' });   // [{ Cliente: '…', Fecha: … }, …]\n}",
+          "keyTakeaway": "XLSX.read + sheet_to_json = filas de Excel como objetos con los nombres de las columnas."
+        },
+        {
+          "id": "lec-21-sec-3",
+          "title": "3. Limpiar lo que viene de Excel",
+          "body": "Los archivos reales traen sorpresas: encabezados con espacios o mayúsculas distintas, fechas como número de serie o texto, montos con comas, filas vacías al final. **Normaliza** cada fila a la forma de tus datos antes de usarla, y muestra un resumen (cuántas se importan, cuántas se descartaron y por qué).\n\nPara exportar, el camino inverso: `json_to_sheet` y `writeFile`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const clave = t => String(t).trim().toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');\n\nfunction normalizarFila(fila) {\n  const f = Object.fromEntries(Object.entries(fila).map(([k, v]) => [clave(k), v]));\n  const fecha = f.fecha instanceof Date ? fechaIso(f.fecha) : String(f.fecha).slice(0, 10);\n  return {\n    cliente: String(f.cliente ?? '').trim(),\n    fecha,\n    chasis: String(f.chasis ?? '').trim().toUpperCase(),\n    monto: Number(String(f.monto ?? '').replace(/[^0-9.-]/g, '')) || 0,\n  };\n}\n\n// Exportar\nconst hoja = XLSX.utils.json_to_sheet(S.acts.map(a => ({ Fecha: a.fecha, Cliente: a.cliente, Estado: a.estado })));\nconst libro = XLSX.utils.book_new();\nXLSX.utils.book_append_sheet(libro, hoja, 'Actividades');\nXLSX.writeFile(libro, `actividades-${fechaIso()}.xlsx`);",
+          "keyTakeaway": "Normaliza encabezados y valores de cada fila; nunca metas las filas de Excel tal cual en tus datos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Importaciones que no ensucian tus datos.",
+        "rules": [
+          "Descarga un respaldo automáticamente (o pide hacerlo) antes de una importación grande.",
+          "Normaliza encabezados (sin espacios, minúsculas, sin acentos).",
+          "Convierte fechas, números y textos a la forma de tus datos.",
+          "Descarta filas vacías o incompletas y cuéntalas.",
+          "Evita duplicados comparando con una clave (chasis, número de orden).",
+          "Muestra un resumen antes de confirmar."
+        ]
+      },
+      "comparison": {
+        "scenario": "Importar un Excel de actividades.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const filas = XLSX.utils.sheet_to_json(hoja);\nS.acts.push(...filas);",
+        "juniorFlaws": [
+          "Las columnas se llaman como en el Excel ('Cliente ', 'FECHA'), no como en tus datos.",
+          "Las fechas pueden quedar como números de serie.",
+          "Se meten filas vacías y duplicados.",
+          "No hay forma de deshacer."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "descargarRespaldo();\nconst filas = leerExcel(buffer).map(normalizarFila);\nconst validas = filas.filter(f => f.cliente && f.fecha);\nconst nuevas = validas.filter(f => !S.acts.some(a => a.chasis === f.chasis && a.fecha === f.fecha));\nif (!confirm(`Importar ${nuevas.length} de ${filas.length} filas?`)) return;\nS.acts.push(...nuevas.map(f => ({ ...f, id: crypto.randomUUID(), estado: 'Pendiente' })));\nguardarYRedibujar();",
+        "intermediateBenefits": [
+          "Respaldo previo.",
+          "Datos normalizados, sin vacíos ni duplicados.",
+          "El usuario confirma con un resumen."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-21-ej-1",
+          "title": "Práctica 1: Encabezados limpios",
+          "difficulty": "Básico",
+          "prompt": "Usa la función `clave` para convertir estos encabezados: `' Fecha '`, `'CLIENTE'`, `'Técnico'`, `'Nº Orden'`. ¿Qué devuelve cada uno?",
+          "hint": "trim, minúsculas, y quitar acentos con normalize('NFD').",
+          "solutionExplanation": "`'fecha'`, `'cliente'`, `'tecnico'`, `'nº orden'`. El último conserva el símbolo º y el espacio: si lo necesitas como clave, decide un nombre (por ejemplo `orden`) y mapea los encabezados conocidos."
+        },
+        {
+          "id": "lec-21-ej-2",
+          "title": "Práctica 2: Resumen de importación",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `resumenImportacion(filas, existentes)` que devuelva `{ total, vacias, duplicadas, nuevas }` (las tres últimas como números), usando `chasis + fecha` como clave de duplicado.",
+          "hint": "Primero separa las vacías; luego, de las válidas, cuenta cuáles ya existen.",
+          "solutionExplanation": "Un Set con las claves existentes hace la comprobación de duplicados rápida incluso con miles de filas.",
+          "solutionCode": "function resumenImportacion(filas, existentes) {\n  const claves = new Set(existentes.map(a => `${a.chasis}|${a.fecha}`));\n  const validas = filas.filter(f => f.cliente && f.fecha);\n  const nuevas = validas.filter(f => !claves.has(`${f.chasis}|${f.fecha}`));\n  return {\n    total: filas.length,\n    vacias: filas.length - validas.length,\n    duplicadas: validas.length - nuevas.length,\n    nuevas: nuevas.length,\n  };\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-21-q1",
+          "question": "¿Qué hace `await archivo.arrayBuffer()`?",
+          "options": [
+            "Borra el archivo.",
+            "Convierte el archivo en Excel.",
+            "Espera a que el navegador termine de leer el archivo y devuelve su contenido binario.",
+            "Sube el archivo a internet."
+          ],
+          "correctIndex": 2,
+          "explanation": "arrayBuffer devuelve una promesa; await espera su resultado."
+        },
+        {
+          "id": "lec-21-q2",
+          "question": "¿Qué devuelve `XLSX.utils.sheet_to_json(hoja)`?",
+          "options": [
+            "Un archivo .xlsx.",
+            "Un texto JSON.",
+            "Una tabla HTML.",
+            "Un array de objetos, uno por fila, con los encabezados como claves."
+          ],
+          "correctIndex": 3,
+          "explanation": "Usa la primera fila de la hoja como nombres de las propiedades."
+        },
+        {
+          "id": "lec-21-q3",
+          "question": "¿Por qué se normalizan las filas antes de agregarlas a los datos?",
+          "options": [
+            "Porque SheetJS lo exige.",
+            "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos.",
+            "No hace falta normalizar.",
+            "Para que el archivo pese menos."
+          ],
+          "correctIndex": 1,
+          "explanation": "Normalizar convierte lo que venga del archivo en la forma exacta que espera tu código."
+        }
+      ],
       "order": 22
     },
     {
@@ -2141,7 +2851,127 @@
       "title": "Gráficos con SVG",
       "subtitle": "Barras, líneas y donas hechas a mano con viewBox.",
       "estimatedMinutes": 50,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Entender el sistema de coordenadas de SVG y `viewBox`.",
+        "Generar un gráfico de barras a partir de datos con una plantilla.",
+        "Dibujar una línea con `polyline` y una dona con `stroke-dasharray`.",
+        "Hacer gráficos accesibles y que usen los colores del tema."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-22-sec-1",
+          "title": "1. SVG y viewBox",
+          "body": "SVG es HTML para dibujos: rectángulos (`rect`), líneas (`line`, `polyline`), círculos (`circle`) y texto (`text`). El atributo `viewBox=\"0 0 400 200\"` define un lienzo **imaginario** de 400×200 unidades; el SVG se escala al tamaño real del contenedor. Así calculas posiciones en números cómodos y el gráfico se adapta a cualquier pantalla.\n\nLa coordenada `y` crece **hacia abajo**: una barra alta empieza más arriba (y pequeña).",
+          "codeLanguage": "html",
+          "codeSnippet": "<svg viewBox=\"0 0 400 200\" role=\"img\" aria-label=\"Actividades por estado\">\n  <rect x=\"20\"  y=\"60\"  width=\"80\" height=\"120\" fill=\"var(--estado-pendiente)\"/>\n  <rect x=\"160\" y=\"140\" width=\"80\" height=\"40\"  fill=\"var(--estado-curso)\"/>\n  <line x1=\"10\" y1=\"180\" x2=\"390\" y2=\"180\" stroke=\"currentColor\"/>\n</svg>",
+          "keyTakeaway": "viewBox = lienzo propio que se escala solo; y crece hacia abajo."
+        },
+        {
+          "id": "lec-22-sec-2",
+          "title": "2. Barras desde datos",
+          "body": "Un gráfico es una función: recibe datos y devuelve un texto SVG. Pasos:\n1. Calcula el máximo para escalar.\n2. Calcula ancho y posición de cada barra.\n3. Genera `rect` y `text` con `map` y `join`.\n4. Escapa las etiquetas (vienen de datos).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function graficoBarras(datos, { ancho = 400, alto = 200, margen = 24 } = {}) {\n  const max = Math.max(1, ...datos.map(d => d.valor));\n  const paso = (ancho - margen * 2) / datos.length;\n  const barras = datos.map((d, i) => {\n    const h = (d.valor / max) * (alto - margen * 2);\n    const x = margen + i * paso + paso * 0.15;\n    const y = alto - margen - h;\n    return `<rect x=\"${x}\" y=\"${y}\" width=\"${paso * 0.7}\" height=\"${h}\" rx=\"3\" fill=\"var(--color-principal)\"/>\n      <text x=\"${x + paso * 0.35}\" y=\"${alto - 6}\" text-anchor=\"middle\" font-size=\"11\">${esc(d.etiqueta)}</text>\n      <text x=\"${x + paso * 0.35}\" y=\"${y - 4}\" text-anchor=\"middle\" font-size=\"11\">${d.valor}</text>`;\n  }).join('');\n  return `<svg viewBox=\"0 0 ${ancho} ${alto}\" role=\"img\" aria-label=\"Gráfico de barras\">${barras}</svg>`;\n}",
+          "keyTakeaway": "Escala con el máximo, posiciona con el índice y genera el SVG con una plantilla."
+        },
+        {
+          "id": "lec-22-sec-3",
+          "title": "3. Líneas y donas",
+          "body": "- **Línea**: `polyline` con `points=\"x1,y1 x2,y2 …\"`. Ideal para tendencias por día o por mes.\n- **Dona**: un `circle` con `stroke-dasharray`. Si la circunferencia es `C = 2πr`, una porción del 30 % es `stroke-dasharray=\"0.3C C\"`. Cada porción siguiente se desplaza con `stroke-dashoffset`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function puntosLinea(valores, ancho, alto) {\n  const max = Math.max(1, ...valores);\n  const paso = ancho / Math.max(1, valores.length - 1);\n  return valores.map((v, i) => `${i * paso},${alto - (v / max) * alto}`).join(' ');\n}\n// <polyline points=\"${puntosLinea(serie, 400, 160)}\" fill=\"none\" stroke=\"var(--color-principal)\" stroke-width=\"2\"/>\n\nfunction dona(partes, r = 60) {\n  const C = 2 * Math.PI * r, total = partes.reduce((s, p) => s + p.valor, 0) || 1;\n  let acumulado = 0;\n  const arcos = partes.map(p => {\n    const largo = (p.valor / total) * C;\n    const arco = `<circle r=\"${r}\" cx=\"80\" cy=\"80\" fill=\"none\" stroke=\"${p.color}\" stroke-width=\"22\"\n      stroke-dasharray=\"${largo} ${C}\" stroke-dashoffset=\"${-acumulado}\" transform=\"rotate(-90 80 80)\"/>`;\n    acumulado += largo;\n    return arco;\n  }).join('');\n  return `<svg viewBox=\"0 0 160 160\" role=\"img\" aria-label=\"Distribución\">${arcos}</svg>`;\n}",
+          "keyTakeaway": "polyline para tendencias; circle con dasharray para donas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Gráficos claros y accesibles.",
+        "rules": [
+          "Siempre `role=\"img\"` y un `aria-label` que diga qué muestra el gráfico (o una tabla con los datos al lado).",
+          "Colores desde variables CSS, para que respeten el tema.",
+          "Muestra el valor en cada barra o en un tooltip (`<title>` dentro del elemento).",
+          "Protege la división entre cero (`Math.max(1, …)`).",
+          "Un gráfico por pregunta: no mezcles cinco medidas en uno."
+        ]
+      },
+      "comparison": {
+        "scenario": "Dibujar las actividades por técnico.",
+        "juniorLabel": "Así no",
+        "juniorCode": "svg.innerHTML += '<rect x=\"10\" y=\"' + (200 - datos[0]) + '\" width=\"30\" height=\"' + datos[0] + '\" fill=\"#2a7\"/>';\nsvg.innerHTML += '<rect x=\"50\" y=\"' + (200 - datos[1]) + '\" …';  // una línea por técnico",
+        "juniorFlaws": [
+          "Valores sin escalar: si un técnico tiene 400 actividades, la barra se sale.",
+          "Una línea por técnico: no sirve si cambian los técnicos.",
+          "Color fijo fuera del tema.",
+          "innerHTML += repetido es lento."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const datos = tecnicos.map(t => ({\n  etiqueta: t.nombre,\n  valor: S.acts.filter(a => a.tecnicoId === t.id).length,\n}));\n$('grafico-tecnicos').innerHTML = graficoBarras(datos);",
+        "intermediateBenefits": [
+          "Escala automática al máximo.",
+          "Funciona con cualquier cantidad de técnicos.",
+          "Una sola asignación."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-22-ej-1",
+          "title": "Práctica 1: Barra de progreso",
+          "difficulty": "Básico",
+          "prompt": "Escribe `barraProgreso(hechas, total)` que devuelva un SVG de 200×12 con un rectángulo de fondo y otro encima cuyo ancho represente el porcentaje completado.",
+          "hint": "ancho = total ? hechas / total * 200 : 0.",
+          "solutionExplanation": "Es el gráfico más simple y uno de los más útiles en un tablero de mantenimiento.",
+          "solutionCode": "function barraProgreso(hechas, total) {\n  const w = total ? (hechas / total) * 200 : 0;\n  return `<svg viewBox=\"0 0 200 12\" role=\"img\" aria-label=\"${hechas} de ${total} completadas\">\n    <rect width=\"200\" height=\"12\" rx=\"6\" fill=\"var(--borde)\"/>\n    <rect width=\"${w}\" height=\"12\" rx=\"6\" fill=\"var(--ok)\"/>\n  </svg>`;\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-22-ej-2",
+          "title": "Práctica 2: Encuentra los gráficos de tu página",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* busca las funciones que dibujan gráficos (busca `<svg` o `viewBox` en `js/`). Para una de ellas, identifica: qué datos recibe, cómo calcula el máximo y dónde está el color. Luego, en tu copia, cambia el color por una variable del tema.",
+          "hint": "Ctrl+Shift+F con viewBox.",
+          "solutionExplanation": "Reconocer el patrón datos → escala → plantilla en el código real te permitirá crear tu propio indicador gráfico en el Proyecto 2."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-22-q1",
+          "question": "En SVG, ¿hacia dónde crece la coordenada y?",
+          "options": [
+            "Hacia la derecha.",
+            "Hacia arriba.",
+            "Depende del navegador.",
+            "Hacia abajo."
+          ],
+          "correctIndex": 3,
+          "explanation": "Por eso una barra alta tiene una y pequeña: empieza más arriba."
+        },
+        {
+          "id": "lec-22-q2",
+          "question": "¿Para qué sirve el atributo viewBox?",
+          "options": [
+            "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG.",
+            "Pone un borde al gráfico.",
+            "Carga una imagen externa.",
+            "Hace el SVG invisible."
+          ],
+          "correctIndex": 0,
+          "explanation": "Permite dibujar en unidades cómodas y que el gráfico sea responsive."
+        },
+        {
+          "id": "lec-22-q3",
+          "question": "¿Por qué se usa `Math.max(1, ...valores)` al escalar?",
+          "options": [
+            "Para que la barra mínima mida 1.",
+            "Para redondear.",
+            "Para evitar dividir entre cero cuando todos los valores son 0.",
+            "Para ordenar los valores."
+          ],
+          "correctIndex": 2,
+          "explanation": "Si el máximo fuera 0, la división daría NaN y el SVG se rompería."
+        }
+      ],
       "order": 23
     },
     {
@@ -2152,7 +2982,123 @@
       "title": "Depurar errores",
       "subtitle": "Leer un error de la consola, encontrar la línea y arreglarlo.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Leer un mensaje de error y su pila de llamadas para llegar a la línea exacta.",
+        "Reconocer los errores más comunes de una página como la tuya y su causa típica.",
+        "Seguir un método ordenado de depuración en lugar de probar cambios al azar."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-23-sec-1",
+          "title": "1. Anatomía de un error",
+          "body": "Un error en la consola tiene tres partes:\n- **Tipo**: `TypeError`, `ReferenceError`, `SyntaxError`…\n- **Mensaje**: qué pasó, en inglés (aprende a reconocer los cinco más comunes).\n- **Pila (stack)**: la lista de funciones que se estaban ejecutando, de la más interna a la más externa, con archivo y línea. La **primera línea que es de tu código** es donde debes mirar.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Uncaught TypeError: Cannot read properties of undefined (reading 'nombre')\n//     at nombreTecnico (actividades.js:48)\n//     at Array.map (<anonymous>)\n//     at dibujarActividades (actividades.js:62)\n//     at redibujarTodo (app.js:30)\n//\n// Lectura: en actividades.js línea 48, algo que debía ser un técnico es undefined.\n// Causa probable: una actividad con tecnicoId de un técnico que ya no existe.",
+          "keyTakeaway": "Lee el error de arriba abajo: tipo, mensaje y la primera línea de la pila que sea tuya."
+        },
+        {
+          "id": "lec-23-sec-2",
+          "title": "2. Los errores que más verás",
+          "body": "- `Cannot read properties of null`: `getElementById` con un id que no existe en el HTML.\n- `Cannot read properties of undefined (reading 'x')`: `find` no encontró nada, o un campo falta en datos antiguos.\n- `x is not defined`: nombre mal escrito, o el script que lo define carga después.\n- `x is not a function`: nombre mal escrito o una variable que no es función.\n- `Unexpected token` / `SyntaxError`: falta un paréntesis, llave, coma o comilla; el archivo entero no se ejecuta.\n- Errores de `JSON.parse`: el texto no es JSON válido.\n\nUn `SyntaxError` es especial: **todo el archivo** deja de funcionar, por eso puede parecer que \"se rompió todo\" por una coma.",
+          "keyTakeaway": "null/undefined → algo no se encontró; not defined → nombre u orden de scripts; SyntaxError → revisa signos."
+        },
+        {
+          "id": "lec-23-sec-3",
+          "title": "3. Método de depuración",
+          "body": "1. **Reproduce** el error con pasos concretos (qué pantalla, qué botón, qué datos).\n2. **Lee** el mensaje y ve a la línea.\n3. **Formula una hipótesis** (\"esta actividad no tiene técnico\").\n4. **Compruébala** sin cambiar código: consola o punto de interrupción.\n5. **Corrige la causa**, no el síntoma, con el cambio más pequeño posible.\n6. **Prueba** de nuevo los pasos del punto 1 y alguna pantalla relacionada.\n\nSi después de 20 minutos no avanzas, explica el problema por escrito (a un compañero o a Claude) con el mensaje completo, la línea y los pasos. Muchas veces la solución aparece al escribirlo.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Corrección defensiva en la causa (técnico eliminado):\nfunction nombreTecnico(id) {\n  return S.tecs.find(t => t.id === id)?.nombre ?? 'Sin asignar';\n}",
+          "keyTakeaway": "Reproduce, lee, supón, comprueba, corrige lo mínimo y vuelve a probar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Depurar como profesional.",
+        "rules": [
+          "Nunca borres o comentes código 'a ver si se arregla'.",
+          "Copia el mensaje completo del error antes de recargar.",
+          "Corrige la causa y, si aplica, añade una protección (`?.`, `??`) donde los datos pueden faltar.",
+          "Cuando arregles un error de datos, piensa si hace falta una migración.",
+          "Deja una prueba que habría detectado el error (lección 25)."
+        ]
+      },
+      "comparison": {
+        "scenario": "La pantalla de actividades queda en blanco después de borrar un técnico.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Envolver todo para que 'no salga error'\ntry {\n  dibujarActividades();\n} catch (e) {}",
+        "juniorFlaws": [
+          "El error sigue ahí, solo que oculto.",
+          "La pantalla sigue vacía y ahora no sabes por qué.",
+          "Esconde futuros errores distintos."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// 1. Consola: TypeError … reading 'nombre' at nombreTecnico (actividades.js:48)\n// 2. Hipótesis: hay actividades con tecnicoId de un técnico borrado\nS.acts.filter(a => !S.tecs.some(t => t.id === a.tecnicoId)).length   // → 3\n// 3. Corrección en la causa:\nconst nombreTecnico = id => S.tecs.find(t => t.id === id)?.nombre ?? 'Sin asignar';",
+        "intermediateBenefits": [
+          "Se entiende y se comprueba la causa con datos.",
+          "La corrección es mínima y precisa.",
+          "Además sugiere una mejora: avisar al borrar un técnico con actividades."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-23-ej-1",
+          "title": "Práctica 1: Diagnostica el mensaje",
+          "difficulty": "Básico",
+          "prompt": "Para cada error, di la causa más probable:\n1. `Uncaught ReferenceError: dibujarRepuestos is not defined at app.js:41`\n2. `Uncaught TypeError: Cannot read properties of null (reading 'addEventListener') at repuestos.js:5`\n3. `Uncaught SyntaxError: Unexpected token '}' (at repuestos.js:88)`",
+          "hint": "Piensa en el orden de scripts, los ids del HTML y los signos de puntuación.",
+          "solutionExplanation": "1. `repuestos.js` no está incluido o se carga **después** de `app.js`, o el nombre de la función está mal escrito.\n2. En la línea 5 se busca un elemento por id que no existe en `index.html` (id mal escrito o falta la sección).\n3. Falta o sobra una llave, paréntesis o coma cerca de la línea 88; todo el archivo deja de ejecutarse."
+        },
+        {
+          "id": "lec-23-ej-2",
+          "title": "Práctica 2: Encuentra datos inconsistentes",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe en la consola expresiones que encuentren: (a) actividades sin fecha, (b) actividades cuyo técnico no existe, (c) chasis repetidos.",
+          "hint": "Para los repetidos, cuenta con reduce y filtra los que tengan más de 1.",
+          "solutionExplanation": "Estas comprobaciones explican la mayoría de errores 'raros' que solo pasan con datos reales.",
+          "solutionCode": "S.acts.filter(a => !a.fecha).length;\nS.acts.filter(a => a.tecnicoId && !S.tecs.some(t => t.id === a.tecnicoId));\nObject.entries(S.acts.reduce((c, a) => ({ ...c, [a.chasis]: (c[a.chasis] || 0) + 1 }), {}))\n  .filter(([, n]) => n > 1);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-23-q1",
+          "question": "En la pila de un error, ¿qué línea conviene mirar primero?",
+          "options": [
+            "Cualquiera, todas son iguales.",
+            "La primera que pertenece a tu propio código.",
+            "La que dice <anonymous>.",
+            "La última de todas."
+          ],
+          "correctIndex": 1,
+          "explanation": "Las líneas de librerías o del navegador rara vez son la causa; la primera de tu código sí suele serlo."
+        },
+        {
+          "id": "lec-23-q2",
+          "question": "¿Qué indica normalmente `x is not defined`?",
+          "options": [
+            "Que falta internet.",
+            "Que x es un número.",
+            "Que x vale null.",
+            "Que el nombre está mal escrito o el archivo que lo define no se cargó antes."
+          ],
+          "correctIndex": 3,
+          "explanation": "ReferenceError: el nombre no existe en ese momento."
+        },
+        {
+          "id": "lec-23-q3",
+          "question": "¿Por qué un solo SyntaxError puede hacer que 'no funcione nada' de un archivo?",
+          "options": [
+            "Porque detiene el navegador.",
+            "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
+            "Porque borra el localStorage.",
+            "Porque desactiva el CSS."
+          ],
+          "correctIndex": 1,
+          "explanation": "Un error de sintaxis impide ejecutar el archivo completo."
+        }
+      ],
       "order": 24
     },
     {
@@ -2163,7 +3109,124 @@
       "title": "Revisión automática del código",
       "subtitle": "ESLint, Stylelint y html-validate en VS Code y en GitHub.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Explicar qué hace un linter y por qué ahorra errores.",
+        "Instalar las dependencias y ejecutar la revisión del proyecto con npm.",
+        "Leer y corregir los avisos de ESLint, Stylelint y html-validate.",
+        "Entender la revisión automática que se ejecuta en GitHub."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-24-sec-1",
+          "title": "1. Qué es un linter",
+          "body": "Un **linter** lee tu código sin ejecutarlo y avisa de errores y malas prácticas: variables sin usar, `==`, etiquetas mal cerradas, propiedades CSS inválidas, ids duplicados. Es como un corrector ortográfico para código.\n\nTu proyecto ya trae tres:\n- **ESLint** para JavaScript.\n- **Stylelint** para CSS.\n- **html-validate** para HTML.\n\nSus reglas están en archivos de configuración en la raíz del proyecto (busca `eslint.config`, `.stylelintrc` y `.htmlvalidate`).",
+          "keyTakeaway": "Un linter encuentra en segundos errores que tardarías horas en notar."
+        },
+        {
+          "id": "lec-24-sec-2",
+          "title": "2. Ejecutarlo en tu computadora",
+          "body": "Necesitas **Node.js** instalado (incluye `npm`). En la terminal de VS Code (menú Ver → Terminal), dentro de la carpeta del proyecto:",
+          "codeLanguage": "bash",
+          "codeSnippet": "node --version          # comprobar que Node está instalado\nnpm install             # instala las herramientas (solo la primera vez)\nnpm run revisar         # ejecuta las tres revisiones del proyecto\nnpx eslint js/modulos/actividades.js   # revisar un solo archivo\nnpx eslint --fix js/                   # corregir automáticamente lo que se pueda",
+          "keyTakeaway": "npm install una vez; npm run revisar antes de cada versión."
+        },
+        {
+          "id": "lec-24-sec-3",
+          "title": "3. Leer y corregir avisos",
+          "body": "Cada aviso dice archivo, línea, columna, mensaje y nombre de la regla:\n\n`js/modulos/repuestos.js  14:9  error  'total' is assigned a value but never used  no-unused-vars`\n\n- **Corrige** el código; no desactives la regla.\n- Si la regla de verdad no aplica a un caso concreto, se puede desactivar **solo en esa línea** con un comentario que explique por qué.\n- Con las extensiones de VS Code (lección 01) ves los avisos subrayados mientras escribes.\n\nEn GitHub, el proyecto tiene una **Action** que ejecuta la misma revisión cada vez que subes cambios. Si sale una cruz roja, entra al detalle, lee el aviso y corrígelo igual que en tu computadora (lección 27).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Antes: aviso no-unused-vars y eqeqeq\nfunction contar(lista) {\n  let total = 0;\n  const pendientes = lista.filter(a => a.estado == 'Pendiente');\n  return pendientes.length;\n}\n// Después: sin avisos\nfunction contarPendientes(lista) {\n  return lista.filter(a => a.estado === 'Pendiente').length;\n}",
+          "keyTakeaway": "Los avisos se corrigen en el código; desactivar reglas es la última opción y siempre con un comentario."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "La revisión como parte del trabajo.",
+        "rules": [
+          "Ejecuta `npm run revisar` antes de guardar una versión.",
+          "No subas cambios con errores de revisión.",
+          "No cambies la configuración del linter para que 'pase'.",
+          "Instala las extensiones para ver los avisos en el editor.",
+          "La carpeta `node_modules` no se sube a GitHub (está en `.gitignore`)."
+        ]
+      },
+      "comparison": {
+        "scenario": "ESLint marca un error en el archivo que modificaste.",
+        "juniorLabel": "Así no",
+        "juniorCode": "/* eslint-disable */\n// … todo el archivo …",
+        "juniorFlaws": [
+          "Oculta todos los avisos del archivo, también los futuros.",
+          "El error real sigue en el código."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Leer el aviso: 23:15 'fecha' is not defined  no-undef\n// Corregir la causa: faltaba el parámetro\nfunction etiquetaFecha(fecha) {\n  return fmtFecha.format(new Date(fecha + 'T00:00'));\n}",
+        "intermediateBenefits": [
+          "Se corrige el error de verdad.",
+          "El linter sigue protegiendo el resto del archivo."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-24-ej-1",
+          "title": "Práctica 1: Primera revisión",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* instala Node.js si no lo tienes, ejecuta `npm install` y luego `npm run revisar`. Anota cuántos avisos aparecen de cada herramienta.",
+          "hint": "Si npm no se reconoce, cierra y vuelve a abrir VS Code después de instalar Node.",
+          "solutionExplanation": "Si el proyecto está limpio, no habrá avisos: esa es la meta a mantener. Si aparecen, ya tienes tu primera lista de mejoras.",
+          "solutionCode": "npm install\nnpm run revisar",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "lec-24-ej-2",
+          "title": "Práctica 2: Corrige los avisos",
+          "difficulty": "Intermedio",
+          "prompt": "Este código genera cuatro avisos típicos de ESLint. Encuéntralos y corrígelos:\n```\nvar hoy = fechaIso()\nfunction filtrar(lista, estado, extra) {\n  return lista.filter(a => a.estado == estado)\n}\n```",
+          "hint": "Piensa en var, punto y coma (según la configuración), parámetros sin usar y comparación.",
+          "solutionExplanation": "`var` → `const`; parámetro `extra` sin usar; `==` → `===`; y los puntos y coma si la configuración del proyecto los exige.",
+          "solutionCode": "const hoy = fechaIso();\nfunction filtrar(lista, estado) {\n  return lista.filter(a => a.estado === estado);\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-24-q1",
+          "question": "¿Qué hace un linter como ESLint?",
+          "options": [
+            "Ejecuta la página más rápido.",
+            "Comprime las imágenes.",
+            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas.",
+            "Publica la página en internet."
+          ],
+          "correctIndex": 2,
+          "explanation": "Es un análisis estático del código."
+        },
+        {
+          "id": "lec-24-q2",
+          "question": "¿Qué comando instala las herramientas de revisión del proyecto la primera vez?",
+          "options": [
+            "node index.html",
+            "npm run revisar",
+            "git push",
+            "npm install"
+          ],
+          "correctIndex": 3,
+          "explanation": "npm install descarga las dependencias listadas en package.json."
+        },
+        {
+          "id": "lec-24-q3",
+          "question": "El linter marca un aviso que no entiendes. ¿Qué es lo correcto?",
+          "options": [
+            "Buscar el nombre de la regla, entender el aviso y corregir el código.",
+            "Desactivar el linter en todo el archivo.",
+            "Ignorarlo y subir el cambio.",
+            "Borrar la línea."
+          ],
+          "correctIndex": 0,
+          "explanation": "Cada regla tiene documentación con ejemplos de código correcto e incorrecto."
+        }
+      ],
       "order": 25
     },
     {
@@ -2174,7 +3237,123 @@
       "title": "Pruebas",
       "subtitle": "Comprobar los cálculos sin tocar tus datos reales.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Explicar qué es una prueba automática y qué conviene probar.",
+        "Escribir pruebas pequeñas con un formato dado / cuando / entonces.",
+        "Ejecutar y ampliar la página de pruebas de tu proyecto."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-25-sec-1",
+          "title": "1. Por qué probar",
+          "body": "Cada vez que cambias un cálculo (dietas, kilometraje, días de atraso), corres el riesgo de romper un caso que funcionaba. Una **prueba** es código que ejecuta tu función con datos conocidos y comprueba el resultado esperado. Si mañana cambias algo y una prueba falla, lo sabes en segundos, no cuando un compañero reporta un pago mal calculado.\n\nPrioriza probar las **funciones puras**: reciben datos y devuelven un resultado sin tocar la pantalla ni el almacenamiento (cálculos, validaciones, normalización de Excel). Por eso conviene separar los cálculos en su propio archivo.",
+          "keyTakeaway": "Prueba primero lo que, si falla, cuesta dinero o confianza: cálculos y validaciones."
+        },
+        {
+          "id": "lec-25-sec-2",
+          "title": "2. Una mini librería de pruebas",
+          "body": "No necesitas instalar nada: unas pocas líneas bastan. Tu proyecto tiene una página de pruebas (`pruebas/pruebas.html`) que carga los mismos archivos que la aplicación y ejecuta comprobaciones **con datos de ejemplo**, sin tocar tu `localStorage` real.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const resultados = [];\nfunction prueba(nombre, fn) {\n  try { fn(); resultados.push({ nombre, ok: true }); }\n  catch (e) { resultados.push({ nombre, ok: false, error: e.message }); }\n}\nfunction igual(real, esperado) {\n  const a = JSON.stringify(real), b = JSON.stringify(esperado);\n  if (a !== b) throw new Error(`esperaba ${b} y obtuve ${a}`);\n}\n\nprueba('sumarDias cruza de mes', () => igual(sumarDias('2026-11-28', 5), '2026-12-03'));\nprueba('diasDeAtraso es 0 si está finalizada', () =>\n  igual(diasDeAtraso({ estado: 'Finalizado', fecha: '2026-01-01' }, '2026-11-16'), 0));\nconsole.table(resultados);",
+          "keyTakeaway": "Una prueba = nombre + datos conocidos + resultado esperado."
+        },
+        {
+          "id": "lec-25-sec-3",
+          "title": "3. Qué casos escribir",
+          "body": "Para cada función piensa en:\n- **El caso normal** (el que pasa todos los días).\n- **Los bordes**: fin de mes, fin de año, lista vacía, cero, valores faltantes.\n- **Los errores conocidos**: cuando arreglas un error, escribe la prueba que lo habría detectado, para que no vuelva.\n\nEscribe el nombre como una frase que diga el comportamiento: *\"no cobra dieta si el servicio está a menos de X km\"*.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "prueba('validarActividad exige cliente', () => {\n  const errores = validarActividad({ fecha: '2026-11-16', chasis: 'A1' }, []);\n  igual(errores.map(e => e.campo), ['cliente']);\n});\nprueba('validarActividad detecta chasis repetido', () => {\n  const existentes = [{ id: 'x', chasis: 'A1' }];\n  const errores = validarActividad({ cliente: 'C', fecha: '2026-11-16', chasis: 'A1' }, existentes);\n  igual(errores.map(e => e.campo), ['chasis']);\n});",
+          "keyTakeaway": "Caso normal, bordes y cada error que ya arreglaste."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Pruebas que sí se usan.",
+        "rules": [
+          "Abre la página de pruebas antes de guardar una versión que toque cálculos.",
+          "Toda corrección de un error de cálculo viene con su prueba.",
+          "Las pruebas usan datos de ejemplo, nunca los datos reales del navegador.",
+          "Nombres de prueba en forma de frase de comportamiento.",
+          "Si una prueba falla, no la borres: arregla el código o, si la regla del negocio cambió, actualiza la prueba conscientemente."
+        ]
+      },
+      "comparison": {
+        "scenario": "Cambiaste la fórmula de un cálculo de pago.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Abrir la página, crear una actividad de prueba con datos reales,\n// mirar el número y, si 'se ve bien', subir el cambio.",
+        "juniorFlaws": [
+          "Solo compruebas un caso.",
+          "Puedes ensuciar los datos reales.",
+          "La próxima vez tendrás que repetir todo a mano."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "prueba('pago: caso normal', () => igual(calcularPago({ km: 40, dias: 1 }), 1200));\nprueba('pago: sin kilómetros', () => igual(calcularPago({ km: 0, dias: 1 }), 700));\nprueba('pago: dos días', () => igual(calcularPago({ km: 40, dias: 2 }), 1900));\n// Abrir pruebas/pruebas.html → todo en verde → subir el cambio",
+        "intermediateBenefits": [
+          "Varios casos comprobados en un segundo.",
+          "Sin tocar datos reales.",
+          "Las pruebas se quedan para siempre."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-25-ej-1",
+          "title": "Práctica 1: Pruebas para esFinDeSemana",
+          "difficulty": "Básico",
+          "prompt": "Escribe tres pruebas para `esFinDeSemana` (lección 11): un sábado, un domingo y un lunes.",
+          "hint": "Usa un calendario para elegir fechas concretas: el 14 y 15 de noviembre de 2026 son sábado y domingo.",
+          "solutionExplanation": "Tres casos cubren el comportamiento completo: los dos días que devuelven true y uno que devuelve false.",
+          "solutionCode": "prueba('sábado es fin de semana', () => igual(esFinDeSemana('2026-11-14'), true));\nprueba('domingo es fin de semana', () => igual(esFinDeSemana('2026-11-15'), true));\nprueba('lunes no es fin de semana', () => igual(esFinDeSemana('2026-11-16'), false));",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-25-ej-2",
+          "title": "Práctica 2: Explora las pruebas de tu proyecto",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu página:* abre `pruebas/pruebas.html` en el navegador. Anota cuántas pruebas hay y qué archivos cubren. Luego agrega en tu copia una prueba nueva para un cálculo que aún no tenga ninguna, y comprueba que pasa.",
+          "hint": "Mira cómo están escritas las pruebas existentes y copia su forma.",
+          "solutionExplanation": "Seguir el estilo del proyecto es tan importante como la prueba en sí: así cualquiera la entiende."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-25-q1",
+          "question": "¿Qué funciones son las más fáciles y útiles de probar?",
+          "options": [
+            "Las que guardan en localStorage.",
+            "Las funciones puras que reciben datos y devuelven un resultado.",
+            "Las que abren diálogos.",
+            "Las que dibujan la pantalla."
+          ],
+          "correctIndex": 1,
+          "explanation": "No dependen de la pantalla ni del almacenamiento, así que se prueban con datos de ejemplo."
+        },
+        {
+          "id": "lec-25-q2",
+          "question": "Arreglaste un error en el cálculo de días de atraso. ¿Qué deberías hacer además?",
+          "options": [
+            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
+            "Nada más.",
+            "Borrar las pruebas antiguas.",
+            "Cambiar el nombre de la función."
+          ],
+          "correctIndex": 0,
+          "explanation": "Es la práctica que evita que los errores 'resuciten' en cambios futuros."
+        },
+        {
+          "id": "lec-25-q3",
+          "question": "¿Por qué la página de pruebas no debe usar los datos reales del navegador?",
+          "options": [
+            "No hay ningún motivo.",
+            "Porque las pruebas son más lentas con datos.",
+            "Para no modificarlos por accidente y para que los resultados esperados sean siempre los mismos.",
+            "Porque está prohibido leer localStorage."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las pruebas deben ser repetibles y no tener efectos sobre los datos de trabajo."
+        }
+      ],
       "order": 26
     },
     {
