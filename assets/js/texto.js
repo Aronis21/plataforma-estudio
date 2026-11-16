@@ -73,7 +73,7 @@
     return html;
   }
 
-  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown" };
+  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown", javascript: "JavaScript", html: "HTML", css: "CSS", json: "JSON" };
 
   function bloqueCodigo(codigo, lenguaje) {
     if (!codigo) return "";

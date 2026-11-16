@@ -155,9 +155,10 @@
       html += `<div class="side-mod">${escapar(modulo)}</div>`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
-        const interior = `<span class="est" title="${prep ? "En preparación" : TEXTO_ESTADO[est]}">${prep ? "·" : ICONO_ESTADO[est]}</span>
+        const bloqueado = !capDisponible(curso, cap);
+        const interior = `<span class="est" title="${bloqueado ? "En preparación" : TEXTO_ESTADO[est]}">${bloqueado ? "·" : ICONO_ESTADO[est]}</span>
           <span class="side-name"><span class="side-code">${escapar(cap.code || "")}</span>${escapar(cap.title)}</span>`;
-        html += prep
+        html += bloqueado
           ? `<div class="side-item">${interior}</div>`
           : `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${cap.id === idActivo ? "activo" : ""} est-${est}">${interior}</a>`;
       }
@@ -170,9 +171,11 @@
   const RESALTADOR = { datos: "#FFD45C", web: "#A9D2FF", ia: "#DCF58A", hoy: "#FFD45C" };
   const FRANJA = { datos: "#F0B429", web: "#1D64D8", ia: "#C6E85A", hoy: "#1D1F24" };
   const enPreparacion = (entrada) => entrada && entrada.estado === "en-preparacion";
+  // Un capítulo se puede abrir si su curso no está en preparación y él tampoco ("status": "en-preparacion")
+  const capDisponible = (curso, cap) => !enPreparacion(curso._meta) && cap.status !== "en-preparacion";
 
   function siguienteCap(curso) {
-    return curso.chapters.find((c) => P.estado(curso.id, c.id) !== "aprobado") || null;
+    return curso.chapters.find((c) => capDisponible(curso, c) && P.estado(curso.id, c.id) !== "aprobado") || null;
   }
 
   function aviso(texto) {
@@ -578,16 +581,17 @@
     for (const [modulo, caps] of modulosDe(curso)) {
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
       modulos += `<section class="modulo">
-        <div class="modulo-head"><h2>${escapar(modulo)}</h2><span class="muted small">${prep ? caps.length + " temas" : `${aprob}/${caps.length}`}</span></div>
+        <div class="modulo-head"><h2>${escapar(modulo)}</h2><span class="muted small">${caps.every((c) => !capDisponible(curso, c)) ? caps.length + " temas" : `${aprob}/${caps.length}`}</span></div>
         <div class="lista-caps">`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
         const ex = P.capitulo(curso.id, cap.id).examen;
-        const interior = `<span class="est">${prep ? "·" : ICONO_ESTADO[est]}</span>
+        const bloqueado = !capDisponible(curso, cap);
+        const interior = `<span class="est">${bloqueado ? "·" : ICONO_ESTADO[est]}</span>
           <span class="cap-code">${escapar(cap.code || "")}</span>
           <span class="cap-main"><span class="titulo-cap">${escapar(cap.title)}</span><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
-          <span class="cap-side muted small">${prep ? "en preparación" : `${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}`}</span>`;
-        modulos += prep
+          <span class="cap-side muted small">${bloqueado ? "en preparación" : `${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}`}</span>`;
+        modulos += bloqueado
           ? `<div class="cap-row bloqueado">${interior}</div>`
           : `<a class="cap-row est-${est}" href="#/curso/${curso.id}/${cap.id}">${interior}</a>`;
       }

@@ -29,10 +29,11 @@
         "HTML",
         "CSS",
         "JavaScript",
+        "DOM",
+        "Excel",
         "Git"
       ],
       "color": "#1D64D8",
-      "estado": "en-preparacion",
       "publicado": true
     },
     {

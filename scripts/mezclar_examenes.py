@@ -14,7 +14,7 @@ SEED = 20261112
 def main(src, dst):
     data = json.load(open(src, encoding="utf-8"))
     rng = random.Random(SEED)
-    questions = [q for c in data["chapters"] for q in c["exam"]]
+    questions = [q for c in data["chapters"] for q in c.get("exam", [])]
     for q in questions:
         bad = [o for o in q["options"] if "anteriores" in o.lower() or "ninguna de" in o.lower()]
         assert not bad, f"{q['id']} tiene opciones que dependen de la posición: {bad}"

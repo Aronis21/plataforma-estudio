@@ -1,208 +1,713 @@
 {
   "id": "programacion-desarrollo-web",
   "title": "Programación y Desarrollo Web",
-  "subtitle": "De la primera etiqueta HTML a publicar tus propios proyectos: CSS moderno, JavaScript, el DOM, APIs y Git.",
+  "subtitle": "HTML, CSS y JavaScript de verdad, aplicados a tu página de mantenimiento: al terminar podrás entenderla, modificarla y publicarla sin miedo.",
   "level": "Principiante a intermedio",
   "author": "Aronis",
   "updatedAt": "2026-11-16",
   "chapters": [
     {
-      "id": "web-01",
-      "order": 1,
+      "id": "lec-00",
+      "kind": "chapter",
+      "code": "Lec. 00",
+      "module": "00 · Antes de empezar",
+      "title": "Cómo funciona una página web",
+      "subtitle": "Esqueleto, ropa y cerebro: HTML, CSS y JavaScript, y cómo se reparten en tu página de mantenimiento.",
+      "estimatedMinutes": 30,
+      "status": "published",
+      "objectives": [
+        "Explicar qué hace el navegador cuando abres un archivo `index.html`.",
+        "Distinguir el papel de HTML, CSS y JavaScript en una página real.",
+        "Ubicar en tu página de mantenimiento dónde vive cada cosa: `index.html`, `css/`, `js/` y `config/`."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-00-sec-1",
+          "title": "1. Lo que pasa cuando abres la página",
+          "body": "Cuando abres `index.html`, el navegador hace tres cosas en orden:\n- **Lee el HTML** de arriba abajo y construye un árbol de elementos llamado **DOM** (cada etiqueta es una rama).\n- **Descarga y aplica el CSS** de las etiquetas `<link rel=\"stylesheet\">`: decide colores, tamaños y posiciones.\n- **Ejecuta el JavaScript** de las etiquetas `<script>` en el orden en que aparecen. El JavaScript puede leer y cambiar el DOM: agregar filas a una tabla, mostrar una pantalla, guardar datos.\n\nTu página de mantenimiento funciona exactamente así, sin servidor: todo ocurre dentro del navegador. Por eso puedes abrirla con doble clic o publicarla en GitHub Pages sin instalar nada.",
+          "codeLanguage": "html",
+          "codeSnippet": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Planificador</title>\n  <link rel=\"stylesheet\" href=\"css/1-base.css\">   <!-- 2) la ropa -->\n</head>\n<body>\n  <nav>…menú…</nav>                               <!-- 1) el esqueleto -->\n  <section id=\"v-actividades\">…</section>\n  <script src=\"js/nucleo/utilidades.js\"></script> <!-- 3) el cerebro, en orden -->\n  <script src=\"js/nucleo/app.js\"></script>\n</body>\n</html>",
+          "keyTakeaway": "HTML es la estructura, CSS es la apariencia y JavaScript es el comportamiento. El navegador los combina en ese orden."
+        },
+        {
+          "id": "lec-00-sec-2",
+          "title": "2. El mapa de tu página",
+          "body": "Tu proyecto ya sigue una organización profesional. Vale la pena memorizarla porque cada vez que quieras cambiar algo, la primera pregunta es *¿en qué carpeta vive esto?*\n- `index.html`: el **esqueleto** de todas las pantallas. Cada pantalla es una `<section>` con un id que empieza por `v-` (por ejemplo `v-actividades`).\n- `css/`: la **ropa**, en capas numeradas: `1-base.css`, `2-estilo-suave.css` y `3-panel-y-pantallas.css`. El número indica el orden en que se aplican.\n- `js/`: el **cerebro**, dividido en `nucleo/` (piezas que usa todo), `datos/` (guardar y respaldar) y `modulos/` (un archivo por pantalla).\n- `config/`: **ajustes** que puedes cambiar sin programar: nombres, estados, colores, montos.\n\nEn este curso cada lección te dirá en qué parte de tu página se aplica lo que aprendes.",
+          "keyTakeaway": "Antes de cambiar algo, ubica la carpeta: estructura (HTML), apariencia (CSS), comportamiento (JS) o ajuste (config)."
+        },
+        {
+          "id": "lec-00-sec-3",
+          "title": "3. Cómo vas a estudiar este curso",
+          "body": "Cada lección tiene teoría, un **estándar profesional**, una **corrección** (el error típico y la forma correcta), ejercicios y una evaluación. Los ejercicios marcados como *en tu página* se hacen sobre una **copia** de tu proyecto, nunca sobre la versión que usan tus compañeros.\n\nLa regla de oro del curso: **cambia una sola cosa, pruébala y guarda la versión**. Al final del módulo 08 sabrás guardar versiones con Git; mientras tanto, trabaja sobre una carpeta copiada.",
+          "keyTakeaway": "Practica siempre en una copia: un error en la copia es aprendizaje; un error en la página que usa tu equipo es un problema."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos que separan a quien 'toca código' de quien lo mantiene.",
+        "rules": [
+          "Antes de editar, localiza el archivo exacto y lee su comentario de cabecera.",
+          "Haz un cambio pequeño a la vez y pruébalo en el navegador antes del siguiente.",
+          "Nunca edites la única copia: trabaja en una copia o en una rama de Git.",
+          "Si no entiendes una línea, no la borres: averigua primero qué hace."
+        ]
+      },
+      "comparison": {
+        "scenario": "Quieres cambiar el color del botón principal de tu página.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<!-- Editar directamente el HTML de cada botón -->\n<button style=\"background:#0057b8\">Guardar</button>\n<button style=\"background:#0057b8\">Agregar</button>\n<button style=\"background:#0057b8\">Importar</button>",
+        "juniorFlaws": [
+          "El color queda repetido en decenas de lugares.",
+          "Si mañana cambia el color de la empresa, hay que buscar y corregir cada botón.",
+          "Mezcla apariencia (CSS) con estructura (HTML)."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "/* En la hoja de estilos o en la configuración de apariencia */\n:root { --color-principal: #0057b8; }\n.btn-principal { background: var(--color-principal); }",
+        "intermediateBenefits": [
+          "El color se define una sola vez.",
+          "Cambiarlo es editar una línea.",
+          "Cada archivo hace su trabajo: el HTML no sabe de colores."
+        ],
+        "codeLanguage": "css"
+      },
+      "exercises": [
+        {
+          "id": "lec-00-ej-1",
+          "title": "Práctica 1: Clasifica los cambios",
+          "difficulty": "Básico",
+          "prompt": "Para cada cambio, di si se hace en HTML, CSS, JavaScript o `config/`:\n1. Agregar una columna \"Prioridad\" a la tabla de actividades.\n2. Hacer más grandes los números de las tarjetas del Inicio.\n3. Que el botón \"Finalizar\" pida confirmación antes de cerrar la actividad.\n4. Cambiar el monto de un cálculo que ya está como ajuste.",
+          "hint": "Pregúntate: ¿cambia la estructura, la apariencia, el comportamiento o un valor configurable?",
+          "solutionExplanation": "1. HTML (el encabezado de la tabla) **y** JavaScript (las filas se generan con código).\n2. CSS.\n3. JavaScript (un `confirm()` antes de cambiar el estado).\n4. `config/`: los valores que pueden cambiar están separados del código justamente para esto."
+        },
+        {
+          "id": "lec-00-ej-2",
+          "title": "Práctica 2: Recorre tu proyecto",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* abre la carpeta del proyecto y anota, para tres pantallas del menú, el id de su `<section>` en `index.html` y el archivo de `js/modulos/` que la dibuja. Usa el documento `documentacion/02-mapa-del-proyecto.md` como guía.",
+          "hint": "Busca en `index.html` el texto `id=\"v-` para encontrar todas las secciones.",
+          "solutionExplanation": "El objetivo es que relaciones pantalla → sección → módulo. Por ejemplo: Actividades → `v-actividades` → `js/modulos/actividades.js`. Ese recorrido es el que harás cada vez que quieras modificar una pantalla."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-00-q1",
+          "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
+          "options": [
+            "Todas al mismo tiempo, sin orden.",
+            "Primero las más pequeñas.",
+            "En el orden en que aparecen en el HTML.",
+            "En orden alfabético por nombre de archivo."
+          ],
+          "correctIndex": 2,
+          "explanation": "Los scripts normales se ejecutan uno tras otro en el orden del documento. Por eso en tu página `app.js` se carga al final: usa funciones definidas en los archivos anteriores."
+        },
+        {
+          "id": "lec-00-q2",
+          "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
+          "options": [
+            "En la carpeta de configuración, donde están los ajustes como los estados.",
+            "En el logotipo.",
+            "En cada archivo de CSS.",
+            "En la librería de Excel."
+          ],
+          "correctIndex": 0,
+          "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
+        },
+        {
+          "id": "lec-00-q3",
+          "question": "¿Qué es el DOM?",
+          "options": [
+            "El nombre del archivo principal.",
+            "Un servidor de base de datos.",
+            "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
+            "Un lenguaje de estilos."
+          ],
+          "correctIndex": 2,
+          "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
+        }
+      ],
+      "order": 1
+    },
+    {
+      "id": "lec-01",
       "kind": "chapter",
       "code": "Lec. 01",
-      "module": "01 · HTML semántico",
-      "title": "Estructura de un documento HTML",
-      "subtitle": "Etiquetas esenciales, cabecera y cuerpo de una página.",
-      "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "module": "01 · Herramientas",
+      "title": "VS Code para un proyecto real",
+      "subtitle": "Abrir la carpeta, buscar en todo el proyecto, atajos y extensiones.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Abrir un proyecto como carpeta y moverte entre archivos con rapidez.",
+        "Buscar una palabra en todo el proyecto para encontrar dónde se define o se usa algo.",
+        "Usar los atajos que más tiempo ahorran y las extensiones recomendadas del proyecto."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-01-sec-1",
+          "title": "1. Abrir la carpeta, no el archivo",
+          "body": "En VS Code usa **Archivo → Abrir carpeta** y elige la carpeta del proyecto completo. Si abres solo `index.html`, VS Code no sabe que existen `js/` y `css/`: no podrás buscar en todo el proyecto ni ver los errores de los otros archivos.\n\nCon la carpeta abierta tienes a la izquierda el **Explorador**. La paleta de comandos (`Ctrl+Shift+P`) te deja ejecutar cualquier acción escribiendo su nombre, y la apertura rápida (`Ctrl+P`) abre un archivo escribiendo parte de su nombre: escribe `activ` y aparece `actividades.js`.",
+          "keyTakeaway": "Siempre abre la carpeta del proyecto: así VS Code entiende todo el proyecto y no un archivo suelto."
+        },
+        {
+          "id": "lec-01-sec-2",
+          "title": "2. Buscar en todo el proyecto",
+          "body": "El atajo más importante para mantener una página es **Buscar en archivos**: `Ctrl+Shift+F`. Escribe el nombre de una función, un id o un texto que veas en pantalla y VS Code te muestra cada archivo y línea donde aparece.\n\nEjemplos útiles en tu página:\n- ¿Dónde se dibuja la tabla de actividades? Busca `function dibujarActividades`.\n- ¿Qué hace el botón con `data-act=\"finalizar\"`? Busca `'finalizar'` y encontrarás dónde se registra su acción.\n- ¿Dónde aparece un texto de la pantalla? Búscalo tal cual, entre comillas mentales.\n\nCon `F12` sobre el nombre de una función saltas a donde está definida, y con `Shift+F12` ves todos los lugares donde se usa.",
+          "keyTakeaway": "Buscar en archivos (Ctrl+Shift+F) es la herramienta número uno para entender un proyecto que no escribiste tú."
+        },
+        {
+          "id": "lec-01-sec-3",
+          "title": "3. Atajos y extensiones que conviene dominar",
+          "body": "Atajos que usarás todos los días:\n- `Ctrl+D`: selecciona la siguiente coincidencia de la palabra (editar varias a la vez).\n- `Alt+↑ / Alt+↓`: mueve la línea arriba o abajo.\n- `Shift+Alt+↓`: duplica la línea.\n- `Ctrl+/`: comenta o descomenta la línea.\n- `Ctrl+Shift+K`: borra la línea.\n- `Ctrl+Z` y `Ctrl+Shift+Z`: deshacer y rehacer.\n\nTu proyecto trae en `.vscode/extensions.json` las **extensiones recomendadas**; VS Code te ofrece instalarlas al abrir la carpeta. Entre ellas suelen estar los revisores de código (ESLint, Stylelint) que subrayan errores mientras escribes. También conviene **Live Server**, que abre la página y la recarga sola cada vez que guardas.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"recommendations\": [\n    \"dbaeumer.vscode-eslint\",\n    \"stylelint.vscode-stylelint\",\n    \"ritwickdey.LiveServer\"\n  ]\n}",
+          "keyTakeaway": "Los atajos y las extensiones del proyecto no son lujo: reducen errores y te dejan ver los problemas antes de guardar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo trabajar en VS Code sin perderte.",
+        "rules": [
+          "Abre siempre la carpeta raíz del proyecto.",
+          "Activa el guardado automático solo si usas Live Server y revisas cada cambio en el navegador.",
+          "Instala las extensiones recomendadas del proyecto: te avisan de errores antes de probar.",
+          "Usa la pestaña de Control de código fuente para ver qué archivos cambiaste antes de guardar una versión."
+        ]
+      },
+      "comparison": {
+        "scenario": "Necesitas saber en qué archivo se calcula un total que ves en pantalla.",
+        "juniorLabel": "Así no",
+        "juniorCode": "1. Abrir archivo por archivo desde el explorador.\n2. Leer cada uno de arriba abajo.\n3. Cambiar algo \"que parece\" ser el cálculo y ver qué pasa.",
+        "juniorFlaws": [
+          "Toma mucho tiempo en un proyecto con decenas de archivos.",
+          "Es fácil cambiar el lugar equivocado.",
+          "Cambiar 'a ver qué pasa' rompe cosas que no se ven de inmediato."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "1. Ctrl+Shift+F y buscar el texto que acompaña al total en pantalla.\n2. Desde el HTML, buscar el id del elemento que muestra el número.\n3. F12 sobre la función que escribe ese id para ir a su definición.",
+        "intermediateBenefits": [
+          "Llegas al lugar exacto en minutos.",
+          "Entiendes la cadena completa: pantalla → elemento → función.",
+          "Cambias con seguridad porque sabes qué afecta."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-01-ej-1",
+          "title": "Práctica 1: Encuentra una función",
+          "difficulty": "Básico",
+          "prompt": "*En tu página:* con `Ctrl+Shift+F`, encuentra dónde se define la función que vuelve a dibujar todas las pantallas después de un cambio (pista: su nombre empieza por `redibujar`). Anota el archivo y cuántos lugares la llaman.",
+          "hint": "Busca `function redibujar` para la definición y luego solo `redibujar` para las llamadas.",
+          "solutionExplanation": "La definición está en el archivo de arranque de la aplicación (`js/nucleo/app.js`). Las llamadas aparecen en varios módulos: cada vez que un cambio debe verse en pantalla, se llama a esa función."
+        },
+        {
+          "id": "lec-01-ej-2",
+          "title": "Práctica 2: Edición múltiple",
+          "difficulty": "Intermedio",
+          "prompt": "En un archivo de prueba, escribe cinco líneas como `const total1 = 0;` … `const total5 = 0;`. Usando `Ctrl+D`, cambia la palabra `total` por `suma` en las cinco líneas a la vez. Luego mueve la última línea al principio con `Alt+↑`.",
+          "hint": "Pon el cursor sobre `total` y pulsa Ctrl+D cuatro veces.",
+          "solutionExplanation": "Ctrl+D va agregando la siguiente coincidencia a la selección; al escribir, cambian todas. Es la forma más rápida y segura de renombrar algo repetido en un archivo.",
+          "solutionCode": "const suma5 = 0;\nconst suma1 = 0;\nconst suma2 = 0;\nconst suma3 = 0;\nconst suma4 = 0;",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-01-q1",
+          "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
+          "options": [
+            "Ctrl+Shift+F",
+            "Ctrl+F",
+            "Ctrl+D",
+            "Ctrl+P"
+          ],
+          "correctIndex": 0,
+          "explanation": "Ctrl+F busca solo en el archivo abierto; Ctrl+Shift+F busca en toda la carpeta."
+        },
+        {
+          "id": "lec-01-q2",
+          "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
+          "options": [
+            "No hay diferencia.",
+            "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
+            "Porque Live Server solo funciona con carpetas vacías.",
+            "Porque los archivos sueltos no se pueden guardar."
+          ],
+          "correctIndex": 1,
+          "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
+        },
+        {
+          "id": "lec-01-q3",
+          "question": "¿Qué hace F12 sobre el nombre de una función?",
+          "options": [
+            "Ejecuta la página.",
+            "Salta al lugar donde la función está definida.",
+            "Comenta la línea.",
+            "Borra la función."
+          ],
+          "correctIndex": 1,
+          "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
+        }
+      ],
+      "order": 2
     },
     {
-      "id": "web-02",
-      "order": 2,
+      "id": "lec-02",
       "kind": "chapter",
       "code": "Lec. 02",
-      "module": "01 · HTML semántico",
-      "title": "Etiquetas semánticas y accesibilidad",
-      "subtitle": "header, main, nav, article y por qué importan.",
-      "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "module": "01 · Herramientas",
+      "title": "Las herramientas del navegador (DevTools)",
+      "subtitle": "Inspeccionar, la consola, el almacenamiento y los puntos de interrupción.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Abrir las DevTools e inspeccionar cualquier elemento de la página.",
+        "Leer y escribir en la consola para probar código y ver errores.",
+        "Ver los datos guardados por tu página en el almacenamiento del navegador.",
+        "Pausar el código con un punto de interrupción para ver qué está pasando."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-02-sec-1",
+          "title": "1. Inspeccionar elementos",
+          "body": "Pulsa `F12` (o clic derecho → **Inspeccionar**). La pestaña **Elements** muestra el DOM real de la página, no el archivo HTML: incluye todo lo que JavaScript agregó, como las filas de las tablas.\n\nAl seleccionar un elemento ves a la derecha los **estilos** que se le aplican, de qué archivo y línea viene cada regla, y cuáles quedaron **tachados** porque otra regla les ganó. Puedes cambiar un valor ahí mismo para probar (por ejemplo un color o un margen); el cambio se pierde al recargar, así que úsalo para experimentar y luego pásalo al archivo CSS.",
+          "keyTakeaway": "Elements muestra la página viva. Prueba los cambios de estilo ahí y, cuando te gusten, cópialos al archivo."
+        },
+        {
+          "id": "lec-02-sec-2",
+          "title": "2. La consola: tu laboratorio",
+          "body": "La pestaña **Console** tiene dos usos:\n- **Ver errores**: aparecen en rojo con el archivo y la línea. Un clic te lleva al código.\n- **Ejecutar JavaScript** sobre la página abierta. En tu página todos los datos están en una variable global, así que puedes consultarlos directamente.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Escribe esto en la consola de tu página\nS.acts.length                                   // cuántas actividades hay\nS.acts.filter(a => a.estado === 'Pendiente').length\nS.tecs.map(t => t.nombre)                       // nombres de los técnicos\nconsole.table(S.acts.slice(0, 5))               // primeras 5 en forma de tabla",
+          "keyTakeaway": "La consola permite preguntar a tus datos sin modificar ningún archivo. Úsala para comprobar antes de cambiar."
+        },
+        {
+          "id": "lec-02-sec-3",
+          "title": "3. Almacenamiento y puntos de interrupción",
+          "body": "En **Application → Local Storage** ves lo que tu página guarda en el navegador, clave por clave. Ahí está el gran texto JSON con todos los datos. **No lo edites a mano**: un error de una coma puede dejar la página sin poder leerlo. Para cambiar datos, usa la aplicación o un respaldo.\n\nEn **Sources** puedes abrir cualquier archivo JS y hacer clic en un número de línea para poner un **punto de interrupción**. Cuando el código llega ahí, se pausa y puedes ver el valor de cada variable. También puedes escribir `debugger;` en el código para pausar en ese punto (y quitarlo después).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function totalDeAsistencia(actividad) {\n  debugger; // la ejecución se detiene aquí si las DevTools están abiertas\n  const km = distanciaDesdeTaller(actividad);\n  return km * TARIFA_KM;\n}",
+          "keyTakeaway": "Un punto de interrupción te deja ver el valor real de cada variable en el momento exacto del problema."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo usar las DevTools sin poner en riesgo los datos.",
+        "rules": [
+          "Usa la consola para leer datos; evita modificarlos desde ahí en la página que usa tu equipo.",
+          "No edites el almacenamiento a mano: usa los respaldos de la aplicación.",
+          "Quita cualquier `debugger;` o `console.log` de prueba antes de guardar la versión.",
+          "Cuando veas un error en rojo, copia el mensaje completo y la línea antes de cerrar la consola."
+        ]
+      },
+      "comparison": {
+        "scenario": "Un total en pantalla sale en cero y no sabes por qué.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Agregar alertas por todo el código\nalert(actividades);\nalert(total);\nalert('llegó aquí');",
+        "juniorFlaws": [
+          "`alert` interrumpe al usuario y muestra `[object Object]` en lugar de los datos.",
+          "Hay que recordar borrar cada alerta.",
+          "No ves el contexto: qué otras variables tenían valor en ese momento."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// 1) Comprobar los datos en la consola\nS.acts.filter(a => a.fecha === fechaHoy)\n// 2) Poner un punto de interrupción en la función del total\n//    y revisar las variables en el panel Scope",
+        "intermediateBenefits": [
+          "Ves los datos reales con su estructura.",
+          "No cambias el código para investigar.",
+          "Encuentras el punto exacto donde el valor deja de ser el esperado."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "lec-02-ej-1",
+          "title": "Práctica 1: Pregúntale a tus datos",
+          "difficulty": "Básico",
+          "prompt": "*En tu página* (o en una copia con datos de prueba), abre la consola y escribe una expresión que diga cuántas actividades están en estado \"Finalizado\".",
+          "hint": "Usa `filter` sobre la lista de actividades y luego `.length`.",
+          "solutionExplanation": "`filter` devuelve una lista nueva solo con las que cumplen la condición; `.length` cuenta sus elementos. Verás este método a fondo en la lección 12.",
+          "solutionCode": "S.acts.filter(a => a.estado === 'Finalizado').length",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "lec-02-ej-2",
+          "title": "Práctica 2: Cambia un estilo en vivo",
+          "difficulty": "Básico",
+          "prompt": "Inspecciona el título de cualquier pantalla de tu página. En el panel de estilos, cambia su tamaño de letra y su color. Luego identifica en qué archivo CSS y en qué línea está la regla original.",
+          "hint": "La referencia del archivo aparece a la derecha de cada regla, con el número de línea.",
+          "solutionExplanation": "Las DevTools muestran el origen de cada regla (por ejemplo `3-panel-y-pantallas.css:120`). Así sabes exactamente qué línea editar en VS Code para hacer el cambio permanente."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-02-q1",
+          "question": "¿Qué muestra la pestaña Elements de las DevTools?",
+          "options": [
+            "Los datos guardados en el navegador.",
+            "Solo el archivo HTML tal como está en el disco.",
+            "Los errores de red.",
+            "El DOM actual de la página, incluido lo que agregó JavaScript."
+          ],
+          "correctIndex": 3,
+          "explanation": "Elements refleja la página viva. Por eso ahí ves las filas de una tabla que no existen en el archivo HTML."
+        },
+        {
+          "id": "lec-02-q2",
+          "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
+          "options": [
+            "Que otra regla con más prioridad le está ganando.",
+            "Que la regla se borrará al guardar.",
+            "Que el archivo CSS no existe.",
+            "Que el navegador no soporta CSS."
+          ],
+          "correctIndex": 0,
+          "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
+        },
+        {
+          "id": "lec-02-q3",
+          "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
+          "options": [
+            "Porque solo se puede editar desde Excel.",
+            "Porque se borra al instante.",
+            "Porque está prohibido por el navegador.",
+            "Porque un error de formato puede impedir que la página lea sus datos."
+          ],
+          "correctIndex": 3,
+          "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
+        }
+      ],
+      "order": 3
     },
     {
-      "id": "web-03",
-      "order": 3,
+      "id": "lec-03",
       "kind": "chapter",
       "code": "Lec. 03",
-      "module": "01 · HTML semántico",
-      "title": "Formularios bien hechos",
-      "subtitle": "Campos, etiquetas, validación nativa y accesibilidad.",
-      "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "module": "02 · HTML",
+      "title": "Estructura HTML y etiquetas semánticas",
+      "subtitle": "Secciones, menú, encabezado, ids y el atributo hidden.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 4
     },
     {
-      "id": "web-04",
-      "order": 4,
+      "id": "lec-04",
       "kind": "chapter",
       "code": "Lec. 04",
-      "module": "02 · CSS moderno",
-      "title": "Cascada, especificidad y variables",
-      "subtitle": "Cómo decide el navegador qué estilo aplicar.",
-      "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "module": "02 · HTML",
+      "title": "Formularios",
+      "subtitle": "Campos, etiquetas, listas, validación y atributos data-*.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 5
     },
     {
-      "id": "web-05",
-      "order": 5,
+      "id": "lec-05",
       "kind": "chapter",
       "code": "Lec. 05",
-      "module": "02 · CSS moderno",
-      "title": "Flexbox",
-      "subtitle": "Alinear y repartir elementos en una dirección.",
-      "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "module": "02 · HTML",
+      "title": "Tablas y accesibilidad",
+      "subtitle": "Tablas de datos bien hechas, aria-label y uso con teclado.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion",
+      "order": 6
     },
     {
-      "id": "web-06",
-      "order": 6,
+      "id": "lec-06",
       "kind": "chapter",
       "code": "Lec. 06",
-      "module": "02 · CSS moderno",
-      "title": "CSS Grid: fr y minmax()",
-      "subtitle": "Cuadrículas que se adaptan solas.",
+      "module": "03 · CSS",
+      "title": "Selectores, cascada y especificidad",
+      "subtitle": "Por qué un estilo le gana a otro y cómo ordenar tus hojas de estilo.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "en-preparacion",
+      "order": 7
     },
     {
-      "id": "web-07",
-      "order": 7,
+      "id": "lec-07",
       "kind": "chapter",
       "code": "Lec. 07",
-      "module": "02 · CSS moderno",
-      "title": "Diseño responsive",
-      "subtitle": "Unidades fluidas y media queries con criterio.",
-      "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "module": "03 · CSS",
+      "title": "Variables CSS y temas",
+      "subtitle": "Colores centralizados, modo claro y oscuro, y estilos según el modo de la página.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion",
+      "order": 8
     },
     {
-      "id": "web-08",
-      "order": 8,
+      "id": "lec-08",
       "kind": "chapter",
       "code": "Lec. 08",
-      "module": "03 · JavaScript",
-      "title": "Variables, tipos y funciones",
-      "subtitle": "Los cimientos del lenguaje.",
+      "module": "03 · CSS",
+      "title": "Flexbox",
+      "subtitle": "Barras, menús y filas de tarjetas que se alinean solas.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "en-preparacion",
+      "order": 9
     },
     {
-      "id": "web-09",
-      "order": 9,
+      "id": "lec-09",
       "kind": "chapter",
       "code": "Lec. 09",
-      "module": "03 · JavaScript",
-      "title": "Arrays y objetos",
-      "subtitle": "Recorrer, filtrar y transformar datos.",
+      "module": "03 · CSS",
+      "title": "CSS Grid",
+      "subtitle": "Tableros e indicadores en cuadrícula con fr y minmax().",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "en-preparacion",
+      "order": 10
     },
     {
-      "id": "web-10",
-      "order": 10,
+      "id": "lec-10",
       "kind": "chapter",
       "code": "Lec. 10",
-      "module": "03 · JavaScript",
-      "title": "Módulos y buenas prácticas",
-      "subtitle": "Código ordenado que puedas mantener.",
-      "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "module": "03 · CSS",
+      "title": "Diseño responsive",
+      "subtitle": "Que tu página funcione bien en el celular de un técnico.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 11
     },
     {
-      "id": "web-11",
-      "order": 11,
+      "id": "lec-11",
       "kind": "chapter",
       "code": "Lec. 11",
-      "module": "04 · DOM y eventos",
-      "title": "Seleccionar y modificar el DOM",
-      "subtitle": "Leer y cambiar la página desde JavaScript.",
-      "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "module": "04 · JavaScript esencial",
+      "title": "Variables, tipos, funciones y condiciones",
+      "subtitle": "Los cimientos de JavaScript: let, const, funciones flecha, if y comparaciones.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 12
     },
     {
-      "id": "web-12",
-      "order": 12,
+      "id": "lec-12",
       "kind": "chapter",
       "code": "Lec. 12",
-      "module": "04 · DOM y eventos",
-      "title": "Eventos e interacción",
-      "subtitle": "Clics, teclado y formularios interactivos.",
-      "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "module": "04 · JavaScript esencial",
+      "title": "Arrays: filter, map, find, reduce y sort",
+      "subtitle": "Cómo se buscan, cuentan y ordenan las actividades.",
+      "estimatedMinutes": 50,
+      "status": "en-preparacion",
+      "order": 13
     },
     {
-      "id": "web-13",
-      "order": 13,
+      "id": "lec-13",
       "kind": "chapter",
       "code": "Lec. 13",
-      "module": "05 · APIs y fetch",
-      "title": "fetch, promesas y async/await",
-      "subtitle": "Pedir datos a un servidor sin bloquear la página.",
+      "module": "04 · JavaScript esencial",
+      "title": "Objetos y JSON",
+      "subtitle": "El objeto de datos de la aplicación, copiar sin romper y convertir a texto.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion"
+      "status": "en-preparacion",
+      "order": 14
     },
     {
-      "id": "web-14",
-      "order": 14,
+      "id": "lec-14",
       "kind": "chapter",
       "code": "Lec. 14",
-      "module": "05 · APIs y fetch",
-      "title": "Guardar datos en el navegador",
-      "subtitle": "localStorage, JSON y sus límites.",
-      "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "module": "04 · JavaScript esencial",
+      "title": "Plantillas de texto y HTML seguro",
+      "subtitle": "Generar filas de tabla con template literals sin abrir agujeros de seguridad.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 15
     },
     {
-      "id": "web-15",
-      "order": 15,
+      "id": "lec-15",
       "kind": "chapter",
       "code": "Lec. 15",
-      "module": "06 · Git y despliegue",
-      "title": "Git y GitHub para tus proyectos",
-      "subtitle": "Commits, ramas y pull requests.",
-      "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "module": "04 · JavaScript esencial",
+      "title": "Fechas y dinero",
+      "subtitle": "Fechas sin errores de zona horaria y montos en RD$.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 16
     },
     {
-      "id": "web-16",
-      "order": 16,
+      "id": "lec-16",
       "kind": "chapter",
       "code": "Lec. 16",
-      "module": "06 · Git y despliegue",
-      "title": "Publicar con GitHub Pages",
-      "subtitle": "Del repositorio a una página pública.",
-      "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "module": "05 · El DOM y los eventos",
+      "title": "Seleccionar y modificar el DOM",
+      "subtitle": "getElementById, querySelector, classList, dataset y hidden.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 17
     },
     {
-      "id": "web-17",
-      "order": 17,
+      "id": "lec-17",
+      "kind": "chapter",
+      "code": "Lec. 17",
+      "module": "05 · El DOM y los eventos",
+      "title": "Eventos y delegación",
+      "subtitle": "Un solo escuchador para todos los botones: el patrón data-act.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 18
+    },
+    {
+      "id": "lec-18",
+      "kind": "chapter",
+      "code": "Lec. 18",
+      "module": "05 · El DOM y los eventos",
+      "title": "Formularios con JavaScript",
+      "subtitle": "Leer, validar, crear y editar registros desde un formulario.",
+      "estimatedMinutes": 50,
+      "status": "en-preparacion",
+      "order": 19
+    },
+    {
+      "id": "lec-19",
+      "kind": "chapter",
+      "code": "Lec. 19",
+      "module": "05 · El DOM y los eventos",
+      "title": "La arquitectura de tu página",
+      "subtitle": "Datos, acción, guardar y redibujar; y el orden de los scripts.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 20
+    },
+    {
+      "id": "lec-20",
+      "kind": "chapter",
+      "code": "Lec. 20",
+      "module": "06 · Datos: guardar, importar y dibujar",
+      "title": "Guardar en el navegador: localStorage y respaldos",
+      "subtitle": "Que tus datos sobrevivan a recargas, errores y cambios de versión.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 21
+    },
+    {
+      "id": "lec-21",
+      "kind": "chapter",
+      "code": "Lec. 21",
+      "module": "06 · Datos: guardar, importar y dibujar",
+      "title": "Asincronía y archivos: leer Excel",
+      "subtitle": "async/await, archivos, arrayBuffer y SheetJS.",
+      "estimatedMinutes": 50,
+      "status": "en-preparacion",
+      "order": 22
+    },
+    {
+      "id": "lec-22",
+      "kind": "chapter",
+      "code": "Lec. 22",
+      "module": "06 · Datos: guardar, importar y dibujar",
+      "title": "Gráficos con SVG",
+      "subtitle": "Barras, líneas y donas hechas a mano con viewBox.",
+      "estimatedMinutes": 50,
+      "status": "en-preparacion",
+      "order": 23
+    },
+    {
+      "id": "lec-23",
+      "kind": "chapter",
+      "code": "Lec. 23",
+      "module": "07 · Calidad: errores, revisión y pruebas",
+      "title": "Depurar errores",
+      "subtitle": "Leer un error de la consola, encontrar la línea y arreglarlo.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 24
+    },
+    {
+      "id": "lec-24",
+      "kind": "chapter",
+      "code": "Lec. 24",
+      "module": "07 · Calidad: errores, revisión y pruebas",
+      "title": "Revisión automática del código",
+      "subtitle": "ESLint, Stylelint y html-validate en VS Code y en GitHub.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion",
+      "order": 25
+    },
+    {
+      "id": "lec-25",
+      "kind": "chapter",
+      "code": "Lec. 25",
+      "module": "07 · Calidad: errores, revisión y pruebas",
+      "title": "Pruebas",
+      "subtitle": "Comprobar los cálculos sin tocar tus datos reales.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 26
+    },
+    {
+      "id": "lec-26",
+      "kind": "chapter",
+      "code": "Lec. 26",
+      "module": "08 · Git, GitHub y publicación",
+      "title": "Git: guardar versiones y volver atrás",
+      "subtitle": "Commits, ramas, deshacer y comparar cambios.",
+      "estimatedMinutes": 50,
+      "status": "en-preparacion",
+      "order": 27
+    },
+    {
+      "id": "lec-27",
+      "kind": "chapter",
+      "code": "Lec. 27",
+      "module": "08 · Git, GitHub y publicación",
+      "title": "GitHub: subir, revisar y publicar",
+      "subtitle": "Push, pull requests, Actions y GitHub Pages.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion",
+      "order": 28
+    },
+    {
+      "id": "lec-28",
+      "kind": "chapter",
+      "code": "Lec. 28",
+      "module": "08 · Git, GitHub y publicación",
+      "title": "Trabajar con Claude en tu proyecto",
+      "subtitle": "Pedir cambios pequeños, revisar lo que hace y no perder el control.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion",
+      "order": 29
+    },
+    {
+      "id": "proy-1",
       "kind": "chapter",
       "code": "Proy. 1",
-      "module": "Proyectos",
-      "title": "Proyecto: portafolio personal",
-      "subtitle": "Una página responsive con tus trabajos.",
-      "estimatedMinutes": 120,
-      "status": "en-preparacion"
+      "module": "09 · Taller: tu página de mantenimiento",
+      "title": "Agregar un campo a las actividades",
+      "subtitle": "Del formulario a la tabla, el guardado y la exportación a Excel.",
+      "estimatedMinutes": 90,
+      "status": "en-preparacion",
+      "order": 30
     },
     {
-      "id": "web-18",
-      "order": 18,
+      "id": "proy-2",
       "kind": "chapter",
       "code": "Proy. 2",
-      "module": "Proyectos",
-      "title": "Proyecto: tablero que lee un archivo Excel",
-      "subtitle": "Cargar un archivo y mostrar sus datos en tarjetas y gráficos.",
-      "estimatedMinutes": 180,
-      "status": "en-preparacion"
+      "module": "09 · Taller: tu página de mantenimiento",
+      "title": "Crear un indicador en el Inicio",
+      "subtitle": "Calcular un número nuevo y mostrarlo como tarjeta.",
+      "estimatedMinutes": 75,
+      "status": "en-preparacion",
+      "order": 31
+    },
+    {
+      "id": "proy-3",
+      "kind": "chapter",
+      "code": "Proy. 3",
+      "module": "09 · Taller: tu página de mantenimiento",
+      "title": "Agregar un estado con su color",
+      "subtitle": "La configuración, los estilos y los lugares donde se usa un estado.",
+      "estimatedMinutes": 60,
+      "status": "en-preparacion",
+      "order": 32
+    },
+    {
+      "id": "proy-4",
+      "kind": "chapter",
+      "code": "Proy. 4",
+      "module": "09 · Taller: tu página de mantenimiento",
+      "title": "Crear una pantalla nueva",
+      "subtitle": "Sección, botón del menú, módulo, acción y redibujado.",
+      "estimatedMinutes": 120,
+      "status": "en-preparacion",
+      "order": 33
     }
   ]
 }
