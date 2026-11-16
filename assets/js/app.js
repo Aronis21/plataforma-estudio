@@ -144,20 +144,22 @@
 
   function sidebarCurso(curso, idActivo) {
     const r = P.resumenCurso(curso);
+    const prep = enPreparacion(curso._meta);
     let html = `<div class="side-head">
-      <div class="side-titulo-mano">Índice</div>
+      <div class="side-titulo-mano">${TITULO_INDICE[temaDe(curso._meta)] || "Índice"}</div>
       <a href="#/curso/${curso.id}" class="side-title">${escapar(curso.title)}</a>
-      ${barra(r.pct)}
-      <div class="side-meta">${r.aprobados}/${r.total} aprobados</div>
+      ${prep ? "" : barra(r.pct)}
+      <div class="side-meta">${prep ? "En preparación" : `${r.aprobados}/${r.total} aprobados`}</div>
     </div><nav class="side-nav">`;
     for (const [modulo, caps] of modulosDe(curso)) {
       html += `<div class="side-mod">${escapar(modulo)}</div>`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
-        html += `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${cap.id === idActivo ? "activo" : ""} est-${est}">
-          <span class="est" title="${TEXTO_ESTADO[est]}">${ICONO_ESTADO[est]}</span>
-          <span class="side-name"><span class="side-code">${escapar(cap.code || "")}</span>${escapar(cap.title)}</span>
-        </a>`;
+        const interior = `<span class="est" title="${prep ? "En preparación" : TEXTO_ESTADO[est]}">${prep ? "·" : ICONO_ESTADO[est]}</span>
+          <span class="side-name"><span class="side-code">${escapar(cap.code || "")}</span>${escapar(cap.title)}</span>`;
+        html += prep
+          ? `<div class="side-item">${interior}</div>`
+          : `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${cap.id === idActivo ? "activo" : ""} est-${est}">${interior}</a>`;
       }
     }
     html += "</nav>";
@@ -481,50 +483,170 @@
     return t.length > n ? t.slice(0, n - 1) + "…" : t;
   }
 
-  // ---------- Vista: índice del curso ----------
+  // ---------- Vista: panel del curso ----------
+  const TITULO_INDICE = { datos: "Índice", web: "índice/", ia: "Registro", hoy: "Índice" };
+
+  // Etiqueta corta de cada módulo para el gráfico ("M1", "01", "E01", "In", "Ap")
+  function etiquetaModulo(nombre) {
+    const n = String(nombre);
+    if (/^EXP\s*(\d+)/i.test(n)) return "E" + n.match(/^EXP\s*(\d+)/i)[1];
+    if (/m[óo]dulo\s*(\d+)/i.test(n)) return "M" + n.match(/m[óo]dulo\s*(\d+)/i)[1];
+    if (/^(\d+)/.test(n)) return n.match(/^(\d+)/)[1];
+    if (/^ap[ée]ndice/i.test(n)) return "Ap";
+    if (/^inicio/i.test(n)) return "In";
+    return n.slice(0, 3);
+  }
+
+  // Gráfico de barras "dibujado a mano": porcentaje aprobado de cada módulo
+  function graficoAvance(curso) {
+    const mods = modulosDe(curso);
+    const W = 360, H = 200, base = 172, alto = 140, x0 = 40;
+    const paso = Math.min(52, (W - x0 - 10) / Math.max(1, mods.length));
+    const ancho = Math.max(14, paso * 0.62);
+    const temblor = (i) => ((i * 37) % 5) - 2; // pequeño desvío para que parezca hecho a mano
+    let barras = "";
+    let etiquetas = "";
+    let marca = "";
+    mods.forEach(([nombre, caps], i) => {
+      const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
+      const pct = caps.length ? aprob / caps.length : 0;
+      const x = x0 + i * paso + (paso - ancho) / 2;
+      const y = base - Math.max(pct * alto, 0);
+      const t = temblor(i);
+      if (pct >= 1) {
+        barras += `<path d="M${x} ${base}L${x + 1} ${y + t}L${x + ancho} ${y - t}L${x + ancho - 1} ${base}" style="fill:var(--ok);fill-opacity:.3;stroke:var(--ok)" stroke-width="2"/>`;
+      } else if (pct > 0) {
+        barras += `<path d="M${x} ${base}L${x + 1} ${y + t}L${x + ancho} ${y - t}L${x + ancho - 1} ${base}" style="fill:var(--resaltador);stroke:var(--acento)" stroke-width="2"/>`;
+        if (!marca) marca = `<text x="${x - 6}" y="${y - 10}" style="fill:var(--acento);font-family:var(--f-mano)" font-size="21">${Math.round(pct * 100)}% ←aquí</text>`;
+      } else {
+        barras += `<path d="M${x} ${base}V${base - alto}H${x + ancho}V${base}" style="fill:none;stroke:var(--borde)" stroke-width="1.6" stroke-dasharray="4 5"/>`;
+      }
+      etiquetas += `<text x="${x + ancho / 2}" y="${base + 20}" text-anchor="middle" style="fill:var(--tinta);font-family:var(--f-mano)" font-size="17">${escapar(etiquetaModulo(nombre))}</text>`;
+    });
+    const descripcion = mods.map(([n, caps]) => `${n}: ${caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length} de ${caps.length}`).join("; ");
+    return `<figure class="grafico-mano">
+      <figcaption class="h-mano" style="font-size:1.5rem">mi avance por módulo</figcaption>
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Capítulos aprobados por módulo. ${escapar(descripcion)}">
+        <path d="M28 ${base}L${W - 10} ${base + 1}" style="stroke:var(--tinta)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M30 ${base + 2}L29 18" style="stroke:var(--tinta)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        ${barras}${etiquetas}${marca}
+      </svg>
+    </figure>`;
+  }
+
+  function libroMayor(curso) {
+    const r = P.resumenCurso(curso);
+    let ejercicios = 0, mejor = 0, total = 0, minutosRestantes = 0;
+    for (const cap of curso.chapters) {
+      const pc = P.capitulo(curso.id, cap.id);
+      ejercicios += Object.values(pc.ejercicios || {}).filter(Boolean).length;
+      if (pc.examen && pc.examen.total) { mejor += pc.examen.mejor; total += pc.examen.total; }
+      if (P.estado(curso.id, cap.id) !== "aprobado") minutosRestantes += cap.estimatedMinutes || 0;
+    }
+    const precision = total ? Math.round((mejor * 100) / total) + "%" : "—";
+    return `<div class="libro-mayor">
+      <div class="h-mano" style="font-size:1.5rem">libro mayor</div>
+      <table><tbody>
+        <tr><td>Capítulos aprobados</td><td>${r.aprobados} / ${r.total}</td></tr>
+        <tr><td>Leídos sin aprobar</td><td>${r.leidos}</td></tr>
+        <tr><td>Ejercicios resueltos</td><td>${ejercicios}</td></tr>
+        <tr><td>Acierto en exámenes</td><td>${precision}</td></tr>
+        <tr><td>Tiempo que falta</td><td>~${Math.round(minutosRestantes / 60)} h</td></tr>
+      </tbody></table>
+    </div>`;
+  }
+
   async function vistaCurso(idCurso) {
     const curso = await obtenerCurso(idCurso);
+    const m = curso._meta;
+    const tema = temaDe(m);
+    const prep = enPreparacion(m);
     setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title }]);
-    aplicarTema(curso._meta);
+    aplicarTema(m);
     mostrarSidebar(sidebarCurso(curso, null));
     document.title = curso.title;
+    cerrarMenu();
 
     const r = P.resumenCurso(curso);
-    const siguiente = curso.chapters.find((c) => P.estado(curso.id, c.id) !== "aprobado");
+    const siguiente = siguienteCap(curso);
+    const debiles = curso.chapters.filter((c) => {
+      const ex = P.capitulo(curso.id, c.id).examen;
+      return ex && ex.total && ex.mejor / ex.total < P.APROBADO;
+    });
+
     let modulos = "";
     for (const [modulo, caps] of modulosDe(curso)) {
       const aprob = caps.filter((c) => P.estado(curso.id, c.id) === "aprobado").length;
       modulos += `<section class="modulo">
-        <div class="modulo-head"><h2>${escapar(modulo)}</h2><span class="muted small">${aprob}/${caps.length}</span></div>
+        <div class="modulo-head"><h2>${escapar(modulo)}</h2><span class="muted small">${prep ? caps.length + " temas" : `${aprob}/${caps.length}`}</span></div>
         <div class="lista-caps">`;
       for (const cap of caps) {
         const est = P.estado(curso.id, cap.id);
         const ex = P.capitulo(curso.id, cap.id).examen;
-        modulos += `<a class="cap-row est-${est}" href="#/curso/${curso.id}/${cap.id}">
-          <span class="est">${ICONO_ESTADO[est]}</span>
+        const interior = `<span class="est">${prep ? "·" : ICONO_ESTADO[est]}</span>
           <span class="cap-code">${escapar(cap.code || "")}</span>
-          <span class="cap-main"><strong>${escapar(cap.title)}</strong><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
-          <span class="cap-side muted small">${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}</span>
-        </a>`;
+          <span class="cap-main"><span class="titulo-cap">${escapar(cap.title)}</span><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
+          <span class="cap-side muted small">${prep ? "en preparación" : `${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}`}</span>`;
+        modulos += prep
+          ? `<div class="cap-row bloqueado">${interior}</div>`
+          : `<a class="cap-row est-${est}" href="#/curso/${curso.id}/${cap.id}">${interior}</a>`;
       }
       modulos += "</div></section>";
     }
 
-    app.innerHTML = `
-      <section class="hero curso-hero">
-        <span class="kicker">${escapar(curso._meta.categoria || "")}${curso.level ? " · " + escapar(curso.level) : ""}</span>
-        <h1>${escapar(curso.title)}</h1>
-        <p class="lead">${escapar(curso.subtitle || "")}</p>
-        <div class="hero-progress">${barra(r.pct)}<span>${r.pct}% · ${r.aprobados} aprobados · ${r.leidos} leídos</span></div>
-        <div class="row">
-          ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${r.aprobados || r.leidos ? "Continuar" : "Empezar"}: ${escapar(siguiente.code || siguiente.title)}</a>` : '<span class="pill ok">¡Curso completado!</span>'}
-          <button class="btn ghost" id="btnReiniciar" type="button">Reiniciar progreso</button>
-        </div>
-      </section>
-      ${modulos}`;
+    const dudas = C.notas({ curso: curso.id, tipo: "duda" });
+    const tarjetasCurso = C.tarjetas({ curso: curso.id });
+    const pendientesCurso = C.tarjetasPendientes({ curso: curso.id });
+    const sellos = (m.etiquetas || []).map((t) => `<span class="sello ${prep ? "pend" : ""}">${escapar(t)}</span>`).join("");
 
-    document.getElementById("btnReiniciar").onclick = () => {
-      if (confirm("¿Borrar todo el progreso de este curso en este navegador?")) {
+    app.innerHTML = `<div class="pagina">
+      <div class="pagina-main">
+        <header class="curso-hero">
+          <div class="fecha-mano">${escapar((m.cuaderno || NOMBRE_CUADERNO[tema] || "cuaderno").toLowerCase())}</div>
+          <h1 class="titulo-hoja">${escapar(curso.title)}</h1>
+          <p class="lead" style="margin-top:.8rem">${escapar(curso.subtitle || "")}</p>
+          ${prep ? "" : `<div class="row" style="margin-top:1rem">
+            ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${r.aprobados || r.leidos ? "Continuar" : "Empezar"}: ${escapar(siguiente.code || siguiente.title)} →</a>` : '<span class="pill ok">¡Curso completado!</span>'}
+            ${pendientesCurso.length ? `<a class="btn ghost" href="#/repaso">${pendientesCurso.length} ${pendientesCurso.length === 1 ? "tarjeta" : "tarjetas"} para hoy</a>` : ""}
+          </div>`}
+        </header>
+        ${prep
+          ? `<div class="prep-aviso" style="margin-top:1.5rem"><span class="nota-mano">Este cuaderno está en preparación.</span>
+              <p style="margin:.4rem 0 0">Ya tiene su temario; las lecciones, ejercicios y evaluaciones se irán agregando.</p></div>`
+          : `<div class="fila-panel" style="margin-top:1.8rem">${graficoAvance(curso)}${libroMayor(curso)}</div>`}
+        ${modulos}
+      </div>
+      <aside class="margen" aria-label="Margen">
+        <div class="margen-titulo">${tema === "ia" ? "Observaciones" : "Margen"}</div>
+        <div class="nota-adhesiva der"><span class="cinta" aria-hidden="true"></span><span class="etiqueta">Nota del tutor</span>
+          <p>${escapar(prep ? "Mientras preparo este cuaderno, puedes escribir aquí abajo lo que te gustaría aprender en él." : Tutor.notaDelCurso({ resumen: r, siguiente, debiles }))}</p></div>
+        ${sellos ? `<div><div class="h-mano" style="font-size:1.4rem">temas del cuaderno</div><div class="chips-temas">${sellos}</div></div>` : ""}
+        <div>
+          <div class="h-mano" style="font-size:1.4rem">${prep ? "lo que quiero aprender" : "dudas de este curso"}</div>
+          ${dudas.length ? `<ul class="lista-notas">${dudas.slice(-5).reverse().map((n) => `<li class="duda"><span class="nota-mano">${escapar(n.texto)}</span><button class="borrar" type="button" data-borrar-nota="${n.id}" aria-label="Borrar">✕</button></li>`).join("")}</ul>` : ""}
+          <form class="fila-agregar" id="formDudaCurso">
+            <label class="sr" for="inpDudaCurso">Escribe una duda de este curso</label>
+            <input class="entrada-mano" id="inpDudaCurso" type="text" placeholder="${prep ? "escribe un tema…" : "escribe una duda…"}" autocomplete="off">
+            <button class="chip-btn" type="submit">Guardar</button>
+          </form>
+        </div>
+        <div class="margen-pie">
+          <div class="fila"><span>Tarjetas de este curso</span><span>${tarjetasCurso.length}</span></div>
+          <div class="fila"><span>Notas y resaltados</span><span>${C.notas({ curso: curso.id, tipo: "nota" }).length + C.resaltados({ curso: curso.id }).length}</span></div>
+          ${prep ? "" : `<button class="chip-btn" id="btnReiniciar" type="button" style="align-self:flex-start;margin-top:.5rem">Reiniciar progreso del curso</button>`}
+        </div>
+      </aside>
+    </div>`;
+
+    document.getElementById("formDudaCurso").onsubmit = (e) => {
+      e.preventDefault();
+      const inp = document.getElementById("inpDudaCurso");
+      if (C.agregarNota({ curso: curso.id, texto: inp.value, tipo: "duda" })) { aviso("Guardado en tu cuaderno"); vistaCurso(curso.id); }
+    };
+    app.querySelectorAll("[data-borrar-nota]").forEach((b) => (b.onclick = () => { C.borrarNota(b.dataset.borrarNota); vistaCurso(curso.id); }));
+    const btnR = document.getElementById("btnReiniciar");
+    if (btnR) btnR.onclick = () => {
+      if (confirm("¿Borrar todo el progreso de exámenes y lecturas de este curso en este navegador? Tus notas y tarjetas se conservan.")) {
         P.reiniciarCurso(curso.id);
         vistaCurso(curso.id);
       }

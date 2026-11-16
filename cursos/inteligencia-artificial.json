@@ -1,0 +1,153 @@
+{
+  "id": "inteligencia-artificial",
+  "title": "Inteligencia Artificial",
+  "subtitle": "Modelos de lenguaje, prompts que funcionan, herramientas, APIs y automatización, con experimentos sobre tus propios casos.",
+  "level": "Principiante a intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-16",
+  "chapters": [
+    {
+      "id": "ia-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Prot. 01",
+      "module": "EXP 01 · Fundamentos",
+      "title": "Qué es un modelo de lenguaje",
+      "subtitle": "Cómo genera texto y qué puede y no puede hacer.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Prot. 02",
+      "module": "EXP 01 · Fundamentos",
+      "title": "Tokens, contexto y límites",
+      "subtitle": "Por qué el modelo olvida, inventa o se corta.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Prot. 03",
+      "module": "EXP 02 · Prompts que funcionan",
+      "title": "Rol, tarea y contexto",
+      "subtitle": "La estructura básica de un buen pedido.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Prot. 04",
+      "module": "EXP 02 · Prompts que funcionan",
+      "title": "Ejemplos y formatos de salida",
+      "subtitle": "Few-shot y respuestas siempre con el mismo formato.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Prot. 05",
+      "module": "EXP 02 · Prompts que funcionan",
+      "title": "Cadenas de prompts",
+      "subtitle": "Dividir un trabajo grande en pasos revisables.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Prot. 06",
+      "module": "EXP 03 · Herramientas de IA",
+      "title": "Asistentes, búsqueda y documentos",
+      "subtitle": "Usar la IA con tus archivos y con la web.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Prot. 07",
+      "module": "EXP 03 · Herramientas de IA",
+      "title": "IA para hojas de cálculo y datos",
+      "subtitle": "Limpiar, resumir y analizar tablas con ayuda.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Prot. 08",
+      "module": "EXP 04 · APIs y datos propios",
+      "title": "Tu primera llamada a una API de IA",
+      "subtitle": "Claves, costos y seguridad.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Prot. 09",
+      "module": "EXP 04 · APIs y datos propios",
+      "title": "Embeddings y búsqueda en tus documentos",
+      "subtitle": "Encontrar respuestas en tus propios textos.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Prot. 10",
+      "module": "EXP 05 · Automatización",
+      "title": "Flujos automáticos con IA",
+      "subtitle": "Del disparador al resultado sin intervención.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Prot. 11",
+      "module": "EXP 05 · Automatización",
+      "title": "Evaluar y vigilar resultados",
+      "subtitle": "Cómo saber si tu automatización funciona bien.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Prot. 12",
+      "module": "EXP 06 · Tu propio agente",
+      "title": "Herramientas y agentes",
+      "subtitle": "Modelos que usan herramientas para cumplir tareas.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "ia-13",
+      "order": 13,
+      "kind": "chapter",
+      "code": "Prot. 13",
+      "module": "EXP 06 · Tu propio agente",
+      "title": "Proyecto final: tu propio asistente",
+      "subtitle": "Un asistente que resuelve una tarea real de tu trabajo.",
+      "estimatedMinutes": 180,
+      "status": "en-preparacion"
+    }
+  ]
+}

@@ -119,6 +119,8 @@ def main():
         if entrada.get("id") in vistos:
             err(f"[catalogo] id de curso repetido: {entrada.get('id')}")
         vistos.add(entrada.get("id"))
+        if entrada.get("estado") not in (None, "en-preparacion"):
+            err(f"[catalogo] {entrada.get('id')}: 'estado' solo puede ser \"en-preparacion\" (o no ponerlo)")
         if "tema" in entrada and entrada["tema"] not in TEMAS:
             err(f"[catalogo] {entrada.get('id')}: tema '{entrada['tema']}' no existe (usa uno de: {', '.join(sorted(TEMAS))})")
         if "archivo" in entrada and "id" in entrada:

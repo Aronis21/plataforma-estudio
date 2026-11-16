@@ -116,7 +116,7 @@ a.papel-card:hover { text-decoration: none; transform: translateY(-2px); }
 .cuaderno-item .pie { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: var(--t-sm); font-weight: 600; }
 .cuaderno-item .mini-bar { height: 6px; border-radius: 6px; background: color-mix(in srgb, currentColor 22%, transparent); overflow: hidden; }
 .cuaderno-item .mini-bar span { display: block; height: 100%; background: currentColor; }
-.cuaderno-item.prep { opacity: .9; }
+.cuaderno-item.prep .pie { font-weight: 500; }
 
 /* ---------- Panel del curso: gráfico a mano y libro mayor ---------- */
 .fila-panel { display: flex; flex-wrap: wrap; gap: var(--e-6); align-items: flex-start; }

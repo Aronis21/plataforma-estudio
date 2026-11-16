@@ -17,6 +17,40 @@
       ],
       "color": "#F0B429",
       "publicado": true
+    },
+    {
+      "id": "programacion-desarrollo-web",
+      "archivo": "programacion-desarrollo-web.json",
+      "tema": "web",
+      "separador": "Web",
+      "cuaderno": "Cuaderno de desarrollador",
+      "categoria": "Programación",
+      "etiquetas": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Git"
+      ],
+      "color": "#1D64D8",
+      "estado": "en-preparacion",
+      "publicado": true
+    },
+    {
+      "id": "inteligencia-artificial",
+      "archivo": "inteligencia-artificial.json",
+      "tema": "ia",
+      "separador": "IA",
+      "cuaderno": "Cuaderno de laboratorio",
+      "categoria": "Inteligencia Artificial",
+      "etiquetas": [
+        "Modelos",
+        "Prompts",
+        "APIs",
+        "Automatización"
+      ],
+      "color": "#C6E85A",
+      "estado": "en-preparacion",
+      "publicado": true
     }
   ]
 }

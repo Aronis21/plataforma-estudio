@@ -1,0 +1,208 @@
+{
+  "id": "programacion-desarrollo-web",
+  "title": "Programación y Desarrollo Web",
+  "subtitle": "De la primera etiqueta HTML a publicar tus propios proyectos: CSS moderno, JavaScript, el DOM, APIs y Git.",
+  "level": "Principiante a intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-16",
+  "chapters": [
+    {
+      "id": "web-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Lec. 01",
+      "module": "01 · HTML semántico",
+      "title": "Estructura de un documento HTML",
+      "subtitle": "Etiquetas esenciales, cabecera y cuerpo de una página.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Lec. 02",
+      "module": "01 · HTML semántico",
+      "title": "Etiquetas semánticas y accesibilidad",
+      "subtitle": "header, main, nav, article y por qué importan.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Lec. 03",
+      "module": "01 · HTML semántico",
+      "title": "Formularios bien hechos",
+      "subtitle": "Campos, etiquetas, validación nativa y accesibilidad.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Lec. 04",
+      "module": "02 · CSS moderno",
+      "title": "Cascada, especificidad y variables",
+      "subtitle": "Cómo decide el navegador qué estilo aplicar.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Lec. 05",
+      "module": "02 · CSS moderno",
+      "title": "Flexbox",
+      "subtitle": "Alinear y repartir elementos en una dirección.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Lec. 06",
+      "module": "02 · CSS moderno",
+      "title": "CSS Grid: fr y minmax()",
+      "subtitle": "Cuadrículas que se adaptan solas.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Lec. 07",
+      "module": "02 · CSS moderno",
+      "title": "Diseño responsive",
+      "subtitle": "Unidades fluidas y media queries con criterio.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Lec. 08",
+      "module": "03 · JavaScript",
+      "title": "Variables, tipos y funciones",
+      "subtitle": "Los cimientos del lenguaje.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Lec. 09",
+      "module": "03 · JavaScript",
+      "title": "Arrays y objetos",
+      "subtitle": "Recorrer, filtrar y transformar datos.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Lec. 10",
+      "module": "03 · JavaScript",
+      "title": "Módulos y buenas prácticas",
+      "subtitle": "Código ordenado que puedas mantener.",
+      "estimatedMinutes": 35,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Lec. 11",
+      "module": "04 · DOM y eventos",
+      "title": "Seleccionar y modificar el DOM",
+      "subtitle": "Leer y cambiar la página desde JavaScript.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Lec. 12",
+      "module": "04 · DOM y eventos",
+      "title": "Eventos e interacción",
+      "subtitle": "Clics, teclado y formularios interactivos.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-13",
+      "order": 13,
+      "kind": "chapter",
+      "code": "Lec. 13",
+      "module": "05 · APIs y fetch",
+      "title": "fetch, promesas y async/await",
+      "subtitle": "Pedir datos a un servidor sin bloquear la página.",
+      "estimatedMinutes": 45,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-14",
+      "order": 14,
+      "kind": "chapter",
+      "code": "Lec. 14",
+      "module": "05 · APIs y fetch",
+      "title": "Guardar datos en el navegador",
+      "subtitle": "localStorage, JSON y sus límites.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-15",
+      "order": 15,
+      "kind": "chapter",
+      "code": "Lec. 15",
+      "module": "06 · Git y despliegue",
+      "title": "Git y GitHub para tus proyectos",
+      "subtitle": "Commits, ramas y pull requests.",
+      "estimatedMinutes": 40,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-16",
+      "order": 16,
+      "kind": "chapter",
+      "code": "Lec. 16",
+      "module": "06 · Git y despliegue",
+      "title": "Publicar con GitHub Pages",
+      "subtitle": "Del repositorio a una página pública.",
+      "estimatedMinutes": 30,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-17",
+      "order": 17,
+      "kind": "chapter",
+      "code": "Proy. 1",
+      "module": "Proyectos",
+      "title": "Proyecto: portafolio personal",
+      "subtitle": "Una página responsive con tus trabajos.",
+      "estimatedMinutes": 120,
+      "status": "en-preparacion"
+    },
+    {
+      "id": "web-18",
+      "order": 18,
+      "kind": "chapter",
+      "code": "Proy. 2",
+      "module": "Proyectos",
+      "title": "Proyecto: tablero que lee un archivo Excel",
+      "subtitle": "Cargar un archivo y mostrar sus datos en tarjetas y gráficos.",
+      "estimatedMinutes": 180,
+      "status": "en-preparacion"
+    }
+  ]
+}
