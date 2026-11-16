@@ -17,7 +17,7 @@
   let catalogo = null;
   const cacheCursos = {};
 
-  // ---------- Preferencias: tema y tamaño de letra ----------
+  // ---------- Preferencias: tamaño de letra ----------
   const CLAVE_PREF = "plataforma-estudio:preferencias";
   const TAMAÑOS = ["normal", "grande", "extra"];
 
@@ -27,28 +27,6 @@
   function guardarPref(p) {
     try { localStorage.setItem(CLAVE_PREF, JSON.stringify(p)); } catch (_) { /* nada */ }
   }
-  function temaEfectivo() {
-    const t = document.documentElement.dataset.theme;
-    if (t) return t;
-    return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-  function aplicarTemaCodigo() {
-    const oscuro = temaEfectivo() === "dark";
-    const claro = document.getElementById("hljsClaro");
-    const osc = document.getElementById("hljsOscuro");
-    if (claro && osc && document.documentElement.dataset.theme) {
-      claro.media = oscuro ? "not all" : "all";
-      osc.media = oscuro ? "all" : "not all";
-    }
-  }
-  aplicarTemaCodigo();
-  document.getElementById("btnTema").onclick = () => {
-    const p = leerPref();
-    p.tema = temaEfectivo() === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = p.tema;
-    guardarPref(p);
-    aplicarTemaCodigo();
-  };
   document.getElementById("btnLetra").onclick = () => {
     const p = leerPref();
     const actual = TAMAÑOS.indexOf(p.letra || "normal");
@@ -96,7 +74,7 @@
   }
 
   // ---------- Colores e insignias de módulo ----------
-  const PALETA = ["#ff7a59", "#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ec4899", "#06b6d4", "#64748b"];
+  const PALETA = ["#ff2fd6", "#2ee6f2", "#3df58b", "#a66bff", "#ffe14d", "#ff8a3d", "#4d9bff", "#ff5c9a"];
 
   function colorModulo(curso, modulo) {
     const i = modulosDe(curso).findIndex(([m]) => m === modulo);
@@ -256,7 +234,7 @@
     const elems = elementosDe(cap);
     if (!elems.some(([k]) => k === clave)) clave = elems[0]?.[0] || "";
     const nombreElem = (elems.find(([k]) => k === clave) || [, ""])[1];
-    return `<a class="continuar deco" style="--mod:${colorModulo(curso, cap.module || "Contenido")}" href="${enlaceElemento(curso, cap, clave)}">
+    return `<a class="continuar" style="--mod:${colorModulo(curso, cap.module || "Contenido")}" href="${enlaceElemento(curso, cap, clave)}">
       <span><small>${etiqueta}</small><strong>${escapar(cap.code ? cap.code + " · " : "")}${escapar(cap.title)}</strong>
       <span class="continuar-sub">${escapar(curso.title)}${nombreElem ? " · " + escapar(nombreElem) : ""}</span></span>
       <span class="ir">Reanudar →</span>
@@ -295,10 +273,10 @@
 
   function tiles(est) {
     const t = [
-      ["✓", "Capítulos aprobados", `${est.aprobados}<small>/${est.total}</small>`, "#10b981"],
-      ["⏱", "Tiempo de estudio", `${horas(est.minutos)}<small> de ${horas(est.totalMin)}</small>`, "#3b82f6"],
-      ["★", "Nota media", est.nota == null ? "—" : `${est.nota}%`, "#f59e0b"],
-      ["✎", "Ejercicios resueltos", `${est.ejHechos}<small>/${est.ejTotal}</small>`, "#ec4899"],
+      ["✓", "Capítulos aprobados", `${est.aprobados}<small>/${est.total}</small>`, "#3df58b"],
+      ["⏱", "Tiempo de estudio", `${horas(est.minutos)}<small> de ${horas(est.totalMin)}</small>`, "#2ee6f2"],
+      ["★", "Nota media", est.nota == null ? "—" : `${est.nota}%`, "#ffe14d"],
+      ["✎", "Ejercicios resueltos", `${est.ejHechos}<small>/${est.ejTotal}</small>`, "#ff2fd6"],
     ];
     return `<section class="tiles">${t
       .map(([i, l, v, c]) => `<div class="tile" style="--mod:${c}"><span class="tile-icono" aria-hidden="true">${i}</span>
@@ -369,7 +347,7 @@
       const minutos = curso.chapters.reduce((t, c) => t + (c.estimatedMinutes || 0), 0);
       const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
       tarjetas += `<a class="card course-card" href="#/curso/${curso.id}">
-        <div class="card-banner deco"><span class="card-banner-icono" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>
+        <div class="card-banner"><img src="${escapar(curso._meta.imagen || "assets/img/curso-analista.jpg")}" alt="" loading="lazy">
           <span class="card-banner-pct">${r.pct}%</span></div>
         <div class="card-top">
           <span class="kicker">${escapar(curso._meta.categoria || "Curso")}</span>
@@ -390,22 +368,23 @@
     const dias = P.racha();
 
     app.innerHTML = `
-      <section class="bienvenida deco">
+      <section class="bienvenida">
         <div class="bienvenida-texto">
           <span class="kicker">Mi aprendizaje</span>
-          <h1>¡Hola! ¿Qué aprendemos hoy?</h1>
-          <p>${dias ? `Llevas <strong>${dias} ${dias === 1 ? "día" : "días"} seguidos</strong> estudiando. ¡Sigue así!` : "Estudia un poco hoy para empezar tu racha."}</p>
+          <h1><span class="neon-magenta">Aprende y domina</span> <span class="neon-cian">los datos a tu propio ritmo</span></h1>
+          <p>${dias ? `🔥 Llevas <strong>${dias} ${dias === 1 ? "día" : "días"} seguidos</strong> estudiando. ¡Sigue así!` : "Estudia un poco hoy para empezar tu racha 🔥"}</p>
           ${semana()}
+          ${principal ? `<a class="btn btn-grande" href="#/curso/${principal.id}">Ir a mi curso</a>` : ""}
         </div>
-        <div class="racha" aria-label="Racha de estudio"><span class="racha-fuego" aria-hidden="true">🔥</span><strong>${dias}</strong><small>${dias === 1 ? "día" : "días"}</small></div>
+        <div class="bienvenida-arte"><img src="assets/img/hero-estudio.jpg" alt="Personas estudiando tecnología en una mesa futurista" width="960" height="523"></div>
       </section>
       ${est ? tiles(est) : ""}
       ${principal ? tarjetaContinuar(principal) : ""}
       <div class="dash">
         <div class="dash-main">
-          <h2 class="titulo-seccion">Mis cursos</h2>
+          <h2 class="titulo-seccion neon-verde">Mis cursos</h2>
           <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
-          ${principal ? `<h2 class="titulo-seccion">Siguiente en tu ruta</h2>${proximos(principal, 4)}` : ""}
+          ${principal ? `<h2 class="titulo-seccion neon-verde">Siguiente en tu ruta</h2>${proximos(principal, 4)}` : ""}
         </div>
         <aside class="dash-aside">
           ${principal ? `<section class="panel"><h2>Avance por módulo</h2>${avanceModulos(principal)}</section>` : ""}
@@ -480,7 +459,8 @@
     const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
 
     app.innerHTML = `
-      <section class="hero curso-hero deco">
+      <section class="hero curso-hero">
+        <img class="curso-hero-arte" src="${escapar(curso._meta.imagen || "assets/img/curso-analista.jpg")}" alt="">
         <span class="kicker">${escapar(curso._meta.categoria || "")}${curso.level ? " · " + escapar(curso.level) : ""}</span>
         <h1>${escapar(curso.title)}</h1>
         <p class="lead">${escapar(curso.subtitle || "")}</p>
