@@ -654,25 +654,36 @@
   }
 
   // ---------- Vista: capítulo ----------
-  function pestañasDe(cap) {
+  // Nombres de las pestañas y de la lección según el papel del curso
+  const NOMBRES = {
+    datos: { leccion: "Lección", teoria: "Lección", estandar: "Regla del analista", comparacion: "Corrección", ejercicios: "Ejercicios", examen: "Evaluación" },
+    web: { leccion: "Lección", teoria: "Lección", estandar: "Estándar", comparacion: "Code review", ejercicios: "Retos", examen: "Evaluación" },
+    ia: { leccion: "Protocolo", teoria: "Protocolo", estandar: "Estándar", comparacion: "Corrección", ejercicios: "Experimentos", examen: "Informe" },
+    hoy: { leccion: "Lección", teoria: "Lección", estandar: "Estándar profesional", comparacion: "Corrección", ejercicios: "Ejercicios", examen: "Evaluación" },
+  };
+  let cronometroId = null;
+
+  function pestañasDe(cap, tema) {
+    const n = NOMBRES[tema] || NOMBRES.hoy;
     const t = [];
-    if (cap.theorySections?.length || cap.objectives?.length) t.push(["teoria", "Teoría"]);
-    if (cap.professionalStandard) t.push(["estandar", "Estándar profesional"]);
-    if (cap.comparison) t.push(["comparacion", "Junior vs. Intermedio"]);
-    if (cap.exercises?.length) t.push(["ejercicios", `Ejercicios (${cap.exercises.length})`]);
-    if (cap.exam?.length) t.push(["examen", `Examen (${cap.exam.length})`]);
+    if (cap.theorySections?.length || cap.objectives?.length) t.push(["teoria", n.teoria]);
+    if (cap.professionalStandard) t.push(["estandar", n.estandar]);
+    if (cap.comparison) t.push(["comparacion", n.comparacion]);
+    if (cap.exercises?.length) t.push(["ejercicios", `${n.ejercicios} (${cap.exercises.length})`]);
+    if (cap.exam?.length) t.push(["examen", `${n.examen} (${cap.exam.length})`]);
     return t;
   }
 
   function htmlTeoria(cap) {
     let h = "";
     if (cap.objectives?.length) {
-      h += `<div class="panel objetivos"><h3>Objetivos</h3><ul>${cap.objectives.map((o) => `<li>${enLinea(o)}</li>`).join("")}</ul></div>`;
+      h += `<section class="objetivos" aria-labelledby="tObj"><h2 class="h-mano" id="tObj">objetivos de esta página</h2>
+        <ul class="lectura">${cap.objectives.map((o) => `<li>${enLinea(o)}</li>`).join("")}</ul></section>`;
     }
     for (const s of cap.theorySections || []) {
-      h += `<article class="seccion">
+      h += `<article class="seccion" data-seccion="${escapar(s.id || "")}">
         <h2>${enLinea(s.title)}</h2>
-        ${bloques(s.body)}
+        <div class="lectura">${bloques(s.body)}</div>
         ${bloqueCodigo(s.codeSnippet, s.codeLanguage)}
         ${s.keyTakeaway ? `<div class="takeaway"><strong>Idea clave</strong>${enLinea(s.keyTakeaway)}</div>` : ""}
       </article>`;
@@ -682,29 +693,32 @@
 
   function htmlEstandar(cap) {
     const e = cap.professionalStandard;
-    return `<article class="seccion">
+    return `<article class="seccion" data-seccion="estandar">
       <h2>${enLinea(e.title || "Estándar profesional")}</h2>
-      ${e.summary ? `<p class="lead-sm">${enLinea(e.summary)}</p>` : ""}
-      <ol class="reglas">${(e.rules || []).map((r) => `<li>${enLinea(r)}</li>`).join("")}</ol>
-      ${e.referenceCode ? "<h3>Código de referencia</h3>" + bloqueCodigo(e.referenceCode, e.codeLanguage) : ""}
+      ${e.summary ? `<p class="lead-sm lectura">${enLinea(e.summary)}</p>` : ""}
+      <div class="regla-analista"><ol class="reglas lectura">${(e.rules || []).map((r) => `<li>${enLinea(r)}</li>`).join("")}</ol></div>
+      ${e.referenceCode ? '<h3 style="margin-top:1.5rem">Código de referencia</h3>' + bloqueCodigo(e.referenceCode, e.codeLanguage) : ""}
     </article>`;
   }
 
+  const FLECHA_ROJA = `<svg class="flecha-mano" width="64" height="30" viewBox="0 0 64 30" aria-hidden="true"><path d="M60 24C42 27 20 20 8 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M6 17L7 5 18 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+
   function htmlComparacion(cap) {
     const c = cap.comparison;
-    return `<article class="seccion">
-      <h2>Escenario</h2>
-      <p class="lead-sm">${enLinea(c.scenario || "")}</p>
+    return `<article class="seccion correccion" data-seccion="comparacion">
+      <div class="h-mano">el caso</div>
+      <p class="lead-sm lectura">${enLinea(c.scenario || "")}</p>
       <div class="comparacion">
         <div class="lado malo">
-          <h3>✗ ${escapar(c.juniorLabel || "Error de Junior")}</h3>
+          <h3 class="tinta-roja">✗ ${escapar(c.juniorLabel || "Así no")}</h3>
           ${bloqueCodigo(c.juniorCode, c.codeLanguage)}
-          <ul>${(c.juniorFlaws || []).map((f) => `<li>${enLinea(f)}</li>`).join("")}</ul>
+          <div class="tinta-roja" style="margin-top:.6rem">${FLECHA_ROJA}</div>
+          <ul class="mano-lista">${(c.juniorFlaws || []).map((f) => `<li>${enLinea(f)}</li>`).join("")}</ul>
         </div>
         <div class="lado bueno">
-          <h3>✓ ${escapar(c.intermediateLabel || "Solución de Intermedio")}</h3>
+          <h3 class="tinta-verde">✓ ${escapar(c.intermediateLabel || "Así sí")}</h3>
           ${bloqueCodigo(c.intermediateCode, c.codeLanguage)}
-          <ul>${(c.intermediateBenefits || []).map((f) => `<li>${enLinea(f)}</li>`).join("")}</ul>
+          <ul class="mano-lista">${(c.intermediateBenefits || []).map((f) => `<li>${enLinea(f)}</li>`).join("")}</ul>
         </div>
       </div>
     </article>`;
@@ -712,29 +726,46 @@
 
   function htmlEjercicios(curso, cap) {
     const hechos = P.capitulo(curso.id, cap.id).ejercicios || {};
-    return cap.exercises
-      .map(
-        (e) => `<article class="ejercicio" data-ej="${escapar(e.id)}">
+    return `<p class="sin-penalizacion" style="margin-bottom:1rem">Escribe tu intento, pide pistas si te atascas y mira la solución cuando quieras. Sin penalización: el objetivo es entender.</p>` + cap.exercises
+      .map((e) => {
+        const niveles = [e.hint, e.solutionExplanation].filter(Boolean).length;
+        return `<article class="ejercicio" data-ej="${escapar(e.id)}">
         <div class="ej-head">
           <h2>${enLinea(e.title)}</h2>
-          ${e.difficulty ? `<span class="pill dif-${escapar(e.difficulty.toLowerCase())}">${escapar(e.difficulty)}</span>` : ""}
+          <div class="row" style="gap:.5rem;flex-shrink:0">
+            ${hechos[e.id] ? '<span class="pill ok">✓ Resuelto</span>' : ""}
+            ${e.difficulty ? `<span class="pill dif-${escapar(e.difficulty.toLowerCase())}">${escapar(e.difficulty)}</span>` : ""}
+          </div>
         </div>
-        ${bloques(e.prompt)}
-        <label class="espacio">Tu respuesta (borrador, no se guarda)
-          <textarea rows="6" spellcheck="false" placeholder="Escribe aquí tu solución antes de mirar la pista o la solución…"></textarea>
+        <div class="lectura">${bloques(e.prompt)}</div>
+        <label class="espacio">tu intento (se guarda en tu cuaderno)
+          <textarea rows="6" spellcheck="false" data-borrador placeholder="Escribe aquí tu solución antes de mirar las pistas…">${escapar(C.borrador(curso.id, cap.id, e.id))}</textarea>
         </label>
         <div class="row">
-          ${e.hint ? '<button class="btn ghost" data-accion="pista" type="button">Ver pista</button>' : ""}
+          ${e.hint ? '<button class="btn ghost" data-accion="pista1" type="button">Pista nivel 1</button>' : ""}
+          ${e.solutionExplanation ? '<button class="btn ghost" data-accion="pista2" type="button">Pista nivel 2</button>' : ""}
           <button class="btn ghost" data-accion="solucion" type="button">Ver solución</button>
-          <label class="check"><input type="checkbox" data-accion="hecho" ${hechos[e.id] ? "checked" : ""}> Lo resolví</label>
+          ${niveles ? `<span class="intentos" aria-label="Pistas usadas">pistas ${Array.from({ length: niveles }, () => '<span class="punto"></span>').join("")}</span>` : ""}
         </div>
-        ${e.hint ? `<div class="pista" hidden><strong>Pista</strong>${bloques(e.hint)}</div>` : ""}
+        <div class="pistas-nivel">
+          ${e.hint ? `<div class="pista" data-nivel="1" hidden><strong>Pista · nivel 1</strong>${bloques(e.hint)}</div>` : ""}
+          ${e.solutionExplanation ? `<div class="pista" data-nivel="2" hidden><strong>Pista · nivel 2</strong>${bloques(e.solutionExplanation)}</div>` : ""}
+        </div>
         <div class="solucion" hidden>
-          ${e.solutionExplanation ? `<div class="takeaway"><strong>Explicación</strong>${bloques(e.solutionExplanation)}</div>` : ""}
+          <div class="h-mano" style="font-size:1.4rem">solución</div>
           ${bloqueCodigo(e.solutionCode, e.codeLanguage)}
         </div>
-      </article>`
-      )
+        <div class="autoevaluacion">
+          <div class="h-mano">¿cómo te fue?</div>
+          <div class="row">
+            <button class="btn ${hechos[e.id] ? "cta" : ""}" data-accion="resuelto" type="button">Lo resolví</button>
+            <button class="btn ghost" data-accion="casi" type="button">Casi</button>
+            <button class="btn ghost" data-accion="no" type="button">No me salió</button>
+          </div>
+          <p class="sin-penalizacion" style="margin:.5rem 0 0">“Casi” y “No me salió” guardan este ejercicio en tus tarjetas de repaso.</p>
+        </div>
+      </article>`;
+      })
       .join("");
   }
 
@@ -750,17 +781,19 @@
     return a;
   }
 
+  const SEGURIDAD = [["adivine", "Adiviné"], ["creo", "Creo que sí"], ["seguro", "Totalmente seguro"]];
+
   function htmlExamen(curso, cap, semilla) {
     const prev = P.capitulo(curso.id, cap.id).examen;
     const letras = "ABCDEFGH";
-    let h = `<div class="panel examen-info">
-      <p>Responde las ${cap.exam.length} preguntas y pulsa <strong>Calificar</strong>. Aprobado desde ${Math.round(P.APROBADO * 100)}%.
-      Las opciones cambian de orden en cada intento.</p>
-      ${prev ? `<p class="muted small">Mejor resultado: ${prev.mejor}/${prev.total} · Último: ${prev.ultimo}/${prev.total} · Intentos: ${prev.intentos}</p>` : ""}
+    let h = `<div class="row" style="justify-content:space-between;margin-bottom:1rem">
+      <p class="lectura" style="margin:0">Responde las ${cap.exam.length} preguntas y pulsa <strong>Calificar</strong>. Apruebas desde ${Math.round(P.APROBADO * 100)}%.
+      ${prev ? `<br><span class="muted small">Mejor resultado: ${prev.mejor}/${prev.total} · Último: ${prev.ultimo}/${prev.total} · Intentos: ${prev.intentos}</span>` : ""}</p>
+      <span class="cronometro" aria-label="Tiempo transcurrido"><span id="reloj">00:00</span></span>
     </div><form id="formExamen">`;
     cap.exam.forEach((q, qi) => {
       const opciones = mezclar(q.options, semilla + qi * 7919);
-      h += `<fieldset class="pregunta" data-correcta="${q.correctIndex}">
+      h += `<fieldset class="pregunta" id="preg-${qi}" data-correcta="${q.correctIndex}" data-q="${qi}">
         <legend><span class="num">${qi + 1}</span>${enLinea(q.question)}</legend>
         ${opciones
           .map(
@@ -768,71 +801,197 @@
               <span class="letra">${letras[pos]}</span><span>${enLinea(texto)}</span></label>`
           )
           .join("")}
+        <div class="row" style="align-items:flex-end">
+          <fieldset class="confianza"><legend>¿qué tan seguro estás?</legend>
+            ${SEGURIDAD.map(([v, t]) => `<label><input type="radio" name="c${qi}" value="${v}"><span>${t}</span></label>`).join("")}
+          </fieldset>
+          <label class="check revisar-check"><input type="checkbox" data-revisar> Marcar para revisar</label>
+        </div>
         <div class="explicacion" hidden>${enLinea(q.explanation || "")}</div>
       </fieldset>`;
     });
-    h += `<div class="row sticky-actions">
-        <button class="btn" type="submit">Calificar</button>
+    h += `<div id="analisis" hidden></div>
+      <div class="row sticky-actions">
+        <button class="btn cta" type="submit">Calificar</button>
         <button class="btn ghost" type="button" id="btnReintentar" hidden>Nuevo intento</button>
         <span id="resultado" class="resultado" aria-live="polite"></span>
       </div></form>`;
     return h;
   }
 
+  function navPreguntas(cap) {
+    return `<div class="nav-preguntas" id="navPreguntas" aria-label="Preguntas">
+      ${cap.exam.map((_, i) => `<a href="#preg-${i}" data-ir="${i}" aria-label="Ir a la pregunta ${i + 1}">${i + 1}</a>`).join("")}</div>`;
+  }
+
   function enlazarExamen(curso, cap, repintar) {
     const form = document.getElementById("formExamen");
     if (!form) return;
+    // Cronómetro (solo informativo)
+    const inicio = Date.now();
+    const reloj = document.getElementById("reloj");
+    clearInterval(cronometroId);
+    cronometroId = setInterval(() => {
+      if (!document.body.contains(reloj)) return clearInterval(cronometroId);
+      const s = Math.floor((Date.now() - inicio) / 1000);
+      reloj.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    }, 1000);
+
+    // Navegador de preguntas (en el margen): sin cambiar la dirección de la página
+    const nav = document.getElementById("navPreguntas");
+    const marcarNav = () => {
+      if (!nav) return;
+      form.querySelectorAll(".pregunta").forEach((f) => {
+        const a = nav.querySelector(`[data-ir="${f.dataset.q}"]`);
+        a.classList.toggle("respondida", !!f.querySelector('input[name^="q"]:checked'));
+        a.classList.toggle("revisar", !!f.querySelector("[data-revisar]:checked"));
+      });
+    };
+    if (nav) nav.querySelectorAll("[data-ir]").forEach((a) => (a.onclick = (e) => {
+      e.preventDefault();
+      document.getElementById("preg-" + a.dataset.ir).scrollIntoView({ behavior: "smooth", block: "center" });
+    }));
+    form.addEventListener("change", marcarNav);
+
     form.onsubmit = (e) => {
       e.preventDefault();
       const preguntas = [...form.querySelectorAll(".pregunta")];
-      const sinResponder = preguntas.filter((f) => !f.querySelector("input:checked"));
+      const sinResponder = preguntas.filter((f) => !f.querySelector('input[name^="q"]:checked'));
       if (sinResponder.length && !confirm(`Te faltan ${sinResponder.length} pregunta(s). ¿Calificar de todos modos?`)) return;
-      let aciertos = 0;
+      clearInterval(cronometroId);
+      let aciertos = 0, seguroBien = 0, seguroMal = 0, adivinadas = 0, nuevasTarjetas = 0;
       for (const f of preguntas) {
+        const qi = +f.dataset.q;
+        const q = cap.exam[qi];
         const correcta = f.dataset.correcta;
-        const marcada = f.querySelector("input:checked");
+        const marcada = f.querySelector('input[name^="q"]:checked');
+        const seguridad = (f.querySelector('input[name^="c"]:checked') || {}).value;
         f.querySelectorAll(".opcion").forEach((op) => {
           const inp = op.querySelector("input");
           inp.disabled = true;
           if (inp.value === correcta) op.classList.add("correcta");
           else if (inp.checked) op.classList.add("incorrecta");
         });
+        f.querySelectorAll(".confianza input, [data-revisar]").forEach((i) => (i.disabled = true));
         const ok = marcada && marcada.value === correcta;
         if (ok) aciertos++;
+        if (ok && seguridad === "seguro") seguroBien++;
+        if (!ok && seguridad === "seguro") seguroMal++;
+        if (ok && seguridad === "adivine") adivinadas++;
+        // Lo que fallaste (o adivinaste) pasa a tus tarjetas de repaso
+        if (!ok || seguridad === "adivine") {
+          const t = C.agregarTarjeta({ curso: curso.id, cap: cap.id, frente: q.question, reverso: `**Respuesta:** ${q.options[q.correctIndex]}\n\n${q.explanation || ""}`, origen: "examen" });
+          if (t) nuevasTarjetas++;
+        }
         f.classList.add(ok ? "bien" : "mal");
         f.querySelector(".explicacion").hidden = false;
+        if (nav) nav.querySelector(`[data-ir="${qi}"]`).classList.add(ok ? "bien" : "mal");
       }
       const total = preguntas.length;
       P.registrarExamen(curso.id, cap.id, aciertos, total);
+      C.registrarEvaluacion(curso.id, cap.id, { aciertos, total, seguroBien, seguroMal, adivinadas });
+      C.registrarActividad();
       const aprobado = aciertos / total >= P.APROBADO;
       const res = document.getElementById("resultado");
       res.innerHTML = `<strong>${aciertos}/${total}</strong> (${Math.round((aciertos * 100) / total)}%) — ${aprobado ? "¡Aprobado!" : "Aún no; repasa y vuelve a intentarlo."}`;
       res.className = "resultado " + (aprobado ? "ok" : "ko");
+      const an = document.getElementById("analisis");
+      an.hidden = false;
+      an.innerHTML = `<div class="h-mano">qué dice tu seguridad</div>
+        <div class="analisis">
+          <div><strong>${seguroBien}</strong>acertaste estando seguro</div>
+          <div><strong>${adivinadas}</strong>acertaste adivinando</div>
+          <div><strong>${seguroMal}</strong>fallaste estando seguro</div>
+        </div>
+        <p class="lectura">${seguroMal ? "Fallar estando seguro es la señal más importante: ahí hay una idea equivocada. Repasa esas explicaciones primero." : aciertos < total ? "Las que fallaste no las tenías seguras: repasa sus explicaciones y vuelve a intentarlo." : adivinadas ? "Acertaste algunas adivinando: repásalas para que la próxima vez sean seguras." : "¡Excelente! Acertaste todo y tu seguridad coincide con tus respuestas."}
+        ${nuevasTarjetas ? ` <strong>${nuevasTarjetas} ${nuevasTarjetas === 1 ? "pregunta pasó" : "preguntas pasaron"} a tus tarjetas de repaso.</strong>` : ""}</p>`;
       form.querySelector("button[type=submit]").hidden = true;
       document.getElementById("btnReintentar").hidden = false;
       mostrarSidebar(sidebarCurso(curso, cap.id));
+      an.scrollIntoView({ behavior: "smooth", block: "center" });
     };
     document.getElementById("btnReintentar").onclick = repintar;
   }
 
-  function enlazarEjercicios(curso, cap) {
+  function enlazarEjercicios(curso, cap, repintar) {
     app.querySelectorAll(".ejercicio").forEach((art) => {
       const idEj = art.dataset.ej;
+      const ej = cap.exercises.find((x) => x.id === idEj);
+      const puntos = [...art.querySelectorAll(".intentos .punto")];
+      const usarPista = () => { const p = puntos.find((x) => !x.classList.contains("usado")); if (p) p.classList.add("usado"); };
       art.addEventListener("click", (e) => {
-        const acc = e.target.dataset?.accion;
-        if (acc === "pista") {
-          const p = art.querySelector(".pista");
+        const b = e.target.closest("[data-accion]");
+        if (!b) return;
+        const acc = b.dataset.accion;
+        if (acc === "pista1" || acc === "pista2") {
+          const p = art.querySelector(`.pista[data-nivel="${acc === "pista1" ? 1 : 2}"]`);
+          if (p.hidden) usarPista();
           p.hidden = !p.hidden;
-          e.target.textContent = p.hidden ? "Ver pista" : "Ocultar pista";
         } else if (acc === "solucion") {
           const s = art.querySelector(".solucion");
           s.hidden = !s.hidden;
-          e.target.textContent = s.hidden ? "Ver solución" : "Ocultar solución";
+          b.textContent = s.hidden ? "Ver solución" : "Ocultar solución";
+        } else if (acc === "resuelto") {
+          P.marcarEjercicio(curso.id, cap.id, idEj, true);
+          C.registrarActividad();
+          aviso("¡Bien! Ejercicio marcado como resuelto");
+          repintar();
+        } else if (acc === "casi" || acc === "no") {
+          P.marcarEjercicio(curso.id, cap.id, idEj, false);
+          C.agregarTarjeta({ curso: curso.id, cap: cap.id, frente: `${ej.title}: ${ej.prompt}`, reverso: [ej.hint ? `**Pista:** ${ej.hint}` : "", ej.solutionExplanation || ""].filter(Boolean).join("\n\n"), origen: "ejercicio" });
+          C.registrarActividad();
+          aviso("Guardado en tus tarjetas de repaso");
+          repintar();
         }
       });
-      const chk = art.querySelector('input[data-accion="hecho"]');
-      chk.onchange = () => P.marcarEjercicio(curso.id, cap.id, idEj, chk.checked);
+      const ta = art.querySelector("[data-borrador]");
+      let espera = null;
+      ta.addEventListener("input", () => {
+        clearTimeout(espera);
+        espera = setTimeout(() => C.guardarBorrador(curso.id, cap.id, idEj, ta.value), 400);
+      });
     });
+  }
+
+  // Margen del capítulo: tutor, tus notas de la página y conteos
+  function margenCapitulo(curso, cap, activa, tema) {
+    if (activa === "examen") {
+      return `<div class="margen-fijo"><div class="margen-titulo">${tema === "ia" ? "Informe" : "Evaluación"}</div>
+        ${navPreguntas(cap)}
+        <div class="nota-adhesiva der"><span class="cinta" aria-hidden="true"></span><span class="etiqueta">Cómo se califica</span>
+          <p>Apruebas con ${Math.round(P.APROBADO * 100)}%. Di qué tan seguro estás: fallar estando seguro le dice al tutor qué repasar contigo.</p></div>
+        ${cap.objectives?.length ? `<div><div class="h-mano" style="font-size:1.4rem">temas evaluados</div>
+          <div class="temas-evaluados">${cap.objectives.map((o) => `<div class="fila"><span>${enLinea(recortar(o, 70))}</span></div>`).join("")}</div></div>` : ""}
+        <div class="prep-aviso small">Modo evaluación: tus notas y el tutor vuelven al terminar.</div></div>`;
+    }
+    const notasCap = C.notas({ curso: curso.id, cap: cap.id });
+    const consejo = {
+      teoria: "Selecciona cualquier frase de la lección: puedo explicártela, guardarla resaltada o convertirla en tarjeta de repaso.",
+      estandar: "Estas reglas son las que separan un trabajo junior de uno profesional. Guarda en tus notas las que más te cuesten.",
+      comparacion: "Lee primero el lado en rojo y trata de encontrar el error antes de mirar las anotaciones.",
+      ejercicios: "Intenta cada ejercicio antes de pedir pistas. Tus intentos se guardan solos.",
+    }[activa] || "";
+    return `<div class="margen-titulo">${tema === "ia" ? "Observaciones" : "Margen"}</div>
+      <div class="tutor-card"><span class="etiqueta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Tutor</span>
+        <p id="tutorTexto">${escapar(consejo)}</p>
+        <p class="aviso-local">Modo local: el tutor usa el contenido del curso. La IA se conectará más adelante.</p></div>
+      <div>
+        <div class="h-mano" style="font-size:1.4rem">tus notas de esta página</div>
+        ${notasCap.length ? `<ul class="lista-notas">${notasCap.map((n) => `<li class="${n.tipo === "duda" ? "duda" : ""}"><span class="nota-mano">${n.tipo === "duda" ? "duda: " : ""}${escapar(n.texto)}</span>
+          <button class="borrar" type="button" data-borrar-nota="${n.id}" aria-label="Borrar nota">✕</button></li>`).join("")}</ul>` : ""}
+        <form id="formNota" style="margin-top:.6rem">
+          <label class="sr" for="inpNota">Escribe una nota</label>
+          <textarea class="area-mano" id="inpNota" placeholder="escribe una nota en el margen…"></textarea>
+          <div class="row" style="margin-top:.4rem">
+            <label class="check"><input type="checkbox" id="chkDuda"> es una duda</label>
+            <button class="chip-btn" type="submit" style="margin-left:auto">Guardar nota</button>
+          </div>
+        </form>
+      </div>
+      <div class="margen-pie">
+        <div class="fila"><span>Resaltados en esta página</span><span>${C.resaltados({ curso: curso.id, cap: cap.id }).length}</span></div>
+        <div class="fila"><span>Tarjetas de este capítulo</span><span>${C.tarjetas({ curso: curso.id }).filter((t) => t.cap === cap.id).length}</span></div>
+      </div>`;
   }
 
   async function vistaCapitulo(idCurso, idCap, pestañaInicial) {
@@ -840,9 +999,11 @@
     const idx = curso.chapters.findIndex((c) => c.id === idCap);
     if (idx < 0) throw new Error(`No existe el capítulo "${idCap}"`);
     const cap = curso.chapters[idx];
+    const tema = temaDe(curso._meta);
+    const nombres = NOMBRES[tema] || NOMBRES.hoy;
     const anterior = curso.chapters[idx - 1];
     const siguiente = curso.chapters[idx + 1];
-    const pestañas = pestañasDe(cap);
+    const pestañas = pestañasDe(cap, tema);
     let activa = pestañas.some(([k]) => k === pestañaInicial) ? pestañaInicial : pestañas[0]?.[0];
 
     setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
@@ -850,37 +1011,44 @@
     mostrarSidebar(sidebarCurso(curso, cap.id));
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
     cerrarMenu();
+    if (pestañas.length) C.registrarActividad();
 
-    C.registrarActividad();
     const pintar = () => {
-      C.recordarUltimo(curso.id, cap.id, activa);
+      clearInterval(cronometroId);
+      if (pestañas.length) C.recordarUltimo(curso.id, cap.id, activa);
       const leido = !!P.capitulo(curso.id, cap.id).leido;
+      const est = P.estado(curso.id, cap.id);
       let contenido = "";
-      if (activa === "teoria") contenido = htmlTeoria(cap);
+      if (!pestañas.length) contenido = `<div class="prep-aviso"><span class="nota-mano">Esta página está en preparación.</span><p style="margin:.4rem 0 0">Pronto tendrá su ${nombres.leccion.toLowerCase()}, ejercicios y evaluación.</p></div>`;
+      else if (activa === "teoria") contenido = htmlTeoria(cap);
       else if (activa === "estandar") contenido = htmlEstandar(cap);
       else if (activa === "comparacion") contenido = htmlComparacion(cap);
       else if (activa === "ejercicios") contenido = htmlEjercicios(curso, cap);
       else if (activa === "examen") contenido = htmlExamen(curso, cap, Date.now() % 100000);
 
-      app.innerHTML = `
-        <header class="cap-header">
-          <span class="kicker">${escapar(cap.module || "")}</span>
-          <h1><span class="cap-code-lg">${escapar(cap.code || "")}</span> ${escapar(cap.title)}</h1>
-          ${cap.subtitle ? `<p class="lead">${escapar(cap.subtitle)}</p>` : ""}
-          <div class="row meta">
-            ${cap.estimatedMinutes ? `<span class="pill">⏱ ${cap.estimatedMinutes} min</span>` : ""}
-            <span class="pill est-${P.estado(curso.id, cap.id)}">${TEXTO_ESTADO[P.estado(curso.id, cap.id)]}</span>
-            <label class="check"><input type="checkbox" id="chkLeido" ${leido ? "checked" : ""}> Marcar como leído</label>
-          </div>
-        </header>
-        <nav class="tabs" role="tablist">
-          ${pestañas.map(([k, t]) => `<button role="tab" type="button" class="tab ${k === activa ? "activa" : ""}" data-tab="${k}" aria-selected="${k === activa}">${escapar(t)}</button>`).join("")}
-        </nav>
-        <div class="tab-body">${contenido}</div>
-        <nav class="pager">
-          ${anterior ? `<a class="btn ghost" href="#/curso/${curso.id}/${anterior.id}">← ${escapar(anterior.code || "Anterior")}</a>` : "<span></span>"}
-          ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${escapar(siguiente.code || "Siguiente")} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al índice</a>`}
-        </nav>`;
+      app.innerHTML = `<div class="pagina">
+        <div class="pagina-main">
+          <header class="cap-header">
+            <span class="cap-kicker">${escapar(nombres.leccion)} · ${escapar(cap.code || "")}${cap.estimatedMinutes ? ` · ${cap.estimatedMinutes} min` : ""}</span>
+            <h1 class="titulo-hoja" style="font-size:clamp(2rem,3.6vw,2.9rem);margin-top:.5rem">${escapar(cap.title)}</h1>
+            ${cap.subtitle ? `<p class="lead" style="margin-top:.6rem">${escapar(cap.subtitle)}</p>` : ""}
+            ${pestañas.length ? `<div class="row meta">
+              <span class="pill est-${est}">${TEXTO_ESTADO[est]}</span>
+              <span class="small muted">${escapar(cap.module || "")}</span>
+              <label class="check" style="margin-left:auto"><input type="checkbox" id="chkLeido" ${leido ? "checked" : ""}> Marcar como leído</label>
+            </div>` : ""}
+          </header>
+          ${pestañas.length ? `<nav class="tabs" role="tablist" aria-label="Partes del capítulo">
+            ${pestañas.map(([k, t]) => `<button role="tab" type="button" class="tab ${k === activa ? "activa" : ""}" data-tab="${k}" aria-selected="${k === activa}">${escapar(t)}</button>`).join("")}
+          </nav>` : ""}
+          <div class="tab-body" role="tabpanel">${contenido}</div>
+          <nav class="pager" aria-label="Capítulos">
+            ${anterior ? `<a class="btn ghost" href="#/curso/${curso.id}/${anterior.id}">← ${escapar(anterior.code || "Anterior")}</a>` : "<span></span>"}
+            ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${escapar(siguiente.code || "Siguiente")} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al panel</a>`}
+          </nav>
+        </div>
+        <aside class="margen" aria-label="Margen">${pestañas.length ? margenCapitulo(curso, cap, activa, tema) : `<div class="margen-titulo">Margen</div>`}</aside>
+      </div>`;
 
       app.querySelectorAll(".tab").forEach((b) => {
         b.onclick = () => {
@@ -889,20 +1057,36 @@
           app.querySelector(".tabs").scrollIntoView({ block: "start", behavior: "smooth" });
         };
       });
-      document.getElementById("chkLeido").onchange = (e) => {
+      const chk = document.getElementById("chkLeido");
+      if (chk) chk.onchange = (e) => {
         P.marcarLeido(curso.id, cap.id, e.target.checked);
+        if (e.target.checked) C.registrarActividad();
         pintar();
         mostrarSidebar(sidebarCurso(curso, cap.id));
       };
-      if (activa === "ejercicios") enlazarEjercicios(curso, cap);
+      const formNota = document.getElementById("formNota");
+      if (formNota) formNota.onsubmit = (e) => {
+        e.preventDefault();
+        const tipo = document.getElementById("chkDuda").checked ? "duda" : "nota";
+        if (C.agregarNota({ curso: curso.id, cap: cap.id, texto: document.getElementById("inpNota").value, tipo })) pintar();
+      };
+      app.querySelectorAll("[data-borrar-nota]").forEach((b) => (b.onclick = () => { C.borrarNota(b.dataset.borrarNota); pintar(); }));
+      if (activa === "ejercicios") enlazarEjercicios(curso, cap, pintar);
       if (activa === "examen") enlazarExamen(curso, cap, pintar);
+      if (activa === "teoria" || activa === "estandar" || activa === "comparacion") activarResaltado(curso, cap, pintar);
     };
     pintar();
     window.scrollTo(0, 0);
   }
 
+  // Resaltado de texto en la lección (se completa en resaltado.js)
+  function activarResaltado(curso, cap, repintar) {
+    if (window.Resaltado) window.Resaltado.activar({ app, curso, cap, repintar, aviso });
+  }
+
   // ---------- Router ----------
   async function router() {
+    clearInterval(cronometroId);
     const partes = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
     try {
       if (partes[0] === "curso" && partes[1] && partes[2]) await vistaCapitulo(partes[1], partes[2], partes[3]);

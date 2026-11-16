@@ -165,6 +165,8 @@ mark.resaltado { background: linear-gradient(transparent 40%, var(--resaltador) 
 .lado.malo ul.mano-lista li::before { content: "✗"; }
 .lado.bueno ul.mano-lista li::before { content: "✓"; }
 .flecha-mano { display: block; margin-bottom: .2rem; }
+.mano-lista code, .nota-mano code, .tinta-roja code, .tinta-verde code { font-size: .62em; }
+.margen-fijo { position: sticky; top: calc(var(--topbar-h) + 16px); display: flex; flex-direction: column; gap: var(--e-5); }
 
 /* ---------- Ejercicios ---------- */
 .ejercicio .intentos { display: inline-flex; gap: .35rem; align-items: center; font-size: var(--t-xs); color: var(--tinta-2); }
