@@ -94,35 +94,35 @@
           "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
           "options": [
             "Todas al mismo tiempo, sin orden.",
-            "En orden alfabético por nombre de archivo.",
             "En el orden en que aparecen en el HTML.",
-            "Primero las más pequeñas."
+            "Primero las más pequeñas.",
+            "En orden alfabético por nombre de archivo."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Los scripts normales se ejecutan uno tras otro en el orden del documento. Por eso en tu página `app.js` se carga al final: usa funciones definidas en los archivos anteriores."
         },
         {
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En la librería de Excel.",
+            "En el logotipo.",
             "En cada archivo de CSS.",
-            "En la carpeta de configuración, donde están los ajustes como los estados.",
-            "En el logotipo."
+            "En la librería de Excel.",
+            "En la carpeta de configuración, donde están los ajustes como los estados."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
         },
         {
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "Un servidor de base de datos.",
             "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
+            "El nombre del archivo principal.",
             "Un lenguaje de estilos.",
-            "El nombre del archivo principal."
+            "Un servidor de base de datos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
         }
       ],
@@ -217,12 +217,12 @@
           "id": "lec-01-q1",
           "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
           "options": [
-            "Ctrl+P",
             "Ctrl+Shift+F",
-            "Ctrl+F",
-            "Ctrl+D"
+            "Ctrl+P",
+            "Ctrl+D",
+            "Ctrl+F"
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Ctrl+F busca solo en el archivo abierto; Ctrl+Shift+F busca en toda la carpeta."
         },
         {
@@ -230,20 +230,20 @@
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
             "Porque Live Server solo funciona con carpetas vacías.",
-            "No hay diferencia.",
             "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
+            "No hay diferencia.",
             "Porque los archivos sueltos no se pueden guardar."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
         },
         {
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Ejecuta la página.",
-            "Comenta la línea.",
             "Borra la función.",
+            "Comenta la línea.",
+            "Ejecuta la página.",
             "Salta al lugar donde la función está definida."
           ],
           "correctIndex": 3,
@@ -344,36 +344,36 @@
           "id": "lec-02-q1",
           "question": "¿Qué muestra la pestaña Elements de las DevTools?",
           "options": [
-            "El DOM actual de la página, incluido lo que agregó JavaScript.",
             "Solo el archivo HTML tal como está en el disco.",
             "Los errores de red.",
+            "El DOM actual de la página, incluido lo que agregó JavaScript.",
             "Los datos guardados en el navegador."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Elements refleja la página viva. Por eso ahí ves las filas de una tabla que no existen en el archivo HTML."
         },
         {
           "id": "lec-02-q2",
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
+            "Que otra regla con más prioridad le está ganando.",
             "Que el archivo CSS no existe.",
             "Que la regla se borrará al guardar.",
-            "Que otra regla con más prioridad le está ganando.",
             "Que el navegador no soporta CSS."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
         },
         {
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
+            "Porque se borra al instante.",
             "Porque solo se puede editar desde Excel.",
             "Porque un error de formato puede impedir que la página lea sus datos.",
-            "Porque se borra al instante.",
             "Porque está prohibido por el navegador."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
         }
       ],
@@ -477,12 +477,12 @@
           "id": "lec-03-q1",
           "question": "¿Qué atributo usa tu página para ocultar las pantallas que no se están viendo?",
           "options": [
-            "alt",
-            "display",
             "hidden",
-            "class=\"oculto\" obligatoriamente"
+            "alt",
+            "class=\"oculto\" obligatoriamente",
+            "display"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
         },
         {
@@ -490,20 +490,20 @@
           "question": "¿Cuál es la diferencia principal entre id y class?",
           "options": [
             "La class es única y el id se repite.",
-            "El id solo sirve para estilos.",
+            "El id es único en la página; la class puede repetirse en muchos elementos.",
             "No hay diferencia.",
-            "El id es único en la página; la class puede repetirse en muchos elementos."
+            "El id solo sirve para estilos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
         },
         {
           "id": "lec-03-q3",
           "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
           "options": [
+            "Porque button es más rápido de escribir.",
             "Porque los div no se pueden pintar con CSS.",
             "Porque los div no pueden tener texto.",
-            "Porque button es más rápido de escribir.",
             "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra."
           ],
           "correctIndex": 3,
@@ -610,9 +610,9 @@
           "question": "¿Qué conecta un `<label>` con su campo?",
           "options": [
             "El atributo for del label igual al id del campo.",
-            "Que estén en la misma línea.",
+            "El atributo name del label.",
             "El atributo class.",
-            "El atributo name del label."
+            "Que estén en la misma línea."
           ],
           "correctIndex": 0,
           "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
@@ -621,12 +621,12 @@
           "id": "lec-04-q2",
           "question": "Quieres sugerir clientes existentes pero permitir escribir uno nuevo. ¿Qué usas?",
           "options": [
-            "Un input con datalist.",
             "Un select.",
-            "Un textarea.",
-            "Un checkbox."
+            "Un checkbox.",
+            "Un input con datalist.",
+            "Un textarea."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
         },
         {
@@ -635,8 +635,8 @@
           "options": [
             "boton.dataset.id",
             "boton.data-id",
-            "boton.getData()",
-            "boton.id"
+            "boton.id",
+            "boton.getData()"
           ],
           "correctIndex": 0,
           "explanation": "Los atributos `data-*` quedan disponibles en `dataset`, sin el prefijo y en camelCase: `data-id` → `dataset.id`."
@@ -739,9 +739,9 @@
           "question": "¿Dónde van los encabezados de columna de una tabla?",
           "options": [
             "En celdas td dentro de tbody.",
-            "En un div encima de la tabla.",
+            "En el atributo title de la tabla.",
             "En celdas th dentro de thead.",
-            "En el atributo title de la tabla."
+            "En un div encima de la tabla."
           ],
           "correctIndex": 2,
           "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
@@ -751,23 +751,23 @@
           "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
           "options": [
             "Ocultar la tabla en el celular.",
-            "Envolverla en un contenedor con overflow-x: auto.",
             "Convertirla en una imagen.",
+            "Envolverla en un contenedor con overflow-x: auto.",
             "Reducir la letra a 6 píxeles."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
         },
         {
           "id": "lec-05-q3",
           "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
           "options": [
-            "Nada, el ícono es suficiente.",
-            "Un aria-label que describa la acción, como \"Editar actividad\".",
             "Un color más oscuro.",
-            "Un id."
+            "Un id.",
+            "Nada, el ícono es suficiente.",
+            "Un aria-label que describa la acción, como \"Editar actividad\"."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Sin texto, un lector de pantalla no sabe qué hace el botón; `aria-label` le da nombre."
         }
       ],
@@ -867,10 +867,10 @@
           "id": "lec-06-q1",
           "question": "¿Cuál de estos selectores tiene más especificidad?",
           "options": [
-            "main section div p",
+            ".tarjeta:hover",
             "#v-inicio .tarjeta",
             ".panel .tarjeta .titulo",
-            ".tarjeta:hover"
+            "main section div p"
           ],
           "correctIndex": 1,
           "explanation": "Un id pesa más que cualquier cantidad de clases o etiquetas."
@@ -879,10 +879,10 @@
           "id": "lec-06-q2",
           "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
           "options": [
-            "No se aplica ninguna.",
             "La más corta.",
+            "La que aparece primero.",
             "La que aparece después.",
-            "La que aparece primero."
+            "No se aplica ninguna."
           ],
           "correctIndex": 2,
           "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
@@ -892,9 +892,9 @@
           "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
           "options": [
             "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
+            "Para que pesen menos.",
             "Porque el navegador ignora los archivos sin número.",
-            "Por compatibilidad con Excel.",
-            "Para que pesen menos."
+            "Por compatibilidad con Excel."
           ],
           "correctIndex": 0,
           "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
@@ -994,23 +994,23 @@
           "question": "¿Cómo se usa una variable CSS llamada --radio?",
           "options": [
             "border-radius: --radio;",
-            "border-radius: $radio;",
             "border-radius: @radio;",
-            "border-radius: var(--radio);"
+            "border-radius: var(--radio);",
+            "border-radius: $radio;"
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Las custom properties se leen con la función `var()`."
         },
         {
           "id": "lec-07-q2",
           "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
           "options": [
-            "Redefinir las variables de color cuando el body tiene una clase o atributo.",
-            "Copiar toda la hoja de estilos y cambiar cada color.",
+            "Crear un segundo index.html.",
             "Usar filter: invert(1) en toda la página.",
-            "Crear un segundo index.html."
+            "Copiar toda la hoja de estilos y cambiar cada color.",
+            "Redefinir las variables de color cuando el body tiene una clase o atributo."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
         },
         {
@@ -1018,11 +1018,11 @@
           "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
           "options": [
             "Borra el modo técnico.",
+            "Cambia el id del body.",
             "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
-            "Muestra todo en modo técnico.",
-            "Cambia el id del body."
+            "Muestra todo en modo técnico."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
         }
       ],
@@ -1123,9 +1123,9 @@
           "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
           "options": [
             "gap",
-            "spacing",
+            "padding",
             "margin-between",
-            "padding"
+            "spacing"
           ],
           "correctIndex": 0,
           "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
@@ -1135,21 +1135,21 @@
           "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
           "options": [
             "width: auto",
-            "display: block",
             "align-items: stretch",
-            "flex: 1"
+            "flex: 1",
+            "display: block"
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
         },
         {
           "id": "lec-08-q3",
           "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
           "options": [
-            "Le quita el margen.",
-            "Lo empuja hacia el extremo derecho.",
             "Lo centra.",
-            "Lo oculta."
+            "Lo empuja hacia el extremo derecho.",
+            "Lo oculta.",
+            "Le quita el margen."
           ],
           "correctIndex": 1,
           "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
@@ -1251,36 +1251,36 @@
           "id": "lec-09-q1",
           "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
           "options": [
+            "Una columna de 3 píxeles.",
             "Tres columnas de igual ancho que se reparten el espacio.",
             "Tres filas iguales.",
-            "Una columna de 3 píxeles.",
             "Tres columnas de 1 píxel."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "`fr` es una fracción del espacio disponible."
         },
         {
           "id": "lec-09-q2",
           "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
           "options": [
+            "Exactamente 200 columnas.",
             "Tantas columnas como quepan, cada una de al menos 200px.",
             "Una sola columna de 200px.",
-            "Exactamente 200 columnas.",
             "Columnas de 1px."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Es la receta para cuadrículas que se adaptan al ancho sin media queries."
         },
         {
           "id": "lec-09-q3",
           "question": "¿Cuándo es mejor Flexbox que Grid?",
           "options": [
-            "Para cualquier tablero de dos dimensiones.",
-            "Para alinear elementos en una sola dirección, como una barra de botones.",
             "Solo para tablas.",
-            "Nunca."
+            "Para cualquier tablero de dos dimensiones.",
+            "Nunca.",
+            "Para alinear elementos en una sola dirección, como una barra de botones."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Flexbox es unidimensional; Grid controla filas y columnas a la vez."
         }
       ],
@@ -1381,9 +1381,9 @@
           "id": "lec-10-q1",
           "question": "¿Qué pasa si falta la etiqueta meta viewport?",
           "options": [
-            "Nada.",
             "Se desactiva JavaScript.",
             "La página no carga.",
+            "Nada.",
             "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto."
           ],
           "correctIndex": 3,
@@ -1395,22 +1395,22 @@
           "options": [
             "Limita la página a 760px.",
             "Oculta la página en el celular.",
-            "Aplica las reglas solo en pantallas mayores de 760px.",
-            "Aplica esas reglas solo cuando la pantalla mide 760px o menos."
+            "Aplica esas reglas solo cuando la pantalla mide 760px o menos.",
+            "Aplica las reglas solo en pantallas mayores de 760px."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "max-width = 'hasta este ancho'."
         },
         {
           "id": "lec-10-q3",
           "question": "¿Por qué conviene que los campos de formulario tengan letra de 16px en el celular?",
           "options": [
-            "Porque los formularios no aceptan otros tamaños.",
             "Porque con menos, algunos celulares hacen zoom automático al escribir.",
             "Por compatibilidad con Excel.",
+            "Porque los formularios no aceptan otros tamaños.",
             "Para ahorrar datos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Safari en iPhone amplía la página al enfocar campos con letra menor de 16px."
         }
       ],
@@ -1513,36 +1513,36 @@
           "id": "lec-11-q1",
           "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
           "options": [
-            "'51'",
-            "6",
             "NaN",
-            "Error"
+            "Error",
+            "6",
+            "'51'"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
         },
         {
           "id": "lec-11-q2",
           "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
           "options": [
-            "0",
             "undefined",
             "null",
+            "0",
             "Un error"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
         },
         {
           "id": "lec-11-q3",
           "question": "¿Cuándo debes usar `let` en lugar de `const`?",
           "options": [
-            "Siempre.",
-            "Cuando la variable es un número.",
+            "Cuando la variable es un array.",
             "Cuando la variable se va a reasignar.",
-            "Cuando la variable es un array."
+            "Siempre.",
+            "Cuando la variable es un número."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "`const` impide reasignar el nombre; usa `let` solo si el valor cambia (un contador, un acumulador)."
         }
       ],
@@ -1646,10 +1646,10 @@
           "id": "lec-12-q1",
           "question": "¿Qué devuelve `find` si ningún elemento cumple la condición?",
           "options": [
-            "Un array vacío",
             "null",
+            "false",
             "undefined",
-            "false"
+            "Un array vacío"
           ],
           "correctIndex": 2,
           "explanation": "`find` devuelve el primer elemento que cumple o `undefined`. `filter` devolvería un array vacío."
@@ -1658,9 +1658,9 @@
           "id": "lec-12-q2",
           "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
           "options": [
-            "Error",
-            "[1, 10, 9]",
             "[1, 9, 10]",
+            "[1, 10, 9]",
+            "Error",
             "[10, 9, 1]"
           ],
           "correctIndex": 1,
@@ -1670,9 +1670,9 @@
           "id": "lec-12-q3",
           "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
           "options": [
+            "No hay diferencia.",
             "Porque sort no funciona sin los tres puntos.",
             "Porque es más rápido.",
-            "No hay diferencia.",
             "Porque sort modifica la lista original y así se ordena una copia."
           ],
           "correctIndex": 3,
@@ -1776,9 +1776,9 @@
           "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
           "options": [
             "5, porque a y b son el mismo objeto.",
+            "El valor anterior de a.x.",
             "undefined.",
-            "Da error.",
-            "El valor anterior de a.x."
+            "Da error."
           ],
           "correctIndex": 0,
           "explanation": "Asignar un objeto copia la referencia, no el contenido."
@@ -1787,24 +1787,24 @@
           "id": "lec-13-q2",
           "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
           "options": [
-            "Repara el texto.",
-            "Devuelve un objeto vacío.",
+            "Lanza un error.",
             "Devuelve null.",
-            "Lanza un error."
+            "Repara el texto.",
+            "Devuelve un objeto vacío."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Por eso siempre se envuelve en try/catch."
         },
         {
           "id": "lec-13-q3",
           "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
           "options": [
+            "obj[campo]",
             "obj{campo}",
             "obj->campo",
-            "obj[campo]",
             "obj.campo"
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
         }
       ],
@@ -1902,12 +1902,12 @@
           "id": "lec-14-q1",
           "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
           "options": [
-            "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS).",
-            "Que la página cargue lento.",
+            "Que se borre el localStorage.",
             "Que los números se sumen como texto.",
-            "Que se borre el localStorage."
+            "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS).",
+            "Que la página cargue lento."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "El escape convierte < y > en entidades, así el navegador los muestra en lugar de interpretarlos."
         },
         {
@@ -1916,10 +1916,10 @@
           "options": [
             "Nunca hace falta escapar.",
             "Cuando el dato es corto.",
-            "Cuando lo asignas con textContent.",
-            "Cuando viene de Excel."
+            "Cuando viene de Excel.",
+            "Cuando lo asignas con textContent."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "`textContent` siempre trata el valor como texto plano."
         },
         {
@@ -1927,9 +1927,9 @@
           "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
           "options": [
             "Para unir el array de textos en un solo texto sin comas.",
-            "Para escapar el HTML.",
             "Para eliminar duplicados.",
-            "Para ordenar las filas."
+            "Para ordenar las filas.",
+            "Para escapar el HTML."
           ],
           "correctIndex": 0,
           "explanation": "Asignar un array a innerHTML lo convertiría con comas entre los elementos."
@@ -2032,36 +2032,36 @@
           "id": "lec-15-q1",
           "question": "¿Por qué `new Date().toISOString().slice(0,10)` puede dar la fecha de mañana?",
           "options": [
-            "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
-            "Porque el navegador tiene un error.",
             "Nunca pasa.",
-            "Porque slice corta mal."
+            "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
+            "Porque slice corta mal.",
+            "Porque el navegador tiene un error."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "De noche en RD ya es el día siguiente en UTC."
         },
         {
           "id": "lec-15-q2",
           "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
           "options": [
-            "Porque JavaScript no tiene fechas.",
+            "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
             "Porque Excel no acepta otro formato.",
             "Porque ocupan menos memoria que un número.",
-            "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria."
+            "Porque JavaScript no tiene fechas."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
         },
         {
           "id": "lec-15-q3",
           "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
           "options": [
-            "0.12",
-            "0.3",
+            "Error",
             "0.30000000000000004",
-            "Error"
+            "0.3",
+            "0.12"
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
         }
       ],
@@ -2161,10 +2161,10 @@
           "id": "lec-16-q1",
           "question": "¿Qué devuelve `document.getElementById('no-existe')`?",
           "options": [
-            "Un elemento vacío",
-            "null",
             "Lanza un error",
-            "undefined"
+            "null",
+            "undefined",
+            "Un elemento vacío"
           ],
           "correctIndex": 1,
           "explanation": "Devuelve null; el error aparece después, al intentar usar una propiedad de null."
@@ -2175,22 +2175,22 @@
           "options": [
             "querySelector devuelve una lista.",
             "querySelectorAll solo busca por id.",
-            "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos.",
-            "No hay diferencia."
+            "No hay diferencia.",
+            "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "El 'All' indica que devuelve una lista (NodeList) con todas las coincidencias."
         },
         {
           "id": "lec-16-q3",
           "question": "¿Por qué es mejor `classList.add('activo')` que `className = 'activo'`?",
           "options": [
-            "Porque className solo funciona en botones.",
+            "Porque className no existe.",
             "Porque classList es más antiguo.",
-            "Porque classList agrega la clase sin borrar las demás.",
-            "Porque className no existe."
+            "Porque className solo funciona en botones.",
+            "Porque classList agrega la clase sin borrar las demás."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Asignar className reemplaza todas las clases del elemento."
         }
       ],
@@ -2304,24 +2304,24 @@
           "id": "lec-17-q2",
           "question": "¿Para qué sirve `e.target.closest('[data-act]')`?",
           "options": [
-            "Para eliminar el atributo data-act.",
-            "Para cerrar la ventana.",
+            "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno.",
             "Para buscar el elemento más cercano en pantalla.",
-            "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno."
+            "Para eliminar el atributo data-act.",
+            "Para cerrar la ventana."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "closest sube por los ancestros hasta encontrar el primero que coincide con el selector."
         },
         {
           "id": "lec-17-q3",
           "question": "¿Por qué la delegación de eventos es ideal para tablas que se redibujan?",
           "options": [
-            "Porque desactiva el burbujeo.",
-            "Porque evita usar data-act.",
             "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
+            "Porque evita usar data-act.",
+            "Porque desactiva el burbujeo.",
             "Porque es más bonita."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "El evento burbujea hasta el documento, donde un único escuchador lo atiende."
         }
       ],
@@ -2434,24 +2434,24 @@
           "id": "lec-18-q2",
           "question": "¿Cómo puede un mismo formulario servir para crear y para editar?",
           "options": [
-            "Con un campo oculto con el id: vacío al crear, con valor al editar.",
             "No es posible.",
-            "Con dos botones submit.",
-            "Recargando la página."
+            "Recargando la página.",
+            "Con un campo oculto con el id: vacío al crear, con valor al editar.",
+            "Con dos botones submit."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Al guardar, la presencia del id decide si se actualiza o se agrega."
         },
         {
           "id": "lec-18-q3",
           "question": "¿Qué método abre un `<dialog>` como ventana modal?",
           "options": [
+            "display()",
             "showModal()",
-            "show(true)",
             "open()",
-            "display()"
+            "show(true)"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "showModal() lo abre por encima del resto, bloquea el fondo y permite cerrar con Escape."
         }
       ],
@@ -2547,36 +2547,36 @@
           "id": "lec-19-q1",
           "question": "Según la arquitectura de tu página, ¿qué debe pasar después de que una acción modifica los datos?",
           "options": [
-            "Nada, el navegador lo actualiza solo.",
-            "Cambiar el color de la fila con style.",
             "Recargar la página.",
-            "Guardar el estado y redibujar las pantallas."
+            "Nada, el navegador lo actualiza solo.",
+            "Guardar el estado y redibujar las pantallas.",
+            "Cambiar el color de la fila con style."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El ciclo es acción → datos → guardar → redibujar."
         },
         {
           "id": "lec-19-q2",
           "question": "¿Por qué el script de arranque (app.js) va al final?",
           "options": [
-            "Porque es el más grande.",
             "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
             "Porque el navegador ignora el último script.",
+            "Porque es el más grande.",
             "Por orden alfabético."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Sin sistema de módulos, cada archivo solo puede usar lo que ya se cargó antes."
         },
         {
           "id": "lec-19-q3",
           "question": "Quieres cambiar lo que hace un botón. ¿Cuál es el primer paso más eficiente?",
           "options": [
-            "Cambiar su texto.",
+            "Inspeccionarlo y buscar su data-act en el proyecto.",
             "Leer todos los archivos JS de arriba abajo.",
-            "Borrar el botón y crearlo de nuevo.",
-            "Inspeccionarlo y buscar su data-act en el proyecto."
+            "Cambiar su texto.",
+            "Borrar el botón y crearlo de nuevo."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "El data-act te lleva directo a la acción registrada."
         }
       ],
@@ -2676,24 +2676,24 @@
           "id": "lec-20-q1",
           "question": "¿Qué tipo de dato guarda localStorage?",
           "options": [
-            "Archivos de Excel.",
-            "Solo texto; los objetos se convierten con JSON.stringify.",
             "Imágenes.",
-            "Objetos de JavaScript directamente."
+            "Objetos de JavaScript directamente.",
+            "Archivos de Excel.",
+            "Solo texto; los objetos se convierten con JSON.stringify."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Por eso el estado se guarda como JSON y se lee con JSON.parse."
         },
         {
           "id": "lec-20-q2",
           "question": "Abres tu página en otro computador. ¿Por qué no ves tus datos?",
           "options": [
-            "Porque GitHub los elimina.",
             "Porque localStorage es propio de cada navegador y equipo.",
             "Porque falta internet.",
+            "Porque GitHub los elimina.",
             "Porque se borran cada día."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Los datos viven en el navegador. Para moverlos se usa un respaldo (o una base de datos en la nube)."
         },
         {
@@ -2701,8 +2701,8 @@
           "question": "¿Para qué sirve una migración?",
           "options": [
             "Para borrar datos viejos.",
-            "Para mover la página a otro servidor.",
             "Para comprimir el localStorage.",
+            "Para mover la página a otro servidor.",
             "Para adaptar los datos guardados con una versión anterior a la nueva estructura."
           ],
           "correctIndex": 3,
@@ -2808,10 +2808,10 @@
           "id": "lec-21-q1",
           "question": "¿Qué hace `await archivo.arrayBuffer()`?",
           "options": [
-            "Borra el archivo.",
             "Convierte el archivo en Excel.",
+            "Sube el archivo a internet.",
             "Espera a que el navegador termine de leer el archivo y devuelve su contenido binario.",
-            "Sube el archivo a internet."
+            "Borra el archivo."
           ],
           "correctIndex": 2,
           "explanation": "arrayBuffer devuelve una promesa; await espera su resultado."
@@ -2820,24 +2820,24 @@
           "id": "lec-21-q2",
           "question": "¿Qué devuelve `XLSX.utils.sheet_to_json(hoja)`?",
           "options": [
-            "Un archivo .xlsx.",
             "Un texto JSON.",
+            "Un array de objetos, uno por fila, con los encabezados como claves.",
             "Una tabla HTML.",
-            "Un array de objetos, uno por fila, con los encabezados como claves."
+            "Un archivo .xlsx."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Usa la primera fila de la hoja como nombres de las propiedades."
         },
         {
           "id": "lec-21-q3",
           "question": "¿Por qué se normalizan las filas antes de agregarlas a los datos?",
           "options": [
-            "Porque SheetJS lo exige.",
-            "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos.",
             "No hace falta normalizar.",
-            "Para que el archivo pese menos."
+            "Porque SheetJS lo exige.",
+            "Para que el archivo pese menos.",
+            "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Normalizar convierte lo que venga del archivo en la forma exacta que espera tu código."
         }
       ],
@@ -2939,12 +2939,12 @@
           "id": "lec-22-q1",
           "question": "En SVG, ¿hacia dónde crece la coordenada y?",
           "options": [
-            "Hacia la derecha.",
+            "Hacia abajo.",
             "Hacia arriba.",
             "Depende del navegador.",
-            "Hacia abajo."
+            "Hacia la derecha."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Por eso una barra alta tiene una y pequeña: empieza más arriba."
         },
         {
@@ -2952,9 +2952,9 @@
           "question": "¿Para qué sirve el atributo viewBox?",
           "options": [
             "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG.",
-            "Pone un borde al gráfico.",
+            "Hace el SVG invisible.",
             "Carga una imagen externa.",
-            "Hace el SVG invisible."
+            "Pone un borde al gráfico."
           ],
           "correctIndex": 0,
           "explanation": "Permite dibujar en unidades cómodas y que el gráfico sea responsive."
@@ -2963,12 +2963,12 @@
           "id": "lec-22-q3",
           "question": "¿Por qué se usa `Math.max(1, ...valores)` al escalar?",
           "options": [
-            "Para que la barra mínima mida 1.",
-            "Para redondear.",
+            "Para ordenar los valores.",
             "Para evitar dividir entre cero cuando todos los valores son 0.",
-            "Para ordenar los valores."
+            "Para redondear.",
+            "Para que la barra mínima mida 1."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Si el máximo fuera 0, la división daría NaN y el SVG se rompería."
         }
       ],
@@ -3078,22 +3078,22 @@
           "id": "lec-23-q2",
           "question": "¿Qué indica normalmente `x is not defined`?",
           "options": [
-            "Que falta internet.",
             "Que x es un número.",
             "Que x vale null.",
-            "Que el nombre está mal escrito o el archivo que lo define no se cargó antes."
+            "Que el nombre está mal escrito o el archivo que lo define no se cargó antes.",
+            "Que falta internet."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "ReferenceError: el nombre no existe en ese momento."
         },
         {
           "id": "lec-23-q3",
           "question": "¿Por qué un solo SyntaxError puede hacer que 'no funcione nada' de un archivo?",
           "options": [
-            "Porque detiene el navegador.",
-            "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
             "Porque borra el localStorage.",
-            "Porque desactiva el CSS."
+            "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
+            "Porque desactiva el CSS.",
+            "Porque detiene el navegador."
           ],
           "correctIndex": 1,
           "explanation": "Un error de sintaxis impide ejecutar el archivo completo."
@@ -3194,21 +3194,21 @@
           "id": "lec-24-q1",
           "question": "¿Qué hace un linter como ESLint?",
           "options": [
-            "Ejecuta la página más rápido.",
+            "Publica la página en internet.",
             "Comprime las imágenes.",
-            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas.",
-            "Publica la página en internet."
+            "Ejecuta la página más rápido.",
+            "Lee el código sin ejecutarlo y avisa de errores y malas prácticas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Es un análisis estático del código."
         },
         {
           "id": "lec-24-q2",
           "question": "¿Qué comando instala las herramientas de revisión del proyecto la primera vez?",
           "options": [
+            "git push",
             "node index.html",
             "npm run revisar",
-            "git push",
             "npm install"
           ],
           "correctIndex": 3,
@@ -3218,12 +3218,12 @@
           "id": "lec-24-q3",
           "question": "El linter marca un aviso que no entiendes. ¿Qué es lo correcto?",
           "options": [
-            "Buscar el nombre de la regla, entender el aviso y corregir el código.",
             "Desactivar el linter en todo el archivo.",
-            "Ignorarlo y subir el cambio.",
-            "Borrar la línea."
+            "Borrar la línea.",
+            "Buscar el nombre de la regla, entender el aviso y corregir el código.",
+            "Ignorarlo y subir el cambio."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Cada regla tiene documentación con ejemplos de código correcto e incorrecto."
         }
       ],
@@ -3321,34 +3321,34 @@
           "id": "lec-25-q1",
           "question": "¿Qué funciones son las más fáciles y útiles de probar?",
           "options": [
-            "Las que guardan en localStorage.",
-            "Las funciones puras que reciben datos y devuelven un resultado.",
             "Las que abren diálogos.",
-            "Las que dibujan la pantalla."
+            "Las que guardan en localStorage.",
+            "Las que dibujan la pantalla.",
+            "Las funciones puras que reciben datos y devuelven un resultado."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "No dependen de la pantalla ni del almacenamiento, así que se prueban con datos de ejemplo."
         },
         {
           "id": "lec-25-q2",
           "question": "Arreglaste un error en el cálculo de días de atraso. ¿Qué deberías hacer además?",
           "options": [
-            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
             "Nada más.",
             "Borrar las pruebas antiguas.",
-            "Cambiar el nombre de la función."
+            "Cambiar el nombre de la función.",
+            "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Es la práctica que evita que los errores 'resuciten' en cambios futuros."
         },
         {
           "id": "lec-25-q3",
           "question": "¿Por qué la página de pruebas no debe usar los datos reales del navegador?",
           "options": [
+            "Porque está prohibido leer localStorage.",
             "No hay ningún motivo.",
-            "Porque las pruebas son más lentas con datos.",
             "Para no modificarlos por accidente y para que los resultados esperados sean siempre los mismos.",
-            "Porque está prohibido leer localStorage."
+            "Porque las pruebas son más lentas con datos."
           ],
           "correctIndex": 2,
           "explanation": "Las pruebas deben ser repetibles y no tener efectos sobre los datos de trabajo."
@@ -3364,7 +3364,127 @@
       "title": "Git: guardar versiones y volver atrás",
       "subtitle": "Commits, ramas, deshacer y comparar cambios.",
       "estimatedMinutes": 50,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Entender qué es un commit y el ciclo modificar → preparar → confirmar.",
+        "Trabajar en una rama para probar cambios sin afectar la versión principal.",
+        "Ver diferencias, deshacer cambios y volver a una versión anterior con seguridad."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-26-sec-1",
+          "title": "1. Commits: fotos de tu proyecto",
+          "body": "Git guarda **versiones** de tu proyecto. Cada versión es un **commit**: una foto de los archivos con un mensaje que explica qué cambió. Con Git ya no necesitas copias como `pagina-final-v3-ahora-si.zip`.\n\nEl ciclo diario:\n1. **Modificas** archivos.\n2. **Preparas** los que quieres incluir (`git add`).\n3. **Confirmas** con un mensaje (`git commit`).\n\nPuedes hacerlo con comandos o desde la pestaña **Control de código fuente** de VS Code (el ícono de ramas), que hace lo mismo con botones.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git status                      # qué archivos cambiaron\ngit diff                        # qué líneas cambiaron\ngit add js/modulos/actividades.js index.html\ngit commit -m \"Actividades: campo prioridad en el formulario y la tabla\"\ngit log --oneline -10           # últimas 10 versiones",
+          "keyTakeaway": "Un commit = un cambio con sentido + un mensaje que explica qué y por qué."
+        },
+        {
+          "id": "lec-26-sec-2",
+          "title": "2. Ramas: probar sin miedo",
+          "body": "Una **rama** es una línea de trabajo paralela. La principal se llama `main` y es la que se publica. Para cualquier cambio, crea una rama, trabaja ahí, y cuando todo funcione la unes a `main` (en GitHub, con un pull request; lección 27).\n\nSi el experimento sale mal, simplemente vuelves a `main`: la versión que usa tu equipo nunca se tocó.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git switch -c prioridad-actividades   # crear una rama y pasarse a ella\n# … cambios y commits …\ngit switch main                          # volver a la versión principal\ngit branch                               # ver las ramas",
+          "keyTakeaway": "Todo cambio nuevo, en su propia rama. main solo recibe lo que ya funciona."
+        },
+        {
+          "id": "lec-26-sec-3",
+          "title": "3. Deshacer con seguridad",
+          "body": "- Descartar cambios **sin confirmar** de un archivo: `git restore archivo`.\n- Quitar un archivo de lo preparado: `git restore --staged archivo`.\n- Deshacer un commit **ya publicado**: `git revert <id>` crea un commit nuevo que invierte el anterior (seguro, no reescribe la historia).\n- Ver cómo estaba un archivo en otra versión: `git show <id>:ruta/archivo`.\n\nEvita `git reset --hard` y `git push --force` mientras aprendes: pueden borrar trabajo sin vuelta atrás.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git restore css/3-panel-y-pantallas.css   # tirar mis cambios en este archivo\ngit log --oneline                          # buscar el commit problemático: a1b2c3d\ngit revert a1b2c3d                         # crear un commit que lo deshace",
+          "keyTakeaway": "restore para lo que no has confirmado; revert para lo que ya subiste."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Buenas prácticas con Git.",
+        "rules": [
+          "Commits pequeños: un cambio lógico por commit.",
+          "Mensajes en presente que digan qué cambia: 'Vehículos: validar placa al guardar'.",
+          "Revisa `git diff` antes de cada commit.",
+          "Nunca subas datos reales, contraseñas ni claves.",
+          "`main` siempre debe funcionar."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "# Buen mensaje\ngit commit -m \"Dietas: no cobrar traslado si la distancia es menor al mínimo\"\n# Mal mensaje\ngit commit -m \"cambios\" "
+      },
+      "comparison": {
+        "scenario": "Quieres probar un cambio grande en la pantalla de actividades.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# Copiar la carpeta entera: pagina-copia-prueba-2/\n# Editar directamente en main y subir \"a ver qué pasa\"\ngit commit -am \"arreglos\"\ngit push",
+        "juniorFlaws": [
+          "Copias sueltas que nadie sabe cuál es la buena.",
+          "Los cambios sin probar llegan a la página que usa el equipo.",
+          "El mensaje no explica nada."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "git switch -c rediseno-actividades\n# … cambios pequeños con commits descriptivos …\nnpm run revisar\ngit push -u origin rediseno-actividades\n# Abrir un pull request y revisarlo antes de unirlo a main",
+        "intermediateBenefits": [
+          "main no se toca hasta que todo funciona.",
+          "Cada paso queda registrado y se puede deshacer.",
+          "La revisión automática corre antes de publicar."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-26-ej-1",
+          "title": "Práctica 1: Tu primer ciclo",
+          "difficulty": "Básico",
+          "prompt": "*En tu copia del proyecto:* crea una rama `practica-git`, cambia un texto de ayuda en `index.html`, revisa el cambio con `git diff`, haz un commit con un buen mensaje y vuelve a `main`. Comprueba que en `main` el texto sigue como antes.",
+          "hint": "git switch -c, git diff, git add, git commit, git switch main.",
+          "solutionExplanation": "Acabas de ver la idea más importante de Git: los cambios viven en su rama hasta que decides unirlos.",
+          "solutionCode": "git switch -c practica-git\ngit diff\ngit add index.html\ngit commit -m \"Ayuda: aclarar el texto de la pantalla de actividades\"\ngit switch main",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "lec-26-ej-2",
+          "title": "Práctica 2: ¿restore o revert?",
+          "difficulty": "Intermedio",
+          "prompt": "Elige el comando para cada caso:\n1. Rompiste el CSS editando y aún no hiciste commit.\n2. Subiste ayer un commit que dañó el cálculo de dietas y el equipo ya está usando esa versión.\n3. Agregaste por error un archivo de datos con `git add` pero aún no hiciste commit.",
+          "hint": "¿El cambio ya está confirmado? ¿Ya se subió?",
+          "solutionExplanation": "1. `git restore css/archivo.css`.\n2. `git revert <id-del-commit>` y luego `git push`.\n3. `git restore --staged archivo` (y agrégalo al `.gitignore` si no debe subirse nunca)."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-26-q1",
+          "question": "¿Qué es un commit?",
+          "options": [
+            "La página publicada.",
+            "Un archivo de respaldo .zip.",
+            "Una versión guardada del proyecto con un mensaje que describe el cambio.",
+            "Un error de Git."
+          ],
+          "correctIndex": 2,
+          "explanation": "Cada commit registra el estado de los archivos y permite volver a él."
+        },
+        {
+          "id": "lec-26-q2",
+          "question": "¿Para qué sirve trabajar en una rama?",
+          "options": [
+            "Para que la página cargue más rápido.",
+            "Para tener dos páginas publicadas.",
+            "Para borrar archivos más rápido.",
+            "Para hacer cambios sin afectar a main hasta que estén listos."
+          ],
+          "correctIndex": 3,
+          "explanation": "La rama aísla el trabajo en curso."
+        },
+        {
+          "id": "lec-26-q3",
+          "question": "Un commit dañino ya está en GitHub y otros lo descargaron. ¿Cómo lo deshaces con seguridad?",
+          "options": [
+            "Borrando el repositorio.",
+            "git revert con el id del commit.",
+            "git reset --hard y push --force.",
+            "Editando el historial a mano."
+          ],
+          "correctIndex": 1,
+          "explanation": "revert agrega un commit que invierte el cambio sin reescribir la historia compartida."
+        }
+      ],
       "order": 27
     },
     {
@@ -3375,7 +3495,120 @@
       "title": "GitHub: subir, revisar y publicar",
       "subtitle": "Push, pull requests, Actions y GitHub Pages.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Subir y bajar cambios entre tu computadora y GitHub.",
+        "Abrir, revisar y unir un pull request.",
+        "Leer el resultado de las GitHub Actions y corregir una revisión fallida.",
+        "Publicar con GitHub Pages y saber cuándo se actualiza."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-27-sec-1",
+          "title": "1. push y pull",
+          "body": "GitHub guarda una copia de tu repositorio en internet (el **remoto**, llamado `origin`).\n- `git push`: sube tus commits.\n- `git pull`: baja los commits que no tienes (por ejemplo, los que hizo Claude o un compañero).\n\nHaz `git pull` **antes de empezar a trabajar** para partir de la última versión.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git pull                               # traer lo último de main\ngit switch -c mejora-tabla\n# … commits …\ngit push -u origin mejora-tabla         # subir la rama la primera vez",
+          "keyTakeaway": "pull al empezar, push al terminar."
+        },
+        {
+          "id": "lec-27-sec-2",
+          "title": "2. Pull requests",
+          "body": "Un **pull request** (PR) es una propuesta para unir una rama a `main`. En la página del PR ves todos los cambios línea por línea, puedes comentar, y las Actions ejecutan la revisión automática. Solo cuando todo está bien pulsas **Merge**.\n\nAunque trabajes solo, el PR es una pausa útil: te obliga a mirar el cambio completo antes de publicarlo. Lee el diff como si lo hubiera escrito otra persona.",
+          "keyTakeaway": "El PR es el control de calidad antes de publicar: revisa el diff y espera la marca verde."
+        },
+        {
+          "id": "lec-27-sec-3",
+          "title": "3. Actions y GitHub Pages",
+          "body": "Las **Actions** son tareas automáticas definidas en `.github/workflows/`. Tu proyecto tiene una que ejecuta las revisiones de la lección 24. En el PR o en la pestaña Actions verás:\n- ✔ verde: todo bien.\n- ✖ rojo: entra, abre el paso que falló y lee el aviso (archivo y línea). Corrígelo en tu rama, haz commit y push: la Action se vuelve a ejecutar sola.\n\n**GitHub Pages** publica los archivos de una rama como sitio web. Cada vez que se actualiza `main`, la página se vuelve a publicar en uno o dos minutos. Si no ves el cambio, espera y recarga con `Ctrl+Shift+R` (sin caché).\n\nRecuerda: si el repositorio es **privado**, revisa en la configuración de Pages quién puede ver el sitio según tu plan. Nunca publiques datos de clientes en archivos del repositorio.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Ver el estado de las Actions desde la terminal (con GitHub CLI)\ngh run list --limit 5\ngh run view --log-failed",
+          "keyTakeaway": "Verde para unir; rojo para leer el aviso y corregir. Pages se actualiza solo al cambiar main."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Publicar sin sustos.",
+        "rules": [
+          "Nada llega a `main` sin pasar por un PR con la revisión en verde.",
+          "Prueba en tu navegador la rama antes de unirla.",
+          "Un PR = un tema; título y descripción claros.",
+          "Después de unir, comprueba la página publicada.",
+          "Si algo sale mal en producción: revert del PR y luego arreglas con calma."
+        ]
+      },
+      "comparison": {
+        "scenario": "La revisión automática salió en rojo en tu PR.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Unir el PR igual porque 'en mi computadora funciona'.",
+        "juniorFlaws": [
+          "Los avisos suelen ser errores reales que aparecerán en otro navegador o con otros datos.",
+          "main deja de estar limpio y los siguientes PR heredan el rojo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "gh run view --log-failed         # o abrir el detalle en GitHub\n# → html-validate: index.html:212 duplicate id \"f-fecha\"\n# corregir el id, luego:\ngit commit -am \"Formulario: id único para el campo de fecha de cierre\"\ngit push                          # la Action vuelve a correr",
+        "intermediateBenefits": [
+          "Se corrige el error real.",
+          "main se mantiene en verde."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-27-ej-1",
+          "title": "Práctica 1: Un PR completo",
+          "difficulty": "Intermedio",
+          "prompt": "*En tu proyecto:* crea una rama, haz un cambio pequeño (por ejemplo un texto de ayuda), súbela, abre un pull request en GitHub, revisa el diff, espera la Action y únelo. Luego comprueba la página publicada.",
+          "hint": "Después del push, GitHub muestra un botón 'Compare & pull request'.",
+          "solutionExplanation": "Este es el flujo que usarás para cada cambio a partir de ahora, también para los proyectos del módulo 09."
+        },
+        {
+          "id": "lec-27-ej-2",
+          "title": "Práctica 2: Lee una Action fallida",
+          "difficulty": "Básico",
+          "prompt": "Una Action falló con este mensaje: `css/3-panel-y-pantallas.css  140:3  ✖  Unexpected unknown property \"colr\"  property-no-unknown`. ¿Qué archivo, línea y corrección corresponden?",
+          "hint": "Lee archivo, línea:columna, mensaje y regla.",
+          "solutionExplanation": "Archivo `css/3-panel-y-pantallas.css`, línea 140: la propiedad está mal escrita (`colr` → `color`). Corregir, commit, push."
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-27-q1",
+          "question": "¿Qué hace `git pull`?",
+          "options": [
+            "Sube tus commits a GitHub.",
+            "Descarga e integra los commits del remoto que aún no tienes.",
+            "Borra la rama actual.",
+            "Publica la página."
+          ],
+          "correctIndex": 1,
+          "explanation": "push sube; pull baja."
+        },
+        {
+          "id": "lec-27-q2",
+          "question": "¿Qué es un pull request?",
+          "options": [
+            "Una petición a un servidor.",
+            "Un error de GitHub.",
+            "Una copia del repositorio.",
+            "Una propuesta para unir una rama a main, con revisión del cambio."
+          ],
+          "correctIndex": 3,
+          "explanation": "Permite revisar el diff y las comprobaciones automáticas antes de unir."
+        },
+        {
+          "id": "lec-27-q3",
+          "question": "Uniste un cambio a main y la página publicada aún no lo muestra. ¿Qué es lo más probable?",
+          "options": [
+            "GitHub Pages solo publica una vez al día.",
+            "GitHub Pages tarda uno o dos minutos en publicar y el navegador puede tener la versión anterior en caché.",
+            "Hay que borrar el repositorio.",
+            "El cambio se perdió."
+          ],
+          "correctIndex": 1,
+          "explanation": "Espera a que termine el despliegue y recarga sin caché (Ctrl+Shift+R)."
+        }
+      ],
       "order": 28
     },
     {
@@ -3386,7 +3619,121 @@
       "title": "Trabajar con Claude en tu proyecto",
       "subtitle": "Pedir cambios pequeños, revisar lo que hace y no perder el control.",
       "estimatedMinutes": 35,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Escribir pedidos claros y acotados para modificar tu página con ayuda de IA.",
+        "Revisar un cambio propuesto usando todo lo aprendido en el curso.",
+        "Mantener el control: ramas, pruebas, revisión y respaldos."
+      ],
+      "theorySections": [
+        {
+          "id": "lec-28-sec-1",
+          "title": "1. Pedidos que funcionan",
+          "body": "Claude puede leer tu repositorio, proponer cambios y crear commits. Cuanto mejor sea el pedido, mejor el resultado. Un buen pedido tiene:\n- **Qué** quieres (el comportamiento, no la implementación).\n- **Dónde** (pantalla, archivo o función, si lo sabes).\n- **Restricciones** (no cambiar la forma de los datos sin migración, respetar `data-act`, usar las utilidades existentes).\n- **Cómo comprobarlo** (qué debe pasar al probar).\n\nPide cambios **pequeños**, uno a la vez.",
+          "keyTakeaway": "Qué, dónde, restricciones y cómo comprobarlo. Un cambio por pedido."
+        },
+        {
+          "id": "lec-28-sec-2",
+          "title": "2. Ejemplo de buen pedido",
+          "body": "Compara \"mejora la pantalla de actividades\" con este:",
+          "codeLanguage": "bash",
+          "codeSnippet": "En la pantalla de Actividades, agrega un filtro \"Solo atrasadas\" (casilla)\njunto al buscador. Una actividad está atrasada si su fecha es anterior a hoy\ny su estado no es Finalizado.\n- Usa la función de fecha de hoy que ya existe en js/nucleo.\n- No cambies la estructura de los datos guardados.\n- Trabaja en una rama nueva y ejecuta npm run revisar.\n- Explícame qué archivos cambiaste y cómo lo pruebo.",
+          "keyTakeaway": "Un pedido concreto produce un cambio concreto que puedes revisar."
+        },
+        {
+          "id": "lec-28-sec-3",
+          "title": "3. Revisar lo que hizo",
+          "body": "Nunca unas un cambio que no entiendes. Con lo aprendido en este curso puedes revisarlo:\n1. **Lee el diff** del PR: ¿los archivos tocados tienen sentido para lo pedido?\n2. ¿Respeta la **arquitectura** (acción → datos → guardar → redibujar)?\n3. ¿Escapa los datos en `innerHTML`?\n4. ¿Cambia la forma de los datos? Entonces, ¿agregó **migración**?\n5. ¿Pasa la **revisión automática** y las **pruebas**?\n6. **Pruébalo** en el navegador con los pasos que te dio, en la rama, antes de unir.\n7. Si algo no se entiende, pregunta: \"¿qué hace la línea X y por qué?\".",
+          "keyTakeaway": "Tú eres quien revisa y decide. La IA propone; tú apruebas lo que entiendes y has probado."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Trabajar con IA sin perder el control.",
+        "rules": [
+          "Cambios en una rama y por PR, nunca directo en main.",
+          "Respaldo de los datos antes de probar cambios que tocan el guardado o las importaciones.",
+          "No compartas datos reales sensibles en los pedidos; usa ejemplos.",
+          "Pide explicaciones de lo que no entiendes antes de unir.",
+          "Actualiza la documentación del proyecto cuando el cambio lo amerite."
+        ]
+      },
+      "comparison": {
+        "scenario": "Quieres un indicador nuevo en el Inicio.",
+        "juniorLabel": "Así no",
+        "juniorCode": "\"Pon más cosas en el inicio y que se vea mejor\" ",
+        "juniorFlaws": [
+          "No dice qué número ni de qué datos.",
+          "El resultado puede tocar muchos archivos que no esperabas.",
+          "No sabes cómo comprobar que está bien."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "\"En el Inicio, agrega una tarjeta 'Atrasadas' con el número de actividades\ncuya fecha es anterior a hoy y no están finalizadas. Si es mayor que 0,\nque use el color de peligro del tema. Agrega una prueba para el cálculo.\nRama nueva, npm run revisar y dime cómo probarlo.\" ",
+        "intermediateBenefits": [
+          "Cálculo definido y comprobable.",
+          "Respeta el tema.",
+          "Incluye prueba y revisión."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "lec-28-ej-1",
+          "title": "Práctica 1: Reescribe el pedido",
+          "difficulty": "Básico",
+          "prompt": "Convierte este pedido vago en uno claro: \"Haz que los técnicos se vean mejor en el calendario\".",
+          "hint": "Decide qué significa 'mejor': ¿colores por técnico?, ¿iniciales?, ¿filtro?",
+          "solutionExplanation": "Un ejemplo: 'En el Calendario, muestra cada actividad con un color por técnico (usa una paleta de 8 colores en variables CSS; si hay más técnicos, repite). Agrega una leyenda con nombre y color. No cambies los datos guardados. Rama nueva, revisión y pasos de prueba.'"
+        },
+        {
+          "id": "lec-28-ej-2",
+          "title": "Práctica 2: Revisa un diff",
+          "difficulty": "Intermedio",
+          "prompt": "En un PR propuesto ves esta línea nueva en un módulo: `fila.innerHTML = '<td>' + act.observacion + '</td>';` ¿Qué pedirías cambiar y por qué?",
+          "hint": "Piensa en la lección 14.",
+          "solutionExplanation": "La observación la escribe un usuario: debe pasar por la función de escape (o asignarse con textContent). Además, conviene usar una plantilla como el resto del proyecto.",
+          "solutionCode": "fila.innerHTML = `<td>${esc(act.observacion)}</td>`;",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "lec-28-q1",
+          "question": "¿Qué hace que un pedido de cambio sea bueno?",
+          "options": [
+            "Dice qué, dónde, las restricciones y cómo comprobarlo.",
+            "Que no mencione archivos.",
+            "Que pida muchos cambios a la vez.",
+            "Que sea lo más corto posible."
+          ],
+          "correctIndex": 0,
+          "explanation": "Un pedido acotado produce un cambio que puedes revisar y probar."
+        },
+        {
+          "id": "lec-28-q2",
+          "question": "Un cambio propuesto agrega un campo nuevo a los datos guardados. ¿Qué debes verificar?",
+          "options": [
+            "Nada especial.",
+            "Que incluya una migración para los datos antiguos.",
+            "Que borre el localStorage.",
+            "Que cambie el color principal."
+          ],
+          "correctIndex": 1,
+          "explanation": "Sin migración, los registros guardados antes no tendrán el campo."
+        },
+        {
+          "id": "lec-28-q3",
+          "question": "¿Cuál es la forma más segura de incorporar un cambio hecho con IA?",
+          "options": [
+            "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido.",
+            "Directo en main para ahorrar tiempo.",
+            "Desactivando las revisiones automáticas.",
+            "Copiando el código sin leerlo."
+          ],
+          "correctIndex": 0,
+          "explanation": "El mismo proceso que para cualquier cambio: rama, revisión, prueba, unión."
+        }
+      ],
       "order": 29
     },
     {
@@ -3397,7 +3744,124 @@
       "title": "Agregar un campo a las actividades",
       "subtitle": "Del formulario a la tabla, el guardado y la exportación a Excel.",
       "estimatedMinutes": 90,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Agregar un campo nuevo (prioridad) recorriendo todas las capas de la página.",
+        "Escribir la migración para que las actividades antiguas tengan el campo.",
+        "Mostrarlo, filtrarlo y exportarlo sin romper nada.",
+        "Entregar el cambio por rama y pull request con la revisión en verde."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-1-sec-1",
+          "title": "1. El plan: los seis lugares que toca un campo",
+          "body": "Un campo nuevo no es \"agregar un input\". Toca seis lugares, y si falta uno aparece un error tarde o temprano:\n1. **Datos**: subir la versión y escribir la migración (`js/datos/`).\n2. **Formulario**: el campo en `index.html` y su lectura/llenado al crear y editar.\n3. **Validación**: valores permitidos.\n4. **Tabla**: columna nueva (encabezado en el HTML y celda en la plantilla del módulo).\n5. **Exportación/importación**: columna en el Excel exportado y, si aplica, al importar.\n6. **Estilos**: un chip de color por valor.\n\nAntes de empezar: `git pull`, rama nueva (`git switch -c campo-prioridad`) y **respaldo** de tus datos.",
+          "keyTakeaway": "Datos, formulario, validación, tabla, Excel y estilos. Haz una lista y márcala."
+        },
+        {
+          "id": "proy-1-sec-2",
+          "title": "2. Datos y formulario",
+          "body": "Primero la base: que todas las actividades tengan el campo. Luego el formulario. Los valores permitidos van en la configuración, para no repetirlos.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// config/… (junto a los estados)\nconst PRIORIDADES = ['Normal', 'Alta', 'Urgente'];\n\n// js/datos/migraciones (nuevo paso, con la versión siguiente a la actual)\nif (estado.version < VERSION_NUEVA) {\n  estado.acts.forEach(a => { a.prioridad ??= 'Normal'; });\n  estado.version = VERSION_NUEVA;\n}\n\n// Llenar el select al iniciar el módulo\n$('f-prioridad').innerHTML = PRIORIDADES.map(p => `<option>${esc(p)}</option>`).join('');\n\n// Al guardar (dentro de la función que lee el formulario)\ndatos.prioridad = PRIORIDADES.includes(datos.prioridad) ? datos.prioridad : 'Normal';",
+          "keyTakeaway": "Migración primero: así todo el código posterior puede confiar en que el campo existe."
+        },
+        {
+          "id": "proy-1-sec-3",
+          "title": "3. Tabla, Excel y estilos",
+          "body": "Con los datos listos, muéstralo. Agrega el `<th>` en el encabezado de la tabla y la celda en la plantilla de filas (busca la función que genera las filas de actividades). Agrega la columna a la exportación y un chip con color por prioridad.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Plantilla de fila (módulo de actividades)\n`<td><span class=\"chip-prioridad ${esc(a.prioridad.toLowerCase())}\">${esc(a.prioridad)}</span></td>`\n\n// Exportación a Excel\nconst filas = S.acts.map(a => ({ Fecha: a.fecha, Cliente: a.cliente, Prioridad: a.prioridad, Estado: a.estado }));\n\n/* CSS, en la capa de pantallas */\n/* .chip-prioridad.alta    { --chip: var(--estado-pendiente); }\n   .chip-prioridad.urgente { --chip: var(--peligro); } */",
+          "keyTakeaway": "Termina con: npm run revisar, prueba en el navegador con datos antiguos y nuevos, commit y PR."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista de comprobación del proyecto.",
+        "rules": [
+          "Migración con versión nueva y valor por defecto.",
+          "Valores permitidos en la configuración, no repetidos en el código.",
+          "Crear y editar llenan y leen el campo.",
+          "Tabla, exportación (e importación si aplica) incluyen el campo.",
+          "Datos escapados en la plantilla.",
+          "Probado con un respaldo antiguo restaurado en la copia.",
+          "Revisión en verde, PR con descripción y documentación actualizada."
+        ]
+      },
+      "comparison": {
+        "scenario": "Terminaste el campo y lo probaste creando una actividad nueva.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Probar solo con una actividad recién creada\n// → funciona → subir a main",
+        "juniorFlaws": [
+          "Las actividades viejas no tienen el campo si la migración falla o falta.",
+          "No compruebas la edición, la exportación ni el celular."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// 1. Restaurar en la copia un respaldo de antes del cambio\n// 2. Recargar: S.acts.every(a => a.prioridad)  → true\n// 3. Crear, editar, filtrar y exportar una actividad\n// 4. npm run revisar  y  pruebas/pruebas.html\n// 5. PR, revisar diff, unir, comprobar la página publicada",
+        "intermediateBenefits": [
+          "Pruebas con datos reales antiguos (en la copia).",
+          "Recorres todos los lugares que toca el campo."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "proy-1-ej-1",
+          "title": "Reto 1: Haz el proyecto",
+          "difficulty": "Avanzado",
+          "prompt": "*En tu página:* implementa el campo **prioridad** siguiendo los seis pasos. Entrégalo como pull request. En la descripción del PR, lista los archivos cambiados y cómo probarlo.",
+          "hint": "Empieza por la migración y comprueba en la consola que todas las actividades tienen prioridad antes de tocar el formulario.",
+          "solutionExplanation": "Si algo se rompe, usa la lección 23: lee el error, ve a la línea y corrige la causa. Si te bloqueas, pide ayuda describiendo el paso exacto en que estás (lección 28)."
+        },
+        {
+          "id": "proy-1-ej-2",
+          "title": "Reto 2: Filtro por prioridad",
+          "difficulty": "Intermedio",
+          "prompt": "Agrega a la barra de filtros de actividades un select \"Prioridad\" (Todas, Normal, Alta, Urgente) que filtre la tabla.",
+          "hint": "Guarda el valor elegido en una variable de filtro y aplícalo en la función que dibuja la tabla, junto a los demás filtros.",
+          "solutionExplanation": "El filtro se aplica al dibujar, nunca modificando los datos. Encadénalo con los otros filtros mediante `filter`.",
+          "solutionCode": "let filtroPrioridad = '';\n$('filtro-prioridad').addEventListener('change', e => {\n  filtroPrioridad = e.target.value;\n  redibujarTodo();\n});\n// Dentro de la función que dibuja las actividades:\nconst visibles = S.acts\n  .filter(a => !filtroPrioridad || a.prioridad === filtroPrioridad)\n  .filter(/* …los filtros que ya existen… */ () => true);",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-1-q1",
+          "question": "¿Por qué se escribe la migración antes que el formulario y la tabla?",
+          "options": [
+            "No importa el orden.",
+            "Porque así lo exige GitHub.",
+            "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo.",
+            "Porque el formulario no funciona sin internet."
+          ],
+          "correctIndex": 2,
+          "explanation": "Con los datos completos, la tabla y la exportación no necesitan manejar el caso 'falta el campo'."
+        },
+        {
+          "id": "proy-1-q2",
+          "question": "¿Dónde conviene definir la lista de prioridades permitidas?",
+          "options": [
+            "En el CSS.",
+            "En la configuración, junto a otros valores del negocio como los estados.",
+            "En localStorage.",
+            "Repetida en cada archivo que la usa."
+          ],
+          "correctIndex": 1,
+          "explanation": "Un solo lugar para los valores evita inconsistencias."
+        },
+        {
+          "id": "proy-1-q3",
+          "question": "¿Cuál es la mejor prueba final de un campo nuevo?",
+          "options": [
+            "Mirar el código sin abrir la página.",
+            "Crear una sola actividad nueva.",
+            "Subir a main y esperar quejas.",
+            "Restaurar un respaldo anterior en una copia y comprobar crear, editar, filtrar y exportar."
+          ],
+          "correctIndex": 3,
+          "explanation": "Los datos antiguos son los que revelan migraciones incompletas."
+        }
+      ],
       "order": 30
     },
     {
@@ -3408,7 +3872,123 @@
       "title": "Crear un indicador en el Inicio",
       "subtitle": "Calcular un número nuevo y mostrarlo como tarjeta.",
       "estimatedMinutes": 75,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Separar el cálculo de un indicador en una función pura y probarla.",
+        "Mostrarlo como tarjeta en el Inicio respetando el diseño existente.",
+        "Agregar un mini gráfico de tendencia con SVG."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-2-sec-1",
+          "title": "1. Definir el indicador",
+          "body": "Un buen indicador responde una pregunta concreta. Ejemplo para este proyecto: **\"¿Cuántas actividades atrasadas hay y cuál es la más antigua?\"**. Escríbelo primero en palabras, con la definición exacta:\n- *Atrasada*: fecha anterior a hoy y estado distinto de Finalizado.\n- *Más antigua*: la de fecha menor entre las atrasadas.\n\nEsta definición se convierte en una función pura, en el archivo de cálculos del proyecto (busca el archivo de cálculos en `config/` o `js/`), con sus pruebas.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function indicadorAtrasos(acts, hoy) {\n  const atrasadas = acts.filter(a => a.estado !== 'Finalizado' && a.fecha < hoy);\n  const masAntigua = atrasadas.reduce((m, a) => (!m || a.fecha < m.fecha ? a : m), null);\n  return { total: atrasadas.length, masAntigua, dias: masAntigua ? diasEntre(masAntigua.fecha, hoy) : 0 };\n}\n\nprueba('indicadorAtrasos cuenta solo no finalizadas y vencidas', () => {\n  const acts = [\n    { fecha: '2026-11-10', estado: 'Pendiente' },\n    { fecha: '2026-11-12', estado: 'Finalizado' },\n    { fecha: '2026-11-20', estado: 'Pendiente' },\n  ];\n  igual(indicadorAtrasos(acts, '2026-11-16').total, 1);\n});",
+          "keyTakeaway": "Definición en palabras → función pura → prueba. Luego, la pantalla."
+        },
+        {
+          "id": "proy-2-sec-2",
+          "title": "2. La tarjeta",
+          "body": "Busca en `index.html` las tarjetas del Inicio y en su módulo la función que las llena. Copia la estructura de una tarjeta existente (misma clase, mismo patrón) para que el diseño sea coherente. Usa una clase de estado para el color.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// HTML (junto a las otras tarjetas del Inicio)\n// <article class=\"tarjeta-indicador\" id=\"kpi-atrasos\">\n//   <h3>Atrasadas</h3><p class=\"valor\">0</p><p class=\"detalle\"></p>\n// </article>\n\nfunction dibujarIndicadorAtrasos() {\n  const { total, masAntigua, dias } = indicadorAtrasos(S.acts, fechaIso());\n  const tarjeta = $('kpi-atrasos');\n  tarjeta.querySelector('.valor').textContent = total;\n  tarjeta.querySelector('.detalle').textContent = masAntigua\n    ? `La más antigua: ${masAntigua.cliente} (${dias} días)` : 'Todo al día';\n  tarjeta.classList.toggle('alerta', total > 0);\n}",
+          "keyTakeaway": "Reutiliza las clases y el patrón de las tarjetas existentes; llama a tu función desde donde se dibuja el Inicio."
+        },
+        {
+          "id": "proy-2-sec-3",
+          "title": "3. Mini tendencia",
+          "body": "Para dar contexto, agrega una línea con los atrasos de los últimos 14 días. Calcula una serie (un número por día) y dibújala con la función `puntosLinea` de la lección 22.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "function serieAtrasos(acts, hoy, dias = 14) {\n  return Array.from({ length: dias }, (_, i) => {\n    const dia = sumarDias(hoy, i - dias + 1);\n    return acts.filter(a => a.fecha < dia && (!a.finalizada || a.finalizada > dia)).length;\n  });\n}\nconst serie = serieAtrasos(S.acts, fechaIso());\ntarjeta.insertAdjacentHTML('beforeend', `\n  <svg viewBox=\"0 0 140 30\" role=\"img\" aria-label=\"Atrasos de los últimos 14 días\">\n    <polyline points=\"${puntosLinea(serie, 140, 30)}\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/>\n  </svg>`);",
+          "keyTakeaway": "Un mini gráfico sin ejes ni leyendas (sparkline) da contexto sin ocupar espacio."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Indicadores confiables.",
+        "rules": [
+          "Definición escrita del indicador en la documentación o en un comentario.",
+          "Cálculo en una función pura con pruebas de los bordes (lista vacía, todo finalizado).",
+          "La tarjeta sigue el diseño de las existentes.",
+          "Colores por clase y variable del tema.",
+          "El indicador se recalcula en cada redibujado, nunca se guarda en los datos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Mostrar el número de atrasadas.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Dentro de la función que dibuja la tabla de actividades:\nlet atrasadas = 0;\nfor (const a of S.acts) if (a.fecha < hoy && a.estado != 'Finalizado') atrasadas++;\ndocument.querySelector('#v-inicio .tarjeta:nth-child(3) p').innerHTML = atrasadas;",
+        "juniorFlaws": [
+          "El cálculo vive escondido en otra pantalla.",
+          "Selector frágil: si cambia el orden de las tarjetas, escribe en la equivocada.",
+          "No se puede probar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const { total } = indicadorAtrasos(S.acts, fechaIso());\n$('kpi-atrasos').querySelector('.valor').textContent = total;",
+        "intermediateBenefits": [
+          "Cálculo con nombre y prueba.",
+          "La tarjeta se encuentra por su id.",
+          "Fácil de reutilizar en otro informe."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "proy-2-ej-1",
+          "title": "Reto 1: Haz el proyecto",
+          "difficulty": "Avanzado",
+          "prompt": "*En tu página:* implementa el indicador de atrasos con su prueba, su tarjeta y la mini tendencia. Entrégalo por PR.",
+          "hint": "Haz primero la función y su prueba; luego la tarjeta; al final el gráfico.",
+          "solutionExplanation": "El orden importa: si la prueba pasa, cualquier problema posterior es de la pantalla, no del cálculo."
+        },
+        {
+          "id": "proy-2-ej-2",
+          "title": "Reto 2: Tu propio indicador",
+          "difficulty": "Avanzado",
+          "prompt": "Diseña un indicador que te sería útil en tu trabajo diario (por ejemplo, servicios finalizados esta semana por técnico, o unidades con más de N km desde su último servicio). Escribe la definición en palabras, la función pura y dos pruebas.",
+          "hint": "Empieza por la pregunta que te haces cada mañana al abrir la página.",
+          "solutionExplanation": "Si puedes escribir la definición en una frase sin ambigüedades, puedes programarla. Si no, primero aclara la regla con tu equipo."
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-2-q1",
+          "question": "¿Por qué el cálculo del indicador va en una función separada de la tarjeta?",
+          "options": [
+            "Para que cargue más rápido.",
+            "No hay ventaja.",
+            "Para poder probarlo y reutilizarlo sin depender de la pantalla.",
+            "Porque las tarjetas no admiten JavaScript."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las funciones puras se prueban con datos de ejemplo."
+        },
+        {
+          "id": "proy-2-q2",
+          "question": "¿Por qué no conviene guardar el valor del indicador en los datos?",
+          "options": [
+            "Porque localStorage no admite números.",
+            "Por el tamaño del Excel.",
+            "Porque se puede calcular en cada redibujado y guardado quedaría desactualizado.",
+            "Porque los indicadores son secretos."
+          ],
+          "correctIndex": 2,
+          "explanation": "Lo que se deriva de los datos se calcula; no se guarda dos veces."
+        },
+        {
+          "id": "proy-2-q3",
+          "question": "¿Cómo debe encontrar el código la tarjeta del indicador?",
+          "options": [
+            "Por su posición, con nth-child.",
+            "Por un id propio, como kpi-atrasos.",
+            "Por su texto.",
+            "Por su color."
+          ],
+          "correctIndex": 1,
+          "explanation": "Un id no depende del orden ni del diseño."
+        }
+      ],
       "order": 31
     },
     {
@@ -3419,7 +3999,123 @@
       "title": "Agregar un estado con su color",
       "subtitle": "La configuración, los estilos y los lugares donde se usa un estado.",
       "estimatedMinutes": 60,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Agregar un estado nuevo (por ejemplo 'En espera de repuesto') desde la configuración.",
+        "Encontrar todos los lugares que dependen de la lista de estados.",
+        "Darle color en ambos modos y comprobar indicadores, filtros y exportación."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-3-sec-1",
+          "title": "1. Empieza por la configuración",
+          "body": "Tu página define los estados en un archivo de `config/` (busca el de estados). Un estado suele tener: nombre, clase o color y, a veces, si cuenta como \"abierto\" o \"cerrado\". Agrega el nuevo **en el lugar adecuado del orden** (el orden de la lista suele ser el orden en que se muestran).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Forma genérica de una configuración de estados\nconst ESTADOS = [\n  { nombre: 'Pendiente',                    clase: 'pendiente',  abierto: true },\n  { nombre: 'En curso',                     clase: 'en-curso',   abierto: true },\n  { nombre: 'En espera de repuesto',        clase: 'espera',     abierto: true },   // nuevo\n  { nombre: 'Finalizado',                   clase: 'finalizado', abierto: false },\n];\nconst claseDeEstado = nombre => ESTADOS.find(e => e.nombre === nombre)?.clase ?? 'pendiente';",
+          "keyTakeaway": "Si los estados están en la configuración, agregar uno empieza siendo una línea."
+        },
+        {
+          "id": "proy-3-sec-2",
+          "title": "2. Buscar todo lo que depende de los estados",
+          "body": "La parte delicada: código que compara con el **texto** de un estado (`=== 'Pendiente'`) en lugar de usar la configuración. Busca en todo el proyecto (`Ctrl+Shift+F`) los nombres de los estados existentes y revisa cada resultado:\n- ¿Indicadores que cuentan \"abiertas\"? Deberían usar `abierto` y no una lista escrita a mano.\n- ¿Filtros con opciones fijas en el HTML?\n- ¿Colores en el CSS?\n- ¿Importación desde Excel que reconoce estados por texto?\n\nSi encuentras comparaciones con textos repetidos, es buen momento para cambiarlas por la configuración.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Antes: frágil, se olvida del estado nuevo\nconst abiertas = S.acts.filter(a => a.estado === 'Pendiente' || a.estado === 'En curso');\n// Después: usa la configuración\nconst ABIERTOS = new Set(ESTADOS.filter(e => e.abierto).map(e => e.nombre));\nconst abiertas2 = S.acts.filter(a => ABIERTOS.has(a.estado));",
+          "keyTakeaway": "Busca los textos de los estados existentes: cada comparación escrita a mano es un lugar donde el nuevo estado se olvidará."
+        },
+        {
+          "id": "proy-3-sec-3",
+          "title": "3. Color y comprobación",
+          "body": "Agrega la variable de color y la clase del chip (lección 07), en modo claro y oscuro. Luego comprueba: formulario (aparece la opción), tabla (chip con color), filtros, indicadores (cuenta como abierta), calendario, exportación a Excel.",
+          "codeLanguage": "css",
+          "codeSnippet": ":root           { --estado-espera: #8a5a00; }\nbody.oscuro     { --estado-espera: #f0b45a; }\n.chip-estado.espera { --chip: var(--estado-espera); }",
+          "keyTakeaway": "Un color por variable y por tema; comprueba el contraste en ambos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cambios de configuración seguros.",
+        "rules": [
+          "Agrega el estado en la configuración, nunca solo en una pantalla.",
+          "Reemplaza comparaciones de texto repetidas por la configuración.",
+          "No cambies el **nombre** de un estado existente sin migración: los datos guardados usan ese texto.",
+          "Comprueba todas las pantallas donde aparecen estados.",
+          "Documenta el significado del estado nuevo para el equipo."
+        ]
+      },
+      "comparison": {
+        "scenario": "Quieres renombrar 'En curso' a 'En ejecución'.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// Cambiar el texto solo en la configuración\nESTADOS[1] = { nombre: 'En ejecución', clase: 'en-curso', abierto: true };",
+        "juniorFlaws": [
+          "Todas las actividades guardadas siguen diciendo 'En curso'.",
+          "Dejan de reconocerse: sin color, fuera de los filtros e indicadores."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// Configuración con el nombre nuevo + migración de los datos\nif (estado.version < VERSION_NUEVA) {\n  estado.acts.forEach(a => { if (a.estado === 'En curso') a.estado = 'En ejecución'; });\n  estado.version = VERSION_NUEVA;\n}",
+        "intermediateBenefits": [
+          "Los datos antiguos se actualizan una vez.",
+          "Todo el sistema sigue reconociendo el estado."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "proy-3-ej-1",
+          "title": "Reto 1: Haz el proyecto",
+          "difficulty": "Avanzado",
+          "prompt": "*En tu página:* agrega el estado \"En espera de repuesto\" con su color, revisa todos los usos de estados y entrega el cambio por PR. En la descripción, lista cada lugar que revisaste.",
+          "hint": "Ctrl+Shift+F con 'Pendiente' y 'Finalizado' es el mejor punto de partida.",
+          "solutionExplanation": "La lista de lugares revisados es tan valiosa como el código: demuestra que el cambio no dejó rincones sin cubrir."
+        },
+        {
+          "id": "proy-3-ej-2",
+          "title": "Reto 2: Detector de estados desconocidos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una expresión para la consola que liste los estados presentes en los datos que **no** existen en la configuración (útil después de importar Excel o renombrar).",
+          "hint": "Set con los nombres de la configuración y filter sobre los estados de los datos.",
+          "solutionExplanation": "Si aparece alguno, hay datos que la página no sabrá colorear ni contar: corrige con una migración o en la importación.",
+          "solutionCode": "const validos = new Set(ESTADOS.map(e => e.nombre));\n[...new Set(S.acts.map(a => a.estado))].filter(e => !validos.has(e));",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-3-q1",
+          "question": "¿Qué pasa si renombras un estado solo en la configuración?",
+          "options": [
+            "Nada.",
+            "Todo se actualiza solo.",
+            "Se borran las actividades.",
+            "Los datos guardados con el nombre anterior dejan de reconocerse."
+          ],
+          "correctIndex": 3,
+          "explanation": "Los datos guardan el texto del estado; hace falta una migración."
+        },
+        {
+          "id": "proy-3-q2",
+          "question": "¿Por qué conviene contar las actividades abiertas con una propiedad de la configuración en vez de una lista de textos?",
+          "options": [
+            "No hay diferencia.",
+            "Porque así un estado nuevo se incluye automáticamente sin tocar el cálculo.",
+            "Porque los Set son obligatorios.",
+            "Porque es más corto de escribir."
+          ],
+          "correctIndex": 1,
+          "explanation": "La lógica sigue a la configuración en lugar de depender de textos repetidos."
+        },
+        {
+          "id": "proy-3-q3",
+          "question": "¿Cuál es la mejor forma de encontrar los lugares que dependen de los estados?",
+          "options": [
+            "Buscar en todo el proyecto los nombres de los estados existentes.",
+            "Leer solo el CSS.",
+            "Esperar a que aparezca un error.",
+            "Revisar solo index.html."
+          ],
+          "correctIndex": 0,
+          "explanation": "La búsqueda global encuentra comparaciones, filtros, colores e importaciones."
+        }
+      ],
       "order": 32
     },
     {
@@ -3430,7 +4126,123 @@
       "title": "Crear una pantalla nueva",
       "subtitle": "Sección, botón del menú, módulo, acción y redibujado.",
       "estimatedMinutes": 120,
-      "status": "en-preparacion",
+      "status": "published",
+      "objectives": [
+        "Crear una pantalla completa (por ejemplo 'Repuestos') con lista, formulario y acciones.",
+        "Integrarla en el menú, en el ciclo de redibujado y en el guardado.",
+        "Entregarla con migración, estilos, pruebas, revisión y documentación."
+      ],
+      "theorySections": [
+        {
+          "id": "proy-4-sec-1",
+          "title": "1. Las piezas de una pantalla",
+          "body": "Una pantalla nueva reúne todo el curso. Las piezas:\n1. **Datos**: una lista nueva en el estado (`S.repuestos = []`) con su migración.\n2. **HTML**: una `<section id=\"v-repuestos\" hidden>` con tabla y formulario (`<dialog>`), y un botón en el menú con su `data-view`.\n3. **Módulo**: `js/modulos/repuestos.js` con la función que dibuja y las acciones registradas.\n4. **Orden de scripts**: el módulo antes del arranque.\n5. **Redibujado**: que la función de redibujar llame a la de tu pantalla (busca cómo lo hacen los otros módulos).\n6. **Estilos**: solo lo específico, en la capa de pantallas.\n7. **Pruebas y documentación**.\n\nLee primero el documento de tu proyecto sobre cómo agregar funciones (`documentacion/`): describe el procedimiento exacto para tu código.",
+          "keyTakeaway": "Datos, HTML, módulo, scripts, redibujado, estilos, pruebas y documentación."
+        },
+        {
+          "id": "proy-4-sec-2",
+          "title": "2. El módulo",
+          "body": "Un módulo de pantalla sigue siempre la misma forma: funciones de cálculo, una función que dibuja a partir de `S`, y sus acciones. Copia la estructura de un módulo existente pequeño y adáptala.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// js/modulos/repuestos.js\nfunction repuestosPendientes(lista) {\n  return lista.filter(r => r.estado !== 'Recibido');\n}\n\nfunction dibujarRepuestos() {\n  const filas = [...S.repuestos]\n    .sort((a, b) => a.fecha.localeCompare(b.fecha))\n    .map(r => `<tr>\n      <td>${esc(r.fecha)}</td><td>${esc(r.pieza)}</td><td>${esc(r.actividad)}</td>\n      <td><span class=\"chip-estado ${r.estado === 'Recibido' ? 'finalizado' : 'pendiente'}\">${esc(r.estado)}</span></td>\n      <td><button type=\"button\" class=\"btn\" data-act=\"recibir-repuesto\" data-id=\"${esc(r.id)}\"\n                  ${r.estado === 'Recibido' ? 'disabled' : ''}>Marcar recibido</button></td>\n    </tr>`).join('');\n  $('tb-repuestos').innerHTML = filas || '<tr><td colspan=\"5\">Sin repuestos registrados.</td></tr>';\n  $('n-repuestos').textContent = repuestosPendientes(S.repuestos).length;\n}\n\nregistrarAccion('nuevo-repuesto', () => abrirFormularioRepuesto());\nregistrarAccion('recibir-repuesto', ({ id }) => {\n  const r = S.repuestos.find(x => x.id === id);\n  if (!r) return;\n  r.estado = 'Recibido';\n  r.recibido = fechaIso();\n  guardarYRedibujar();\n});",
+          "keyTakeaway": "Cálculo puro, dibujar desde S, acciones registradas. El mismo molde que el resto de tus módulos."
+        },
+        {
+          "id": "proy-4-sec-3",
+          "title": "3. Integrar y entregar",
+          "body": "Para que la pantalla viva dentro de la aplicación:\n- Botón en el menú: `<button type=\"button\" data-view=\"repuestos\">Repuestos</button>`.\n- Script en `index.html` antes del arranque.\n- Llamada a `dibujarRepuestos()` dentro del redibujado general (o el mecanismo que use tu proyecto para registrar pantallas).\n- Migración: `estado.repuestos ??= []`.\n- Exportación a Excel si aplica.\n\nEntrega: rama `pantalla-repuestos`, commits pequeños por pieza, `npm run revisar`, pruebas, PR con capturas y pasos de prueba, y una entrada en la documentación.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// js/datos/migraciones\nif (estado.version < VERSION_NUEVA) {\n  estado.repuestos ??= [];\n  estado.version = VERSION_NUEVA;\n}\n\n// pruebas\nprueba('repuestosPendientes excluye los recibidos', () => {\n  const lista = [{ estado: 'Pedido' }, { estado: 'Recibido' }];\n  igual(repuestosPendientes(lista).length, 1);\n});",
+          "keyTakeaway": "Commits por pieza hacen el PR fácil de revisar y de deshacer si algo sale mal."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Definición de terminado para una pantalla nueva.",
+        "rules": [
+          "Funciona en escritorio y celular.",
+          "Se puede usar solo con el teclado.",
+          "Los datos persisten al recargar y sobreviven a un respaldo restaurado.",
+          "Todos los datos se escapan en las plantillas.",
+          "Revisión automática y pruebas en verde.",
+          "Documentación actualizada (mapa del proyecto y guía de uso)."
+        ]
+      },
+      "comparison": {
+        "scenario": "Construir la pantalla de repuestos.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Un archivo nuevo con todo mezclado: escuchadores en cada botón,\ndatos en una variable propia guardada con otra clave de localStorage,\nestilos dentro del JavaScript y sin migración.",
+        "juniorFlaws": [
+          "Los datos quedan fuera de los respaldos.",
+          "Los botones dejan de funcionar al redibujar.",
+          "Nadie (ni tú en tres meses) entiende cómo encaja."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "S.repuestos (con migración) + sección v-repuestos + botón data-view\n+ js/modulos/repuestos.js (dibujar + registrarAccion)\n+ estilos en la capa de pantallas + pruebas + documentación",
+        "intermediateBenefits": [
+          "Encaja en la arquitectura existente.",
+          "Se respalda, se redibuja y se prueba como todo lo demás."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "proy-4-ej-1",
+          "title": "Reto final: Pantalla de repuestos",
+          "difficulty": "Avanzado",
+          "prompt": "*En tu página:* crea la pantalla **Repuestos** con: tabla (fecha, pieza, actividad relacionada, estado), formulario en `<dialog>` para agregar y editar, acción para marcar como recibido, indicador de pendientes y exportación a Excel. Entrégala por PR cumpliendo la definición de terminado.",
+          "hint": "Sigue el orden: datos y migración → HTML → módulo con dibujar → acciones → formulario → estilos → Excel → pruebas → documentación. Un commit por paso.",
+          "solutionExplanation": "Si completas este reto, has demostrado todas las habilidades del curso sobre tu propia página: estructura, estilos, lógica, datos, calidad y publicación. A partir de aquí, cualquier mejora sigue el mismo camino."
+        },
+        {
+          "id": "proy-4-ej-2",
+          "title": "Reto extra: Repuestos en la actividad",
+          "difficulty": "Avanzado",
+          "prompt": "Muestra en el detalle de cada actividad cuántos repuestos tiene pendientes, y haz que una actividad con repuestos pendientes no se pueda finalizar sin confirmación.",
+          "hint": "Relaciona por el id de la actividad; agrega la comprobación dentro de la acción de finalizar.",
+          "solutionExplanation": "Relacionar datos de dos listas por id y añadir una regla a una acción existente son los cambios más comunes en el mantenimiento real de una página.",
+          "solutionCode": "const pendientesDe = actId => S.repuestos.filter(r => r.actividadId === actId && r.estado !== 'Recibido').length;\n\n// Dentro de la acción de finalizar existente:\nconst n = pendientesDe(id);\nif (n && !confirm(`Esta actividad tiene ${n} repuesto(s) sin recibir. ¿Finalizar de todos modos?`)) return;",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "proy-4-q1",
+          "question": "¿Por qué los repuestos deben guardarse dentro del estado general S y no en otra clave de localStorage?",
+          "options": [
+            "No importa.",
+            "Porque localStorage solo admite una clave.",
+            "Para que entren en los respaldos, migraciones y el ciclo de guardar y redibujar.",
+            "Porque es más rápido."
+          ],
+          "correctIndex": 2,
+          "explanation": "Todo lo que la aplicación guarda debe seguir el mismo camino."
+        },
+        {
+          "id": "proy-4-q2",
+          "question": "¿Dónde se coloca el script del módulo nuevo en index.html?",
+          "options": [
+            "Junto a los otros módulos, antes del script de arranque.",
+            "En otro archivo HTML.",
+            "Después de app.js.",
+            "Al principio del head."
+          ],
+          "correctIndex": 0,
+          "explanation": "Debe usar las utilidades ya cargadas y existir cuando arranca la aplicación."
+        },
+        {
+          "id": "proy-4-q3",
+          "question": "¿Qué hace que un PR de una pantalla nueva sea fácil de revisar?",
+          "options": [
+            "Un único commit gigante.",
+            "Desactivar las Actions.",
+            "Commits pequeños por pieza, descripción con pasos de prueba y revisión en verde.",
+            "No tener descripción."
+          ],
+          "correctIndex": 2,
+          "explanation": "Quien revisa (tú incluido) puede seguir el cambio paso a paso."
+        }
+      ],
       "order": 33
     }
   ]
