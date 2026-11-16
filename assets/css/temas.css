@@ -1,0 +1,157 @@
+/* ==========================================================================
+   NEXUS · Temas ("papeles") de cada curso
+   Todos los temas definen las mismas variables, así los componentes no
+   necesitan saber en qué curso están. Para agregar un curso con un papel
+   nuevo, copia uno de estos bloques, cambia el nombre y ajusta los colores.
+   Se activan con <body data-tema="hoy | datos | web | ia">.
+   ========================================================================== */
+
+/* ---------- Hoy: hoja rayada con margen rojo (página principal) ---------- */
+body[data-tema="hoy"],
+body:not([data-tema]) {
+  --escritorio: #E4E3DE;
+  --papel: #FDFDFB;
+  --papel-fondo: repeating-linear-gradient(to bottom, transparent 0, transparent 35px, #E2E7EF 35px, #E2E7EF 36px);
+  --papel-tam: auto;
+  --linea-margen: #F2B8B8;
+  --tinta: #1D1F24;
+  --tinta-2: #555A63;
+  --borde: #DCDAD2;
+  --superficie: #FFFFFF;
+  --superficie-2: #F6F5F1;
+  --acento: #1D64D8;
+  --mano: #1D64D8;
+  --resaltador: #FFD45C;
+  --boton-bg: #1D1F24;
+  --boton-txt: #FFFFFF;
+  --cta-bg: #1D1F24;
+  --cta-txt: #FFFFFF;
+  --chip-bg: #1D1F24;
+  --chip-txt: #FFFFFF;
+  --nota-bg: #FFF6B8;
+  --nota-txt: #1D1F24;
+  --sombra-hoja: 0 20px 40px rgba(40, 38, 30, .10);
+  --f-titulo: var(--f-serif);
+  --f-lectura: var(--f-serif);
+  --f-mono: var(--f-mono-code);
+  --code-bg: #F4F6FA;
+  --code-borde: #E2E7EF;
+  --sx-txt: #24292F; --sx-kw: #1D64D8; --sx-str: #0F766E; --sx-num: #B7791F;
+  --sx-com: #6B7280; --sx-fn: #7C3AED; --sx-attr: #B42318;
+  color-scheme: light;
+}
+
+/* ---------- Datos: cuaderno de analista (cuadrícula para gráficos) ---------- */
+body[data-tema="datos"] {
+  --escritorio: #E7E3D8;
+  --papel: #FFFEFA;
+  --papel-fondo:
+    linear-gradient(#EFE6D2 1px, transparent 1px),
+    linear-gradient(90deg, #EFE6D2 1px, transparent 1px),
+    linear-gradient(#E6D7B4 1px, transparent 1px),
+    linear-gradient(90deg, #E6D7B4 1px, transparent 1px);
+  --papel-tam: 18px 18px, 18px 18px, 90px 90px, 90px 90px;
+  --linea-margen: #E9B8B0;
+  --tinta: #23211C;
+  --tinta-2: #5E5A50;
+  --borde: #D9CCAA;
+  --superficie: #FFFFFF;
+  --superficie-2: #F7F4EC;
+  --acento: #8A5A0B;
+  --mano: #1D64D8;
+  --resaltador: #FFD45C;
+  --boton-bg: #23211C;
+  --boton-txt: #FFFFFF;
+  --cta-bg: #F0B429;
+  --cta-txt: #2B1D00;
+  --chip-bg: #F0B429;
+  --chip-txt: #2B1D00;
+  --nota-bg: #FFF6B8;
+  --nota-txt: #23211C;
+  --ok: #0F766E;
+  --ko: #C2410C;
+  --sombra-hoja: 0 20px 40px rgba(60, 48, 20, .12);
+  --f-titulo: var(--f-serif);
+  --f-lectura: var(--f-serif);
+  --f-mono: var(--f-mono-datos);
+  --code-bg: #FFFFFF;
+  --code-borde: #D9CCAA;
+  --sx-txt: #23211C; --sx-kw: #1D64D8; --sx-str: #0F766E; --sx-num: #B7791F;
+  --sx-com: #8A8170; --sx-fn: #7C3AED; --sx-attr: #C2410C;
+  color-scheme: light;
+}
+
+/* ---------- Web: cuaderno de desarrollador (pizarra oscura de puntos) ---------- */
+body[data-tema="web"] {
+  --escritorio: #14161B;
+  --papel: #1C1F26;
+  --papel-fondo: radial-gradient(#363C48 1.3px, transparent 1.3px);
+  --papel-tam: 20px 20px;
+  --linea-margen: #3B2F4A;
+  --tinta: #E6E8EC;
+  --tinta-2: #A9AFBB;
+  --borde: #343944;
+  --superficie: #121419;
+  --superficie-2: #22262F;
+  --acento: #7DB8FF;
+  --mano: #7DB8FF;
+  --resaltador: rgba(125, 184, 255, .38);
+  --boton-bg: #E6E8EC;
+  --boton-txt: #14161B;
+  --cta-bg: #7EE787;
+  --cta-txt: #0B2410;
+  --chip-bg: #1D64D8;
+  --chip-txt: #FFFFFF;
+  --nota-bg: #2A3550;
+  --nota-txt: #F2F4F8;
+  --ok: #7EE787;
+  --ko: #FF8A65;
+  --aviso: #FFCB6B;
+  --sombra-hoja: 0 20px 40px rgba(0, 0, 0, .40);
+  --f-titulo: var(--f-mono-code);
+  --f-lectura: var(--f-ui);
+  --f-mono: var(--f-mono-code);
+  --code-bg: #121419;
+  --code-borde: #2C313B;
+  --sx-txt: #E6E8EC; --sx-kw: #82AAFF; --sx-str: #7EE787; --sx-num: #F78C6C;
+  --sx-com: #6B7280; --sx-fn: #C792EA; --sx-attr: #FFCB6B;
+  color-scheme: dark;
+}
+
+/* ---------- IA: cuaderno de laboratorio (papel de ingeniería) ---------- */
+body[data-tema="ia"] {
+  --escritorio: #DFE4D6;
+  --papel: #F7FAF1;
+  --papel-fondo:
+    linear-gradient(#DCE8C9 1px, transparent 1px),
+    linear-gradient(90deg, #DCE8C9 1px, transparent 1px);
+  --papel-tam: 24px 24px;
+  --linea-margen: #C7B8F0;
+  --tinta: #17191C;
+  --tinta-2: #565C52;
+  --borde: #C9D3B8;
+  --superficie: #FFFFFF;
+  --superficie-2: #F2F5EC;
+  --acento: #3730A3;
+  --mano: #3730A3;
+  --resaltador: #DCF58A;
+  --boton-bg: #17191C;
+  --boton-txt: #FFFFFF;
+  --cta-bg: #3730A3;
+  --cta-txt: #FFFFFF;
+  --chip-bg: #C6E85A;
+  --chip-txt: #1D2A00;
+  --nota-bg: #EEEDFC;
+  --nota-txt: #17191C;
+  --ok: #3F6212;
+  --ko: #B42318;
+  --sombra-hoja: 0 20px 40px rgba(40, 50, 20, .12);
+  --f-titulo: var(--f-sora);
+  --f-lectura: var(--f-ui);
+  --f-mono: var(--f-mono-code);
+  --code-bg: #FFFFFF;
+  --code-borde: #C9D3B8;
+  --sx-txt: #17191C; --sx-kw: #3730A3; --sx-str: #3F6212; --sx-num: #B45309;
+  --sx-com: #6B7280; --sx-fn: #7C3AED; --sx-attr: #B42318;
+  color-scheme: light;
+}

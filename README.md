@@ -1,6 +1,6 @@
-# Plataforma de Estudio
+# NEXUS Learning
 
-Mi plataforma personal para estudiar cursos por mi cuenta: teoría, ejercicios con pista y solución, y exámenes con puntuación y seguimiento de progreso.
+Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejercicios con pista y solución, y exámenes con puntuación y seguimiento de progreso. El diseño se llama **Cuaderno vivo**: cada curso tiene su propio papel (analista, desarrollador, laboratorio).
 
 **Web:** https://aronis21.github.io/plataforma-estudio/
 
@@ -17,17 +17,19 @@ Mi plataforma personal para estudiar cursos por mi cuenta: teoría, ejercicios c
 - Pestañas por lección: teoría, estándar profesional, comparación junior vs. intermedio, ejercicios y examen.
 - Exámenes calificados con explicación por pregunta; las opciones cambian de orden en cada intento. Se aprueba con 70%.
 - El progreso se guarda en el navegador y se puede exportar/importar para pasarlo a otro dispositivo.
-- Modo oscuro automático y diseño adaptado al celular.
+- Un papel por curso (Hoy, Datos, Web, IA) con separadores para cambiar de cuaderno, y diseño adaptado al celular.
 
 ## Estructura
 
 ```
 index.html                  Página única
-assets/css/styles.css       Estilos
+assets/css/tokens.css       Tipografías, tamaños y medidas comunes
+assets/css/temas.css        Los papeles de cada curso (colores de Hoy, Datos, Web e IA)
+assets/css/base.css         Esqueleto del cuaderno y componentes
 assets/js/app.js            Navegación y vistas
 assets/js/texto.js          Formato del texto y bloques de código
 assets/js/progreso.js       Guardado del progreso
-cursos/catalogo.json        Lista de cursos publicados
+cursos/catalogo.json        Lista de cursos publicados (con su "tema": datos, web o ia)
 cursos/*.json               Un archivo por curso
 plantillas/                 Plantilla para crear cursos nuevos
 scripts/validar_cursos.py   Revisa que los cursos tengan el formato correcto

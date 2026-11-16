@@ -1,6 +1,6 @@
-/* Plataforma de Estudio — aplicación de una sola página sin dependencias de compilación.
+/* NEXUS Learning · Cuaderno vivo — aplicación de una sola página sin dependencias de compilación.
  * Rutas (hash):
- *   #/                          catálogo de cursos
+ *   #/                          página "Hoy" (catálogo de cursos)
  *   #/curso/<idCurso>           índice del curso por módulos
  *   #/curso/<idCurso>/<idCap>   capítulo (pestañas: teoría, estándar, comparación, ejercicios, examen)
  */
@@ -13,6 +13,8 @@
   const crumbs = document.getElementById("crumbs");
   const menuBtn = document.getElementById("menuBtn");
   const backdrop = document.getElementById("backdrop");
+  const chipCurso = document.getElementById("chipCurso");
+  const separadores = document.getElementById("separadores");
 
   let catalogo = null;
   const cacheCursos = {};
@@ -27,7 +29,6 @@
   async function obtenerCatalogo() {
     if (!catalogo) {
       catalogo = await cargarJSON("cursos/catalogo.json");
-      document.getElementById("siteTitle").textContent = catalogo.titulo || "Plataforma de Estudio";
     }
     return catalogo;
   }
@@ -52,6 +53,39 @@
       mapa.get(m).push(cap);
     }
     return [...mapa.entries()];
+  }
+
+  // ---------- Tema del cuaderno (papel de cada curso) ----------
+  // Cada curso del catálogo indica su "tema": datos | web | ia. Sin curso, el papel es "hoy".
+  const TEMAS = ["hoy", "datos", "web", "ia"];
+  const NOMBRE_CUADERNO = { datos: "Cuaderno de analista", web: "Cuaderno de desarrollador", ia: "Cuaderno de laboratorio" };
+
+  function temaDe(entrada) {
+    return entrada && TEMAS.includes(entrada.tema) ? entrada.tema : "hoy";
+  }
+
+  function aplicarTema(entrada) {
+    const tema = temaDe(entrada);
+    document.body.dataset.tema = tema;
+    if (entrada && tema !== "hoy") {
+      chipCurso.textContent = entrada.cuaderno || NOMBRE_CUADERNO[tema] || entrada.id;
+      chipCurso.hidden = false;
+    } else {
+      chipCurso.hidden = true;
+    }
+    pintarSeparadores(entrada ? entrada.id : null);
+  }
+
+  function pintarSeparadores(idActivo) {
+    if (!catalogo) return;
+    const cursos = catalogo.cursos.filter((c) => c.publicado !== false);
+    let html = `<a class="separador hoy" href="#/" ${idActivo ? "" : 'aria-current="page"'}>Hoy</a>`;
+    for (const c of cursos) {
+      const tema = temaDe(c);
+      const nombre = c.separador || c.id;
+      html += `<a class="separador ${tema}" href="#/curso/${encodeURIComponent(c.id)}" ${c.id === idActivo ? 'aria-current="page"' : ""}>${escapar(nombre)}</a>`;
+    }
+    separadores.innerHTML = html;
   }
 
   // ---------- Utilidades de UI ----------
@@ -108,6 +142,7 @@
   function sidebarCurso(curso, idActivo) {
     const r = P.resumenCurso(curso);
     let html = `<div class="side-head">
+      <div class="side-titulo-mano">Índice</div>
       <a href="#/curso/${curso.id}" class="side-title">${escapar(curso.title)}</a>
       ${barra(r.pct)}
       <div class="side-meta">${r.aprobados}/${r.total} aprobados</div>
@@ -118,8 +153,7 @@
         const est = P.estado(curso.id, cap.id);
         html += `<a href="#/curso/${curso.id}/${cap.id}" class="side-item ${cap.id === idActivo ? "activo" : ""} est-${est}">
           <span class="est" title="${TEXTO_ESTADO[est]}">${ICONO_ESTADO[est]}</span>
-          <span class="side-code">${escapar(cap.code || "")}</span>
-          <span class="side-name">${escapar(cap.title)}</span>
+          <span class="side-name"><span class="side-code">${escapar(cap.code || "")}</span>${escapar(cap.title)}</span>
         </a>`;
       }
     }
@@ -130,9 +164,10 @@
   // ---------- Vista: catálogo ----------
   async function vistaCatalogo() {
     const cat = await obtenerCatalogo();
-    setCrumbs([{ texto: "Cursos" }]);
+    setCrumbs([{ texto: "Hoy" }]);
     mostrarSidebar(null);
-    document.title = cat.titulo || "Plataforma de Estudio";
+    aplicarTema(null);
+    document.title = cat.titulo || "NEXUS Learning";
 
     const visibles = cat.cursos.filter((c) => c.publicado !== false);
     const cursos = await Promise.all(visibles.map((c) => obtenerCurso(c.id).catch((err) => ({ _error: err, _meta: c }))));
@@ -146,7 +181,7 @@
       const r = P.resumenCurso(curso);
       const minutos = curso.chapters.reduce((s, c) => s + (c.estimatedMinutes || 0), 0);
       const etiquetas = (curso._meta.etiquetas || []).map((t) => `<span class="tag">${escapar(t)}</span>`).join("");
-      tarjetas += `<a class="card course-card" href="#/curso/${curso.id}" style="--acento:${escapar(curso._meta.color || "#2563eb")}">
+      tarjetas += `<a class="card course-card" href="#/curso/${curso.id}" style="--acento-tarjeta:${escapar(curso._meta.color || "#1D64D8")}">
         <div class="card-top">
           <span class="kicker">${escapar(curso._meta.categoria || curso.level || "Curso")}</span>
           ${curso.level ? `<span class="pill">${escapar(curso.level)}</span>` : ""}
@@ -164,7 +199,7 @@
 
     app.innerHTML = `
       <section class="hero">
-        <h1>${escapar(cat.titulo || "Plataforma de Estudio")}</h1>
+        <h1>${escapar(cat.titulo || "NEXUS Learning")}</h1>
         <p class="lead">${escapar(cat.descripcion || "")}</p>
       </section>
       <section class="grid">${tarjetas || '<p class="muted">Aún no hay cursos publicados.</p>'}</section>
@@ -202,7 +237,8 @@
   // ---------- Vista: índice del curso ----------
   async function vistaCurso(idCurso) {
     const curso = await obtenerCurso(idCurso);
-    setCrumbs([{ texto: "Cursos", href: "#/" }, { texto: curso.title }]);
+    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title }]);
+    aplicarTema(curso._meta);
     mostrarSidebar(sidebarCurso(curso, null));
     document.title = curso.title;
 
@@ -234,7 +270,7 @@
         <p class="lead">${escapar(curso.subtitle || "")}</p>
         <div class="hero-progress">${barra(r.pct)}<span>${r.pct}% · ${r.aprobados} aprobados · ${r.leidos} leídos</span></div>
         <div class="row">
-          ${siguiente ? `<a class="btn" href="#/curso/${curso.id}/${siguiente.id}">${r.aprobados || r.leidos ? "Continuar" : "Empezar"}: ${escapar(siguiente.code || siguiente.title)}</a>` : '<span class="pill ok">¡Curso completado!</span>'}
+          ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${r.aprobados || r.leidos ? "Continuar" : "Empezar"}: ${escapar(siguiente.code || siguiente.title)}</a>` : '<span class="pill ok">¡Curso completado!</span>'}
           <button class="btn ghost" id="btnReiniciar" type="button">Reiniciar progreso</button>
         </div>
       </section>
@@ -440,7 +476,8 @@
     const pestañas = pestañasDe(cap);
     let activa = pestañas.some(([k]) => k === pestañaInicial) ? pestañaInicial : pestañas[0]?.[0];
 
-    setCrumbs([{ texto: "Cursos", href: "#/" }, { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
+    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
+    aplicarTema(curso._meta);
     mostrarSidebar(sidebarCurso(curso, cap.id));
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
     cerrarMenu();
@@ -471,7 +508,7 @@
         <div class="tab-body">${contenido}</div>
         <nav class="pager">
           ${anterior ? `<a class="btn ghost" href="#/curso/${curso.id}/${anterior.id}">← ${escapar(anterior.code || "Anterior")}</a>` : "<span></span>"}
-          ${siguiente ? `<a class="btn" href="#/curso/${curso.id}/${siguiente.id}">${escapar(siguiente.code || "Siguiente")} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al índice</a>`}
+          ${siguiente ? `<a class="btn cta" href="#/curso/${curso.id}/${siguiente.id}">${escapar(siguiente.code || "Siguiente")} →</a>` : `<a class="btn" href="#/curso/${curso.id}">Volver al índice</a>`}
         </nav>`;
 
       app.querySelectorAll(".tab").forEach((b) => {
@@ -503,6 +540,7 @@
     } catch (err) {
       console.error(err);
       mostrarSidebar(null);
+      if (!catalogo) document.body.dataset.tema = "hoy";
       const local = location.protocol === "file:";
       app.innerHTML = `<div class="panel error"><h2>No se pudo cargar</h2><p>${escapar(err.message)}</p>
         ${local ? "<p>Estás abriendo el archivo directamente. Ejecuta <code>python -m http.server</code> en la carpeta del proyecto y abre <code>http://localhost:8000</code>.</p>" : ""}

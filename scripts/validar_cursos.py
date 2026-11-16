@@ -11,6 +11,8 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 CURSOS = RAIZ / "cursos"
+# Papeles disponibles en assets/css/temas.css
+TEMAS = {"datos", "web", "ia"}
 
 errores: list[str] = []
 avisos: list[str] = []
@@ -117,6 +119,8 @@ def main():
         if entrada.get("id") in vistos:
             err(f"[catalogo] id de curso repetido: {entrada.get('id')}")
         vistos.add(entrada.get("id"))
+        if "tema" in entrada and entrada["tema"] not in TEMAS:
+            err(f"[catalogo] {entrada.get('id')}: tema '{entrada['tema']}' no existe (usa uno de: {', '.join(sorted(TEMAS))})")
         if "archivo" in entrada and "id" in entrada:
             validar_curso(entrada)
 

@@ -13,6 +13,8 @@ Cada curso es **un archivo JSON** dentro de la carpeta `cursos/`. La página lo 
    {
      "id": "excel-avanzado",
      "archivo": "excel-avanzado.json",
+     "tema": "datos",
+     "separador": "Excel",
      "categoria": "Ofimática",
      "etiquetas": ["Excel", "Power Query"],
      "color": "#16a34a",
@@ -21,6 +23,8 @@ Cada curso es **un archivo JSON** dentro de la carpeta `cursos/`. La página lo 
    ```
 
    Con `"publicado": false` el curso queda oculto mientras lo preparas.
+
+   `tema` elige el papel del cuaderno: `datos` (cuadrícula de analista), `web` (pizarra de desarrollador) o `ia` (bitácora de laboratorio). `separador` es el texto corto de la pestaña lateral. Para un papel nuevo, copia un bloque de `assets/css/temas.css` y agrega su nombre en `scripts/validar_cursos.py`.
 5. **Valida** (opcional pero recomendado): `python scripts/validar_cursos.py`. Al subir a GitHub esta validación corre sola y te avisa si algo está mal.
 6. **Equilibra los exámenes** (opcional): `python scripts/mezclar_examenes.py cursos/excel-avanzado.json` reparte la respuesta correcta entre A, B, C y D. La web además mezcla las opciones en cada intento.
 

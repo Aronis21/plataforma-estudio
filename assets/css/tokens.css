@@ -1,0 +1,57 @@
+/* ==========================================================================
+   NEXUS · Tokens del sistema de diseño "Cuaderno vivo"
+   Valores comunes a todos los cursos. Los colores de cada papel (Hoy, Datos,
+   Web, IA) están en temas.css y se activan con <body data-tema="...">.
+   ========================================================================== */
+:root {
+  /* Tipografías */
+  --f-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --f-mano: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
+  --f-mono-datos: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --f-mono-code: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --f-sora: "Sora", "Inter", system-ui, sans-serif;
+
+  /* Escala de tamaños */
+  --t-xs: .75rem;
+  --t-sm: .875rem;
+  --t-md: 1rem;
+  --t-lg: 1.125rem;
+  --t-xl: 1.375rem;
+  --t-2xl: clamp(1.75rem, 3.2vw, 2.4rem);
+  --t-3xl: clamp(2.2rem, 4.6vw, 3.4rem);
+
+  /* Espaciado */
+  --e-1: .25rem;
+  --e-2: .5rem;
+  --e-3: .75rem;
+  --e-4: 1rem;
+  --e-5: 1.5rem;
+  --e-6: 2rem;
+  --e-7: 3rem;
+
+  /* Radios */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* Medidas del esqueleto */
+  --topbar-h: 64px;
+  --indice-w: 260px;
+  --separador-w: 52px;
+  --toque: 44px; /* área táctil mínima */
+
+  /* Colores de estado comunes (cada tema puede ajustarlos) */
+  --ok: #0F766E;
+  --ko: #B42318;
+  --aviso: #B7791F;
+
+  /* Colores de los separadores de cursos: fijos en todos los temas */
+  --sep-datos: #F0B429;
+  --sep-datos-txt: #2B1D00;
+  --sep-web: #1D64D8;
+  --sep-web-txt: #FFFFFF;
+  --sep-ia: #C6E85A;
+  --sep-ia-txt: #1D2A00;
+}

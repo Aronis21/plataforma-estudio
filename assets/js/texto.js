@@ -13,17 +13,18 @@
 
   // Formato en línea (el texto ya viene escapado por dentro)
   function enLinea(s) {
-    const partes = escapar(s).split(/(`[^`]+`)/g);
-    return partes
-      .map((p) => {
-        if (p.startsWith("`") && p.endsWith("`") && p.length > 1) {
-          return `<code>${p.slice(1, -1)}</code>`;
-        }
-        return p
-          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-          .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,:;!?]|$)/g, "$1<em>$2</em>");
-      })
-      .join("");
+    // 1) Se apartan los fragmentos de `código` para que su contenido (p. ej. fct_*) no se tome como formato.
+    const codigos = [];
+    let t = escapar(s).replace(/`([^`]+)`/g, (_, c) => {
+      codigos.push(c);
+      return `\u0000${codigos.length - 1}\u0000`;
+    });
+    // 2) Negrita y cursiva (la negrita puede contener código).
+    t = t
+      .replace(/\*\*([^*]+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,:;!?]|$)/g, "$1<em>$2</em>");
+    // 3) Se devuelven los fragmentos de código.
+    return t.replace(/\u0000(\d+)\u0000/g, (_, i) => `<code>${codigos[+i]}</code>`);
   }
 
   // Bloques: párrafos y listas
