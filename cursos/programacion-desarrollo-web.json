@@ -93,9 +93,9 @@
           "id": "lec-00-q1",
           "question": "¿En qué orden ejecuta el navegador las etiquetas `<script>` de una página?",
           "options": [
-            "Primero las más pequeñas.",
-            "En orden alfabético por nombre de archivo.",
-            "Todas al mismo tiempo, sin orden.",
+            "Primero las que pesan menos, para que la página cargue rápido.",
+            "En orden alfabético según el nombre de cada archivo.",
+            "Todas a la vez, en paralelo y sin un orden garantizado.",
             "En el orden en que aparecen en el HTML."
           ],
           "correctIndex": 3,
@@ -105,10 +105,10 @@
           "id": "lec-00-q2",
           "question": "Quieres cambiar el nombre de un estado que aparece en toda la página. ¿Dónde deberías mirar primero?",
           "options": [
-            "En el logotipo.",
-            "En cada archivo de CSS.",
+            "En la librería de Excel, que es la que guarda los nombres de estados.",
+            "En el logotipo, porque el nombre del estado se dibuja ahí.",
             "En la carpeta de configuración, donde están los ajustes como los estados.",
-            "En la librería de Excel."
+            "En cada archivo de CSS, buscando el texto del estado uno por uno."
           ],
           "correctIndex": 2,
           "explanation": "Los valores que cambian con el negocio se separan del código en archivos de configuración, para poder modificarlos sin tocar la lógica."
@@ -117,10 +117,10 @@
           "id": "lec-00-q3",
           "question": "¿Qué es el DOM?",
           "options": [
-            "Un servidor de base de datos.",
-            "Un lenguaje de estilos.",
+            "Un lenguaje de estilos que decide colores, tamaños y posiciones.",
+            "Un servidor de base de datos que guarda el contenido de cada página y lo entrega al navegador.",
             "El árbol de elementos que el navegador construye a partir del HTML y que JavaScript puede modificar.",
-            "El nombre del archivo principal."
+            "El nombre del archivo principal que el navegador abre primero."
           ],
           "correctIndex": 2,
           "explanation": "El DOM es la representación en memoria de la página. Cuando JavaScript agrega una fila a una tabla, está modificando el DOM."
@@ -218,8 +218,8 @@
           "question": "¿Qué atajo busca un texto en todos los archivos del proyecto?",
           "options": [
             "Ctrl+F",
-            "Ctrl+D",
             "Ctrl+P",
+            "Ctrl+D",
             "Ctrl+Shift+F"
           ],
           "correctIndex": 3,
@@ -229,10 +229,10 @@
           "id": "lec-01-q2",
           "question": "¿Por qué conviene abrir la carpeta del proyecto en lugar de un solo archivo?",
           "options": [
-            "No hay diferencia.",
-            "Porque los archivos sueltos no se pueden guardar.",
+            "Porque Live Server solo arranca cuando la carpeta está vacía y no tiene otros archivos dentro.",
+            "No hay diferencia: VS Code trabaja igual con un archivo suelto.",
             "Porque así VS Code puede buscar en todo el proyecto y revisar todos sus archivos.",
-            "Porque Live Server solo funciona con carpetas vacías."
+            "Porque los archivos abiertos sueltos no se pueden guardar en disco."
           ],
           "correctIndex": 2,
           "explanation": "Con la carpeta abierta, la búsqueda, los saltos a definiciones y las extensiones de revisión funcionan sobre todo el proyecto."
@@ -241,10 +241,10 @@
           "id": "lec-01-q3",
           "question": "¿Qué hace F12 sobre el nombre de una función?",
           "options": [
-            "Comenta la línea.",
+            "Borra la función y todas sus llamadas.",
             "Salta al lugar donde la función está definida.",
-            "Ejecuta la página.",
-            "Borra la función."
+            "Abre la página en el navegador para probarla.",
+            "Convierte la línea actual en un comentario."
           ],
           "correctIndex": 1,
           "explanation": "Ir a la definición (F12) y buscar referencias (Shift+F12) son la forma más rápida de seguir el rastro de una función."
@@ -344,9 +344,9 @@
           "id": "lec-02-q1",
           "question": "¿Qué muestra la pestaña Elements de las DevTools?",
           "options": [
-            "Solo el archivo HTML tal como está en el disco.",
-            "Los datos guardados en el navegador.",
-            "Los errores de red.",
+            "El archivo HTML exactamente como está guardado en el disco.",
+            "Los datos que la página guardó en el almacenamiento del navegador.",
+            "Los errores de red de cada archivo que la página intentó cargar.",
             "El DOM actual de la página, incluido lo que agregó JavaScript."
           ],
           "correctIndex": 3,
@@ -356,10 +356,10 @@
           "id": "lec-02-q2",
           "question": "Una regla de estilo aparece tachada en el panel de estilos. ¿Qué significa?",
           "options": [
-            "Que la regla se borrará al guardar.",
-            "Que el archivo CSS no existe.",
+            "Que el navegador no soporta esa propiedad y la ignora por completo.",
+            "Que la regla se borrará del archivo la próxima vez que guardes.",
             "Que otra regla con más prioridad le está ganando.",
-            "Que el navegador no soporta CSS."
+            "Que el archivo CSS donde está la regla no se encontró en el servidor."
           ],
           "correctIndex": 2,
           "explanation": "Las reglas tachadas fueron sobrescritas por la cascada. Entender por qué es el tema de la lección 06."
@@ -368,10 +368,10 @@
           "id": "lec-02-q3",
           "question": "¿Por qué no conviene editar a mano el texto guardado en Local Storage?",
           "options": [
-            "Porque se borra al instante.",
+            "Porque esos datos solo se pueden editar abriéndolos desde Excel.",
             "Porque un error de formato puede impedir que la página lea sus datos.",
-            "Porque solo se puede editar desde Excel.",
-            "Porque está prohibido por el navegador."
+            "Porque el navegador lo prohíbe y bloquea la página si lo intentas.",
+            "Porque el navegador borra al instante cualquier cambio hecho a mano."
           ],
           "correctIndex": 1,
           "explanation": "Los datos están en formato JSON estricto: una coma o comilla de más lo invalida. Los cambios de datos se hacen desde la aplicación o con un respaldo."
@@ -479,8 +479,8 @@
           "options": [
             "hidden",
             "class=\"oculto\" obligatoriamente",
-            "alt",
-            "display"
+            "display",
+            "alt"
           ],
           "correctIndex": 0,
           "explanation": "`hidden` es un atributo de HTML que oculta el elemento. JavaScript lo pone o lo quita al cambiar de pantalla."
@@ -489,10 +489,10 @@
           "id": "lec-03-q2",
           "question": "¿Cuál es la diferencia principal entre id y class?",
           "options": [
-            "El id solo sirve para estilos.",
+            "No hay diferencia: los dos se pueden usar igual en cualquier caso.",
             "El id es único en la página; la class puede repetirse en muchos elementos.",
-            "La class es única y el id se repite.",
-            "No hay diferencia."
+            "La class es única en la página y el id puede repetirse sin límite en todos los elementos que quieras.",
+            "El id solo sirve para dar estilos; la class solo para JavaScript."
           ],
           "correctIndex": 1,
           "explanation": "JavaScript encuentra un elemento concreto por su id; los estilos compartidos se aplican por class."
@@ -502,9 +502,9 @@
           "question": "¿Por qué un botón debe ser `<button>` y no un `<div>` con clic?",
           "options": [
             "Porque `<button>` funciona con teclado y se anuncia como botón sin código extra.",
-            "Porque los div no se pueden pintar con CSS.",
-            "Porque los div no pueden tener texto.",
-            "Porque button es más rápido de escribir."
+            "Porque un `<div>` no puede contener texto, solo otros elementos.",
+            "Porque a un `<div>` no se le pueden aplicar estilos de botón con CSS, ni bordes ni colores de fondo.",
+            "Porque `<button>` es más corto de escribir y el código queda más limpio."
           ],
           "correctIndex": 0,
           "explanation": "Las etiquetas nativas traen accesibilidad y comportamiento gratis: foco con Tab, activación con Enter y Espacio."
@@ -609,10 +609,10 @@
           "id": "lec-04-q1",
           "question": "¿Qué conecta un `<label>` con su campo?",
           "options": [
-            "Que estén en la misma línea.",
+            "Que el label y el campo compartan el mismo valor en el atributo class.",
             "El atributo for del label igual al id del campo.",
-            "El atributo class.",
-            "El atributo name del label."
+            "El atributo name del label, que debe coincidir con el name del campo.",
+            "Que el label y el campo estén escritos en la misma línea del HTML."
           ],
           "correctIndex": 1,
           "explanation": "`for` apunta al `id`. Así, tocar la etiqueta enfoca el campo y los lectores de pantalla los relacionan."
@@ -621,10 +621,10 @@
           "id": "lec-04-q2",
           "question": "Quieres sugerir clientes existentes pero permitir escribir uno nuevo. ¿Qué usas?",
           "options": [
-            "Un textarea.",
-            "Un checkbox.",
+            "Un select con los clientes y una opción para \"otro\".",
+            "Un grupo de checkbox, uno por cada cliente existente.",
             "Un input con datalist.",
-            "Un select."
+            "Un textarea con la lista de clientes escrita dentro."
           ],
           "correctIndex": 2,
           "explanation": "`datalist` sugiere sin obligar; `select` solo deja elegir entre las opciones."
@@ -633,9 +633,9 @@
           "id": "lec-04-q3",
           "question": "¿Cómo lee JavaScript el atributo `data-id=\"v12\"` de un botón?",
           "options": [
-            "boton.getData()",
-            "boton.id",
             "boton.data-id",
+            "boton.id",
+            "boton.getData()",
             "boton.dataset.id"
           ],
           "correctIndex": 3,
@@ -738,10 +738,10 @@
           "id": "lec-05-q1",
           "question": "¿Dónde van los encabezados de columna de una tabla?",
           "options": [
-            "En un div encima de la tabla.",
-            "En celdas td dentro de tbody.",
+            "En el atributo title de la etiqueta table.",
+            "En un div aparte, colocado encima de la tabla.",
             "En celdas th dentro de thead.",
-            "En el atributo title de la tabla."
+            "En celdas td dentro de la primera fila de tbody."
           ],
           "correctIndex": 2,
           "explanation": "Los encabezados son `<th>` en `<thead>`; así el navegador y los lectores de pantalla entienden la relación con cada columna."
@@ -751,9 +751,9 @@
           "question": "¿Cuál es la mejor forma de mostrar una tabla de 12 columnas en un celular?",
           "options": [
             "Envolverla en un contenedor con overflow-x: auto.",
-            "Convertirla en una imagen.",
-            "Reducir la letra a 6 píxeles.",
-            "Ocultar la tabla en el celular."
+            "Ocultar la tabla en el celular y mostrar un aviso.",
+            "Convertirla en una imagen para que no se deforme.",
+            "Reducir la letra hasta que las 12 columnas quepan."
           ],
           "correctIndex": 0,
           "explanation": "El contenedor desplazable conserva todos los datos legibles sin romper el resto de la página."
@@ -762,10 +762,10 @@
           "id": "lec-05-q3",
           "question": "Un botón solo muestra un ícono de lápiz. ¿Qué le falta para ser accesible?",
           "options": [
-            "Nada, el ícono es suficiente.",
+            "Un color más oscuro para que tenga suficiente contraste.",
             "Un aria-label que describa la acción, como \"Editar actividad\".",
-            "Un id.",
-            "Un color más oscuro."
+            "Un id único para que el lector de pantalla lo encuentre.",
+            "Nada: el ícono de lápiz ya se entiende por sí solo."
           ],
           "correctIndex": 1,
           "explanation": "Sin texto, un lector de pantalla no sabe qué hace el botón; `aria-label` le da nombre."
@@ -867,8 +867,8 @@
           "id": "lec-06-q1",
           "question": "¿Cuál de estos selectores tiene más especificidad?",
           "options": [
-            "main section div p",
             ".panel .tarjeta .titulo",
+            "main section div p",
             ".tarjeta:hover",
             "#v-inicio .tarjeta"
           ],
@@ -880,9 +880,9 @@
           "question": "Dos reglas tienen exactamente la misma especificidad. ¿Cuál se aplica?",
           "options": [
             "La que aparece después.",
-            "No se aplica ninguna.",
-            "La que aparece primero.",
-            "La más corta."
+            "La que tiene menos propiedades dentro.",
+            "Ninguna: el navegador descarta las dos por el empate.",
+            "La que aparece primero, porque se leyó antes."
           ],
           "correctIndex": 0,
           "explanation": "Con igual especificidad, decide el orden: la última declaración gana."
@@ -892,9 +892,9 @@
           "question": "¿Por qué tu página numera sus hojas de estilo (1-base, 2-…, 3-…)?",
           "options": [
             "Para que el orden de carga sea claro y cada capa pueda ajustar lo que definieron las de antes.",
-            "Por compatibilidad con Excel.",
-            "Porque el navegador ignora los archivos sin número.",
-            "Para que pesen menos."
+            "Para que pesen menos, ya que los nombres cortos se comprimen mejor.",
+            "Por compatibilidad con Excel, que ordena los archivos por número.",
+            "Porque el navegador ignora las hojas de estilo cuyo nombre no empieza con un número y no las carga nunca."
           ],
           "correctIndex": 0,
           "explanation": "El orden importa en la cascada; numerar los archivos deja claro qué capa se aplica después."
@@ -993,10 +993,10 @@
           "id": "lec-07-q1",
           "question": "¿Cómo se usa una variable CSS llamada --radio?",
           "options": [
-            "border-radius: @radio;",
+            "border-radius: --radio;",
             "border-radius: $radio;",
             "border-radius: var(--radio);",
-            "border-radius: --radio;"
+            "border-radius: @radio;"
           ],
           "correctIndex": 2,
           "explanation": "Las custom properties se leen con la función `var()`."
@@ -1005,10 +1005,10 @@
           "id": "lec-07-q2",
           "question": "¿Cuál es la forma más limpia de crear un modo oscuro?",
           "options": [
-            "Copiar toda la hoja de estilos y cambiar cada color.",
-            "Usar filter: invert(1) en toda la página.",
+            "Copiar toda la hoja de estilos y cambiar cada color a mano.",
+            "Aplicar filter: invert(1) a toda la página para invertir los colores.",
             "Redefinir las variables de color cuando el body tiene una clase o atributo.",
-            "Crear un segundo index.html."
+            "Crear un segundo index.html con sus propios colores oscuros."
           ],
           "correctIndex": 2,
           "explanation": "Las reglas usan variables; el tema solo cambia sus valores."
@@ -1018,9 +1018,9 @@
           "question": "¿Qué hace `body[data-modo=\"tecnico\"] .solo-planificador { display:none; }`?",
           "options": [
             "Oculta los elementos marcados solo-planificador cuando la página está en modo técnico.",
-            "Cambia el id del body.",
-            "Borra el modo técnico.",
-            "Muestra todo en modo técnico."
+            "Muestra todos los elementos, incluidos los solo-planificador, en modo técnico.",
+            "Cambia el id del body a \"tecnico\" cuando se ocultan los elementos.",
+            "Borra del HTML los elementos solo-planificador al cargar la página."
           ],
           "correctIndex": 0,
           "explanation": "Es un selector de atributo en el body combinado con una clase descendiente."
@@ -1122,10 +1122,10 @@
           "id": "lec-08-q1",
           "question": "¿Qué propiedad agrega espacio uniforme entre los hijos de un contenedor flex?",
           "options": [
-            "spacing",
             "margin-between",
+            "padding",
             "gap",
-            "padding"
+            "spacing"
           ],
           "correctIndex": 2,
           "explanation": "`gap` funciona en Flexbox y Grid y evita márgenes sobrantes en los extremos."
@@ -1135,9 +1135,9 @@
           "question": "Quieres que el buscador ocupe todo el espacio libre de la barra. ¿Qué le aplicas?",
           "options": [
             "flex: 1",
-            "display: block",
             "align-items: stretch",
-            "width: auto"
+            "width: auto",
+            "display: block"
           ],
           "correctIndex": 0,
           "explanation": "`flex: 1` hace que el hijo crezca para ocupar el espacio sobrante."
@@ -1147,9 +1147,9 @@
           "question": "¿Qué hace `margin-left: auto` en un hijo de un contenedor flex en fila?",
           "options": [
             "Lo empuja hacia el extremo derecho.",
-            "Lo oculta.",
-            "Lo centra.",
-            "Le quita el margen."
+            "Lo centra entre el inicio y el final de la fila.",
+            "Lo oculta, porque su margen ocupa todo el espacio.",
+            "Le quita el margen izquierdo que tuviera antes."
           ],
           "correctIndex": 0,
           "explanation": "El margen automático absorbe todo el espacio libre a su izquierda."
@@ -1252,9 +1252,9 @@
           "question": "¿Qué significa `grid-template-columns: 1fr 1fr 1fr`?",
           "options": [
             "Tres columnas de igual ancho que se reparten el espacio.",
-            "Tres columnas de 1 píxel.",
-            "Tres filas iguales.",
-            "Una columna de 3 píxeles."
+            "Una sola columna de 3 fracciones de ancho fijo.",
+            "Tres filas de igual alto que ocupan el contenedor.",
+            "Tres columnas de 1 píxel cada una."
           ],
           "correctIndex": 0,
           "explanation": "`fr` es una fracción del espacio disponible."
@@ -1263,9 +1263,9 @@
           "id": "lec-09-q2",
           "question": "¿Qué consigue `repeat(auto-fill, minmax(200px, 1fr))`?",
           "options": [
-            "Una sola columna de 200px.",
-            "Exactamente 200 columnas.",
-            "Columnas de 1px.",
+            "Exactamente 200 columnas de 1fr cada una.",
+            "Una sola columna fija de 200px de ancho.",
+            "Columnas de 1px que se repiten hasta llenar la fila.",
             "Tantas columnas como quepan, cada una de al menos 200px."
           ],
           "correctIndex": 3,
@@ -1276,9 +1276,9 @@
           "question": "¿Cuándo es mejor Flexbox que Grid?",
           "options": [
             "Para alinear elementos en una sola dirección, como una barra de botones.",
-            "Para cualquier tablero de dos dimensiones.",
-            "Solo para tablas.",
-            "Nunca."
+            "Para cualquier tablero con filas y columnas a la vez, como un calendario o una cuadrícula de tarjetas.",
+            "Nunca: Grid hace todo lo que hace Flexbox y mejor.",
+            "Solo para mostrar tablas de datos con encabezados."
           ],
           "correctIndex": 0,
           "explanation": "Flexbox es unidimensional; Grid controla filas y columnas a la vez."
@@ -1381,10 +1381,10 @@
           "id": "lec-10-q1",
           "question": "¿Qué pasa si falta la etiqueta meta viewport?",
           "options": [
-            "Se desactiva JavaScript.",
+            "La página no carga en los celulares y queda en blanco hasta que el usuario gira la pantalla en horizontal.",
             "El celular muestra la página como si fuera una pantalla ancha y todo se ve diminuto.",
-            "La página no carga.",
-            "Nada."
+            "Se desactiva JavaScript en los navegadores de celular.",
+            "Nada: el celular adapta la página igual sin esa etiqueta."
           ],
           "correctIndex": 1,
           "explanation": "Sin viewport, el navegador móvil simula un ancho de escritorio y escala la página."
@@ -1393,10 +1393,10 @@
           "id": "lec-10-q2",
           "question": "¿Qué hace `@media (max-width: 760px) { … }`?",
           "options": [
-            "Limita la página a 760px.",
-            "Oculta la página en el celular.",
+            "Limita el ancho de la página a 760px en todas las pantallas.",
+            "Aplica esas reglas solo en pantallas de más de 760px de ancho.",
             "Aplica esas reglas solo cuando la pantalla mide 760px o menos.",
-            "Aplica las reglas solo en pantallas mayores de 760px."
+            "Oculta la página en las pantallas de celular más pequeñas."
           ],
           "correctIndex": 2,
           "explanation": "max-width = 'hasta este ancho'."
@@ -1405,9 +1405,9 @@
           "id": "lec-10-q3",
           "question": "¿Por qué conviene que los campos de formulario tengan letra de 16px en el celular?",
           "options": [
-            "Por compatibilidad con Excel.",
-            "Porque los formularios no aceptan otros tamaños.",
-            "Para ahorrar datos.",
+            "Para ahorrar datos, porque la letra pequeña carga más lento.",
+            "Por compatibilidad con Excel al exportar los datos del formulario.",
+            "Porque los formularios no aceptan ningún otro tamaño de letra.",
             "Porque con menos, algunos celulares hacen zoom automático al escribir."
           ],
           "correctIndex": 3,
@@ -1513,10 +1513,10 @@
           "id": "lec-11-q1",
           "question": "¿Cuánto vale `'5' + 1` en JavaScript?",
           "options": [
-            "NaN",
+            "6",
             "Error",
             "'51'",
-            "6"
+            "NaN"
           ],
           "correctIndex": 2,
           "explanation": "Si uno de los operandos es texto, `+` concatena. Convierte con Number() antes de sumar."
@@ -1525,10 +1525,10 @@
           "id": "lec-11-q2",
           "question": "¿Qué devuelve `actividad.km ?? 0` si `actividad.km` es `undefined`?",
           "options": [
-            "null",
-            "0",
             "Un error",
-            "undefined"
+            "0",
+            "undefined",
+            "null"
           ],
           "correctIndex": 1,
           "explanation": "`??` usa el valor de la derecha cuando el de la izquierda es null o undefined."
@@ -1537,10 +1537,10 @@
           "id": "lec-11-q3",
           "question": "¿Cuándo debes usar `let` en lugar de `const`?",
           "options": [
-            "Cuando la variable es un número.",
-            "Siempre.",
+            "Siempre, porque const es más lento.",
+            "Cuando la variable guarda un número.",
             "Cuando la variable se va a reasignar.",
-            "Cuando la variable es un array."
+            "Cuando la variable guarda un array."
           ],
           "correctIndex": 2,
           "explanation": "`const` impide reasignar el nombre; usa `let` solo si el valor cambia (un contador, un acumulador)."
@@ -1647,8 +1647,8 @@
           "question": "¿Qué devuelve `find` si ningún elemento cumple la condición?",
           "options": [
             "Un array vacío",
-            "false",
             "null",
+            "false",
             "undefined"
           ],
           "correctIndex": 3,
@@ -1658,10 +1658,10 @@
           "id": "lec-12-q2",
           "question": "¿Qué resultado da `[10, 9, 1].sort()`?",
           "options": [
+            "[10, 9, 1]",
             "Error",
-            "[1, 9, 10]",
             "[1, 10, 9]",
-            "[10, 9, 1]"
+            "[1, 9, 10]"
           ],
           "correctIndex": 2,
           "explanation": "Sin función de comparación, sort ordena como texto. Para números usa `(a, b) => a - b`."
@@ -1671,9 +1671,9 @@
           "question": "¿Por qué conviene `[...lista].sort(...)` en vez de `lista.sort(...)`?",
           "options": [
             "Porque sort modifica la lista original y así se ordena una copia.",
-            "Porque es más rápido.",
-            "No hay diferencia.",
-            "Porque sort no funciona sin los tres puntos."
+            "Porque ordenar una copia es mucho más rápido que ordenar la lista original en su lugar.",
+            "Porque sort no funciona si no le pones los tres puntos.",
+            "No hay diferencia: las dos formas dejan todo igual."
           ],
           "correctIndex": 0,
           "explanation": "Ordenar los datos guardados cambiaría el orden en toda la aplicación."
@@ -1775,10 +1775,10 @@
           "id": "lec-13-q1",
           "question": "Después de `const b = a; b.x = 5;`, ¿cuánto vale `a.x`?",
           "options": [
-            "El valor anterior de a.x.",
+            "Da error, porque const no deja cambiar b.x.",
             "5, porque a y b son el mismo objeto.",
-            "Da error.",
-            "undefined."
+            "undefined, porque b.x solo existe en b.",
+            "El valor que a.x tenía antes, porque b es una copia."
           ],
           "correctIndex": 1,
           "explanation": "Asignar un objeto copia la referencia, no el contenido."
@@ -1788,9 +1788,9 @@
           "question": "¿Qué hace `JSON.parse` con un texto mal formado?",
           "options": [
             "Lanza un error.",
-            "Devuelve null.",
             "Devuelve un objeto vacío.",
-            "Repara el texto."
+            "Devuelve null y sigue.",
+            "Corrige el texto solo."
           ],
           "correctIndex": 0,
           "explanation": "Por eso siempre se envuelve en try/catch."
@@ -1799,10 +1799,10 @@
           "id": "lec-13-q3",
           "question": "¿Cómo lees la propiedad cuyo nombre está en la variable `campo`?",
           "options": [
-            "obj{campo}",
+            "obj.campo",
             "obj->campo",
             "obj[campo]",
-            "obj.campo"
+            "obj{campo}"
           ],
           "correctIndex": 2,
           "explanation": "`obj.campo` busca una propiedad llamada literalmente 'campo'."
@@ -1902,9 +1902,9 @@
           "id": "lec-14-q1",
           "question": "¿Qué problema evita escapar los datos antes de ponerlos en innerHTML?",
           "options": [
-            "Que se borre el localStorage.",
-            "Que la página cargue lento.",
-            "Que los números se sumen como texto.",
+            "Que los números se sumen como si fueran texto al mostrarlos.",
+            "Que se borren los datos guardados en localStorage al pintar.",
+            "Que la página cargue lento cuando hay muchas filas en la tabla y el navegador tiene poca memoria.",
             "Que un texto con etiquetas se interprete como HTML y ejecute código (XSS)."
           ],
           "correctIndex": 3,
@@ -1914,9 +1914,9 @@
           "id": "lec-14-q2",
           "question": "¿Cuándo es seguro no escapar un dato?",
           "options": [
-            "Cuando el dato es corto.",
-            "Nunca hace falta escapar.",
-            "Cuando viene de Excel.",
+            "Cuando el dato tiene menos de diez letras.",
+            "Cuando el dato viene de un archivo de Excel.",
+            "Nunca hace falta escapar nada en la página.",
             "Cuando lo asignas con textContent."
           ],
           "correctIndex": 3,
@@ -1926,9 +1926,9 @@
           "id": "lec-14-q3",
           "question": "¿Por qué se usa `.join('')` después de `map` al generar filas?",
           "options": [
-            "Para escapar el HTML.",
-            "Para eliminar duplicados.",
-            "Para ordenar las filas.",
+            "Para eliminar las filas duplicadas que haya en la lista.",
+            "Para ordenar las filas por la primera columna de la tabla.",
+            "Para escapar el HTML de cada fila antes de mostrarlo.",
             "Para unir el array de textos en un solo texto sin comas."
           ],
           "correctIndex": 3,
@@ -2032,10 +2032,10 @@
           "id": "lec-15-q1",
           "question": "¿Por qué `new Date().toISOString().slice(0,10)` puede dar la fecha de mañana?",
           "options": [
-            "Porque slice corta mal.",
-            "Nunca pasa.",
+            "Nunca pasa: siempre da la fecha local de hoy.",
+            "Porque el navegador tiene un error al calcular fechas.",
             "Porque toISOString convierte a UTC, que va 4 horas adelante de RD.",
-            "Porque el navegador tiene un error."
+            "Porque slice corta mal el texto de la fecha y se salta un día cuando el mes tiene 31 días."
           ],
           "correctIndex": 2,
           "explanation": "De noche en RD ya es el día siguiente en UTC."
@@ -2045,9 +2045,9 @@
           "question": "¿Por qué conviene guardar las fechas como texto 'AAAA-MM-DD'?",
           "options": [
             "Porque se comparan y ordenan correctamente como texto y no dependen de la zona horaria.",
-            "Porque ocupan menos memoria que un número.",
-            "Porque Excel no acepta otro formato.",
-            "Porque JavaScript no tiene fechas."
+            "Porque así ocupan menos memoria que si se guardaran como número o como objeto Date de JavaScript.",
+            "Porque Excel no acepta ningún otro formato de fecha al importar.",
+            "Porque JavaScript no tiene un tipo de dato propio para fechas."
           ],
           "correctIndex": 0,
           "explanation": "El formato ISO va de lo mayor a lo menor (año, mes, día), así el orden alfabético coincide con el cronológico."
@@ -2056,10 +2056,10 @@
           "id": "lec-15-q3",
           "question": "¿Qué devuelve `0.1 + 0.2` en JavaScript?",
           "options": [
-            "Error",
+            "0.3",
             "0.12",
             "0.30000000000000004",
-            "0.3"
+            "Error"
           ],
           "correctIndex": 2,
           "explanation": "Los decimales binarios no representan exacto 0.1; por eso se redondea al final en cálculos de dinero."
@@ -2161,8 +2161,8 @@
           "id": "lec-16-q1",
           "question": "¿Qué devuelve `document.getElementById('no-existe')`?",
           "options": [
-            "Un elemento vacío",
             "undefined",
+            "Un elemento vacío",
             "null",
             "Lanza un error"
           ],
@@ -2173,10 +2173,10 @@
           "id": "lec-16-q2",
           "question": "¿Qué diferencia hay entre querySelector y querySelectorAll?",
           "options": [
-            "No hay diferencia.",
-            "querySelector devuelve una lista.",
+            "No hay diferencia: los dos devuelven todos los elementos.",
+            "querySelectorAll solo busca por id; querySelector busca por clase, etiqueta o cualquier otro selector.",
             "querySelector devuelve el primero que coincide; querySelectorAll devuelve todos.",
-            "querySelectorAll solo busca por id."
+            "querySelector devuelve una lista y querySelectorAll solo uno."
           ],
           "correctIndex": 2,
           "explanation": "El 'All' indica que devuelve una lista (NodeList) con todas las coincidencias."
@@ -2186,9 +2186,9 @@
           "question": "¿Por qué es mejor `classList.add('activo')` que `className = 'activo'`?",
           "options": [
             "Porque classList agrega la clase sin borrar las demás.",
-            "Porque className solo funciona en botones.",
-            "Porque className no existe.",
-            "Porque classList es más antiguo."
+            "Porque classList es más antiguo y más compatible.",
+            "Porque className solo funciona en botones y enlaces.",
+            "Porque className ya no existe en los navegadores."
           ],
           "correctIndex": 0,
           "explanation": "Asignar className reemplaza todas las clases del elemento."
@@ -2292,10 +2292,10 @@
           "id": "lec-17-q1",
           "question": "¿Qué hace `e.preventDefault()` en el evento submit de un formulario?",
           "options": [
-            "Detiene todos los scripts.",
+            "Valida todos los campos obligatorios del formulario antes de dejar que el navegador lo envíe.",
             "Evita que el navegador envíe el formulario y recargue la página.",
-            "Valida el formulario.",
-            "Borra los campos."
+            "Borra los campos del formulario después de enviarlo.",
+            "Detiene todos los scripts de la página hasta recargar."
           ],
           "correctIndex": 1,
           "explanation": "Cancela la acción por defecto; tu código se encarga de guardar los datos."
@@ -2304,10 +2304,10 @@
           "id": "lec-17-q2",
           "question": "¿Para qué sirve `e.target.closest('[data-act]')`?",
           "options": [
-            "Para buscar el elemento más cercano en pantalla.",
+            "Para cerrar la ventana o el panel donde está el botón.",
             "Para encontrar el botón de acción aunque el clic haya caído en un elemento interno.",
-            "Para cerrar la ventana.",
-            "Para eliminar el atributo data-act."
+            "Para buscar el elemento que está más cerca del puntero en la pantalla, aunque no sea un botón.",
+            "Para quitar el atributo data-act del elemento pulsado."
           ],
           "correctIndex": 1,
           "explanation": "closest sube por los ancestros hasta encontrar el primero que coincide con el selector."
@@ -2316,10 +2316,10 @@
           "id": "lec-17-q3",
           "question": "¿Por qué la delegación de eventos es ideal para tablas que se redibujan?",
           "options": [
-            "Porque es más bonita.",
+            "Porque se ve más bonita en el código y queda más ordenada para leer.",
             "Porque el escuchador está en un elemento que no se reemplaza, así los botones nuevos funcionan sin conectar nada.",
-            "Porque evita usar data-act.",
-            "Porque desactiva el burbujeo."
+            "Porque así ya no hace falta usar atributos data-act en los botones nuevos.",
+            "Porque desactiva el burbujeo y así el clic solo llega al botón que se pulsó, sin pasar por la tabla ni por sus filas."
           ],
           "correctIndex": 1,
           "explanation": "El evento burbujea hasta el documento, donde un único escuchador lo atiende."
@@ -2422,9 +2422,9 @@
           "id": "lec-18-q1",
           "question": "¿Qué campos recoge `new FormData(form)`?",
           "options": [
-            "Solo los de tipo text.",
-            "Todos los inputs, tengan o no name.",
-            "Solo los obligatorios.",
+            "Solo los campos marcados como obligatorios (required).",
+            "Solo los campos de tipo text, sin contar los demás.",
+            "Todos los inputs del formulario, tengan o no name, incluidas las casillas aunque no estén marcadas.",
             "Los que tienen atributo name (y las casillas solo si están marcadas)."
           ],
           "correctIndex": 3,
@@ -2435,9 +2435,9 @@
           "question": "¿Cómo puede un mismo formulario servir para crear y para editar?",
           "options": [
             "Con un campo oculto con el id: vacío al crear, con valor al editar.",
-            "Recargando la página.",
-            "No es posible.",
-            "Con dos botones submit."
+            "No es posible: hace falta un formulario para cada caso.",
+            "Con dos botones submit, uno para crear y otro para editar, que envían a funciones distintas.",
+            "Recargando la página entre crear y editar."
           ],
           "correctIndex": 0,
           "explanation": "Al guardar, la presencia del id decide si se actualiza o se agrega."
@@ -2447,9 +2447,9 @@
           "question": "¿Qué método abre un `<dialog>` como ventana modal?",
           "options": [
             "showModal()",
-            "show(true)",
+            "open()",
             "display()",
-            "open()"
+            "show(true)"
           ],
           "correctIndex": 0,
           "explanation": "showModal() lo abre por encima del resto, bloquea el fondo y permite cerrar con Escape."
@@ -2547,10 +2547,10 @@
           "id": "lec-19-q1",
           "question": "Según la arquitectura de tu página, ¿qué debe pasar después de que una acción modifica los datos?",
           "options": [
-            "Nada, el navegador lo actualiza solo.",
-            "Cambiar el color de la fila con style.",
+            "Recargar la página para leer los datos nuevos.",
+            "Cambiar el color de la fila tocando su style.",
             "Guardar el estado y redibujar las pantallas.",
-            "Recargar la página."
+            "Nada: el navegador actualiza la pantalla solo."
           ],
           "correctIndex": 2,
           "explanation": "El ciclo es acción → datos → guardar → redibujar."
@@ -2559,10 +2559,10 @@
           "id": "lec-19-q2",
           "question": "¿Por qué el script de arranque (app.js) va al final?",
           "options": [
-            "Porque es el más grande.",
-            "Por orden alfabético.",
+            "Porque es el archivo más grande y conviene que cargue al final.",
+            "Porque el navegador ejecuta primero el último script del HTML y después sigue hacia arriba con los demás.",
             "Porque usa funciones y acciones definidas en todos los archivos que se cargan antes.",
-            "Porque el navegador ignora el último script."
+            "Porque los scripts se cargan en orden alfabético por su nombre."
           ],
           "correctIndex": 2,
           "explanation": "Sin sistema de módulos, cada archivo solo puede usar lo que ya se cargó antes."
@@ -2571,10 +2571,10 @@
           "id": "lec-19-q3",
           "question": "Quieres cambiar lo que hace un botón. ¿Cuál es el primer paso más eficiente?",
           "options": [
-            "Cambiar su texto.",
-            "Borrar el botón y crearlo de nuevo.",
+            "Leer todos los archivos JS de arriba abajo.",
+            "Borrar el botón del HTML y crearlo de nuevo.",
             "Inspeccionarlo y buscar su data-act en el proyecto.",
-            "Leer todos los archivos JS de arriba abajo."
+            "Cambiar su texto y ver si la acción cambia."
           ],
           "correctIndex": 2,
           "explanation": "El data-act te lleva directo a la acción registrada."
@@ -2676,10 +2676,10 @@
           "id": "lec-20-q1",
           "question": "¿Qué tipo de dato guarda localStorage?",
           "options": [
-            "Archivos de Excel.",
-            "Imágenes.",
+            "Imágenes y archivos binarios de cualquier tamaño.",
+            "Objetos de JavaScript tal cual, sin convertirlos.",
             "Solo texto; los objetos se convierten con JSON.stringify.",
-            "Objetos de JavaScript directamente."
+            "Archivos de Excel completos, con hojas y fórmulas."
           ],
           "correctIndex": 2,
           "explanation": "Por eso el estado se guarda como JSON y se lee con JSON.parse."
@@ -2688,10 +2688,10 @@
           "id": "lec-20-q2",
           "question": "Abres tu página en otro computador. ¿Por qué no ves tus datos?",
           "options": [
-            "Porque GitHub los elimina.",
+            "Porque los datos se borran solos cada día.",
             "Porque localStorage es propio de cada navegador y equipo.",
-            "Porque se borran cada día.",
-            "Porque falta internet."
+            "Porque GitHub los borra cada vez que publicas.",
+            "Porque el otro computador no tiene internet."
           ],
           "correctIndex": 1,
           "explanation": "Los datos viven en el navegador. Para moverlos se usa un respaldo (o una base de datos en la nube)."
@@ -2700,10 +2700,10 @@
           "id": "lec-20-q3",
           "question": "¿Para qué sirve una migración?",
           "options": [
-            "Para borrar datos viejos.",
+            "Para comprimir el localStorage cuando se acerca a su límite.",
             "Para adaptar los datos guardados con una versión anterior a la nueva estructura.",
-            "Para comprimir el localStorage.",
-            "Para mover la página a otro servidor."
+            "Para mover la página y sus datos guardados a otro servidor distinto sin perder nada en el cambio.",
+            "Para borrar los datos viejos que la página ya no necesita usar."
           ],
           "correctIndex": 1,
           "explanation": "Rellena o transforma los registros antiguos para que el código nuevo pueda usarlos."
@@ -2808,10 +2808,10 @@
           "id": "lec-21-q1",
           "question": "¿Qué hace `await archivo.arrayBuffer()`?",
           "options": [
-            "Sube el archivo a internet.",
+            "Sube el archivo a internet y espera la respuesta del servidor con el contenido ya convertido a texto.",
             "Espera a que el navegador termine de leer el archivo y devuelve su contenido binario.",
-            "Borra el archivo.",
-            "Convierte el archivo en Excel."
+            "Convierte el archivo en un libro de Excel listo para editar.",
+            "Borra el archivo del disco una vez que termina de leerlo."
           ],
           "correctIndex": 1,
           "explanation": "arrayBuffer devuelve una promesa; await espera su resultado."
@@ -2820,9 +2820,9 @@
           "id": "lec-21-q2",
           "question": "¿Qué devuelve `XLSX.utils.sheet_to_json(hoja)`?",
           "options": [
-            "Un texto JSON.",
-            "Un archivo .xlsx.",
-            "Una tabla HTML.",
+            "Un texto JSON con toda la hoja en una sola cadena.",
+            "Un archivo .xlsx nuevo, listo para descargar.",
+            "Una tabla HTML con una fila por cada fila de la hoja.",
             "Un array de objetos, uno por fila, con los encabezados como claves."
           ],
           "correctIndex": 3,
@@ -2832,10 +2832,10 @@
           "id": "lec-21-q3",
           "question": "¿Por qué se normalizan las filas antes de agregarlas a los datos?",
           "options": [
-            "No hace falta normalizar.",
-            "Porque SheetJS lo exige.",
+            "Para que el archivo de Excel pese menos al guardarlo de nuevo.",
+            "No hace falta: SheetJS ya entrega los datos en el formato correcto.",
             "Porque los Excel reales traen encabezados, fechas y números en formatos distintos a los de tus datos.",
-            "Para que el archivo pese menos."
+            "Porque SheetJS lo exige y falla si las filas no vienen normalizadas con los mismos encabezados de antes."
           ],
           "correctIndex": 2,
           "explanation": "Normalizar convierte lo que venga del archivo en la forma exacta que espera tu código."
@@ -2939,9 +2939,9 @@
           "id": "lec-22-q1",
           "question": "En SVG, ¿hacia dónde crece la coordenada y?",
           "options": [
-            "Depende del navegador.",
-            "Hacia la derecha.",
             "Hacia arriba.",
+            "Hacia la derecha.",
+            "Depende del navegador.",
             "Hacia abajo."
           ],
           "correctIndex": 3,
@@ -2951,9 +2951,9 @@
           "id": "lec-22-q2",
           "question": "¿Para qué sirve el atributo viewBox?",
           "options": [
-            "Pone un borde al gráfico.",
-            "Hace el SVG invisible.",
-            "Carga una imagen externa.",
+            "Pone un borde alrededor de todo el gráfico.",
+            "Hace el SVG invisible hasta que se termina de dibujar.",
+            "Carga una imagen externa como fondo del gráfico y la ajusta al tamaño del contenedor que la rodea.",
             "Define un lienzo de coordenadas propio que se escala al tamaño real del SVG."
           ],
           "correctIndex": 3,
@@ -2963,10 +2963,10 @@
           "id": "lec-22-q3",
           "question": "¿Por qué se usa `Math.max(1, ...valores)` al escalar?",
           "options": [
-            "Para que la barra mínima mida 1.",
-            "Para redondear.",
+            "Para ordenar los valores de mayor a menor.",
+            "Para que la barra más pequeña mida siempre 1 píxel.",
             "Para evitar dividir entre cero cuando todos los valores son 0.",
-            "Para ordenar los valores."
+            "Para redondear los valores al entero más cercano."
           ],
           "correctIndex": 2,
           "explanation": "Si el máximo fuera 0, la división daría NaN y el SVG se rompería."
@@ -3066,10 +3066,10 @@
           "id": "lec-23-q1",
           "question": "En la pila de un error, ¿qué línea conviene mirar primero?",
           "options": [
-            "Cualquiera, todas son iguales.",
+            "La última de la pila, que es la más reciente.",
             "La primera que pertenece a tu propio código.",
-            "La que dice <anonymous>.",
-            "La última de todas."
+            "La que dice <anonymous>, que marca dónde empezó todo.",
+            "Cualquiera, porque todas las líneas dicen lo mismo."
           ],
           "correctIndex": 1,
           "explanation": "Las líneas de librerías o del navegador rara vez son la causa; la primera de tu código sí suele serlo."
@@ -3079,9 +3079,9 @@
           "question": "¿Qué indica normalmente `x is not defined`?",
           "options": [
             "Que el nombre está mal escrito o el archivo que lo define no se cargó antes.",
-            "Que x vale null.",
-            "Que x es un número.",
-            "Que falta internet."
+            "Que x existe pero vale null en ese momento, porque todavía no se le asignó ningún valor en el código.",
+            "Que la página perdió la conexión a internet.",
+            "Que x es un número y se usó como texto."
           ],
           "correctIndex": 0,
           "explanation": "ReferenceError: el nombre no existe en ese momento."
@@ -3090,10 +3090,10 @@
           "id": "lec-23-q3",
           "question": "¿Por qué un solo SyntaxError puede hacer que 'no funcione nada' de un archivo?",
           "options": [
-            "Porque desactiva el CSS.",
+            "Porque borra el localStorage al cargar el archivo.",
             "Porque el navegador no puede interpretar el archivo y no ejecuta ni una sola de sus líneas.",
-            "Porque detiene el navegador.",
-            "Porque borra el localStorage."
+            "Porque detiene el navegador por completo y hay que cerrarlo y abrirlo de nuevo para seguir usando la página.",
+            "Porque desactiva todo el CSS de la página."
           ],
           "correctIndex": 1,
           "explanation": "Un error de sintaxis impide ejecutar el archivo completo."
@@ -3194,9 +3194,9 @@
           "id": "lec-24-q1",
           "question": "¿Qué hace un linter como ESLint?",
           "options": [
-            "Comprime las imágenes.",
-            "Ejecuta la página más rápido.",
-            "Publica la página en internet.",
+            "Publica la página en internet después de revisarla.",
+            "Comprime las imágenes del proyecto para que pesen menos.",
+            "Ejecuta la página más rápido optimizando el código y quitando los espacios que no hacen falta.",
             "Lee el código sin ejecutarlo y avisa de errores y malas prácticas."
           ],
           "correctIndex": 3,
@@ -3207,9 +3207,9 @@
           "question": "¿Qué comando instala las herramientas de revisión del proyecto la primera vez?",
           "options": [
             "npm run revisar",
-            "node index.html",
+            "git push",
             "npm install",
-            "git push"
+            "node index.html"
           ],
           "correctIndex": 2,
           "explanation": "npm install descarga las dependencias listadas en package.json."
@@ -3218,10 +3218,10 @@
           "id": "lec-24-q3",
           "question": "El linter marca un aviso que no entiendes. ¿Qué es lo correcto?",
           "options": [
-            "Borrar la línea.",
-            "Buscar el nombre de la regla, entender el aviso y corregir el código.",
             "Ignorarlo y subir el cambio.",
-            "Desactivar el linter en todo el archivo."
+            "Buscar el nombre de la regla, entender el aviso y corregir el código.",
+            "Desactivar el linter en todo el archivo para que deje de marcar ese aviso y los parecidos.",
+            "Borrar la línea que marca."
           ],
           "correctIndex": 1,
           "explanation": "Cada regla tiene documentación con ejemplos de código correcto e incorrecto."
@@ -3321,10 +3321,10 @@
           "id": "lec-25-q1",
           "question": "¿Qué funciones son las más fáciles y útiles de probar?",
           "options": [
-            "Las que dibujan la pantalla.",
+            "Las que dibujan la pantalla a partir de los datos.",
             "Las funciones puras que reciben datos y devuelven un resultado.",
-            "Las que guardan en localStorage.",
-            "Las que abren diálogos."
+            "Las que guardan el estado en localStorage.",
+            "Las que abren diálogos y esperan una respuesta."
           ],
           "correctIndex": 1,
           "explanation": "No dependen de la pantalla ni del almacenamiento, así que se prueban con datos de ejemplo."
@@ -3333,10 +3333,10 @@
           "id": "lec-25-q2",
           "question": "Arreglaste un error en el cálculo de días de atraso. ¿Qué deberías hacer además?",
           "options": [
-            "Nada más.",
-            "Borrar las pruebas antiguas.",
+            "Borrar las pruebas antiguas que tocaban esa función, porque ya no sirven después del arreglo.",
+            "Nada más: si ya funciona, el arreglo está terminado.",
             "Escribir una prueba con el caso que fallaba para que no vuelva a ocurrir.",
-            "Cambiar el nombre de la función."
+            "Cambiar el nombre de la función para marcar el arreglo."
           ],
           "correctIndex": 2,
           "explanation": "Es la práctica que evita que los errores 'resuciten' en cambios futuros."
@@ -3345,10 +3345,10 @@
           "id": "lec-25-q3",
           "question": "¿Por qué la página de pruebas no debe usar los datos reales del navegador?",
           "options": [
-            "No hay ningún motivo.",
+            "Porque las pruebas tardan mucho más cuando hay datos guardados.",
             "Para no modificarlos por accidente y para que los resultados esperados sean siempre los mismos.",
-            "Porque está prohibido leer localStorage.",
-            "Porque las pruebas son más lentas con datos."
+            "No hay motivo: los datos reales sirven igual para probar.",
+            "Porque el navegador prohíbe leer localStorage desde una página de pruebas y lanza un error de seguridad."
           ],
           "correctIndex": 1,
           "explanation": "Las pruebas deben ser repetibles y no tener efectos sobre los datos de trabajo."
@@ -3452,9 +3452,9 @@
           "id": "lec-26-q1",
           "question": "¿Qué es un commit?",
           "options": [
-            "Un error de Git.",
-            "Un archivo de respaldo .zip.",
-            "La página publicada.",
+            "Un archivo .zip de respaldo con todo el proyecto, que Git guarda en una carpeta oculta del equipo.",
+            "Un error de Git que aparece al guardar archivos.",
+            "La versión de la página que está publicada en internet.",
             "Una versión guardada del proyecto con un mensaje que describe el cambio."
           ],
           "correctIndex": 3,
@@ -3464,10 +3464,10 @@
           "id": "lec-26-q2",
           "question": "¿Para qué sirve trabajar en una rama?",
           "options": [
-            "Para tener dos páginas publicadas.",
-            "Para que la página cargue más rápido.",
+            "Para poder borrar archivos sin pedir confirmación.",
+            "Para que la página publicada cargue más rápido.",
             "Para hacer cambios sin afectar a main hasta que estén listos.",
-            "Para borrar archivos más rápido."
+            "Para tener dos páginas publicadas al mismo tiempo, una en main y otra con la dirección de la rama."
           ],
           "correctIndex": 2,
           "explanation": "La rama aísla el trabajo en curso."
@@ -3477,9 +3477,9 @@
           "question": "Un commit dañino ya está en GitHub y otros lo descargaron. ¿Cómo lo deshaces con seguridad?",
           "options": [
             "git revert con el id del commit.",
-            "Editando el historial a mano.",
-            "Borrando el repositorio.",
-            "git reset --hard y push --force."
+            "Con git reset --hard seguido de push --force.",
+            "Borrando el repositorio y creándolo de nuevo.",
+            "Editando a mano el historial del repositorio."
           ],
           "correctIndex": 0,
           "explanation": "revert agrega un commit que invierte el cambio sin reescribir la historia compartida."
@@ -3576,9 +3576,9 @@
           "id": "lec-27-q1",
           "question": "¿Qué hace `git pull`?",
           "options": [
-            "Borra la rama actual.",
-            "Publica la página.",
-            "Sube tus commits a GitHub.",
+            "Publica la página en GitHub Pages con tus cambios.",
+            "Sube tus commits locales al repositorio en GitHub y después borra la copia local de la rama.",
+            "Borra la rama actual y crea una nueva desde main.",
             "Descarga e integra los commits del remoto que aún no tienes."
           ],
           "correctIndex": 3,
@@ -3588,10 +3588,10 @@
           "id": "lec-27-q2",
           "question": "¿Qué es un pull request?",
           "options": [
-            "Un error de GitHub.",
+            "Un error que GitHub muestra cuando hay conflictos.",
             "Una propuesta para unir una rama a main, con revisión del cambio.",
-            "Una petición a un servidor.",
-            "Una copia del repositorio."
+            "Una copia completa del repositorio en tu cuenta, que GitHub crea para que puedas hacer cambios.",
+            "Una petición que la página hace a un servidor."
           ],
           "correctIndex": 1,
           "explanation": "Permite revisar el diff y las comprobaciones automáticas antes de unir."
@@ -3601,9 +3601,9 @@
           "question": "Uniste un cambio a main y la página publicada aún no lo muestra. ¿Qué es lo más probable?",
           "options": [
             "GitHub Pages tarda uno o dos minutos en publicar y el navegador puede tener la versión anterior en caché.",
-            "Hay que borrar el repositorio.",
-            "GitHub Pages solo publica una vez al día.",
-            "El cambio se perdió."
+            "El cambio se perdió al unirlo y hay que volver a hacerlo desde la rama.",
+            "GitHub Pages solo publica una vez al día, de madrugada, los cambios que se unieron a main durante el día anterior.",
+            "Hay que borrar el repositorio y subirlo otra vez para forzar la publicación."
           ],
           "correctIndex": 0,
           "explanation": "Espera a que termine el despliegue y recarga sin caché (Ctrl+Shift+R)."
@@ -3701,9 +3701,9 @@
           "id": "lec-28-q1",
           "question": "¿Qué hace que un pedido de cambio sea bueno?",
           "options": [
-            "Que no mencione archivos.",
-            "Que sea lo más corto posible.",
-            "Que pida muchos cambios a la vez.",
+            "Que pida muchos cambios a la vez para ahorrar tiempo.",
+            "Que no mencione archivos para no limitar la solución.",
+            "Que sea lo más corto posible, de una sola línea.",
             "Dice qué, dónde, las restricciones y cómo comprobarlo."
           ],
           "correctIndex": 3,
@@ -3713,10 +3713,10 @@
           "id": "lec-28-q2",
           "question": "Un cambio propuesto agrega un campo nuevo a los datos guardados. ¿Qué debes verificar?",
           "options": [
-            "Que cambie el color principal.",
-            "Nada especial.",
+            "Que cambie también el color principal.",
+            "Que borre el localStorage al cargar.",
             "Que incluya una migración para los datos antiguos.",
-            "Que borre el localStorage."
+            "Nada especial: los datos se adaptan solos."
           ],
           "correctIndex": 2,
           "explanation": "Sin migración, los registros guardados antes no tendrán el campo."
@@ -3725,10 +3725,10 @@
           "id": "lec-28-q3",
           "question": "¿Cuál es la forma más segura de incorporar un cambio hecho con IA?",
           "options": [
-            "Copiando el código sin leerlo.",
-            "Directo en main para ahorrar tiempo.",
+            "Subirlo directo a main para ahorrar tiempo y corregir después.",
+            "Copiar el código tal cual, porque la IA ya lo probó antes de dártelo y las pruebas solo repiten ese trabajo.",
             "En una rama con PR, revisión en verde, prueba en el navegador y diff entendido.",
-            "Desactivando las revisiones automáticas."
+            "Desactivar las revisiones automáticas para que no bloqueen el cambio."
           ],
           "correctIndex": 2,
           "explanation": "El mismo proceso que para cualquier cambio: rama, revisión, prueba, unión."
@@ -3829,10 +3829,10 @@
           "id": "proy-1-q1",
           "question": "¿Por qué se escribe la migración antes que el formulario y la tabla?",
           "options": [
-            "No importa el orden.",
+            "Porque el formulario no funciona sin internet hasta que existe la migración.",
             "Para que todo el código posterior pueda confiar en que cada actividad tiene el campo.",
-            "Porque así lo exige GitHub.",
-            "Porque el formulario no funciona sin internet."
+            "Porque GitHub exige que la migración esté en el primer commit de la rama.",
+            "No importa el orden: se puede escribir la migración al final sin problema."
           ],
           "correctIndex": 1,
           "explanation": "Con los datos completos, la tabla y la exportación no necesitan manejar el caso 'falta el campo'."
@@ -3841,9 +3841,9 @@
           "id": "proy-1-q2",
           "question": "¿Dónde conviene definir la lista de prioridades permitidas?",
           "options": [
-            "En localStorage.",
-            "Repetida en cada archivo que la usa.",
-            "En el CSS.",
+            "En el CSS, junto a los colores de cada prioridad.",
+            "En localStorage, para poder cambiarla sin tocar el código.",
+            "Repetida en cada archivo que la usa, para tenerla a mano y no depender de que otro archivo cargue antes.",
             "En la configuración, junto a otros valores del negocio como los estados."
           ],
           "correctIndex": 3,
@@ -3853,10 +3853,10 @@
           "id": "proy-1-q3",
           "question": "¿Cuál es la mejor prueba final de un campo nuevo?",
           "options": [
-            "Subir a main y esperar quejas.",
+            "Leer el código con calma sin llegar a abrir la página en el navegador.",
             "Restaurar un respaldo anterior en una copia y comprobar crear, editar, filtrar y exportar.",
-            "Crear una sola actividad nueva.",
-            "Mirar el código sin abrir la página."
+            "Subirlo a main y esperar a que los usuarios reporten fallos en la página.",
+            "Crear una sola actividad nueva con el campo y ver que se guarda bien, sin tocar las actividades viejas ni los respaldos."
           ],
           "correctIndex": 1,
           "explanation": "Los datos antiguos son los que revelan migraciones incompletas."
@@ -3956,10 +3956,10 @@
           "id": "proy-2-q1",
           "question": "¿Por qué el cálculo del indicador va en una función separada de la tarjeta?",
           "options": [
-            "No hay ventaja.",
-            "Para que cargue más rápido.",
+            "Porque las tarjetas no admiten JavaScript.",
+            "Para que la tarjeta cargue más rápido, ya que las funciones separadas se ejecutan antes que el resto.",
             "Para poder probarlo y reutilizarlo sin depender de la pantalla.",
-            "Porque las tarjetas no admiten JavaScript."
+            "No hay ventaja: es solo una costumbre."
           ],
           "correctIndex": 2,
           "explanation": "Las funciones puras se prueban con datos de ejemplo."
@@ -3969,9 +3969,9 @@
           "question": "¿Por qué no conviene guardar el valor del indicador en los datos?",
           "options": [
             "Porque se puede calcular en cada redibujado y guardado quedaría desactualizado.",
-            "Por el tamaño del Excel.",
-            "Porque localStorage no admite números.",
-            "Porque los indicadores son secretos."
+            "Porque los indicadores son secretos y no deben guardarse.",
+            "Porque haría crecer demasiado el archivo de Excel al exportar y algunas versiones no podrían abrirlo.",
+            "Porque localStorage no admite guardar números, solo texto."
           ],
           "correctIndex": 0,
           "explanation": "Lo que se deriva de los datos se calcula; no se guarda dos veces."
@@ -3980,9 +3980,9 @@
           "id": "proy-2-q3",
           "question": "¿Cómo debe encontrar el código la tarjeta del indicador?",
           "options": [
-            "Por su texto.",
-            "Por su color.",
-            "Por su posición, con nth-child.",
+            "Por el color de fondo de la tarjeta.",
+            "Por su posición, usando nth-child.",
+            "Por el texto que muestra la tarjeta.",
             "Por un id propio, como kpi-atrasos."
           ],
           "correctIndex": 3,
@@ -4083,10 +4083,10 @@
           "id": "proy-3-q1",
           "question": "¿Qué pasa si renombras un estado solo en la configuración?",
           "options": [
-            "Todo se actualiza solo.",
+            "Todo se actualiza solo, incluidos los datos ya guardados.",
             "Los datos guardados con el nombre anterior dejan de reconocerse.",
-            "Nada.",
-            "Se borran las actividades."
+            "Se borran todas las actividades que tenían ese estado.",
+            "Nada: los datos viejos siguen funcionando exactamente igual."
           ],
           "correctIndex": 1,
           "explanation": "Los datos guardan el texto del estado; hace falta una migración."
@@ -4096,9 +4096,9 @@
           "question": "¿Por qué conviene contar las actividades abiertas con una propiedad de la configuración en vez de una lista de textos?",
           "options": [
             "Porque así un estado nuevo se incluye automáticamente sin tocar el cálculo.",
-            "Porque es más corto de escribir.",
-            "Porque los Set son obligatorios.",
-            "No hay diferencia."
+            "Porque es más corto de escribir que una lista de textos y además ocupa menos memoria en el navegador.",
+            "Porque los Set son obligatorios para contar elementos.",
+            "No hay diferencia: las dos formas se mantienen igual."
           ],
           "correctIndex": 0,
           "explanation": "La lógica sigue a la configuración en lugar de depender de textos repetidos."
@@ -4108,9 +4108,9 @@
           "question": "¿Cuál es la mejor forma de encontrar los lugares que dependen de los estados?",
           "options": [
             "Buscar en todo el proyecto los nombres de los estados existentes.",
-            "Esperar a que aparezca un error.",
-            "Leer solo el CSS.",
-            "Revisar solo index.html."
+            "Leer solo el CSS, donde están los colores de estados.",
+            "Esperar a que aparezca un error en la página.",
+            "Revisar solo index.html, que es el único archivo donde se escriben y se muestran los nombres de los estados."
           ],
           "correctIndex": 0,
           "explanation": "La búsqueda global encuentra comparaciones, filtros, colores e importaciones."
@@ -4210,9 +4210,9 @@
           "id": "proy-4-q1",
           "question": "¿Por qué los repuestos deben guardarse dentro del estado general S y no en otra clave de localStorage?",
           "options": [
-            "No importa.",
-            "Porque es más rápido.",
-            "Porque localStorage solo admite una clave.",
+            "Porque localStorage solo admite una clave por página y no deja crear más.",
+            "Porque leer una sola clave es más rápido que leer dos por separado.",
+            "No importa: cualquier clave de localStorage entra igual en los respaldos.",
             "Para que entren en los respaldos, migraciones y el ciclo de guardar y redibujar."
           ],
           "correctIndex": 3,
@@ -4223,9 +4223,9 @@
           "question": "¿Dónde se coloca el script del módulo nuevo en index.html?",
           "options": [
             "Junto a los otros módulos, antes del script de arranque.",
-            "Después de app.js.",
-            "En otro archivo HTML.",
-            "Al principio del head."
+            "En un archivo HTML aparte para ese módulo.",
+            "Al principio del head, antes de los estilos, para que se descargue primero que todo lo demás.",
+            "Después de app.js, al final del body."
           ],
           "correctIndex": 0,
           "explanation": "Debe usar las utilidades ya cargadas y existir cuando arranca la aplicación."
@@ -4234,10 +4234,10 @@
           "id": "proy-4-q3",
           "question": "¿Qué hace que un PR de una pantalla nueva sea fácil de revisar?",
           "options": [
-            "Un único commit gigante.",
+            "Un único commit gigante con todo el trabajo junto, para revisarlo de una vez.",
             "Commits pequeños por pieza, descripción con pasos de prueba y revisión en verde.",
-            "No tener descripción.",
-            "Desactivar las Actions."
+            "No tener descripción, para que el revisor lea el código sin ideas previas.",
+            "Desactivar las Actions para que la revisión automática no lo bloquee."
           ],
           "correctIndex": 1,
           "explanation": "Quien revisa (tú incluido) puede seguir el cambio paso a paso."
@@ -4335,9 +4335,9 @@
           "question": "¿Qué problema de localStorage resuelve Firestore?",
           "options": [
             "Que cada navegador tiene sus propios datos y no se comparten.",
-            "Que localStorage no guarda texto.",
-            "Que localStorage necesita internet.",
-            "Que localStorage es más lento que Excel."
+            "Que localStorage no puede guardar texto, solo números.",
+            "Que localStorage es más lento que abrir un Excel.",
+            "Que localStorage necesita internet para funcionar y deja de guardar cuando se pierde la señal."
           ],
           "correctIndex": 0,
           "explanation": "Firestore guarda los datos en un solo lugar en la nube, accesible desde todos los equipos."
@@ -4346,9 +4346,9 @@
           "id": "lec-29-q2",
           "question": "¿Qué protege realmente los datos de una app web de Firebase?",
           "options": [
-            "Esconder la apiKey.",
-            "El nombre del proyecto.",
-            "Que el repositorio sea privado.",
+            "Esconder la apiKey dentro del código de la página.",
+            "Que el repositorio de GitHub sea privado.",
+            "Ponerle al proyecto un nombre difícil de adivinar.",
             "Las reglas de seguridad configuradas en Firebase."
           ],
           "correctIndex": 3,
@@ -4358,9 +4358,9 @@
           "id": "lec-29-q3",
           "question": "¿Por qué el archivo que importa Firebase debe tener `type=\"module\"`?",
           "options": [
-            "Para que cargue más rápido.",
-            "Porque así se oculta la apiKey.",
-            "Porque Firebase lo exige por seguridad.",
+            "Porque así la apiKey queda oculta en el navegador y nadie la puede leer desde las herramientas.",
+            "Porque Firebase lo exige por motivos de seguridad.",
+            "Para que cargue más rápido que un script normal.",
             "Porque usa import, que solo funciona en scripts de tipo módulo."
           ],
           "correctIndex": 3,
@@ -4467,9 +4467,9 @@
           "question": "¿Por qué conviene usar onAuthStateChanged en lugar de comprobar el usuario una sola vez?",
           "options": [
             "Porque avisa al cargar y cada vez que alguien entra o sale, incluida la sesión recordada.",
-            "Porque es más corto.",
-            "Porque crea usuarios.",
-            "Porque es la única forma de cerrar sesión."
+            "Porque es la única forma que ofrece Firebase para cerrar la sesión.",
+            "Porque además de avisar cuando cambia la sesión, crea el usuario automáticamente si todavía no estaba registrado.",
+            "Porque es más corto de escribir y no necesita ninguna otra función aparte."
           ],
           "correctIndex": 0,
           "explanation": "La sesión puede restaurarse sola o cambiar en cualquier momento."
@@ -4479,9 +4479,9 @@
           "question": "¿Por qué un mensaje de error no debe decir 'ese correo no existe'?",
           "options": [
             "Porque ayudaría a un atacante a averiguar qué correos están registrados.",
-            "Porque Firebase no lo permite.",
-            "Porque es muy largo.",
-            "Porque confunde al técnico."
+            "Porque Firebase no permite mostrar ese tipo de mensaje en la pantalla.",
+            "Porque es un mensaje demasiado largo para que quepa en el celular.",
+            "Porque confunde al técnico, que no sabe si escribió mal la clave."
           ],
           "correctIndex": 0,
           "explanation": "Un mensaje genérico protege la lista de usuarios."
@@ -4490,10 +4490,10 @@
           "id": "lec-30-q3",
           "question": "¿Dónde deben guardarse las contraseñas de los usuarios?",
           "options": [
-            "En localStorage.",
+            "En localStorage, cifradas con una clave del propio navegador.",
             "En ningún lugar de tu código ni de tus datos: las gestiona Firebase Authentication.",
-            "En el archivo de configuración.",
-            "En un documento de Firestore."
+            "En un documento de Firestore protegido con reglas de seguridad para que solo el administrador pueda leerlas.",
+            "En el archivo de configuración, junto a la apiKey del proyecto."
           ],
           "correctIndex": 1,
           "explanation": "Firebase guarda las contraseñas de forma segura; tu app nunca las almacena."
@@ -4596,10 +4596,10 @@
           "id": "lec-31-q1",
           "question": "¿Cómo conviene guardar la lista de actividades en Firestore?",
           "options": [
-            "En una sola cadena de texto.",
+            "Todo el estado de la app en un único documento, con la lista completa de actividades dentro.",
             "Como una colección con un documento por actividad.",
-            "Como un archivo Excel.",
-            "Todo el estado en un único documento."
+            "Como un archivo Excel subido a la nube.",
+            "En una sola cadena de texto JSON."
           ],
           "correctIndex": 1,
           "explanation": "Un documento por registro evita el límite de tamaño y los choques entre usuarios."
@@ -4609,9 +4609,9 @@
           "question": "¿Qué hace onSnapshot?",
           "options": [
             "Llama a tu función con los datos ahora y cada vez que cambian.",
-            "Toma una captura de pantalla.",
-            "Lee los datos una sola vez.",
-            "Borra la colección."
+            "Toma una captura de la colección para respaldarla.",
+            "Borra la colección y la crea de nuevo vacía.",
+            "Lee los datos una sola vez al cargar la página y luego se desconecta para no gastar lecturas."
           ],
           "correctIndex": 0,
           "explanation": "Es la base del tiempo real: cualquier cambio llega a todos los equipos."
@@ -4621,9 +4621,9 @@
           "question": "En una app web, ¿cómo se consigue que Firestore funcione sin conexión entre sesiones?",
           "options": [
             "Activando la caché persistente al inicializar Firestore.",
-            "Viene activado siempre y no se puede cambiar.",
-            "No es posible en la web.",
-            "Guardando todo en localStorage a mano."
+            "Viene activado siempre en la web y no se puede cambiar.",
+            "Copiando a mano todos los datos en localStorage al cerrar.",
+            "No es posible: en la web Firestore siempre necesita conexión."
           ],
           "correctIndex": 0,
           "explanation": "En la web la persistencia está desactivada por defecto; se activa con persistentLocalCache."
@@ -4725,9 +4725,9 @@
           "id": "lec-32-q1",
           "question": "¿Por qué ocultar un botón no es suficiente para impedir una acción?",
           "options": [
-            "Sí es suficiente.",
-            "Porque los botones ocultos siguen visibles.",
-            "Porque Firebase muestra todos los botones.",
+            "Porque Firebase vuelve a mostrar todos los botones ocultos cuando el usuario inicia sesión.",
+            "Sí es suficiente: si el botón no se ve, nadie puede ejecutar la operación desde la página.",
+            "Porque los botones ocultos con CSS siguen viéndose en algunos celulares viejos y se pueden pulsar igual que los visibles.",
             "Porque cualquiera puede ejecutar la operación desde la consola del navegador; solo las reglas del servidor la impiden."
           ],
           "correctIndex": 3,
@@ -4737,10 +4737,10 @@
           "id": "lec-32-q2",
           "question": "¿Qué representa `request.resource.data` en una regla?",
           "options": [
-            "El documento tal como está ahora.",
+            "El documento tal como está guardado ahora, antes del cambio.",
             "Cómo quedaría el documento si se permite la escritura.",
-            "La lista de colecciones.",
-            "El usuario que hace la petición."
+            "Los datos del usuario que hace la petición de escritura.",
+            "La lista de colecciones a las que el usuario tiene acceso."
           ],
           "correctIndex": 1,
           "explanation": "resource.data es el estado actual; request.resource.data, el estado propuesto."
@@ -4750,9 +4750,9 @@
           "question": "¿Dónde conviene guardar el rol de cada usuario?",
           "options": [
             "En un documento de usuarios que el propio usuario no puede modificar.",
-            "En el nombre del correo.",
-            "En una variable de la página.",
-            "En localStorage del usuario."
+            "En una variable global de la página que se fija al iniciar sesión.",
+            "En el localStorage del usuario, para no consultar la nube cada vez.",
+            "En el propio correo del usuario, con un prefijo como admin-."
           ],
           "correctIndex": 0,
           "explanation": "Si el usuario pudiera escribir su rol, podría darse permisos de planificador."
@@ -4855,9 +4855,9 @@
           "question": "¿Por qué conviene conservar los ids originales al subir los datos?",
           "options": [
             "Para que las relaciones entre registros (como tecnicoId) sigan funcionando.",
-            "Porque Firestore no puede generar ids.",
-            "Para que ocupen menos espacio.",
-            "No hay ventaja."
+            "Porque Firestore no puede generar ids propios para los documentos y falla si no se le pasa uno al crearlos.",
+            "Para que los documentos ocupen menos espacio en la base de datos.",
+            "No hay ventaja real: Firestore reemplaza los ids al subirlos."
           ],
           "correctIndex": 0,
           "explanation": "Si los ids cambian, las actividades apuntarían a técnicos que no existen."
@@ -4866,9 +4866,9 @@
           "id": "proy-5-q2",
           "question": "¿Para qué sirve el interruptor USAR_NUBE?",
           "options": [
-            "Para borrar Firestore.",
-            "Para cambiar de usuario.",
-            "Para apagar internet.",
+            "Para cambiar de usuario sin tener que cerrar la sesión actual.",
+            "Para apagar la conexión a internet del equipo mientras se prueba.",
+            "Para borrar los datos de Firestore cuando se apaga la nube.",
             "Para volver rápidamente al modo local si la nube da problemas."
           ],
           "correctIndex": 3,
@@ -4878,10 +4878,10 @@
           "id": "proy-5-q3",
           "question": "En modo nube, ¿por qué la acción no llama a redibujarTodo después de updateDoc?",
           "options": [
-            "Por error.",
-            "Porque redibujar está prohibido con Firebase.",
+            "Porque updateDoc borra la pantalla y la vuelve a dibujar sola.",
+            "Por un error: debería llamarlo, si no la pantalla no cambia.",
             "Porque onSnapshot recibe el cambio y redibuja en todos los equipos.",
-            "Porque updateDoc borra la pantalla."
+            "Porque redibujar la pantalla está prohibido al usar Firebase."
           ],
           "correctIndex": 2,
           "explanation": "El cambio vuelve por el escuchador en tiempo real, una sola fuente de verdad."
@@ -4978,9 +4978,9 @@
           "question": "¿Por qué una página como la tuya puede publicarse en casi cualquier servidor?",
           "options": [
             "Porque es estática: el servidor solo entrega archivos y la lógica corre en el navegador.",
-            "Porque usa Excel.",
-            "Porque Firebase la convierte en un programa de Windows.",
-            "Porque no tiene CSS."
+            "Porque usa Excel, que todos los servidores saben abrir y mostrar.",
+            "Porque no tiene CSS, y los servidores solo tienen problemas con los estilos.",
+            "Porque Firebase la convierte en un programa de Windows al publicarla, y ese programa funciona en cualquier servidor."
           ],
           "correctIndex": 0,
           "explanation": "Un servidor que sabe entregar archivos basta para una página estática."
@@ -4989,10 +4989,10 @@
           "id": "lec-33-q2",
           "question": "¿Qué implica elegir un VPS?",
           "options": [
-            "Que no se puede usar HTTPS.",
+            "Que no hace falta saber nada de Linux ni de la terminal, porque el proveedor se encarga de todo el servidor.",
             "Control total, pero tú instalas, actualizas y aseguras el servidor.",
-            "Que siempre es gratis.",
-            "Que no hace falta saber nada de Linux."
+            "Que siempre es gratis, sin importar cuánto tráfico tengas.",
+            "Que no se puede usar HTTPS y todo viaja sin cifrar."
           ],
           "correctIndex": 1,
           "explanation": "Más control significa más responsabilidad de mantenimiento."
@@ -5002,9 +5002,9 @@
           "question": "¿Es seguro proteger una página interna con una URL difícil de adivinar?",
           "options": [
             "No: las URL se comparten y filtran; el acceso debe controlarse con usuarios o con la red.",
-            "Sí, si está en GitHub Pages.",
-            "Sí, si tiene más de 20 caracteres.",
-            "Sí, si no tiene imágenes."
+            "Sí, si la URL tiene más de 20 caracteres, porque nadie podría adivinarla a mano.",
+            "Sí, si la página está en GitHub Pages, porque GitHub oculta las URL de los buscadores.",
+            "Sí, si la página no tiene imágenes, porque así los buscadores no la indexan."
           ],
           "correctIndex": 0,
           "explanation": "La seguridad por ocultamiento no protege los datos."
@@ -5104,9 +5104,9 @@
           "id": "lec-34-q1",
           "question": "¿Qué registro DNS usas para apuntar un subdominio a un servicio gestionado como GitHub Pages?",
           "options": [
-            "PTR",
-            "SOA",
             "MX",
+            "SOA",
+            "PTR",
             "CNAME"
           ],
           "correctIndex": 3,
@@ -5116,10 +5116,10 @@
           "id": "lec-34-q2",
           "question": "Cambiaste un registro DNS y aún no ves el cambio. ¿Qué es lo más probable?",
           "options": [
-            "El navegador no admite DNS.",
+            "El dominio se borró al guardar el cambio y hay que registrarlo de nuevo con el mismo proveedor.",
             "La propagación todavía no termina, según el TTL del registro.",
-            "El dominio se borró.",
-            "Hay que reinstalar el sistema."
+            "El navegador no admite cambios de DNS.",
+            "Hay que reinstalar el sistema operativo."
           ],
           "correctIndex": 1,
           "explanation": "Los servidores DNS guardan la respuesta anterior durante el TTL."
@@ -5128,9 +5128,9 @@
           "id": "lec-34-q3",
           "question": "¿Por qué la renovación de certificados debe ser automática?",
           "options": [
-            "Porque el DNS lo exige.",
-            "Porque renovarlos a mano está prohibido.",
-            "Porque así son más baratos.",
+            "Porque renovarlos a mano está prohibido por las autoridades de certificación.",
+            "Porque el DNS lo exige y bloquea el dominio si la renovación se hace a mano.",
+            "Porque así son más baratos que los certificados que se renuevan a mano.",
             "Porque duran cada vez menos y olvidar una renovación deja la página sin HTTPS."
           ],
           "correctIndex": 3,
@@ -5232,9 +5232,9 @@
           "question": "¿Por qué no conviene usar FTP sin cifrar?",
           "options": [
             "Porque el usuario, la contraseña y los archivos viajan sin protección.",
-            "Porque cPanel lo prohíbe.",
-            "Porque no admite archivos HTML.",
-            "Porque es más lento que el correo."
+            "Porque es más lento que enviar los archivos por correo.",
+            "Porque no admite subir archivos HTML, solo imágenes.",
+            "Porque cPanel lo prohíbe y bloquea la cuenta de hosting si detecta una conexión FTP sin cifrar."
           ],
           "correctIndex": 0,
           "explanation": "SFTP o FTPS cifran la conexión."
@@ -5244,9 +5244,9 @@
           "question": "¿Qué hace `Options -Indexes` en un .htaccess?",
           "options": [
             "Impide que el servidor muestre la lista de archivos de una carpeta sin index.",
-            "Activa HTTPS.",
-            "Borra los archivos index.",
-            "Comprime las imágenes."
+            "Borra los archivos index de cada carpeta para que no se muestren.",
+            "Activa HTTPS en todas las carpetas del sitio sin un certificado aparte.",
+            "Comprime las imágenes de la carpeta antes de enviarlas al navegador."
           ],
           "correctIndex": 0,
           "explanation": "Evita exponer el contenido de carpetas por accidente."
@@ -5255,10 +5255,10 @@
           "id": "lec-35-q3",
           "question": "¿Por qué index.html y sw.js deben tener `Cache-Control: no-cache`?",
           "options": [
-            "Porque son archivos privados.",
+            "Para que el navegador no los descargue nunca y use una copia vieja.",
             "Para que el navegador compruebe siempre si hay una versión nueva.",
-            "Para que carguen sin internet.",
-            "Para que no se descarguen nunca."
+            "Para que carguen aunque el equipo no tenga conexión a internet.",
+            "Porque son archivos privados que no deben guardarse en ninguna caché."
           ],
           "correctIndex": 1,
           "explanation": "Si se guardan en caché mucho tiempo, los usuarios no reciben las actualizaciones."
@@ -5362,9 +5362,9 @@
           "id": "lec-36-q1",
           "question": "¿Por qué se ejecuta `nginx -t` antes de recargar Nginx?",
           "options": [
-            "Para crear el certificado.",
-            "Para instalar Nginx.",
-            "Para borrar la caché.",
+            "Para instalar Nginx o actualizarlo a la última versión disponible.",
+            "Para crear el certificado HTTPS de cada sitio antes de recargar.",
+            "Para borrar la caché de todos los sitios y que los visitantes vean los cambios nuevos al instante.",
             "Para comprobar que la configuración no tiene errores y no dejar caídos los sitios."
           ],
           "correctIndex": 3,
@@ -5375,9 +5375,9 @@
           "question": "¿Qué hace `certbot renew --dry-run`?",
           "options": [
             "Simula la renovación de los certificados para comprobar que funcionará.",
-            "Borra los certificados.",
-            "Renueva el dominio.",
-            "Reinicia el servidor."
+            "Borra los certificados vencidos para crear unos nuevos desde cero.",
+            "Renueva el dominio por un año más con el registrador del dominio.",
+            "Reinicia el servidor para que tome los certificados nuevos al arrancar."
           ],
           "correctIndex": 0,
           "explanation": "Es la forma de probar la renovación automática sin esperar al vencimiento."
@@ -5387,9 +5387,9 @@
           "question": "¿Por qué no conviene editar los archivos directamente en el servidor?",
           "options": [
             "Porque esos cambios no quedan en Git y se pierden en la siguiente publicación.",
-            "Porque los archivos se vuelven más pesados.",
-            "Porque Nginx se borra.",
-            "Porque Linux no permite editar archivos."
+            "Porque Linux no permite editar archivos que está sirviendo.",
+            "Porque Nginx se borra o deja de arrancar si detecta un archivo del sitio modificado a mano por alguien.",
+            "Porque los archivos editados en el servidor se vuelven más pesados."
           ],
           "correctIndex": 0,
           "explanation": "El servidor debe recibir solo lo que está en el repositorio y fue revisado."
@@ -5489,10 +5489,10 @@
           "id": "lec-37-q1",
           "question": "¿Por qué el service worker no funciona en `http://192.168.1.50`?",
           "options": [
-            "Porque las IP privadas no admiten JavaScript.",
+            "Porque las IP privadas no admiten ejecutar JavaScript en la página.",
             "Porque no es un contexto seguro: hace falta HTTPS o localhost.",
-            "Porque falta el manifest.",
-            "Porque IIS no sirve archivos .js."
+            "Porque IIS no sabe servir archivos .js con el tipo correcto.",
+            "Porque falta el manifest, que es lo que activa el service worker."
           ],
           "correctIndex": 1,
           "explanation": "Los service workers solo se registran en contextos seguros."
@@ -5501,9 +5501,9 @@
           "id": "lec-37-q2",
           "question": "¿Cuál es una forma segura de dar acceso externo a una página interna?",
           "options": [
-            "Publicar la IP pública en un grupo.",
             "Abrir el puerto 80 del router hacia el servidor.",
-            "Desactivar el firewall.",
+            "Publicar la IP pública en el grupo del equipo.",
+            "Desactivar el firewall del servidor interno.",
             "Una VPN o red privada autorizada por TI."
           ],
           "correctIndex": 3,
@@ -5514,9 +5514,9 @@
           "question": "¿Para qué sirve `python -m http.server`?",
           "options": [
             "Para hacer pruebas rápidas sirviendo una carpeta, no como servidor permanente.",
-            "Para instalar IIS.",
-            "Para configurar el DNS.",
-            "Para crear certificados."
+            "Para instalar IIS en Windows sin usar el panel de control.",
+            "Para crear certificados HTTPS válidos para la red interna y así poder probar el service worker.",
+            "Para configurar el DNS del dominio desde la propia carpeta."
           ],
           "correctIndex": 0,
           "explanation": "Es un servidor mínimo de desarrollo."
@@ -5616,10 +5616,10 @@
           "id": "lec-38-q1",
           "question": "¿Dónde deben guardarse la llave SSH o la contraseña de FTP que usa un workflow?",
           "options": [
-            "En un comentario del código.",
+            "En el propio archivo del workflow.",
             "En los secretos del repositorio en GitHub.",
-            "En el README.",
-            "En el archivo del workflow."
+            "En el README, para que el equipo la tenga.",
+            "En un comentario del código del workflow."
           ],
           "correctIndex": 1,
           "explanation": "Los secretos no aparecen en el código ni en los registros."
@@ -5629,9 +5629,9 @@
           "question": "¿Por qué el paso de revisión va antes del paso de publicación?",
           "options": [
             "Para que, si la revisión falla, no se publique nada y siga la versión anterior.",
-            "Para que la publicación sea más rápida.",
-            "No importa el orden.",
-            "Porque GitHub lo exige."
+            "No importa el orden: GitHub ejecuta los dos pasos al mismo tiempo.",
+            "Porque GitHub lo exige y rechaza los workflows con otro orden.",
+            "Para que la publicación termine más rápido al reutilizar los archivos que ya se revisaron en el paso anterior."
           ],
           "correctIndex": 0,
           "explanation": "Un paso fallido detiene el workflow."
@@ -5640,9 +5640,9 @@
           "id": "lec-38-q3",
           "question": "Una publicación automática dejó un error en producción. ¿Qué haces?",
           "options": [
-            "Desactivar GitHub Actions.",
-            "Editar el archivo directamente en el servidor.",
-            "Borrar el repositorio.",
+            "Borrar el repositorio y crearlo de nuevo sin el commit que falló.",
+            "Desactivar GitHub Actions para que no vuelva a publicar nada más.",
+            "Editar el archivo con el error directamente en el servidor de producción.",
             "git revert del cambio; el workflow vuelve a publicar la versión anterior."
           ],
           "correctIndex": 3,
@@ -5741,9 +5741,9 @@
           "id": "proy-6-q1",
           "question": "¿Por qué documentar la decisión de dónde y cómo se publica?",
           "options": [
-            "Para que la página cargue más rápido.",
-            "No hace falta documentarlo.",
-            "Porque Firebase lo exige.",
+            "No hace falta documentarlo: la configuración ya lo explica todo.",
+            "Porque Firebase lo exige antes de dejarte publicar el sitio.",
+            "Para que la página cargue más rápido con la configuración escrita.",
             "Para que otra persona pueda mantener la página sin adivinar."
           ],
           "correctIndex": 3,
@@ -5754,9 +5754,9 @@
           "question": "¿Qué ofrece Firebase Hosting para volver atrás?",
           "options": [
             "Un historial de versiones con la opción de revertir desde la consola.",
-            "Nada, hay que reinstalar.",
-            "Solo copias en papel.",
-            "Un botón para borrar el proyecto."
+            "Nada: para volver atrás hay que reinstalar el proyecto entero.",
+            "Solo copias impresas de la configuración de cada publicación.",
+            "Un botón para borrar el proyecto y empezar uno nuevo desde cero."
           ],
           "correctIndex": 0,
           "explanation": "Cada deploy queda guardado y se puede restaurar."
@@ -5765,9 +5765,9 @@
           "id": "proy-6-q3",
           "question": "¿Para qué sirve un monitor de disponibilidad?",
           "options": [
-            "Para crear usuarios.",
-            "Para acelerar la página.",
-            "Para traducir la página.",
+            "Para traducir la página al idioma del visitante según su ubicación.",
+            "Para crear usuarios nuevos automáticamente cuando alguien visita la página.",
+            "Para acelerar la página guardando copias en servidores de otros países, cerca de los visitantes que la abren.",
             "Para recibir un aviso si la página deja de responder o el certificado está por vencer."
           ],
           "correctIndex": 3,
@@ -5866,10 +5866,10 @@
           "id": "lec-39-q1",
           "question": "¿Qué tres cosas necesita una página para ser una PWA instalable?",
           "options": [
-            "Solo un ícono grande.",
             "Un servidor propio, Java y una tienda de apps.",
+            "Solo un ícono grande de 512 píxeles.",
             "HTTPS, un manifest y un service worker.",
-            "Firebase y React."
+            "Firebase y React configurados juntos."
           ],
           "correctIndex": 2,
           "explanation": "Son los requisitos básicos de instalación."
@@ -5878,10 +5878,10 @@
           "id": "lec-39-q2",
           "question": "¿Por qué en GitHub Pages conviene `\"start_url\": \"./\"` en vez de `\"/\"`?",
           "options": [
-            "Porque GitHub no acepta barras.",
-            "Porque './' carga más rápido.",
+            "Porque GitHub no acepta barras en el manifest y lo rechaza al publicar.",
+            "Porque './' carga más rápido que '/' al abrir la app instalada.",
             "Porque la página vive en una subcarpeta y '/' apunta a la raíz del dominio.",
-            "No hay diferencia."
+            "No hay diferencia: las dos rutas llevan siempre a la misma página."
           ],
           "correctIndex": 2,
           "explanation": "La ruta relativa respeta la carpeta del proyecto."
@@ -5890,9 +5890,9 @@
           "id": "lec-39-q3",
           "question": "¿Cómo se instala una PWA en un iPhone?",
           "options": [
-            "Con el evento beforeinstallprompt.",
-            "Desde la App Store.",
-            "No se puede instalar.",
+            "Con el evento beforeinstallprompt, igual que en Android.",
+            "Desde la App Store, buscando el nombre de la página.",
+            "No se puede: los iPhone no permiten instalar PWA.",
             "Desde Compartir → Agregar a pantalla de inicio en Safari."
           ],
           "correctIndex": 3,
@@ -5994,9 +5994,9 @@
           "id": "lec-40-q1",
           "question": "¿Qué puede hacer un service worker que la página no puede?",
           "options": [
-            "Leer localStorage.",
-            "Instalar programas en el equipo.",
-            "Modificar el DOM directamente.",
+            "Instalar programas en el equipo del usuario sin pedir permiso.",
+            "Modificar directamente el DOM de todas las pestañas abiertas de la página al mismo tiempo, sin recargarlas.",
+            "Leer y escribir en localStorage aunque la página esté cerrada.",
             "Interceptar peticiones de archivos y responder desde la caché sin conexión."
           ],
           "correctIndex": 3,
@@ -6006,10 +6006,10 @@
           "id": "lec-40-q2",
           "question": "¿Por qué se cambia la constante VERSION en cada publicación?",
           "options": [
-            "Porque el navegador lo exige cada día.",
+            "Porque el navegador exige un número de versión nuevo cada día para mantenerla.",
             "Para crear una caché nueva y que se borre la vieja, entregando los archivos actualizados.",
-            "Para cerrar sesión.",
-            "Para cambiar el ícono."
+            "Para cambiar el ícono de la app instalada en la pantalla de inicio del celular.",
+            "Para cerrar la sesión de todos los usuarios cuando se publica una versión nueva y obligarlos a entrar de nuevo."
           ],
           "correctIndex": 1,
           "explanation": "Si la versión no cambia, los usuarios pueden quedarse con archivos antiguos."
@@ -6018,10 +6018,10 @@
           "id": "lec-40-q3",
           "question": "¿Qué estrategia conviene para el index.html?",
           "options": [
-            "No incluirlo nunca.",
+            "Solo red, sin guardar nunca una copia.",
             "Primero la red y, si falla, la copia en caché.",
-            "Solo caché, nunca la red.",
-            "Solo red, nunca caché."
+            "No incluirlo nunca en la caché.",
+            "Solo caché, sin consultar nunca la red, para que la página abra al instante."
           ],
           "correctIndex": 1,
           "explanation": "Así se reciben las versiones nuevas cuando hay conexión y la app abre igual sin ella."
@@ -6122,10 +6122,10 @@
           "id": "lec-41-q1",
           "question": "¿Cuándo conviene IndexedDB en lugar de localStorage?",
           "options": [
-            "Nunca, son iguales.",
-            "Para guardar un solo ajuste pequeño.",
+            "Para guardar un solo ajuste pequeño, como el tema.",
+            "Nunca: los dos guardan lo mismo y de la misma forma.",
             "Cuando hay muchos registros o archivos como fotos.",
-            "Solo cuando hay internet."
+            "Solo cuando el equipo tiene conexión a internet."
           ],
           "correctIndex": 2,
           "explanation": "IndexedDB tiene más espacio, es asíncrono y guarda archivos."
@@ -6134,9 +6134,9 @@
           "id": "lec-41-q2",
           "question": "¿Dónde se crean los almacenes (object stores) de una base IndexedDB?",
           "options": [
-            "En el service worker obligatoriamente.",
-            "En el manifest.",
-            "En cualquier momento con put.",
+            "En cualquier momento, llamando a put con el nombre del almacén.",
+            "En el manifest, dentro de una sección para la base.",
+            "Obligatoriamente en el service worker, al instalarse.",
             "En el evento onupgradeneeded, al crear la base o subir su versión."
           ],
           "correctIndex": 3,
@@ -6146,10 +6146,10 @@
           "id": "lec-41-q3",
           "question": "¿Por qué no conviene guardar las fotos como texto base64?",
           "options": [
-            "Porque IndexedDB no acepta texto.",
-            "Porque base64 no existe en el navegador.",
+            "Porque así las fotos se ven en blanco y negro al mostrarlas.",
+            "Porque IndexedDB no acepta guardar texto, solo archivos.",
             "Porque ocupan aproximadamente un tercio más y hay que convertirlas.",
-            "Porque se ven en blanco y negro."
+            "Porque base64 no existe en el navegador y hace falta cargar una librería externa para usarlo."
           ],
           "correctIndex": 2,
           "explanation": "IndexedDB guarda Blob directamente, sin conversión ni sobrepeso."
@@ -6250,10 +6250,10 @@
           "id": "lec-42-q1",
           "question": "¿Qué hace el bloque `@media print { … }`?",
           "options": [
-            "Convierte la página a PDF.",
-            "Solo funciona en impresoras láser.",
+            "Aplica esas reglas solo en impresoras láser, no en las de tinta.",
+            "Imprime la página automáticamente cuando termina de cargar.",
             "Aplica esas reglas solo al imprimir o guardar como PDF.",
-            "Imprime la página automáticamente."
+            "Convierte la página a PDF de forma automática al abrirla."
           ],
           "correctIndex": 2,
           "explanation": "Es una media query para el medio impreso."
@@ -6262,9 +6262,9 @@
           "id": "lec-42-q2",
           "question": "¿Qué evita `break-inside: avoid` en una fila de tabla?",
           "options": [
-            "Que la tabla tenga bordes.",
-            "Que el texto se ajuste.",
-            "Que la fila se imprima.",
+            "Que el texto de la fila se ajuste al ancho.",
+            "Que la fila aparezca en la hoja impresa.",
+            "Que la tabla tenga bordes al imprimir.",
             "Que la fila quede partida entre dos hojas."
           ],
           "correctIndex": 3,
@@ -6274,10 +6274,10 @@
           "id": "lec-42-q3",
           "question": "¿Cómo genera un usuario un PDF de la orden de trabajo sin librerías?",
           "options": [
-            "Con localStorage.",
-            "No es posible sin librerías.",
+            "No es posible sin una librería de PDF externa como jsPDF o pdfmake cargada en la página.",
+            "Guardando la orden en localStorage como PDF.",
             "Eligiendo 'Guardar como PDF' en el diálogo de impresión.",
-            "Exportando a Excel."
+            "Exportando a Excel y guardando desde ahí."
           ],
           "correctIndex": 2,
           "explanation": "Todos los navegadores modernos incluyen esa opción."
@@ -6373,10 +6373,10 @@
           "id": "proy-7-q1",
           "question": "¿Por qué conviene una prueba que compare index.html con la lista de sw.js?",
           "options": [
-            "Para cambiar el ícono.",
-            "Para borrar la caché.",
+            "Para borrar la caché vieja cada vez que se ejecutan las pruebas y así empezar siempre de cero.",
+            "Para que la página cargue más rápido al tener menos archivos.",
             "Para que no se publique una versión a la que le falte un archivo en la caché.",
-            "Para que la página cargue más rápido."
+            "Para cambiar el ícono de la app cuando se agrega un archivo nuevo."
           ],
           "correctIndex": 2,
           "explanation": "Un archivo olvidado haría que la app falle sin conexión."
@@ -6385,10 +6385,10 @@
           "id": "proy-7-q2",
           "question": "¿Cuál es la mejor prueba de que la app funciona en el campo?",
           "options": [
-            "Revisar solo el código.",
+            "Preguntar a un compañero si le gusta cómo se ve.",
             "Instalarla en celulares reales y usarla en modo avión.",
-            "Preguntar a un compañero si le gusta.",
-            "Abrirla en la PC con internet."
+            "Abrirla en la PC de la oficina con internet y revisar que todas las pantallas cargan bien.",
+            "Revisar el código con calma sin instalarla."
           ],
           "correctIndex": 1,
           "explanation": "Reproduce las condiciones reales del técnico."
@@ -6397,10 +6397,10 @@
           "id": "proy-7-q3",
           "question": "¿Por qué empezar el proyecto por la impresión?",
           "options": [
-            "Porque el manifest la incluye.",
+            "Porque el service worker la necesita para poder guardar la caché.",
             "Porque no depende de las otras piezas y da valor inmediato.",
-            "Porque es obligatorio por Firebase.",
-            "Porque el service worker la necesita."
+            "Porque Firebase obliga a configurar la impresión antes que lo demás.",
+            "Porque el manifest la incluye y no deja instalar la app sin ella."
           ],
           "correctIndex": 1,
           "explanation": "Entregar primero lo independiente y útil reduce el riesgo del proyecto."
@@ -6502,10 +6502,10 @@
           "id": "lec-43-q1",
           "question": "¿Qué problema principal resuelven los módulos de JavaScript?",
           "options": [
-            "Permiten usar Excel.",
-            "Eliminan la necesidad de CSS.",
+            "Eliminan la necesidad de CSS, porque cada módulo trae sus propios estilos y los aplica solo a sus elementos.",
+            "Hacen que la página ya no necesite HTML, porque todo se genera con módulos.",
             "Hacen explícitas las dependencias entre archivos y eliminan el orden frágil de los scripts.",
-            "Hacen que la página no necesite HTML."
+            "Permiten leer y escribir archivos de Excel directamente desde JavaScript."
           ],
           "correctIndex": 2,
           "explanation": "Cada archivo declara qué importa y qué exporta."
@@ -6514,9 +6514,9 @@
           "id": "lec-43-q2",
           "question": "¿Por qué una página con módulos deja de funcionar al abrirla con doble clic?",
           "options": [
-            "Porque necesitan Firebase.",
-            "Porque solo funcionan en celulares.",
-            "Porque los módulos requieren internet.",
+            "Porque los módulos solo funcionan en los navegadores de celular.",
+            "Porque los módulos requieren internet para descargarse cada vez que se abre la página, aunque estén en el disco.",
+            "Porque los módulos necesitan Firebase para cargarse y no lo encuentran.",
             "Porque el navegador bloquea los módulos cargados desde file:// y hace falta un servidor."
           ],
           "correctIndex": 3,
@@ -6526,10 +6526,10 @@
           "id": "lec-43-q3",
           "question": "En un script de tipo módulo, ¿las funciones declaradas quedan disponibles en la consola?",
           "options": [
-            "Solo las que empiezan con mayúscula.",
-            "Sí, siempre.",
+            "Sí, siempre: todo lo que se declara en un módulo queda disponible en window.",
+            "Solo las funciones cuyo nombre empieza con mayúscula, porque se toman como clases.",
             "No, el módulo tiene su propio ámbito; hay que exponerlas a propósito en window si se quiere.",
-            "Solo en Firefox."
+            "Solo en Firefox; en Chrome y Edge el módulo oculta todas sus funciones."
           ],
           "correctIndex": 2,
           "explanation": "El ámbito propio evita choques de nombres entre archivos."
@@ -6629,10 +6629,10 @@
           "id": "lec-44-q1",
           "question": "¿Qué hace `// @ts-check` al inicio de un archivo .js?",
           "options": [
-            "Hace que el navegador revise los tipos.",
+            "Borra los comentarios del archivo para que pese menos al publicarlo.",
             "Activa la revisión de tipos de VS Code en ese archivo, sin cambiar cómo se ejecuta.",
-            "Borra los comentarios.",
-            "Convierte el archivo en TypeScript."
+            "Convierte el archivo en TypeScript y cambia su extensión a .ts.",
+            "Hace que el navegador revise los tipos antes de ejecutar el archivo y lo detenga si encuentra un error de tipo."
           ],
           "correctIndex": 1,
           "explanation": "Es solo para el editor; el navegador lo ve como un comentario."
@@ -6641,9 +6641,9 @@
           "id": "lec-44-q2",
           "question": "¿Para qué sirve `@typedef`?",
           "options": [
-            "Para declarar una variable global.",
-            "Para importar un archivo.",
-            "Para crear una tabla HTML.",
+            "Para importar otro archivo .js sin usar la palabra import.",
+            "Para declarar una variable global accesible desde cualquier archivo.",
+            "Para crear una tabla HTML a partir de la forma de un objeto.",
             "Para describir la forma de un objeto, como una actividad, y reutilizarla."
           ],
           "correctIndex": 3,
@@ -6653,10 +6653,10 @@
           "id": "lec-44-q3",
           "question": "¿Qué archivo activa la revisión de tipos en todo el proyecto?",
           "options": [
-            "package-lock.json.",
+            "index.html, con un atributo en la etiqueta script.",
             "jsconfig.json con checkJs en true.",
-            "index.html.",
-            "manifest.webmanifest."
+            "manifest.webmanifest, en su sección de opciones.",
+            "package-lock.json, con la versión de TypeScript."
           ],
           "correctIndex": 1,
           "explanation": "jsconfig.json configura el revisor de JavaScript de VS Code."
@@ -6755,9 +6755,9 @@
           "question": "¿Qué mide INP?",
           "options": [
             "Cuánto tarda la página en responder visualmente a una interacción como un toque o clic.",
-            "El tiempo hasta que llega el primer byte del servidor.",
-            "Cuánto pesa la página.",
-            "Cuántos usuarios hay conectados."
+            "Cuántos usuarios hay conectados a la vez usando la página en vivo.",
+            "El tiempo que pasa hasta que llega el primer byte desde el servidor después de escribir la dirección en el navegador.",
+            "Cuánto pesa la página sumando todos sus archivos, imágenes incluidas."
           ],
           "correctIndex": 0,
           "explanation": "Es la métrica de capacidad de respuesta; la meta es menos de 200 ms."
@@ -6766,10 +6766,10 @@
           "id": "lec-45-q2",
           "question": "¿Qué técnica evita redibujar una tabla en cada tecla del buscador?",
           "options": [
-            "Recargar la página.",
+            "Desactivar el buscador mientras se escribe.",
             "Debounce: esperar a que el usuario deje de escribir un momento.",
-            "Usar más colores.",
-            "Desactivar el buscador."
+            "Usar menos colores en las filas de la tabla.",
+            "Recargar la página completa después de cada tecla para que la tabla se actualice sola."
           ],
           "correctIndex": 1,
           "explanation": "Reduce cientos de redibujados a uno solo."
@@ -6778,10 +6778,10 @@
           "id": "lec-45-q3",
           "question": "¿Por qué conviene ejecutar Lighthouse en una ventana de incógnito?",
           "options": [
-            "Para iniciar sesión automáticamente.",
+            "Porque Lighthouse solo funciona en una ventana de incógnito.",
             "Porque las extensiones del navegador pueden alterar los resultados.",
-            "Para no gastar datos.",
-            "Porque solo funciona así."
+            "Para no gastar datos móviles mientras se descarga la página.",
+            "Para que Lighthouse inicie sesión automáticamente con tu cuenta."
           ],
           "correctIndex": 1,
           "explanation": "Las extensiones agregan scripts que afectan el rendimiento medido."
