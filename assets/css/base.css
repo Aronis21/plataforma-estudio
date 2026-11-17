@@ -262,6 +262,8 @@ body[data-tema="hoy"] .hoja::before {
 .pregunta { border: 1px solid var(--borde); border-radius: var(--r-sm); background: var(--superficie); padding: 1rem 1.1rem; margin: 0 0 1rem; }
 .pregunta legend { float: left; width: 100%; font-weight: 600; margin-bottom: .75rem; display: flex; gap: .6rem; }
 .pregunta legend + * { clear: both; }
+.pregunta legend .enunciado { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.pregunta legend .enunciado code, .opcion code { white-space: normal; overflow-wrap: anywhere; }
 .num { flex-shrink: 0; width: 1.7rem; height: 1.7rem; border-radius: 50%; border: 1.5px solid var(--tinta); display: inline-flex; align-items: center; justify-content: center; font-family: var(--f-mono); font-size: .8rem; }
 .opcion { display: flex; gap: .6rem; align-items: flex-start; min-height: var(--toque); padding: .6rem .75rem; border: 1.5px solid var(--borde); border-radius: var(--r-md); margin: .4rem 0; cursor: pointer; }
 .opcion:hover { background: var(--superficie-2); }

@@ -308,7 +308,7 @@
         <span class="franja" aria-hidden="true"></span>
         <div class="cabecera-card"><span class="etiqueta">${escapar(aqui.curso._meta.separador || "")} · ${u ? "Te quedaste aquí" : "Para empezar"}</span><span class="small muted">${escapar(aqui.cap.code || "")}</span></div>
         <h3>${escapar(aqui.cap.title)}</h3>
-        <p class="extracto">${escapar(aqui.cap.subtitle || "")}</p>
+        <p class="extracto">${enLinea(aqui.cap.subtitle || "")}</p>
         ${ultimaNota ? `<div class="nota-mano" style="margin-top:.7rem">↳ tu nota: “${escapar(recortar(ultimaNota.texto, 90))}”</div>` : ""}
       </a>`;
     }
@@ -589,7 +589,7 @@
         const bloqueado = !capDisponible(curso, cap);
         const interior = `<span class="est">${bloqueado ? "·" : ICONO_ESTADO[est]}</span>
           <span class="cap-code">${escapar(cap.code || "")}</span>
-          <span class="cap-main"><span class="titulo-cap">${escapar(cap.title)}</span><span class="muted small">${escapar(cap.subtitle || "")}</span></span>
+          <span class="cap-main"><span class="titulo-cap">${escapar(cap.title)}</span><span class="muted small">${enLinea(cap.subtitle || "")}</span></span>
           <span class="cap-side muted small">${bloqueado ? "en preparación" : `${cap.estimatedMinutes ? cap.estimatedMinutes + " min" : ""}${ex ? `<br>Examen ${ex.mejor}/${ex.total}` : ""}`}</span>`;
         modulos += bloqueado
           ? `<div class="cap-row bloqueado">${interior}</div>`
@@ -798,7 +798,7 @@
     cap.exam.forEach((q, qi) => {
       const opciones = mezclar(q.options, semilla + qi * 7919);
       h += `<fieldset class="pregunta" id="preg-${qi}" data-correcta="${q.correctIndex}" data-q="${qi}">
-        <legend><span class="num">${qi + 1}</span>${enLinea(q.question)}</legend>
+        <legend><span class="num">${qi + 1}</span><span class="enunciado">${enLinea(q.question)}</span></legend>
         ${opciones
           .map(
             ([texto, original], pos) => `<label class="opcion"><input type="radio" name="q${qi}" value="${original}">
@@ -1035,7 +1035,7 @@
           <header class="cap-header">
             <span class="cap-kicker">${escapar(nombres.leccion)} · ${escapar(cap.code || "")}${cap.estimatedMinutes ? ` · ${cap.estimatedMinutes} min` : ""}</span>
             <h1 class="titulo-hoja" style="font-size:clamp(2rem,3.6vw,2.9rem);margin-top:.5rem">${escapar(cap.title)}</h1>
-            ${cap.subtitle ? `<p class="lead" style="margin-top:.6rem">${escapar(cap.subtitle)}</p>` : ""}
+            ${cap.subtitle ? `<p class="lead" style="margin-top:.6rem">${enLinea(cap.subtitle)}</p>` : ""}
             ${pestañas.length ? `<div class="row meta">
               <span class="pill est-${est}">${TEXTO_ESTADO[est]}</span>
               <span class="small muted">${escapar(cap.module || "")}</span>
@@ -1075,6 +1075,13 @@
         if (C.agregarNota({ curso: curso.id, cap: cap.id, texto: document.getElementById("inpNota").value, tipo })) pintar();
       };
       app.querySelectorAll("[data-borrar-nota]").forEach((b) => (b.onclick = () => { C.borrarNota(b.dataset.borrarNota); pintar(); }));
+      // En pantallas estrechas, mantener visible la pestaña activa
+      const barraTabs = app.querySelector(".tabs");
+      const tabActiva = barraTabs && barraTabs.querySelector(".tab.activa");
+      if (tabActiva) {
+        const rb = barraTabs.getBoundingClientRect(), rt = tabActiva.getBoundingClientRect();
+        barraTabs.scrollLeft += rt.left - rb.left - (rb.width - rt.width) / 2;
+      }
       if (activa === "ejercicios") enlazarEjercicios(curso, cap, pintar);
       if (activa === "examen") enlazarExamen(curso, cap, pintar);
       if (activa === "teoria" || activa === "estandar" || activa === "comparacion") activarResaltado(curso, cap, pintar);
