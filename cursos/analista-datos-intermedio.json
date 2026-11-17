@@ -99,9 +99,9 @@
           "id": "intro-q1",
           "question": "¿Cuál es el riesgo principal de unir una tabla de cabecera (`pedidos`) con una tabla de detalle (`items_pedido`) antes de sumar `pedidos.monto_total`?",
           "options": [
-            "La base de datos rechazará la consulta con un error de sintaxis.",
-            "El orden de las filas cambiará aleatoriamente.",
-            "Los pedidos sin ítems desaparecerán pero el monto total será exacto.",
+            "La base de datos rechazará la consulta con un error de sintaxis, porque no se puede sumar una columna de cabecera tras un JOIN.",
+            "Los pedidos sin ítems desaparecerán del resultado, aunque el monto de los pedidos restantes se sumará una sola vez.",
+            "El orden de las filas cambiará de forma impredecible, pero la suma del monto total de cada pedido seguirá siendo exacta.",
             "El monto total del pedido se sumará tantas veces como ítems tenga el pedido, inflando silenciosamente la métrica."
           ],
           "correctIndex": 3,
@@ -111,9 +111,9 @@
           "id": "intro-q2",
           "question": "¿Qué significa definir el \"grano\" (grain) de una tabla o consulta?",
           "options": [
-            "Elegir el formato de compresión de archivo (Parquet o CSV).",
-            "Ordenar los resultados de mayor a menor.",
-            "Calcular la desviación estándar de una columna numérica.",
+            "Elegir el formato de almacenamiento y compresión del archivo, por ejemplo Parquet o CSV.",
+            "Definir la precisión decimal con que se guardan las columnas numéricas de la tabla.",
+            "Fijar el orden en que se presentan las filas, de la más reciente a la más antigua.",
             "Especificar exactamente qué entidad o nivel de detalle representa cada fila."
           ],
           "correctIndex": 3,
@@ -123,9 +123,9 @@
           "id": "intro-q3",
           "question": "¿Por qué se prefiere `DATE_TRUNC('month', fecha)` sobre `MONTH(fecha)` en series temporales?",
           "options": [
-            "Porque `MONTH()` no se puede usar en cláusulas GROUP BY.",
-            "Porque `DATE_TRUNC` convierte automáticamente los montos a dólares.",
-            "Porque `MONTH(fecha)` solo funciona los lunes.",
+            "Porque `MONTH(fecha)` devuelve el nombre del mes como texto y eso impide ordenar la serie cronológicamente.",
+            "Porque `DATE_TRUNC` ajusta automáticamente cada fecha a la zona horaria UTC antes de agrupar los datos.",
+            "Porque `MONTH()` no se puede usar dentro de un `GROUP BY` y obliga a agrupar por la fecha completa.",
             "Porque `MONTH(fecha)` colapsa el mismo mes de distintos años (ej. enero 2025 y enero 2026 juntos)."
           ],
           "correctIndex": 3,
@@ -135,9 +135,9 @@
           "id": "intro-q4",
           "question": "¿Cuál es la mejor práctica respecto a filtros de negocio como excluir órdenes canceladas o cuentas de prueba?",
           "options": [
-            "Usar `SELECT DISTINCT` para que desaparezcan solos.",
-            "Aplicarlos manualmente en Excel después de exportar.",
-            "Omitirlos para que la consulta sea más corta.",
+            "Omitirlos en la consulta y mencionarlos solo de palabra en la reunión, para que el SQL sea más corto.",
+            "Aplicarlos después de exportar, en Excel, para que el código SQL quede más simple y genérico.",
+            "Confiar en `SELECT DISTINCT` para que las órdenes canceladas y las cuentas de prueba se eliminen solas.",
             "Incluirlos explícitamente en el código SQL/Python y documentarlos en el encabezado o entrega."
           ],
           "correctIndex": 3,
@@ -254,10 +254,10 @@
           "id": "cap01-q1",
           "question": "¿Por qué falla la consulta `SELECT id, ROW_NUMBER() OVER (ORDER BY fecha) AS rn FROM eventos WHERE rn = 1` en SQL estándar?",
           "options": [
-            "Porque las funciones de ventana requieren obligatoriamente un `GROUP BY`.",
-            "Porque `rn = 1` debe escribirse como `rn == 1`.",
+            "Porque en SQL estándar la comparación debe escribirse como `rn == 1`, y el operador `=` solo se admite dentro de un `SET`.",
+            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`, así que la ventana es inválida antes de llegar al `WHERE`.",
             "Porque la cláusula `WHERE` se evalúa antes que las funciones de ventana, así que el alias `rn` aún no existe en esa etapa.",
-            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`."
+            "Porque las funciones de ventana requieren obligatoriamente un `GROUP BY` sobre las demás columnas del `SELECT` para ejecutarse."
           ],
           "correctIndex": 2,
           "explanation": "En el orden lógico de ejecución de SQL, `WHERE` se ejecuta antes que la lista `SELECT` (donde se evalúan las Window Functions). Por eso debes envolver el cálculo en una CTE (o usar `QUALIFY` donde esté soportado)."
@@ -267,8 +267,8 @@
           "question": "Si dos filas tienen exactamente el mismo valor en el `ORDER BY` de una ventana, ¿qué función garantiza que nunca devolverá empates y asignará 1, 2, 3... consecutivos?",
           "options": [
             "ROW_NUMBER()",
-            "DENSE_RANK()",
             "RANK()",
+            "DENSE_RANK()",
             "NTILE(1)"
           ],
           "correctIndex": 0,
@@ -278,10 +278,10 @@
           "id": "cap01-q3",
           "question": "¿Qué ventaja ofrece `LAG(ventas, 1) OVER (ORDER BY mes)` frente a un auto-JOIN (`self-join`) por `mes - 1`?",
           "options": [
-            "Convierte automáticamente valores NULL en ceros.",
+            "Es la única forma de aprovechar índices B-Tree sobre la columna `mes`, mientras que el auto-JOIN siempre fuerza un escaneo completo de la tabla y por eso devuelve resultados distintos.",
             "Lee la fila anterior en una sola pasada ordenada, sin cruzar la tabla consigo misma (aunque si falta un mes, trae el mes existente anterior, por eso conviene partir de un calendario continuo).",
-            "Es la única función que funciona con índices B-Tree.",
-            "Permite omitir la cláusula `ORDER BY` sin afectar el resultado."
+            "Permite omitir el `ORDER BY` dentro de `OVER()` sin afectar el resultado, porque el motor deduce solo el orden cronológico de la columna `mes` y trae siempre el mes calendario anterior.",
+            "Convierte automáticamente los valores NULL en ceros y rellena los meses faltantes de la serie, por lo que ya no hace falta partir de un calendario continuo ni preocuparse por los huecos."
           ],
           "correctIndex": 1,
           "explanation": "`LAG()` lee la fila inmediatamente anterior en una única pasada ordenada sobre la partición, evitando la complejidad y el costo de un self-join. Ojo: 'anterior' significa la fila previa, no el mes calendario previo; si la serie tiene huecos, rellénala antes con un calendario."
@@ -292,8 +292,8 @@
           "options": [
             "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
             "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW",
-            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING",
-            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING"
+            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING",
+            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING"
           ],
           "correctIndex": 1,
           "explanation": "6 filas anteriores más la fila actual suman exactamente 7 días (hoy y los 6 días previos)."
@@ -302,10 +302,10 @@
           "id": "cap01-q5",
           "question": "¿Para qué sirve envolver un denominador con `NULLIF(denominador, 0)` en métricas de variación porcentual?",
           "options": [
-            "Para reemplazar todos los resultados positivos por cero.",
+            "Para reemplazar por cero cualquier variación negativa, de modo que las caídas no aparezcan en el reporte como porcentajes menores a cero.",
             "Para convertir un 0 en `NULL`, logrando que la división devuelva `NULL` en lugar de abortar la consulta con error de división por cero.",
-            "Para acelerar el ordenamiento de la cláusula `ORDER BY`.",
-            "Para redondear el porcentaje a dos decimales."
+            "Para convertir un `NULL` en 0, logrando que la división siempre devuelva un número y el reporte no muestre celdas vacías en la variación.",
+            "Para que el motor use un índice sobre el denominador y acelere el ordenamiento del `ORDER BY` cuando hay muchas filas con ceros."
           ],
           "correctIndex": 1,
           "explanation": "`NULLIF(x, 0)` devuelve `NULL` cuando `x = 0`. En SQL, dividir cualquier número entre `NULL` da `NULL` en vez de lanzar un error fatal en tiempo de ejecución."
@@ -408,10 +408,10 @@
           "id": "cap02-q1",
           "question": "¿Qué ocurre si ejecutas `WHERE cliente_id NOT IN (SELECT cliente_id FROM bajas)` y la tabla `bajas` contiene una sola fila con `cliente_id IS NULL`?",
           "options": [
-            "Devuelve todos los clientes excepto los nulos.",
-            "Lanza un error de clave primaria duplicada.",
+            "Devuelve todos los clientes excepto los que tienen baja; el NULL simplemente no coincide con nadie.",
+            "Devuelve solo los clientes con `cliente_id` nulo, ya que son los únicos que coinciden con esa fila.",
             "Toda la consulta devuelve 0 filas porque comparar contra NULL produce UNKNOWN.",
-            "La subconsulta ignora el NULL automáticamente."
+            "Lanza un error porque `NOT IN` no admite subconsultas que puedan devolver valores nulos."
           ],
           "correctIndex": 2,
           "explanation": "En lógica trivaluada SQL, `x NOT IN (1, 2, NULL)` equivale a `x != 1 AND x != 2 AND x != NULL`, cuya tercera parte es `UNKNOWN`, haciendo que ninguna fila pase el `WHERE`."
@@ -420,10 +420,10 @@
           "id": "cap02-q2",
           "question": "Si agregas `AND tabla_derecha.estado = 'activo'` en la cláusula `WHERE` tras un `LEFT JOIN`, ¿qué sucede?",
           "options": [
-            "Se acelera el LEFT JOIN sin alterar los resultados.",
-            "Se duplican las filas de la izquierda.",
+            "Se duplican las filas de la izquierda que tienen más de una coincidencia activa en la tabla derecha del LEFT JOIN.",
+            "Se mantienen las filas de la izquierda sin coincidencia con NULL, y solo se descartan las filas derechas inactivas.",
             "Se eliminan las filas de la izquierda sin coincidencia, convirtiendo el LEFT JOIN en un INNER JOIN efectivo.",
-            "Se mantienen las filas de la izquierda sin coincidencia con NULL."
+            "Se acelera el LEFT JOIN porque el filtro se aplica antes de la unión, sin alterar las filas que devuelve la consulta."
           ],
           "correctIndex": 2,
           "explanation": "Las filas sin coincidencia tienen `NULL` en `tabla_derecha.estado`; al evaluar `NULL = 'activo'` en `WHERE`, quedan descartadas."
@@ -432,10 +432,10 @@
           "id": "cap02-q3",
           "question": "¿Cuál es la forma correcta de combinar dos tablas de métricas 1:N (`pagos` y `reembolsos`) hacia una tabla padre `pedidos`?",
           "options": [
-            "Hacer `INNER JOIN` en ambas para simplificar.",
+            "Usar `CROSS JOIN` entre `pagos` y `reembolsos` y después un `GROUP BY pedido_id` para reunir ambas métricas en una fila.",
             "Pre-agregar `pagos` por `pedido_id` y `reembolsos` por `pedido_id` en CTEs separadas antes del `LEFT JOIN`.",
-            "Unir ambas directamente y usar `SUM(DISTINCT monto)`.",
-            "Usar `CROSS JOIN` seguido de `GROUP BY`."
+            "Hacer `INNER JOIN` de `pedidos` con `pagos` y con `reembolsos`, y luego sumar los montos en un solo `GROUP BY`.",
+            "Unir ambas tablas directamente a `pedidos` y usar `SUM(DISTINCT monto)` para que los montos repetidos no se dupliquen."
           ],
           "correctIndex": 1,
           "explanation": "Pre-agregar cada tabla hija a la clave `pedido_id` garantiza relaciones 1:1 antes de cruzarlas con `pedidos`."
@@ -538,9 +538,9 @@
           "question": "¿Por qué es riesgoso usar `WHERE timestamp_col BETWEEN '2026-03-01' AND '2026-03-31'`?",
           "options": [
             "Porque excluye casi todo el día 31 de marzo al interpretarse como `2026-03-31 00:00:00`.",
-            "Porque ordena las filas de forma inversa.",
-            "Porque `BETWEEN` no funciona con fechas.",
-            "Porque duplica las filas del día 1."
+            "Porque incluye todo el 1 de abril, ya que `BETWEEN` redondea el límite superior al día siguiente.",
+            "Porque `BETWEEN` no funciona con columnas de tipo timestamp y compara las fechas como texto.",
+            "Porque `BETWEEN` excluye ambos extremos y deja fuera completos el día 1 y el día 31 de marzo."
           ],
           "correctIndex": 0,
           "explanation": "Un literal de fecha convertido a timestamp apunta a medianoche (`00:00:00`), dejando fuera todas las horas posteriores del último día."
@@ -550,9 +550,9 @@
           "question": "¿Para qué sirve cruzar una tabla de ventas contra `generate_series` mediante `LEFT JOIN`?",
           "options": [
             "Para garantizar una fila por cada fecha del periodo aunque no haya habido transacciones (asignando 0).",
-            "Para acelerar el JOIN cartesiano.",
-            "Para cambiar la zona horaria a UTC.",
-            "Para eliminar los días sin ventas."
+            "Para obtener un JOIN cartesiano más rápido que el `GROUP BY` cuando la tabla de ventas es muy grande.",
+            "Para convertir todas las fechas de la tabla de ventas a UTC y alinear las zonas horarias del periodo.",
+            "Para eliminar del resultado los días sin ventas, de modo que la serie solo muestre fechas con transacciones."
           ],
           "correctIndex": 0,
           "explanation": "Preserva los días sin actividad como 0, evitando distorsionar promedios móviles y tasas diarias."
@@ -561,9 +561,9 @@
           "id": "cap03-q3",
           "question": "En una matriz de retención por cohorte, ¿qué representa `mes_relativo = 0`?",
           "options": [
-            "Los clientes que abandonaron el servicio.",
-            "Las compras canceladas.",
-            "El promedio de todos los meses del año.",
+            "Los clientes de la cohorte que abandonaron durante el primer mes.",
+            "El mes previo a la adquisición, usado como línea base de la cohorte.",
+            "El promedio de retención de todos los meses posteriores de la cohorte.",
             "El mes de adquisición inicial de esa cohorte (100% de base)."
           ],
           "correctIndex": 3,
@@ -658,9 +658,9 @@
           "question": "¿Qué ocurre con el grano de una tabla `pedidos` después de aplicar `CROSS JOIN UNNEST(pedidos.items)`?",
           "options": [
             "El grano cambia a 1 fila por ítem dentro de cada pedido (y los pedidos con arreglo vacío desaparecen).",
-            "El grano sigue siendo exactamente 1 fila por pedido.",
-            "Se reduce el número total de filas.",
-            "Se eliminan los duplicados de SKU automáticamente."
+            "El grano sigue siendo 1 fila por pedido, porque `UNNEST` solo agrega columnas con los ítems del arreglo.",
+            "El número de filas se reduce, porque `CROSS JOIN UNNEST` conserva solo los pedidos con un único ítem.",
+            "El grano cambia a 1 fila por SKU distinto, porque `UNNEST` elimina automáticamente los ítems repetidos."
           ],
           "correctIndex": 0,
           "explanation": "`CROSS JOIN UNNEST` expande cada elemento del arreglo en su propia fila y descarta filas cuyo arreglo esté vacío."
@@ -669,9 +669,9 @@
           "id": "cap04-q2",
           "question": "¿Cuál es el riesgo de acceder a elementos JSON por índice fijo (`items[0]`, `items[1]`) en lugar de desanidar?",
           "options": [
-            "Hace más lento el teclado.",
-            "Convierte el JSON en XML.",
-            "Impide usar `WHERE`.",
+            "Duplica cada pedido tantas veces como índices escritos, inflando las métricas igual que un JOIN 1:N sin pre-agregar.",
+            "Convierte el JSON en texto plano y obliga a parsear de nuevo todo el documento cada vez que se consulta un elemento.",
+            "Impide usar `WHERE` sobre los atributos del ítem, porque los índices fijos solo se pueden leer en la cláusula `SELECT`.",
             "Trunca elementos cuando el arreglo supera el número de índices escritos y dificulta agrupar por atributos del ítem."
           ],
           "correctIndex": 3,
@@ -682,9 +682,9 @@
           "question": "¿Dónde conviene realizar la extracción y tipado de rutas JSON complejas?",
           "options": [
             "Una sola vez en una vista o tabla staging bien tipada.",
-            "Dentro de cada gráfico del tablero BI.",
-            "Manualmente en Excel tras descargar CSV.",
-            "Solo dentro de la cláusula `ORDER BY`."
+            "Dentro de cada gráfico del tablero BI, según lo necesite.",
+            "Manualmente en Excel, tras descargar el JSON como CSV.",
+            "En cada consulta que la use, para adaptar el tipado al caso."
           ],
           "correctIndex": 0,
           "explanation": "Centralizar el parseo en staging evita duplicar lógica frágil en decenas de reportes posteriores."
@@ -778,10 +778,10 @@
           "id": "cap05-q1",
           "question": "¿Qué hace que la condición `WHERE YEAR(fecha_venta) = 2026` sea ineficiente en tablas grandes?",
           "options": [
-            "Devuelve fechas del 2025.",
+            "Obliga al motor a agrupar la tabla con un `GROUP BY` implícito antes de poder aplicar el filtro.",
             "Aplica la función a cada fila e impide usar índices o partition pruning sobre `fecha_venta`.",
-            "Obliga a usar `GROUP BY`.",
-            "Es inválida en SQL."
+            "Convierte `fecha_venta` a texto en cada fila y por eso las comparaciones numéricas dejan de funcionar.",
+            "Devuelve también fechas de 2025, porque `YEAR()` redondea las fechas cercanas al cambio de año."
           ],
           "correctIndex": 1,
           "explanation": "Aplicar una función sobre la columna filtrada vuelve el predicado no-SARGable, forzando un escaneo completo."
@@ -790,10 +790,10 @@
           "id": "cap05-q2",
           "question": "¿Cuál es la diferencia operativa de rendimiento entre `UNION` y `UNION ALL`?",
           "options": [
-            "`UNION ALL` es más lento porque ordena los datos.",
+            "`UNION ALL` es más lento porque ordena el resultado completo antes de devolverlo, mientras `UNION` solo concatena las filas.",
             "`UNION` deduplica el resultado (exigiendo sort o hash sobre todo el volumen), mientras `UNION ALL` concatena directamente.",
-            "No hay diferencia.",
-            "`UNION ALL` solo funciona con 2 columnas."
+            "No hay diferencia de rendimiento: ambos deduplican el resultado y el motor elige internamente el mismo plan de ejecución.",
+            "`UNION ALL` solo puede combinar consultas con el mismo número de filas, por lo que el motor debe rellenar con NULL primero."
           ],
           "correctIndex": 1,
           "explanation": "`UNION` realiza un `DISTINCT` global implícito; usa `UNION ALL` siempre que no necesites eliminar duplicados."
@@ -802,10 +802,10 @@
           "id": "cap05-q3",
           "question": "En motores columnares en la nube (BigQuery, Snowflake, Parquet), ¿por qué evitar `SELECT *` reduce costos y tiempo?",
           "options": [
-            "Porque solo permite leer 100 filas.",
-            "Porque `SELECT *` desactiva los CTEs.",
+            "Porque `SELECT *` convierte todas las columnas a texto antes de enviarlas, y esa conversión es lo que más tiempo y dinero consume.",
+            "Porque `SELECT *` limita la lectura a las primeras particiones de la tabla, y el motor debe repetir el escaneo para obtener el resto.",
             "Porque los datos columnares almacenan cada columna por separado y `SELECT *` lee todas las columnas del disco aunque no las uses.",
-            "Porque `SELECT *` convierte enteros a texto."
+            "Porque `SELECT *` desactiva la caché de resultados y los CTEs, obligando al motor a recalcular cada subconsulta en cada ejecución."
           ],
           "correctIndex": 2,
           "explanation": "Al leer solo las columnas proyectadas, el motor omite bloques completos de columnas no solicitadas."
@@ -897,9 +897,9 @@
           "question": "¿Qué tipo de métrica es el saldo bancario o el inventario en bodega?",
           "options": [
             "Semi-aditiva: se puede sumar entre cuentas/almacenes en un mismo instante, pero NO a lo largo del tiempo.",
-            "No aditiva en ningún sentido.",
-            "Totalmente aditiva.",
-            "Categórica."
+            "Totalmente aditiva: se puede sumar entre cuentas o almacenes y también a lo largo del tiempo sin distorsión.",
+            "No aditiva: no se puede sumar ni entre cuentas o almacenes ni a lo largo del tiempo, solo promediar.",
+            "Categórica: describe un estado de la cuenta o del almacén, así que solo se puede contar, nunca sumar."
           ],
           "correctIndex": 0,
           "explanation": "Las fotografías de estado (snapshots) se suman entre entidades en un corte dado, pero en el tiempo se toma el último valor o el promedio."
@@ -908,10 +908,10 @@
           "id": "cap06-q2",
           "question": "¿Cómo se debe agregar una razón como el porcentaje de conversión o margen en SQL?",
           "options": [
-            "Sumando los porcentajes de cada fila.",
+            "Aplicando `AVG(porcentaje)` directamente sobre la columna ya calculada para obtener la tasa de toda la tabla.",
             "Almacenando numerador y denominador por separado y calculando `SUM(numerador) / NULLIF(SUM(denominador), 0)`.",
-            "Aplicando `AVG(porcentaje)` directamente.",
-            "Tomando la mediana sin ponderar."
+            "Sumando el porcentaje calculado en cada fila y dividiendo luego entre 100 para devolverlo a la escala original.",
+            "Tomando la mediana de los porcentajes de cada fila, porque es más robusta a los valores extremos que la media."
           ],
           "correctIndex": 1,
           "explanation": "Los porcentajes son no-aditivos; la razón agregada correcta siempre divide la suma de los numeradores entre la suma de los denominadores."
@@ -920,9 +920,9 @@
           "id": "cap06-q3",
           "question": "¿Cuál es el grano ideal para una tabla de hechos transaccional?",
           "options": [
-            "El resumen anual para ahorrar espacio.",
-            "Un mix de resumen diario y detalle por ítem.",
-            "Siempre 1 fila por cliente.",
+            "El resumen diario por tienda, para ahorrar espacio y acelerar los tableros.",
+            "Una fila por cliente con sus totales acumulados, actualizada en cada carga.",
+            "Un mix de resumen diario y detalle por ítem, según lo que pida cada reporte.",
             "El nivel más atómico del evento (ej. 1 línea de ticket o 1 transacción)."
           ],
           "correctIndex": 3,
@@ -1016,10 +1016,10 @@
           "id": "cap07-q1",
           "question": "¿Qué diferencia a una dimensión SCD Tipo 2 de una Tipo 1?",
           "options": [
-            "La Tipo 2 no tiene clave primaria.",
+            "La Tipo 2 borra las filas antiguas para ahorrar disco y solo conserva la versión vigente marcada con `is_current`.",
             "La Tipo 2 conserva el historial completo creando una nueva fila con rango de fechas de vigencia por cada cambio.",
-            "La Tipo 1 guarda solo fechas y la Tipo 2 solo números.",
-            "La Tipo 2 borra los datos antiguos para ahorrar disco."
+            "La Tipo 2 guarda el historial en una tabla de auditoría separada, mientras la dimensión mantiene una sola fila.",
+            "La Tipo 2 sobrescribe el valor anterior en la misma fila y guarda la fecha del último cambio en una columna aparte."
           ],
           "correctIndex": 1,
           "explanation": "SCD Tipo 2 mantiene versiones históricas con `valid_from` y `valid_to`, permitiendo analizar hechos con los atributos vigentes en su momento."
@@ -1028,10 +1028,10 @@
           "id": "cap07-q2",
           "question": "¿Por qué es preferible `fecha >= valid_from AND fecha < valid_to` frente a `BETWEEN` en joins SCD2?",
           "options": [
-            "Porque `BETWEEN` no acepta columnas de fecha.",
-            "Porque ordena las filas alfabéticamente.",
+            "Porque `BETWEEN` no acepta columnas de fecha en la condición de un JOIN y obliga a convertirlas a texto.",
+            "Porque descarta automáticamente las versiones con `is_current = TRUE` y deja solo el historial ya cerrado.",
             "Porque evita que un evento ocurrido en el límite de transición haga match con dos versiones a la vez.",
-            "Porque elimina filas con `is_current = TRUE`."
+            "Porque `BETWEEN` excluye ambos extremos y el evento del primer día de vigencia no encuentra ninguna versión."
           ],
           "correctIndex": 2,
           "explanation": "Los intervalos semiabiertos aseguran partición exacta del tiempo sin solapamientos en la frontera."
@@ -1040,10 +1040,10 @@
           "id": "cap07-q3",
           "question": "¿Cuándo es aceptable usar SCD Tipo 1 (sobrescritura directa)?",
           "options": [
-            "Para precios históricos de productos en facturas pasadas.",
+            "Para los precios históricos de productos, de modo que las facturas pasadas se recalculen siempre con el precio actual.",
             "Para corregir errores tipográficos (ej. corregir \"Mèxico\" a \"México\") donde no interesa preservar el error histórico.",
-            "Nunca debe usarse.",
-            "Para cambios de plan de suscripción del cliente."
+            "Para los cambios de plan de suscripción del cliente, ya que solo interesa el plan vigente al momento del análisis.",
+            "Nunca: toda dimensión debe ser Tipo 2, porque cualquier sobrescritura destruye información útil para el negocio."
           ],
           "correctIndex": 1,
           "explanation": "Cuando el cambio es una corrección de calidad y no un evento histórico de negocio, Tipo 1 es más simple y apropiado."
@@ -1134,10 +1134,10 @@
           "id": "cap08-q1",
           "question": "¿Qué significa que un pipeline de datos sea idempotente?",
           "options": [
-            "Que solo puede ejecutarse una vez al año.",
+            "Que solo puede ejecutarse una vez por periodo, y una segunda ejecución sobre el mismo día lanza un error de bloqueo.",
             "Que re-ejecutarlo múltiples veces sobre el mismo periodo produce exactamente el mismo estado sin duplicados.",
-            "Que borra toda la base de datos antes de iniciar.",
-            "Que no utiliza SQL."
+            "Que cada ejecución agrega las filas nuevas al final de la tabla, conservando las cargas previas como respaldo.",
+            "Que borra por completo la base de datos antes de iniciar y vuelve a cargar todo el historial desde la fuente."
           ],
           "correctIndex": 1,
           "explanation": "La idempotencia permite reintentos seguros tras caídas de red o errores sin corromper ni duplicar métricas."
@@ -1149,7 +1149,7 @@
             "Silver",
             "Bronze",
             "Gold",
-            "En la presentación PowerPoint"
+            "Landing"
           ],
           "correctIndex": 0,
           "explanation": "Bronze conserva el dato crudo original; Silver lo limpia, tipa y deduplica; Gold lo modela para consumo analítico."
@@ -1159,9 +1159,9 @@
           "question": "¿Por qué es peligroso usar un `INSERT INTO ... SELECT` sin `DELETE` previo ni `MERGE` en cargas diarias?",
           "options": [
             "Porque cada re-ejecución del job insertará filas duplicadas.",
-            "Porque `INSERT` no soporta `WHERE`.",
-            "Porque borra la tabla Bronze.",
-            "Porque bloquea las columnas numéricas."
+            "Porque `INSERT INTO ... SELECT` no admite filtros con `WHERE`.",
+            "Porque sobrescribe la tabla destino y borra el historial previo.",
+            "Porque bloquea la tabla y nadie puede leerla hasta el día siguiente."
           ],
           "correctIndex": 0,
           "explanation": "Si el job corre dos veces por un reintento manual o automático, los registros se duplicarán silenciosamente."
@@ -1252,10 +1252,10 @@
           "id": "cap09-q1",
           "question": "¿Qué valida una prueba de \"frescura\" (freshness) en un pipeline analítico?",
           "options": [
-            "Que las fuentes tipográficas del dashboard estén actualizadas.",
+            "Que las dependencias y librerías del pipeline estén actualizadas a su versión más reciente disponible.",
             "Que los datos más recientes de la tabla no superen el tiempo máximo permitido de retraso (SLA).",
-            "Que todos los precios sean mayores a cero.",
-            "Que la consulta no tenga comentarios."
+            "Que todos los precios y montos de la tabla sean mayores a cero y no contengan valores nulos.",
+            "Que la consulta del modelo se haya modificado recientemente y no contenga código obsoleto."
           ],
           "correctIndex": 1,
           "explanation": "La frescura comprueba que el timestamp del último registro cargado esté dentro de la ventana de SLA acordada."
@@ -1264,10 +1264,10 @@
           "id": "cap09-q2",
           "question": "Si una consulta termina sin errores SQL (`exit 0`), ¿garantiza que la calidad del dato sea correcta?",
           "options": [
-            "Sí, mientras tenga `ORDER BY`.",
-            "Sí, SQL rechaza cualquier dato erróneo.",
+            "Solo si se usan `INNER JOIN`, porque así se descartan automáticamente las filas inconsistentes.",
+            "Sí, siempre que la tabla destino tenga claves primarias, porque bloquean cualquier dato erróneo.",
             "No: pueden haberse introducido duplicados, nulos masivos o caídas silenciosas de volumen.",
-            "Solo si se usa `INNER JOIN`."
+            "Sí: si la consulta termina sin errores, el motor ya validó tipos, claves y volumen esperado."
           ],
           "correctIndex": 2,
           "explanation": "Un pipeline puede ejecutarse sin errores técnicos y aún así entregar cifras vacías o duplicadas si no hay checks de calidad."
@@ -1276,10 +1276,10 @@
           "id": "cap09-q3",
           "question": "¿Qué es un Data Contract?",
           "options": [
-            "Una copia en Excel del dashboard.",
-            "Una licencia de software comercial.",
+            "Un documento legal con el proveedor del data warehouse que fija el precio y el almacenamiento.",
+            "Una copia congelada del dashboard que se envía a negocio como referencia oficial de las cifras.",
             "Un acuerdo formal de esquema, tipos, semántica y SLA entre productores de datos y analítica.",
-            "Un índice SQL clusterizado."
+            "Un índice o restricción de base de datos que impide insertar filas que no cumplan el esquema."
           ],
           "correctIndex": 2,
           "explanation": "Los contratos previenen cambios inesperados de esquema en origen que rompen pipelines aguas abajo."
@@ -1374,9 +1374,9 @@
           "question": "¿Por qué es recomendable almacenar datasets analíticos intermedios en formato Parquet en lugar de CSV?",
           "options": [
             "Porque es columnar, conserva tipos de datos exactos, comprime mejor y permite leer solo las columnas solicitadas.",
-            "Porque Parquet se puede editar en Bloc de Notas.",
-            "Porque Parquet elimina automáticamente valores nulos.",
-            "Porque CSV no soporta números decimales."
+            "Porque Parquet es un formato de texto plano que se puede abrir y editar en cualquier editor sin herramientas extra.",
+            "Porque CSV no admite números decimales ni fechas, así que hay que guardarlos como texto y convertirlos al leer.",
+            "Porque Parquet elimina automáticamente los valores nulos y duplicados al escribir, dejando el dataset ya limpio."
           ],
           "correctIndex": 0,
           "explanation": "Parquet evita inferencias lentas/erróneas de tipos y permite proyección columnar con compresión eficiente."
@@ -1385,10 +1385,10 @@
           "id": "cap10-q2",
           "question": "¿Qué ventaja clave aporta `category` en Pandas para columnas de texto con pocos valores distintos (ej. `pais`, `estado`)?",
           "options": [
-            "Impide usar filtros booleanos.",
-            "Convierte el texto a mayúsculas.",
+            "Comprime cada valor de texto por separado en disco, reduciendo el tamaño del CSV exportado pero no la RAM usada.",
+            "Ordena alfabéticamente la columna de forma permanente, lo que acelera los filtros booleanos sobre esos valores.",
             "Almacena internamente enteros pequeños apuntando a un diccionario único, reduciendo mucho la RAM y acelerando `groupby`.",
-            "Encripta los datos."
+            "Convierte el texto a mayúsculas y elimina espacios, de modo que valores como 'chile' y 'Chile ' queden unificados."
           ],
           "correctIndex": 2,
           "explanation": "Los tipos categóricos sustituyen millones de strings repetidos por códigos numéricos compactos."
@@ -1397,9 +1397,9 @@
           "id": "cap10-q3",
           "question": "¿Por qué evitar rutas absolutas como `C:\\Users\\MiNombre\\archivo.csv` en scripts analíticos?",
           "options": [
-            "Porque cambia la codificación UTF-8.",
-            "Porque hace los archivos más pesados.",
-            "Porque Python no soporta discos C:.",
+            "Porque Python no puede abrir rutas que empiecen con una letra de unidad como C: sin permisos de administrador.",
+            "Porque hacen que los archivos generados ocupen más espacio en disco al guardar la ruta completa en ellos.",
+            "Porque las rutas absolutas cambian la codificación del archivo leído de UTF-8 a la del sistema operativo.",
             "Porque rompe la reproducibilidad en cualquier otra computadora, repositorio Git o flujo automatizado."
           ],
           "correctIndex": 3,
@@ -1492,9 +1492,9 @@
           "question": "¿Qué problema ocurre si aplicas `df.dropna()` sin el parámetro `subset`?",
           "options": [
             "Elimina toda fila que tenga al menos un `NaN` en cualquier columna, incluso columnas opcionales que no usas.",
-            "Solo borra los nulos de la primera columna.",
-            "Convierte los nulos en ceros.",
-            "Duplica las filas válidas."
+            "Elimina solo los `NaN` de la primera columna del DataFrame y deja intactas las filas con nulos en las demás.",
+            "Reemplaza todos los `NaN` por ceros en cada columna, lo que sesga los promedios hacia abajo sin avisar.",
+            "Elimina las columnas que tienen algún `NaN` en lugar de las filas, perdiendo variables completas del análisis."
           ],
           "correctIndex": 0,
           "explanation": "Siempre debes especificar `subset=[...]` para restringir la eliminación únicamente a las columnas indispensables para el análisis."
@@ -1504,9 +1504,9 @@
           "question": "Si los clientes que más gastan omiten responder su edad en una encuesta, ¿qué tipo de dato faltante es y qué pasa si los borras?",
           "options": [
             "MNAR/MAR; al borrarlos subestimarás el gasto promedio de la población.",
-            "Outlier positivo.",
-            "MCAR; no pasa nada.",
-            "Error de sintaxis."
+            "MCAR; al borrarlos sobrestimarás el gasto promedio de la población.",
+            "Son outliers positivos; al borrarlos el gasto promedio queda más exacto.",
+            "MCAR; borrarlos no sesga el promedio porque los nulos son aleatorios."
           ],
           "correctIndex": 0,
           "explanation": "Cuando la ausencia depende de variables del usuario o del valor mismo, borrar las filas sesga gravemente las estimaciones."
@@ -1515,9 +1515,9 @@
           "id": "cap11-q3",
           "question": "¿Qué parámetro de `pd.to_numeric()` evita que un texto corrupto aborte el script y lo transforma en `NaN` auditable?",
           "options": [
-            "inplace=True",
             "downcast=\"signed\"",
             "errors=\"ignore\"",
+            "inplace=True",
             "errors=\"coerce\""
           ],
           "correctIndex": 3,
@@ -1613,8 +1613,8 @@
           "options": [
             "check_keys=True",
             "validate=\"many_to_one\"",
-            "drop_duplicates=True",
-            "unique=True"
+            "how=\"one_to_one\"",
+            "drop_duplicates=True"
           ],
           "correctIndex": 1,
           "explanation": "`validate=\"many_to_one\"` (o `\"one_to_one\"`) verifica la cardinalidad antes de retornar el resultado y falla ruidosamente si hay fan-out."
@@ -1623,10 +1623,10 @@
           "id": "cap12-q2",
           "question": "¿Por qué debe evitarse `df.iterrows()` para transformar columnas en DataFrames grandes?",
           "options": [
-            "Porque convierte enteros en booleanos.",
-            "Porque no funciona en Python 3.",
+            "Porque reinicia el índice del DataFrame en cada iteración, de modo que las filas modificadas quedan desalineadas.",
+            "Porque no funciona en Python 3 ni en las versiones recientes de Pandas, que ya eliminaron ese método por completo.",
             "Porque ejecuta un bucle de Python fila por fila en lugar de operaciones vectorizadas en C/NumPy, siendo mucho más lento.",
-            "Porque borra el índice."
+            "Porque convierte los tipos de cada columna a `object` de forma permanente y luego hay que volver a tiparlas a mano."
           ],
           "correctIndex": 2,
           "explanation": "La vectorización (`np.where`, `np.select`, operaciones de Series) procesa bloques enteros en memoria nativa."
@@ -1636,8 +1636,8 @@
           "question": "¿Qué método transforma múltiples columnas de meses (`ene`, `feb`, `mar`) en dos columnas (`mes`, `valor`)?",
           "options": [
             "df.melt()",
-            "df.dropna()",
             "df.pivot()",
+            "df.dropna()",
             "df.describe()"
           ],
           "correctIndex": 0,
@@ -1731,10 +1731,10 @@
           "id": "cap13-q1",
           "question": "¿Qué código HTTP indica que estás enviando demasiadas peticiones por segundo a una API (rate limit)?",
           "options": [
-            "404 Not Found",
-            "429 Too Many Requests",
             "301 Moved Permanently",
-            "200 OK"
+            "429 Too Many Requests",
+            "503 Service Unavailable",
+            "404 Not Found"
           ],
           "correctIndex": 1,
           "explanation": "El código 429 indica límite de tasa excedido; la respuesta profesional es aplicar backoff exponencial o respetar la cabecera `Retry-After`."
@@ -1744,9 +1744,9 @@
           "question": "¿Por qué es obligatorio especificar `timeout=` en `requests.get()` dentro de pipelines automáticos?",
           "options": [
             "Para evitar que el script quede colgado indefinidamente si el servidor remoto no cierra la conexión.",
-            "Para paginar automáticamente.",
-            "Para aumentar la memoria RAM disponible.",
-            "Para comprimir la respuesta JSON."
+            "Para que el servidor comprima la respuesta JSON y la descarga termine en menos tiempo de red.",
+            "Para limitar la memoria RAM que puede usar la respuesta y evitar que el script se quede sin recursos.",
+            "Para que `requests` pagine automáticamente la respuesta cuando el servidor devuelve muchos registros."
           ],
           "correctIndex": 0,
           "explanation": "Sin `timeout`, una caída silenciosa de red puede bloquear el proceso por horas."
@@ -1755,10 +1755,10 @@
           "id": "cap13-q3",
           "question": "¿Dónde deben almacenarse los tokens y llaves de API en un proyecto analítico?",
           "options": [
-            "Dentro del mensaje de commit.",
+            "Pegados como string en la primera celda del notebook.",
             "En variables de entorno / archivo `.env` fuera de Git.",
-            "En el nombre del archivo CSV.",
-            "Pegados como string al inicio del notebook."
+            "En el README del proyecto, para que el equipo los encuentre.",
+            "En un archivo `config.py` del repositorio, fuera del notebook."
           ],
           "correctIndex": 1,
           "explanation": "Subir credenciales a un repositorio es un incidente crítico de seguridad."
@@ -1852,10 +1852,10 @@
           "id": "cap14-q1",
           "question": "¿Cuál es el beneficio principal de mover fórmulas de KPIs desde un notebook a un módulo `.py`?",
           "options": [
-            "Evita tener que usar Git.",
-            "Obliga a usar menos RAM en el navegador.",
+            "Permite que el motor de base de datos ejecute las fórmulas directamente, porque los módulos `.py` se traducen solos a SQL.",
+            "Permite dejar de usar Git para los notebooks, porque los módulos `.py` guardan solo la versión final de cada fórmula de KPI.",
             "Permite reutilizar una única fuente de verdad en múltiples reportes y validar su exactitud con pruebas unitarias automatizadas.",
-            "Convierte Python en SQL."
+            "Reduce la memoria RAM que usa el navegador al abrir el notebook, ya que las fórmulas dejan de cargarse en cada celda."
           ],
           "correctIndex": 2,
           "explanation": "Centralizar la lógica elimina discrepancias entre equipos y permite ejecutar `pytest` en cada cambio."
@@ -1864,9 +1864,9 @@
           "id": "cap14-q2",
           "question": "¿Qué casos borde deberías probar siempre en métricas analíticas?",
           "options": [
-            "Solo colores de gráficos.",
-            "Solo datos positivos y completos.",
-            "Únicamente 1 fila con el número 100.",
+            "Únicamente un DataFrame de una fila con valores típicos, para que el test sea rápido.",
+            "Solo los formatos y colores de los gráficos que consumen la métrica en el tablero.",
+            "Solo datos positivos, completos y sin duplicados, que son los que llegan en producción.",
             "Denominadores en cero, DataFrames vacíos, valores nulos y duplicados en el grano."
           ],
           "correctIndex": 3,
@@ -1876,10 +1876,10 @@
           "id": "cap14-q3",
           "question": "¿Qué decorador de Pytest permite compartir datos de prueba limpios entre múltiples funciones test?",
           "options": [
-            "@pytest.mock_all",
+            "@pytest.metric",
             "@pytest.fixture",
             "@pytest.pandas",
-            "@pytest.metric"
+            "@pytest.mock_all"
           ],
           "correctIndex": 1,
           "explanation": "`@pytest.fixture` inyecta datos de prueba frescos y reutilizables en cada test."
@@ -1970,10 +1970,10 @@
           "id": "cap15-q1",
           "question": "¿Qué estadístico es menos sensible a unos pocos valores extremos gigantes (outliers)?",
           "options": [
-            "La varianza",
             "La media aritmética",
+            "La varianza muestral",
             "La mediana (percentil 50)",
-            "El máximo"
+            "El rango (máximo - mínimo)"
           ],
           "correctIndex": 2,
           "explanation": "La mediana depende del orden posicional central, no de la magnitud extrema de las colas."
@@ -1983,9 +1983,9 @@
           "question": "¿Cómo se manifiesta la Paradoja de Simpson en analítica de negocio?",
           "options": [
             "Cuando una tendencia observada dentro de cada subgrupo desaparece o se invierte al combinar todos los grupos.",
-            "Cuando la mediana es igual a la media.",
-            "Cuando el servidor se queda sin disco.",
-            "Cuando `COUNT(*)` devuelve 0."
+            "Cuando una muestra pequeña muestra una tendencia que desaparece por completo al aumentar el tamaño de muestra.",
+            "Cuando la mediana y la media coinciden en cada subgrupo, pero difieren al calcularlas sobre todos los datos juntos.",
+            "Cuando dos variables están muy correlacionadas en el total, lo que prueba que una de ellas causa a la otra."
           ],
           "correctIndex": 0,
           "explanation": "Cambios en los pesos de los subgrupos (variables confusoras) pueden invertir la tendencia agregada."
@@ -1995,9 +1995,9 @@
           "question": "Si analizas únicamente las encuestas de clientes que siguen activos tras 12 meses para concluir qué tan satisfechos estaban los nuevos usuarios, ¿qué sesgo cometes?",
           "options": [
             "Sesgo de supervivencia",
-            "Colinealidad",
-            "Sesgo de redondeo",
-            "Error Tipo I"
+            "Sesgo de anclaje",
+            "Sesgo de confirmación",
+            "Sesgo de redondeo"
           ],
           "correctIndex": 0,
           "explanation": "Ignorar a los clientes que abandonaron antes del corte sobreestima artificialmente la satisfacción y retención."
@@ -2090,9 +2090,9 @@
           "id": "cap16-q1",
           "question": "¿Para qué sirve principalmente el remuestreo Bootstrap en analítica?",
           "options": [
-            "Para acelerar `INNER JOIN`.",
-            "Para limpiar nulos en CSV.",
-            "Para duplicar datos en la base SQL.",
+            "Para aumentar el tamaño real de la muestra duplicando filas, de modo que los p-values del análisis resulten más pequeños.",
+            "Para rellenar los valores nulos de un dataset con valores tomados al azar de la misma columna, sin alterar la distribución.",
+            "Para acelerar los `JOIN` sobre tablas grandes, dividiéndolas en muestras más pequeñas que el motor procesa en paralelo.",
             "Para estimar intervalos de confianza y errores estándar de estadísticos complejos (medianas, razones) sin asumir distribución normal."
           ],
           "correctIndex": 3,
@@ -2102,10 +2102,10 @@
           "id": "cap16-q2",
           "question": "Si duplicas el tamaño de muestra (`n` pasa a `2n`), ¿se reduce a la mitad el ancho del intervalo de confianza?",
           "options": [
-            "Sí, exactamente a la mitad.",
-            "Aumenta al doble.",
+            "Sí: el ancho del intervalo es inversamente proporcional a `n`, así que duplicar la muestra lo reduce exactamente a la mitad.",
+            "No: el ancho aumenta, porque una muestra más grande captura más variabilidad y el error estándar crece con `sqrt(n)`.",
             "No: el ancho se multiplica por `1 / sqrt(2)` (≈0.71, unos 29% más estrecho); para reducirlo a la mitad hace falta `4n`.",
-            "No cambia en absoluto."
+            "No cambia: el ancho del intervalo depende solo del nivel de confianza elegido (95%), no del tamaño de la muestra."
           ],
           "correctIndex": 2,
           "explanation": "La precisión crece con la raíz cuadrada de `n`, por lo que reducir el margen a la mitad exige cuadruplicar la muestra."
@@ -2114,10 +2114,10 @@
           "id": "cap16-q3",
           "question": "¿Qué debemos hacer al usar generadores aleatorios en simulaciones Bootstrap?",
           "options": [
-            "Eliminar el 50% de los datos.",
+            "Usar `replace=False` al remuestrear, para que ninguna observación aparezca repetida dentro de una misma muestra.",
             "Fijar una semilla (`seed`) para que cualquier colega pueda reproducir exactamente los mismos límites.",
-            "Dejar la semilla aleatoria sin fijar siempre.",
-            "Usar `replace=False`."
+            "Descartar la mitad de los datos en cada iteración, para que las muestras simuladas sean independientes entre sí.",
+            "Dejar la semilla sin fijar, para que cada ejecución explore remuestreos distintos y los límites sean más robustos."
           ],
           "correctIndex": 1,
           "explanation": "Fijar `seed` asegura resultados deterministas al re-ejecutar el análisis."
@@ -2210,10 +2210,10 @@
           "id": "cap17-q1",
           "question": "¿Qué indica un Sample Ratio Mismatch (SRM) con `p < 0.001` en una prueba A/B?",
           "options": [
-            "Que la prueba necesita más colores.",
-            "Que no hubo suficientes clics.",
+            "Que la prueba aún no tiene suficientes usuarios ni clics en cada grupo, así que solo hay que esperar más días antes de leerla.",
+            "Que la variante B ganó con una diferencia tan grande en la métrica principal que ya se puede detener la prueba y lanzarla a todos.",
             "Que la proporción real de usuarios asignados a cada grupo difiere significativamente de la configurada, señalando un sesgo o bug técnico.",
-            "Que la variante B ganó por goleada."
+            "Que la conversión de ambos grupos es prácticamente idéntica, por lo que la prueba no encontró ninguna diferencia significativa."
           ],
           "correctIndex": 2,
           "explanation": "Un SRM invalida la equivalencia aleatoria entre grupos, por lo que no se debe confiar en la diferencia de métricas."
@@ -2223,9 +2223,9 @@
           "question": "¿Por qué es un error detener un A/B test en el momento en que ves `p < 0.05` al día 2 (peeking)?",
           "options": [
             "Porque dispara la probabilidad real de aceptar falsos positivos muy por encima del 5% nominal.",
-            "Porque borra los datos del servidor.",
-            "Porque convierte `p-value` en porcentaje.",
-            "Porque Python prohíbe leer resultados antes de 7 días."
+            "Porque antes del día 7 el p-value se reporta como porcentaje y no se puede comparar con 0.05.",
+            "Porque el efecto observado al día 2 siempre se reduce a la mitad al terminar la prueba.",
+            "Porque los datos de los primeros días se descartan y el test debe reiniciarse desde cero."
           ],
           "correctIndex": 0,
           "explanation": "Hacer múltiples pruebas secuenciales sin corrección infla drásticamente el error Tipo I (falsos descubrimientos)."
@@ -2234,9 +2234,9 @@
           "id": "cap17-q3",
           "question": "Si una diferencia tiene `p = 0.001` con millones de usuarios pero el lift es +0.01%, ¿qué demuestra?",
           "options": [
-            "Que hay SRM.",
-            "Que es obligatorio lanzarla sin importar el costo.",
-            "Que el p-value está mal calculado.",
+            "Que hay que lanzarla de inmediato, porque un p-value tan bajo garantiza un impacto grande en el negocio.",
+            "Que hay un Sample Ratio Mismatch, porque con millones de usuarios cualquier diferencia mínima es sospechosa.",
+            "Que el p-value está mal calculado, porque un lift tan pequeño nunca puede ser estadísticamente significativo.",
             "Que hay significancia estadística, pero puede carecer de relevancia práctica si no supera el MDE de negocio."
           ],
           "correctIndex": 3,
@@ -2330,10 +2330,10 @@
           "id": "cap18-q1",
           "question": "¿Qué demuestra una correlación de Pearson `r = 0.0` entre dos variables?",
           "options": [
-            "Que el tamaño de muestra es 0.",
-            "Que las variables son idénticas.",
+            "Que no existe ningún tipo de relación entre ellas, ni lineal ni curva, y son independientes.",
+            "Que las variables son idénticas y por eso la covarianza entre ellas se anula por completo.",
             "Que no existe relación LINEAL; podría haber una relación curva fuerte (ej. U o parábola).",
-            "Que no existe ningún tipo de relación entre ellas."
+            "Que la relación es negativa y perfecta: cuando una sube, la otra baja en la misma proporción."
           ],
           "correctIndex": 2,
           "explanation": "Pearson solo mide asociación lineal; una relación cuadrática simétrica produce `r ≈ 0` aunque sea determinista."
@@ -2342,9 +2342,9 @@
           "id": "cap18-q2",
           "question": "¿Para qué sirve incluir variables de control en una regresión múltiple explicativa?",
           "options": [
-            "Para eliminar la necesidad de datos.",
-            "Para aumentar artificialmente los nulos.",
-            "Para convertir texto a fechas.",
+            "Para reemplazar los valores faltantes de la variable principal con estimaciones de las otras variables.",
+            "Para reducir el número de observaciones necesarias, ya que cada control aporta información adicional.",
+            "Para aumentar el R² del modelo y demostrar que la relación encontrada entre las variables es causal.",
             "Para aislar la asociación de una variable manteniendo constantes otros factores confusores medidos."
           ],
           "correctIndex": 3,
@@ -2354,10 +2354,10 @@
           "id": "cap18-q3",
           "question": "¿Por qué es mala idea incluir a la vez `precio_sin_iva`, `iva` y `precio_total` como predictores en una regresión lineal?",
           "options": [
-            "Porque Python prohíbe 3 columnas.",
-            "Porque sube el uso de disco.",
+            "Porque las librerías de regresión no permiten más de dos predictores numéricos expresados en la misma unidad monetaria.",
+            "Porque `iva` tiene una varianza mucho menor que los precios y el modelo la ignora al estimar los coeficientes.",
             "Por multicolinealidad perfecta (`precio_total = precio_sin_iva + iva`), lo que vuelve inestables los coeficientes.",
-            "Porque `iva` siempre es negativo."
+            "Porque el modelo tendría demasiadas columnas y el tiempo de entrenamiento aumentaría hasta volverse impracticable."
           ],
           "correctIndex": 2,
           "explanation": "Predictores linealmente dependientes impiden estimar de forma única el efecto separado de cada uno."
@@ -2450,10 +2450,10 @@
           "id": "cap19-q1",
           "question": "¿Por qué es inválido usar `train_test_split(..., shuffle=True)` en problemas de pronóstico de series temporales?",
           "options": [
-            "Porque `shuffle=True` solo funciona con texto.",
-            "Porque borra las columnas de fecha.",
+            "Porque elimina las columnas de fecha del DataFrame y el modelo pierde la información temporal que necesita para pronosticar.",
+            "Porque `shuffle=True` solo funciona con columnas de texto y convierte las fechas en cadenas antes de dividir los datos.",
             "Porque mezcla observaciones futuras en el conjunto de entrenamiento (data leakage), inflando falsamente la precisión.",
-            "Porque reduce las filas a la mitad."
+            "Porque reduce el conjunto de entrenamiento a la mitad de las filas, dejando muy pocos datos para estimar la tendencia."
           ],
           "correctIndex": 2,
           "explanation": "Las series temporales deben evaluarse siempre con cortes cronológicos hacia adelante (walk-forward / holdout temporal)."
@@ -2462,9 +2462,9 @@
           "id": "cap19-q2",
           "question": "¿Por qué `LAG(ventas, 7)` suele ser mejor referencia diaria que `LAG(ventas, 1)` en retail o apps de consumo?",
           "options": [
-            "Porque es más rápido en Python.",
-            "Porque divide entre 7 automáticamente.",
-            "Porque ignora los feriados.",
+            "Porque `LAG(ventas, 7)` se calcula más rápido en Python al trabajar con bloques semanales de datos.",
+            "Porque `LAG(ventas, 7)` excluye los feriados y fines de semana de la comparación entre días.",
+            "Porque `LAG(ventas, 7)` divide automáticamente entre 7 y entrega así el promedio semanal de ventas.",
             "Porque compara lunes contra lunes y sábado contra sábado, controlando la estacionalidad semanal."
           ],
           "correctIndex": 3,
@@ -2474,9 +2474,9 @@
           "id": "cap19-q3",
           "question": "¿Qué métrica de error es preferible frente a `MAPE` cuando existen días o productos con ventas reales iguales a 0?",
           "options": [
-            "Moda",
-            "R2 negativo",
-            "Desviación estándar",
+            "Desviación estándar de los errores de pronóstico",
+            "Moda de los errores porcentuales absolutos",
+            "R² ajustado, porque no depende de la escala",
             "WAPE (Weighted Absolute Percentage Error) o MAE"
           ],
           "correctIndex": 3,
@@ -2569,9 +2569,9 @@
           "question": "¿Qué es una métrica guardarraíl (guardrail metric)?",
           "options": [
             "Un indicador secundario que vigila que optimizar la métrica principal no dañe la calidad, experiencia o rentabilidad.",
-            "Un permiso de administrador en la base de datos.",
-            "El máximo valor histórico de ventas.",
-            "Un gráfico de barras apiladas."
+            "Una métrica de vanidad que siempre crece y se muestra en el tablero para dar contexto positivo a los resultados.",
+            "El valor histórico máximo de la métrica principal, usado como límite superior para detectar errores en los datos.",
+            "Un permiso de administrador que impide a los analistas modificar la métrica principal sin aprobación del equipo de datos."
           ],
           "correctIndex": 0,
           "explanation": "Las métricas guardarraíl previenen efectos secundarios perversos (ej. aumentar velocidad a costa de calidad o margen)."
@@ -2580,10 +2580,10 @@
           "id": "cap20-q2",
           "question": "¿Por qué \"usuarios registrados históricos acumulados\" suele ser una métrica de vanidad?",
           "options": [
-            "Porque da números negativos.",
+            "Porque solo tiene sentido en empresas B2B, donde el número de cuentas registradas es pequeño y estable.",
             "Porque nunca puede disminuir aunque el producto esté muriendo hoy, ocultando caídas en retención o actividad.",
-            "Porque solo existe en B2B.",
-            "Porque requiere usar `JOIN`."
+            "Porque su cálculo requiere un `JOIN` costoso entre usuarios y eventos que vuelve lento el tablero ejecutivo.",
+            "Porque puede dar números negativos cuando hay más bajas que altas, lo que confunde a los equipos de negocio."
           ],
           "correctIndex": 1,
           "explanation": "Las métricas acumuladas históricas siempre crecen o se estancan, sin reflejar la salud actual del negocio."
@@ -2592,10 +2592,10 @@
           "id": "cap20-q3",
           "question": "¿Para qué sirve un árbol de métricas (driver tree)?",
           "options": [
-            "Para calcular el p-value.",
+            "Para documentar la jerarquía de tablas del data warehouse y el orden en que se cargan en cada ejecución diaria.",
             "Para descomponer un KPI global en factores multiplicativos o aditivos que explican qué palanca específica cambió.",
-            "Para guardar JSON en PostgreSQL.",
-            "Para hacer backups diarios."
+            "Para calcular el p-value de cada KPI y decidir qué variaciones del periodo son estadísticamente significativas.",
+            "Para clasificar las métricas del tablero por importancia y ocultar las que el equipo directivo no necesita ver."
           ],
           "correctIndex": 1,
           "explanation": "Permite diagnosticar rápidamente qué componente operativo provocó una variación en el resultado final."
@@ -2686,10 +2686,10 @@
           "id": "cap21-q1",
           "question": "¿Por qué un embudo calculado con `COUNT(*)` por nombre de evento puede mostrar un paso posterior mayor al 100%?",
           "options": [
-            "Porque SQL redondea hacia arriba.",
-            "Porque falta un `ORDER BY`.",
+            "Porque SQL redondea hacia arriba los conteos al dividir entre pasos, y con volúmenes pequeños el porcentaje termina superando el 100%.",
+            "Porque `GROUP BY` duplica las filas de los usuarios con más de una sesión, aunque cada evento se haya registrado una sola vez.",
             "Porque un usuario puede disparar múltiples veces el mismo evento (reintentos/recargas) o llegar directo al paso sin pasar por el primero.",
-            "Porque `GROUP BY` duplica filas."
+            "Porque falta un `ORDER BY` por fecha en la consulta, y sin él los eventos se cuentan en el paso equivocado del embudo de conversión."
           ],
           "correctIndex": 2,
           "explanation": "Un embudo riguroso cuenta usuarios/sesiones únicos y valida orden cronológico secuencial."
@@ -2698,9 +2698,9 @@
           "id": "cap21-q2",
           "question": "¿Qué diferencia a un embudo estricto de un embudo abierto?",
           "options": [
-            "No tienen ninguna diferencia.",
-            "El embudo abierto solo funciona en Python.",
-            "El embudo estricto no usa fechas.",
+            "El embudo estricto excluye las fechas y cuenta eventos totales, mientras el abierto agrupa los pasos por día calendario.",
+            "El embudo estricto solo cuenta usuarios que completaron todos los pasos, mientras el abierto cuenta a todos los visitantes.",
+            "El embudo abierto se calcula por sesión y el estricto por usuario, pero ambos ignoran el orden en que ocurren los pasos.",
             "El embudo estricto exige que cada paso ocurra cronológicamente después del anterior para el mismo usuario/sesión."
           ],
           "correctIndex": 3,
@@ -2710,9 +2710,9 @@
           "id": "cap21-q3",
           "question": "¿Por qué conviene incluir una ventana temporal máxima (ej. 24h o 7 días) entre el primer y último paso?",
           "options": [
-            "Para hacer la consulta más larga.",
-            "Para convertir timestamps a texto.",
-            "Para eliminar el paso 1.",
+            "Para reducir el volumen de eventos que lee la consulta y así bajar el costo, sin afectar la tasa de conversión.",
+            "Para descartar a los usuarios que entraron directo al último paso sin haber pasado por el paso inicial.",
+            "Para que los timestamps de distintas zonas horarias se conviertan a texto y se puedan comparar entre sí.",
             "Para asegurar que la conversión pertenezca al mismo intento de compra o cohorte comparable en el tiempo."
           ],
           "correctIndex": 3,
@@ -2804,10 +2804,10 @@
           "id": "cap22-q1",
           "question": "¿Por qué debe calcularse el LTV utilizando el margen bruto/de contribución en lugar de las ventas brutas?",
           "options": [
-            "Porque las ventas brutas siempre son menores al margen.",
+            "Porque el margen es más estable mes a mes que las ventas, y así el LTV varía menos entre cohortes sin cambiar su nivel.",
             "Porque el dinero disponible para pagar el CAC y generar utilidad es únicamente el margen después de costos directos.",
-            "Porque hace más difícil el cálculo.",
-            "Porque los impuestos no importan."
+            "Porque los impuestos y descuentos no afectan al LTV, y usar el margen evita tener que excluirlos manualmente del cálculo.",
+            "Porque las ventas brutas siempre son menores que el margen de contribución, y el LTV quedaría subestimado frente al CAC."
           ],
           "correctIndex": 1,
           "explanation": "Confundir ingresos totales con margen disponible lleva a sobrestimar el LTV y sobreinvertir en adquisición."
@@ -2816,9 +2816,9 @@
           "id": "cap22-q2",
           "question": "¿Qué mide el CAC Payback Period?",
           "options": [
-            "La cantidad de anuncios por clic.",
-            "El tiempo que tarda el cliente en abrir su primer correo.",
-            "El salario del equipo de ventas.",
+            "El tiempo promedio que tarda un cliente nuevo en realizar su primera compra desde que ve el anuncio de adquisición.",
+            "La proporción del presupuesto de marketing que se recupera en el primer mes a partir de los ingresos brutos generados.",
+            "El número de meses que un cliente permanece activo antes de cancelar, usado para estimar su valor de vida total.",
             "El número de meses necesarios para recuperar la inversión de adquirir un cliente a partir de su margen mensual."
           ],
           "correctIndex": 3,
@@ -2828,9 +2828,9 @@
           "id": "cap22-q3",
           "question": "Si una cohorte SaaS tiene un NDR (Net Dollar Retention) de 112% a 12 meses, ¿qué significa?",
           "options": [
-            "Que no adquirieron clientes nuevos.",
-            "Que hubo un error de redondeo.",
-            "Que el 12% de clientes canceló.",
+            "Que el 12% de los clientes de la cohorte canceló durante el año, y el 88% restante se mantiene con el mismo gasto inicial.",
+            "Que el número de clientes activos de la cohorte creció un 12%, aunque el ingreso promedio por cliente se mantuvo igual.",
+            "Que la empresa adquirió un 12% más de clientes nuevos en los últimos 12 meses, sumándolos a la cohorte original medida.",
             "Que los ingresos actuales de esa misma cohorte son un 12% mayores que cuando empezó, gracias a upsells que superaron al churn."
           ],
           "correctIndex": 3,
@@ -2920,10 +2920,10 @@
           "id": "cap23-q1",
           "question": "¿Dónde conviene ejecutar limpiezas pesadas y uniones complejas que alimentan un tablero?",
           "options": [
-            "Dentro del título del gráfico.",
-            "En columnas calculadas en tiempo de renderizado dentro del navegador.",
+            "Manualmente en Excel cada lunes, antes de cargar el archivo al tablero.",
+            "En el propio tablero BI, con filtros y medidas definidos en cada visual.",
             "Aguas arriba en las capas Silver/Gold del Data Warehouse antes de llegar al BI.",
-            "Manualmente en Excel cada lunes."
+            "En columnas calculadas que el navegador evalúa al renderizar cada gráfico."
           ],
           "correctIndex": 2,
           "explanation": "Preparar modelos Gold pre-limpiados y dimensionados vuelve los tableros rápidos, reutilizables y consistentes."
@@ -2932,10 +2932,10 @@
           "id": "cap23-q2",
           "question": "¿Qué busca resolver la \"capa semántica única\"?",
           "options": [
-            "Cambiar la paleta de colores de la app.",
-            "Ocultar las fechas de actualización.",
+            "Unificar la paleta de colores y el formato visual de todos los tableros de la empresa.",
+            "Traducir automáticamente las consultas SQL entre distintos motores de base de datos.",
             "Evitar que distintos departamentos calculen fórmulas diferentes para la misma métrica oficial.",
-            "Eliminar todas las claves primarias."
+            "Concentrar todas las tablas del data warehouse en un único esquema para simplificar permisos."
           ],
           "correctIndex": 2,
           "explanation": "Garantiza una única definición verificada para KPIs compartidos en toda la organización."
@@ -2944,9 +2944,9 @@
           "id": "cap23-q3",
           "question": "¿Cuál es el orden lógico de lectura en un tablero ejecutivo bien diseñado?",
           "options": [
-            "Solo gráficos circulares 3D.",
-            "Orden alfabético de columnas.",
-            "Tabla de 10,000 filas arriba y KPIs al final.",
+            "Gráficos de tendencia -> Tabla de detalle -> KPIs, en orden alfabético de métricas.",
+            "Tabla de detalle completa arriba -> Gráficos de tendencia -> KPIs resumidos al final.",
+            "Filtros y segmentaciones -> Detalle por fila -> Conclusión ejecutiva en una nota final.",
             "Resumen de KPIs clave -> Diagnóstico por tendencia/drivers -> Detalle accionable."
           ],
           "correctIndex": 3,
@@ -3039,9 +3039,9 @@
           "question": "¿Por qué debe empezar en 0 el eje de magnitud de un gráfico de barras?",
           "options": [
             "Porque el cerebro interpreta la longitud total de cada barra como proporcional al valor; truncar el eje exagera visualmente diferencias pequeñas.",
-            "Para ocultar las categorías pequeñas.",
-            "Para ahorrar tinta al imprimir.",
-            "Porque Matplotlib falla si empieza en otro número."
+            "Porque un eje que parte en 0 permite usar escala logarítmica, que es la única forma correcta de comparar magnitudes muy distintas entre barras.",
+            "Porque Matplotlib y la mayoría de librerías fallan o lanzan un error si el eje de un gráfico de barras empieza en un número distinto de cero.",
+            "Porque así se ocultan las categorías con valores pequeños, que solo agregan ruido visual y distraen de las barras realmente importantes del gráfico."
           ],
           "correctIndex": 0,
           "explanation": "Recortar el eje en gráficos de barras distorsiona la relación de proporciones entre las barras."
@@ -3051,9 +3051,9 @@
           "question": "¿Qué gráfico es más efectivo para comparar 10 categorías con nombres largos?",
           "options": [
             "Gráfico de barras horizontales ordenadas de mayor a menor.",
-            "Gráfico circular (pastel) 3D.",
-            "Gráfico de líneas.",
-            "Radar chart."
+            "Gráfico circular (pastel) con una porción por categoría.",
+            "Gráfico de líneas con una serie por cada categoría.",
+            "Gráfico de radar con un eje por cada una de las categorías."
           ],
           "correctIndex": 0,
           "explanation": "Las barras horizontales permiten leer etiquetas largas cómodamente en horizontal y comparar longitudes exactas."
@@ -3062,9 +3062,9 @@
           "id": "cap24-q3",
           "question": "¿Qué caracteriza a un título efectivo en storytelling con datos?",
           "options": [
-            "Incluye código SQL completo.",
-            "Omite el periodo analizado.",
-            "Usa solo siglas internas.",
+            "Usa las siglas internas del equipo para que el título sea corto y entre en una sola línea.",
+            "Describe con precisión las variables de los ejes y la fuente, sin adelantar conclusiones.",
+            "Incluye la consulta SQL o el filtro exacto usado, para que cualquiera reproduzca el gráfico.",
             "Sintetiza la conclusión o hallazgo principal del gráfico en lugar de solo nombrar los ejes."
           ],
           "correctIndex": 3,
@@ -3156,10 +3156,10 @@
           "id": "cap25-q1",
           "question": "¿Qué archivos NUNCA deben subirse a un repositorio Git de analítica?",
           "options": [
-            "El archivo `README.md`.",
+            "Las consultas `.sql` y las pruebas `.py`, porque contienen la lógica de negocio y deben quedar solo en local.",
             "Archivos `.env` con contraseñas/API keys y extractos crudos con datos personales de clientes (`.csv`, `.parquet`).",
-            "Consultas `.sql` y pruebas `.py`.",
-            "Plantillas YAML de diccionario de métricas."
+            "El archivo `README.md` y la documentación del proyecto, porque pueden revelar la estructura interna de los datos.",
+            "Las plantillas YAML del diccionario de métricas, porque cambian seguido y generan conflictos de merge constantes."
           ],
           "correctIndex": 1,
           "explanation": "Credenciales y datos sensibles deben excluirse en `.gitignore` y mantenerse en gestores de secretos o almacenamiento seguro."
@@ -3168,10 +3168,10 @@
           "id": "cap25-q2",
           "question": "¿Qué información es más valiosa en la descripción de un Pull Request que modifica un modelo Gold?",
           "options": [
-            "Únicamente \"Listo\".",
-            "El historial completo del chat.",
+            "Una lista de los archivos modificados y la hora de cada commit, ya que el código por sí solo explica la nueva lógica.",
+            "Capturas de pantalla del editor con el código modificado, para que el revisor vea los cambios sin abrir los archivos.",
             "Explicación del cambio de lógica, comparación numérica de totales antes vs. después y resultado de las pruebas de calidad.",
-            "Capturas de pantalla del editor de texto."
+            "El historial completo de la conversación con el solicitante, para dejar constancia de quién pidió cada uno de los cambios."
           ],
           "correctIndex": 2,
           "explanation": "La reconciliación antes/después permite validar el impacto real en negocio antes de aprobar el cambio."
@@ -3180,10 +3180,10 @@
           "id": "cap25-q3",
           "question": "¿Para qué sirve trabajar en una rama dedicada (`feat/...` o `fix/...`) en lugar de editar directo sobre `main`?",
           "options": [
-            "Para hacer más lentas las consultas.",
+            "Para poder omitir el `.gitignore` en la rama y subir archivos de datos que no deben llegar a `main`.",
             "Para probar cambios de forma aislada y permitir revisión por pares (Code Review) sin romper producción.",
-            "Para duplicar la base de datos.",
-            "Para omitir el `.gitignore`."
+            "Para que los cambios se apliquen directamente en producción sin pasar por la revisión de otro analista.",
+            "Para tener una copia completa de la base de datos asociada a cada rama y no afectar la tabla original."
           ],
           "correctIndex": 1,
           "explanation": "Mantiene `main` estable y auditable mientras los cambios se validan y revisan en ramas separadas."
@@ -3277,9 +3277,9 @@
           "question": "¿Qué función cumple `{{ ref('stg_clientes') }}` dentro de un modelo dbt?",
           "options": [
             "Declara una dependencia en el DAG para ejecutar `stg_clientes` primero y resuelve automáticamente el esquema según el entorno (dev/prod).",
-            "Exporta la tabla a CSV.",
-            "Convierte el SQL en Python.",
-            "Borra la tabla `stg_clientes`."
+            "Copia el SQL de `stg_clientes` dentro del modelo como subconsulta, sin registrar la dependencia en el DAG ni cambiar el esquema según entorno.",
+            "Borra y recrea la tabla `stg_clientes` antes de cada ejecución del modelo, para garantizar que siempre parta de datos frescos de producción.",
+            "Exporta la tabla `stg_clientes` a un archivo CSV en el entorno actual, para que el modelo la lea como fuente externa en cada ejecución."
           ],
           "correctIndex": 0,
           "explanation": "`ref()` construye el grafo de ejecución ordenado, genera linaje y aísla entornos de desarrollo y producción."
@@ -3288,10 +3288,10 @@
           "id": "cap26-q2",
           "question": "¿Cuál es la diferencia entre `dbt run` y `dbt build`?",
           "options": [
-            "`dbt build` solo borra tablas.",
-            "Son exactamente iguales.",
+            "Son equivalentes: ambos materializan modelos, ejecutan tests, snapshots y seeds; `dbt build` es solo el nombre nuevo del comando en versiones recientes.",
+            "`dbt build` solo compila el SQL de los modelos sin ejecutarlos; `dbt run` materializa los modelos y además corre todos los tests definidos en el proyecto.",
             "`dbt run` solo materializa modelos; `dbt build` ejecuta modelos, tests, snapshots y seeds en orden DAG deteniéndose si falla un test aguas arriba.",
-            "`dbt run` no soporta SQL."
+            "`dbt run` ejecuta los modelos en paralelo sin respetar el DAG, mientras `dbt build` los ejecuta uno por uno en orden alfabético sin correr ningún test."
           ],
           "correctIndex": 2,
           "explanation": "`dbt build` evita que un modelo corrupto propague errores a las tablas Gold dependientes."
@@ -3300,10 +3300,10 @@
           "id": "cap26-q3",
           "question": "¿Dónde deben vivir las pruebas `unique` y `not_null` en un proyecto dbt?",
           "options": [
-            "En un correo electrónico al jefe.",
+            "En una consulta SQL manual que alguien corre después de cada deploy.",
             "En el archivo `schema.yml` junto al modelo SQL versionado en Git.",
-            "Dentro de una hoja de Excel.",
-            "En el nombre de la rama Git."
+            "En el archivo `dbt_project.yml`, como variables globales del proyecto.",
+            "Dentro del propio modelo SQL, como filtros `WHERE` que descartan filas."
           ],
           "correctIndex": 1,
           "explanation": "Mantener tests y documentación junto al código asegura que evolucionen juntos."
@@ -3394,9 +3394,9 @@
           "id": "cap27-q1",
           "question": "Ante un reporte ejecutivo de caída abrupta de una métrica global, ¿cuál es el primer paso de un analista intermedio?",
           "options": [
-            "Cambiar los colores del tablero.",
-            "Proponer cambiar el precio ese mismo día.",
-            "Borrar los datos antiguos.",
+            "Borrar los datos antiguos y recargar el histórico completo desde la fuente, ya que una caída abrupta casi siempre indica una tabla corrupta.",
+            "Rehacer el tablero con nuevos colores y alertas visuales, para que la dirección identifique con más claridad dónde se concentra la caída.",
+            "Proponer de inmediato un cambio de precio o una campaña de recuperación, ya que cada día de espera multiplica el impacto de la caída.",
             "Auditar integridad de datos (fan-out, nulos, frescura, zonas horarias) y desagregar por segmentos clave para descartar errores o mix shift."
           ],
           "correctIndex": 3,
@@ -3407,9 +3407,9 @@
           "question": "¿Qué combinación garantiza que una solución analítica sea sostenible en equipo?",
           "options": [
             "Grano explícito, pruebas automatizadas, control de versiones en Git, capa semántica única y comunicación clara con incertidumbre.",
-            "Uso obligatorio de `SELECT *` y `iterrows()`.",
-            "Evitar intervalos de confianza.",
-            "Consultas sin comentarios en blocs de notas locales."
+            "Tableros con muchos indicadores, sin intervalos de confianza ni supuestos, para que los mensajes a negocio sean simples y sin ambigüedad.",
+            "Un analista experto que mantiene todas las fórmulas en su computadora y responde personalmente cualquier duda del equipo sobre los datos.",
+            "Consultas largas con `SELECT *` en notebooks locales, para que cada analista pueda adaptar la lógica de las métricas a su propio reporte."
           ],
           "correctIndex": 0,
           "explanation": "La unión de rigor técnico, reproducibilidad y criterio de negocio define el estándar intermedio completo."
@@ -3418,10 +3418,10 @@
           "id": "cap27-q3",
           "question": "Si ambos segmentos (Orgánico y Pagado) mantienen exactamente su mismo margen individual pero el margen total cae, ¿qué ocurrió?",
           "options": [
-            "Una división por cero.",
-            "Un fallo de SRM.",
+            "Un error en la consulta SQL que suma los márgenes de cada segmento en lugar de promediarlos.",
+            "Un Sample Ratio Mismatch entre los segmentos, que invalida la comparación del margen total.",
             "Un cambio de composición (mix shift / Paradoja de Simpson) hacia el segmento de menor margen.",
-            "Un error de sintaxis SQL."
+            "Una división por cero en el cálculo del margen total, que deja fuera a uno de los dos segmentos."
           ],
           "correctIndex": 2,
           "explanation": "Cuando cambia el peso relativo de los segmentos, el promedio ponderado global cambia aunque el desempeño interno de cada segmento siga intacto."
@@ -3496,10 +3496,10 @@
           "id": "apa-q1",
           "question": "¿Qué término describe la propiedad de que re-ejecutar un pipeline diario varias veces no duplica datos?",
           "options": [
-            "Peeking",
+            "Fan-Out",
             "Idempotencia",
-            "SRM",
-            "Fan-Out"
+            "Atomicidad",
+            "Peeking"
           ],
           "correctIndex": 1,
           "explanation": "La idempotencia garantiza resultados idénticos ante re-ejecuciones."
@@ -3509,8 +3509,8 @@
           "question": "¿Qué concepto explica la multiplicación silenciosa de métricas tras un JOIN 1:N?",
           "options": [
             "Bootstrap",
-            "NDR",
             "SARGable",
+            "Data skew",
             "Fan-Out"
           ],
           "correctIndex": 3,
@@ -3591,9 +3591,9 @@
           "question": "¿Qué parámetro de `pd.merge` previene duplicados silenciosos en Pandas?",
           "options": [
             "validate=\"many_to_one\"",
-            "suffixes=(\"_a\", \"_b\")",
-            "sort=True",
-            "copy=False"
+            "drop_duplicates=True",
+            "indicator=True",
+            "suffixes=(\"_a\", \"_b\")"
           ],
           "correctIndex": 0,
           "explanation": "`validate` valida la cardinalidad esperada y falla si hay claves repetidas."
@@ -3603,9 +3603,9 @@
           "question": "¿Qué función SQL previene errores de división por cero en tasas?",
           "options": [
             "NULLIF(denominador, 0)",
-            "ABS(x)",
-            "DISTINCT",
-            "COALESCE(x, 1)"
+            "COALESCE(numerador, 0)",
+            "GREATEST(denominador, 0)",
+            "ROUND(denominador, 2)"
           ],
           "correctIndex": 0,
           "explanation": "`NULLIF(denominador, 0)` devuelve `NULL` si el denominador es 0, evitando abortar la consulta."
@@ -3683,9 +3683,9 @@
           "question": "¿Qué estructura sigue el principio piramidal en un reporte ejecutivo?",
           "options": [
             "Presentar primero la conclusión y recomendación clave (TL;DR), seguida de la evidencia y el detalle técnico al final.",
-            "Poner únicamente código SQL.",
-            "Empezar por la limpieza de datos y dejar la conclusión al último párrafo.",
-            "Omitir los supuestos."
+            "Empezar por la limpieza y preparación de los datos, seguir con el análisis y dejar la conclusión para el último párrafo.",
+            "Presentar primero todo el código SQL y Python usado, para que el lector valide la lógica antes de leer cualquier resultado.",
+            "Ordenar las secciones por fecha de análisis, mostrando cada hallazgo en el orden cronológico en que se fue descubriendo."
           ],
           "correctIndex": 0,
           "explanation": "Los tomadores de decisiones necesitan el hallazgo y la acción recomendada al inicio, con el respaldo metodológico accesible debajo."
@@ -3694,10 +3694,10 @@
           "id": "apc-q2",
           "question": "¿Cuál es el objetivo principal de redactar un Brief corto antes de iniciar un análisis largo?",
           "options": [
-            "Evitar usar SQL.",
-            "Sustituir las pruebas unitarias.",
+            "Sustituir las pruebas unitarias y la revisión de código, ya que el brief deja documentada de antemano la lógica a usar.",
+            "Reemplazar el reporte final, de modo que el análisis completo solo se entregue si alguien lo solicita de forma explícita.",
             "Alinear la decisión buscada, definiciones exactas de métricas y exclusiones antes de invertir horas en código.",
-            "Retrasar la entrega."
+            "Retrasar el inicio del análisis hasta que la dirección apruebe por escrito el presupuesto y el equipo asignado al proyecto."
           ],
           "correctIndex": 2,
           "explanation": "Clarificar definiciones al principio evita tener que rehacer todo el análisis por ambigüedades."
