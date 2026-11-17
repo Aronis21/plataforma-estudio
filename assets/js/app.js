@@ -4,6 +4,7 @@
  *   #/curso/<idCurso>           índice del curso por módulos
  *   #/curso/<idCurso>/<idCap>   capítulo (pestañas: teoría, estándar, comparación, ejercicios, examen)
  *   #/repaso                    repaso de las tarjetas que tocan hoy
+ *   #/practica/...              práctica: consola SQL, preguntas por tema y Mi nivel (ver practica.js)
  */
 (function () {
   const { escapar, enLinea, bloques, bloqueCodigo } = window.Texto;
@@ -67,7 +68,8 @@
     return entrada && TEMAS.includes(entrada.tema) ? entrada.tema : "hoy";
   }
 
-  function aplicarTema(entrada) {
+  // sepActivo: separador a marcar cuando no es el del curso (p. ej. "practica")
+  function aplicarTema(entrada, sepActivo) {
     const tema = temaDe(entrada);
     document.body.dataset.tema = tema;
     if (entrada && tema !== "hoy") {
@@ -76,7 +78,7 @@
     } else {
       chipCurso.hidden = true;
     }
-    pintarSeparadores(entrada ? entrada.id : null);
+    pintarSeparadores(sepActivo || (entrada ? entrada.id : null));
   }
 
   function pintarSeparadores(idActivo) {
@@ -88,6 +90,7 @@
       const nombre = c.separador || c.id;
       html += `<a class="separador ${tema}" href="#/curso/${encodeURIComponent(c.id)}" ${c.id === idActivo ? 'aria-current="page"' : ""}>${escapar(nombre)}</a>`;
     }
+    html += `<a class="separador practica" href="#/practica" ${idActivo === "practica" ? 'aria-current="page"' : ""}>Práctica</a>`;
     separadores.innerHTML = html;
   }
 
@@ -204,7 +207,7 @@
   function respaldoHTML() {
     return `<section class="respaldo" aria-labelledby="tRespaldo">
       <h2 class="h-mano" id="tRespaldo">Respaldo de tu cuaderno</h2>
-      <p class="muted small">Tu progreso, notas, resaltados y tarjetas se guardan en este navegador. Descarga un respaldo para pasarlos a otro dispositivo.</p>
+      <p class="muted small">Tu progreso, notas, resaltados, tarjetas y práctica se guardan en este navegador. Descarga un respaldo para pasarlos a otro dispositivo.</p>
       <div class="row">
         <button class="btn" id="btnExportar" type="button">Descargar respaldo</button>
         <label class="btn ghost">Cargar respaldo<input type="file" id="inpImportar" accept="application/json" hidden></label>
@@ -215,7 +218,7 @@
 
   function enlazarRespaldo(repintar) {
     document.getElementById("btnExportar").onclick = () => {
-      const datos = { ...P.exportarTodo(), version: 2, cuaderno: C.exportar() };
+      const datos = { ...P.exportarTodo(), version: 2, cuaderno: C.exportar(), practica: window.Practica ? window.Practica.exportar() : undefined };
       const blob = new Blob([JSON.stringify(datos, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -229,6 +232,7 @@
         const datos = JSON.parse(await e.target.files[0].text());
         P.importarTodo(datos);
         if (datos.cuaderno) C.importar(datos.cuaderno);
+        if (datos.practica && window.Practica) window.Practica.importar(datos.practica);
         aviso("Respaldo cargado");
         repintar();
       } catch (err) {
@@ -1103,6 +1107,9 @@
       if (partes[0] === "curso" && partes[1] && partes[2]) await vistaCapitulo(partes[1], partes[2], partes[3]);
       else if (partes[0] === "curso" && partes[1]) await vistaCurso(partes[1]);
       else if (partes[0] === "repaso") await vistaRepaso();
+      else if (partes[0] === "practica") {
+        await window.Practica.vista({ app, obtenerCatalogo, obtenerCurso, cursosVisibles, setCrumbs, mostrarSidebar, aplicarTema, aviso, temaDe, modulosDe, capDisponible }, partes.slice(1));
+      }
       else await vistaHoy();
     } catch (err) {
       console.error(err);

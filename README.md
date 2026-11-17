@@ -20,8 +20,12 @@ Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejerci
 - **Resaltar:** selecciona una frase de la lección para resaltarla, pedir una explicación o convertirla en tarjeta de repaso. Toca un resaltado para quitarlo.
 - **Ejercicios:** tu intento se guarda solo, pistas por niveles y "¿cómo te fue?". Lo que no te salió pasa a tus tarjetas.
 - **Evaluación:** se aprueba con 70%, las opciones cambian de orden en cada intento, dices qué tan seguro estás y recibes un análisis; lo que fallas pasa a tus tarjetas.
+- **Práctica** (`#/practica`, separador "Práctica"), organizada en pestañas:
+  - **Mi nivel:** tu nivel por tema y subtema (de Principiante a Profesional) según tus aciertos en la práctica y tus exámenes, qué reforzar y las preguntas que más fallas.
+  - **SQL:** ejercicios ordenados por nivel y concepto con consola SQLite real en el navegador (bases `tienda`, `rrhh` y `app`), consola libre y reto del día. "Comprobar" compara tu resultado con el esperado.
+  - **Datos, Web, IA:** una sub-pestaña por módulo; practicas por capítulo o el módulo completo con las preguntas de los exámenes (primero las que fallaste).
 - **Repaso espaciado** (`#/repaso`): cada tarjeta vuelve cuando toca recordarla.
-- **Respaldo:** progreso, notas, resaltados y tarjetas se guardan en el navegador y se descargan/cargan en un solo archivo desde la página Hoy.
+- **Respaldo:** progreso, notas, resaltados, tarjetas y práctica se guardan en el navegador y se descargan/cargan en un solo archivo desde la página Hoy.
 - Un papel por curso (Hoy, Datos, Web, IA) con separadores para cambiar de cuaderno, y diseño adaptado al celular.
 
 ## Tutor
@@ -44,6 +48,10 @@ assets/js/progreso.js       Progreso de lecturas, ejercicios y exámenes
 assets/js/cuaderno.js       Notas, dudas, resaltados, tarjetas, plan del día y racha
 assets/js/resaltado.js      Barra de acciones al seleccionar texto en una lección
 assets/js/tutor.js          Tutor en modo local (punto de conexión para una IA futura)
+assets/js/practica.js       Página Práctica: Mi nivel, consola SQL y práctica por tema
+assets/js/practica-datos.js Bases de ejemplo y ejercicios de SQL (agrega ejercicios aquí)
+assets/css/practica.css     Estilos de la página Práctica
+assets/vendor/sqljs/        SQLite para el navegador (sql.js 1.10.3, licencia MIT)
 cursos/catalogo.json        Lista de cursos (con su "tema": datos, web o ia, y "estado")
 cursos/*.json               Un archivo por curso
 plantillas/                 Plantilla para crear cursos nuevos

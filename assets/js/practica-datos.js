@@ -1,0 +1,387 @@
+/* NEXUS · Datos de la práctica de SQL: bases de ejemplo (SQLite) y ejercicios.
+ * Cada ejercicio se comprueba ejecutando su "solucion" en una copia limpia de la base
+ * y comparando el resultado con el de tu consulta (no importan los nombres de las columnas,
+ * sí su orden; "orden": true exige además el mismo orden de filas).
+ * Generado con datos ficticios. Para agregar un ejercicio, copia uno y cambia sus campos.
+ */
+window.PracticaDatos = {
+ "bases": {
+  "tienda": {
+   "descripcion": "Tienda en línea: clientes, productos, pedidos y el detalle de cada pedido (enero a junio de 2026).",
+   "sql": "CREATE TABLE clientes (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, ciudad TEXT, pais TEXT NOT NULL, fecha_registro TEXT NOT NULL, segmento TEXT NOT NULL);\nCREATE TABLE productos (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, categoria TEXT NOT NULL, precio REAL NOT NULL, activo INTEGER NOT NULL);\nCREATE TABLE pedidos (id INTEGER PRIMARY KEY, cliente_id INTEGER NOT NULL REFERENCES clientes(id), fecha TEXT NOT NULL, estado TEXT NOT NULL);\nCREATE TABLE detalle_pedido (pedido_id INTEGER NOT NULL REFERENCES pedidos(id), producto_id INTEGER NOT NULL REFERENCES productos(id), cantidad INTEGER NOT NULL, precio_unitario REAL NOT NULL);\nINSERT INTO clientes (id, nombre, ciudad, pais, fecha_registro, segmento) VALUES\n(1, 'Ana Torres', 'Lima', 'Perú', '2026-02-14', 'minorista'),\n(2, 'Luis Pérez', 'Buenos Aires', 'Argentina', '2025-10-02', 'empresa'),\n(3, 'María Gómez', 'Bogotá', 'Colombia', '2024-07-14', 'minorista'),\n(4, 'Carlos Ruiz', 'Bogotá', 'Colombia', '2026-01-27', 'empresa'),\n(5, 'Sofía Díaz', 'Ciudad de México', 'México', '2024-10-19', 'minorista'),\n(6, 'Jorge Castro', NULL, 'México', '2024-09-28', 'mayorista'),\n(7, 'Valeria Rojas', 'Arequipa', 'Perú', '2025-09-04', 'empresa'),\n(8, 'Diego Morales', 'Lima', 'Perú', '2024-10-19', 'mayorista'),\n(9, 'Camila Herrera', 'Lima', 'Perú', '2024-10-02', 'empresa'),\n(10, 'Andrés Vargas', 'Medellín', 'Colombia', '2026-02-14', 'empresa'),\n(11, 'Lucía Medina', 'Santiago', 'Chile', '2025-04-26', 'mayorista'),\n(12, 'Mateo Silva', 'Madrid', 'España', '2024-10-10', 'empresa'),\n(13, 'Isabella Romero', 'Santiago', 'Chile', '2026-02-14', 'minorista'),\n(14, 'Sebastián Ortiz', 'Monterrey', 'México', '2026-03-25', 'minorista'),\n(15, 'Daniela Flores', NULL, 'Colombia', '2026-01-22', 'minorista'),\n(16, 'Tomás Navarro', 'Córdoba', 'Argentina', '2025-12-12', 'empresa'),\n(17, 'Paula Méndez', 'Santiago', 'Chile', '2024-02-09', 'minorista'),\n(18, 'Gabriel Ríos', 'Madrid', 'España', '2024-12-23', 'minorista'),\n(19, 'Elena Cruz', 'Valencia', 'España', '2025-12-13', 'minorista'),\n(20, 'Martín Aguilar', 'Guadalajara', 'México', '2025-03-20', 'minorista');\nINSERT INTO productos (id, nombre, categoria, precio, activo) VALUES\n(1, 'Audífonos Pulse', 'Electrónica', 59.9, 1),\n(2, 'Teclado Mecánico K2', 'Electrónica', 89.5, 1),\n(3, 'Monitor 24\"', 'Electrónica', 189.0, 1),\n(4, 'Cable USB-C', 'Electrónica', 9.9, 1),\n(5, 'Mochila Urbana', 'Accesorios', 45.0, 1),\n(6, 'Termo Acero', 'Accesorios', 18.5, 1),\n(7, 'Lámpara de Escritorio', 'Hogar', 32.0, 1),\n(8, 'Silla Ergonómica', 'Hogar', 249.0, 1),\n(9, 'Cuaderno Punteado', 'Papelería', 7.5, 1),\n(10, 'Set de Rotuladores', 'Papelería', 14.9, 1),\n(11, 'Agenda 2026', 'Papelería', 21.0, 1),\n(12, 'Webcam HD', 'Electrónica', 64.0, 1),\n(13, 'Alfombrilla XL', 'Accesorios', 16.0, 1),\n(14, 'Organizador de Cables', 'Hogar', 12.5, 0),\n(15, 'Libro: SQL para Analistas', 'Libros', 39.0, 1);\nINSERT INTO pedidos (id, cliente_id, fecha, estado) VALUES\n(1, 19, '2026-01-07', 'enviado'),\n(2, 19, '2026-01-06', 'entregado'),\n(3, 9, '2026-02-03', 'entregado'),\n(4, 7, '2026-03-10', 'entregado'),\n(5, 20, '2026-05-21', 'enviado'),\n(6, 15, '2026-04-13', 'entregado'),\n(7, 7, '2026-01-11', 'entregado'),\n(8, 5, '2026-03-20', 'entregado'),\n(9, 10, '2026-03-20', 'entregado'),\n(10, 19, '2026-04-10', 'entregado'),\n(11, 19, '2026-06-06', 'entregado'),\n(12, 1, '2026-05-10', 'pendiente'),\n(13, 14, '2026-02-12', 'enviado'),\n(14, 9, '2026-02-17', 'entregado'),\n(15, 14, '2026-03-03', 'entregado'),\n(16, 19, '2026-05-20', 'cancelado'),\n(17, 15, '2026-06-25', 'entregado'),\n(18, 3, '2026-06-13', 'entregado'),\n(19, 6, '2026-05-27', 'entregado'),\n(20, 5, '2026-05-24', 'pendiente'),\n(21, 12, '2026-05-08', 'enviado'),\n(22, 14, '2026-04-22', 'entregado'),\n(23, 1, '2026-02-06', 'entregado'),\n(24, 2, '2026-02-07', 'entregado'),\n(25, 3, '2026-04-11', 'entregado'),\n(26, 20, '2026-03-18', 'cancelado'),\n(27, 5, '2026-04-15', 'entregado'),\n(28, 14, '2026-02-09', 'cancelado'),\n(29, 9, '2026-02-23', 'entregado'),\n(30, 18, '2026-04-23', 'entregado'),\n(31, 5, '2026-01-09', 'entregado'),\n(32, 10, '2026-04-05', 'entregado'),\n(33, 10, '2026-01-21', 'entregado'),\n(34, 18, '2026-01-11', 'pendiente'),\n(35, 7, '2026-03-02', 'entregado'),\n(36, 7, '2026-03-12', 'cancelado'),\n(37, 20, '2026-04-08', 'pendiente'),\n(38, 19, '2026-05-27', 'cancelado'),\n(39, 15, '2026-03-02', 'cancelado'),\n(40, 16, '2026-02-02', 'entregado'),\n(41, 12, '2026-01-15', 'entregado'),\n(42, 13, '2026-02-02', 'pendiente'),\n(43, 10, '2026-05-21', 'entregado'),\n(44, 12, '2026-03-21', 'entregado'),\n(45, 19, '2026-02-10', 'enviado'),\n(46, 20, '2026-05-19', 'cancelado'),\n(47, 9, '2026-01-01', 'entregado'),\n(48, 9, '2026-04-09', 'entregado'),\n(49, 3, '2026-06-17', 'entregado'),\n(50, 18, '2026-04-28', 'entregado'),\n(51, 3, '2026-05-05', 'entregado'),\n(52, 5, '2026-06-07', 'enviado'),\n(53, 8, '2026-03-03', 'pendiente'),\n(54, 18, '2026-03-13', 'entregado'),\n(55, 20, '2026-03-12', 'entregado'),\n(56, 1, '2026-04-22', 'entregado'),\n(57, 1, '2026-03-25', 'entregado'),\n(58, 3, '2026-04-13', 'pendiente'),\n(59, 6, '2026-02-09', 'entregado'),\n(60, 15, '2026-05-18', 'entregado'),\n(61, 18, '2026-05-25', 'entregado'),\n(62, 16, '2026-03-10', 'entregado'),\n(63, 7, '2026-06-06', 'entregado'),\n(64, 8, '2026-02-03', 'entregado');\nINSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario) VALUES\n(1, 12, 2, 64.0),\n(2, 5, 1, 45.0),\n(2, 3, 1, 189.0),\n(2, 7, 2, 32.0),\n(3, 11, 2, 21.0),\n(4, 9, 1, 7.5),\n(4, 6, 3, 18.5),\n(5, 8, 3, 249.0),\n(6, 11, 1, 18.9),\n(6, 7, 2, 32.0),\n(7, 1, 2, 59.9),\n(8, 10, 3, 14.9),\n(9, 2, 2, 89.5),\n(10, 12, 1, 64.0),\n(11, 9, 3, 7.5),\n(12, 12, 2, 64.0),\n(13, 9, 1, 7.5),\n(13, 13, 1, 16.0),\n(13, 15, 2, 39.0),\n(14, 1, 1, 59.9),\n(14, 15, 1, 39.0),\n(14, 5, 3, 45.0),\n(15, 8, 1, 224.1),\n(16, 11, 1, 21.0),\n(16, 6, 1, 18.5),\n(17, 7, 1, 32.0),\n(18, 2, 1, 80.55),\n(18, 12, 2, 57.6),\n(18, 3, 3, 189.0),\n(19, 11, 2, 18.9),\n(19, 6, 1, 16.65),\n(20, 15, 1, 39.0),\n(20, 4, 1, 8.91),\n(21, 5, 1, 45.0),\n(21, 9, 3, 6.75),\n(22, 7, 2, 32.0),\n(22, 9, 2, 7.5),\n(22, 3, 2, 189.0),\n(23, 12, 3, 57.6),\n(23, 2, 2, 89.5),\n(23, 9, 1, 7.5),\n(24, 9, 1, 7.5),\n(25, 10, 2, 14.9),\n(25, 9, 2, 7.5),\n(25, 4, 1, 9.9),\n(26, 15, 2, 39.0),\n(27, 4, 1, 9.9),\n(27, 7, 1, 32.0),\n(27, 2, 3, 89.5),\n(28, 4, 2, 9.9),\n(28, 12, 1, 64.0),\n(29, 7, 1, 28.8),\n(29, 6, 1, 16.65),\n(29, 15, 2, 35.1),\n(30, 9, 1, 7.5),\n(30, 10, 1, 13.41),\n(31, 5, 2, 45.0),\n(32, 10, 1, 14.9),\n(32, 8, 3, 224.1),\n(32, 12, 1, 57.6),\n(33, 2, 1, 89.5),\n(33, 10, 1, 14.9),\n(34, 5, 2, 40.5),\n(34, 10, 1, 14.9),\n(35, 11, 1, 21.0),\n(35, 5, 2, 45.0),\n(36, 1, 2, 53.91),\n(36, 15, 1, 39.0),\n(37, 11, 2, 21.0),\n(38, 5, 1, 45.0),\n(38, 12, 3, 57.6),\n(38, 4, 1, 9.9),\n(39, 2, 1, 89.5),\n(40, 15, 1, 39.0),\n(40, 9, 3, 7.5),\n(41, 8, 1, 249.0),\n(41, 1, 2, 59.9),\n(42, 4, 1, 8.91),\n(42, 6, 2, 18.5),\n(43, 13, 1, 16.0),\n(43, 1, 2, 53.91),\n(43, 2, 1, 80.55),\n(44, 9, 3, 7.5),\n(44, 13, 2, 16.0),\n(44, 3, 1, 189.0),\n(45, 3, 3, 189.0),\n(45, 1, 3, 59.9),\n(45, 12, 1, 64.0),\n(46, 15, 3, 39.0),\n(47, 6, 2, 18.5),\n(47, 2, 1, 80.55),\n(47, 7, 3, 32.0),\n(48, 12, 2, 64.0),\n(49, 8, 1, 249.0),\n(49, 5, 1, 45.0),\n(49, 2, 3, 89.5),\n(50, 11, 2, 21.0),\n(50, 5, 1, 45.0),\n(51, 12, 1, 64.0),\n(51, 15, 1, 35.1),\n(51, 5, 3, 45.0),\n(52, 12, 2, 64.0),\n(52, 9, 1, 7.5),\n(53, 5, 2, 45.0),\n(54, 2, 1, 89.5),\n(55, 9, 1, 7.5),\n(55, 5, 2, 45.0),\n(55, 2, 1, 89.5),\n(56, 12, 2, 64.0),\n(56, 3, 1, 189.0),\n(57, 2, 3, 89.5),\n(57, 4, 1, 9.9),\n(58, 2, 1, 89.5),\n(58, 6, 1, 18.5),\n(58, 7, 1, 32.0),\n(59, 4, 2, 9.9),\n(59, 13, 3, 16.0),\n(60, 1, 2, 59.9),\n(61, 8, 2, 249.0),\n(61, 1, 2, 53.91),\n(62, 12, 1, 64.0),\n(62, 11, 2, 21.0),\n(62, 5, 1, 45.0),\n(63, 13, 1, 16.0),\n(63, 8, 2, 249.0),\n(63, 9, 2, 7.5),\n(64, 2, 2, 89.5),\n(64, 6, 1, 18.5),\n(64, 4, 2, 9.9);"
+  },
+  "rrhh": {
+   "descripcion": "Recursos humanos: departamentos y empleados, con salario, comisión, fecha de ingreso y jefe.",
+   "sql": "CREATE TABLE departamentos (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, ciudad TEXT NOT NULL, presupuesto INTEGER NOT NULL);\nCREATE TABLE empleados (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, departamento_id INTEGER REFERENCES departamentos(id), puesto TEXT NOT NULL, salario INTEGER NOT NULL, comision INTEGER, fecha_ingreso TEXT NOT NULL, jefe_id INTEGER REFERENCES empleados(id));\nINSERT INTO departamentos (id, nombre, ciudad, presupuesto) VALUES\n(1, 'Dirección', 'Madrid', 500000),\n(2, 'Datos', 'Bogotá', 320000),\n(3, 'Ingeniería', 'Lima', 450000),\n(4, 'Ventas', 'Ciudad de México', 280000),\n(5, 'Soporte', 'Santiago', 150000),\n(6, 'Legal', 'Madrid', 90000);\nINSERT INTO empleados (id, nombre, departamento_id, puesto, salario, comision, fecha_ingreso, jefe_id) VALUES\n(1, 'Rosa Ibáñez', 1, 'Directora general', 9800, NULL, '2019-03-01', NULL),\n(2, 'Pablo Serrano', 2, 'Jefe de datos', 6200, NULL, '2020-06-15', 1),\n(3, 'Nuria Campos', 2, 'Analista sénior', 4300, NULL, '2021-09-01', 2),\n(4, 'Iván Lozano', 2, 'Analista', 3100, NULL, '2023-02-20', 2),\n(5, 'Marta Peña', 2, 'Analista', 3350, NULL, '2024-05-06', 2),\n(6, 'Héctor Bravo', 3, 'Jefe de ingeniería', 6900, NULL, '2020-01-10', 1),\n(7, 'Laura Gil', 3, 'Desarrolladora sénior', 5200, NULL, '2021-04-12', 6),\n(8, 'Óscar Vidal', 3, 'Desarrollador', 3900, NULL, '2022-11-03', 6),\n(9, 'Clara Molina', 3, 'Desarrolladora', 4050, NULL, '2024-01-22', 6),\n(10, 'Raúl Fuentes', 3, 'Desarrollador júnior', 2600, NULL, '2025-03-17', 7),\n(11, 'Eva Santos', 4, 'Jefa de ventas', 5600, 800, '2020-08-01', 1),\n(12, 'Hugo León', 4, 'Ejecutivo de cuentas', 2900, 450, '2022-02-14', 11),\n(13, 'Alba Prieto', 4, 'Ejecutiva de cuentas', 3050, 620, '2023-07-03', 11),\n(14, 'Iker Domínguez', 4, 'Ejecutivo de cuentas', 2800, NULL, '2024-09-09', 11),\n(15, 'Sara Cano', 5, 'Jefa de soporte', 4100, NULL, '2021-01-18', 1),\n(16, 'Bruno Marín', 5, 'Agente de soporte', 2200, NULL, '2023-10-02', 15),\n(17, 'Inés Calvo', 5, 'Agente de soporte', 2350, NULL, '2024-12-01', 15),\n(18, 'Ramón Vega', NULL, 'Consultor externo', 3600, NULL, '2025-06-30', 1);"
+  },
+  "app": {
+   "descripcion": "App de cursos: usuarios y sus eventos (registro, login, ver_leccion, compra) en marzo de 2026.",
+   "sql": "CREATE TABLE usuarios (id INTEGER PRIMARY KEY, pais TEXT NOT NULL, plan TEXT NOT NULL, fecha_alta TEXT NOT NULL, canal TEXT NOT NULL);\nCREATE TABLE eventos (id INTEGER PRIMARY KEY, usuario_id INTEGER NOT NULL REFERENCES usuarios(id), tipo TEXT NOT NULL, fecha TEXT NOT NULL, monto REAL);\nINSERT INTO usuarios (id, pais, plan, fecha_alta, canal) VALUES\n(1, 'México', 'gratis', '2026-03-07', 'anuncios'),\n(2, 'Argentina', 'gratis', '2026-03-08', 'referido'),\n(3, 'México', 'gratis', '2026-03-09', 'orgánico'),\n(4, 'Argentina', 'gratis', '2026-03-11', 'anuncios'),\n(5, 'Argentina', 'gratis', '2026-03-07', 'orgánico'),\n(6, 'México', 'pro', '2026-03-03', 'orgánico'),\n(7, 'Colombia', 'pro', '2026-03-11', 'orgánico'),\n(8, 'Colombia', 'gratis', '2026-03-12', 'orgánico'),\n(9, 'Argentina', 'gratis', '2026-03-12', 'anuncios'),\n(10, 'Colombia', 'gratis', '2026-03-10', 'anuncios'),\n(11, 'México', 'gratis', '2026-03-02', 'referido'),\n(12, 'Chile', 'gratis', '2026-03-12', 'orgánico'),\n(13, 'Argentina', 'pro', '2026-03-05', 'redes'),\n(14, 'España', 'gratis', '2026-03-10', 'anuncios'),\n(15, 'México', 'gratis', '2026-03-03', 'referido'),\n(16, 'Argentina', 'pro', '2026-03-07', 'anuncios'),\n(17, 'México', 'gratis', '2026-03-09', 'anuncios'),\n(18, 'Colombia', 'gratis', '2026-03-10', 'anuncios'),\n(19, 'Argentina', 'gratis', '2026-03-06', 'redes'),\n(20, 'México', 'pro', '2026-03-09', 'referido'),\n(21, 'Argentina', 'pro', '2026-03-10', 'anuncios'),\n(22, 'México', 'pro', '2026-03-03', 'orgánico'),\n(23, 'México', 'pro', '2026-03-14', 'redes'),\n(24, 'México', 'pro', '2026-03-11', 'referido'),\n(25, 'México', 'gratis', '2026-03-14', 'orgánico'),\n(26, 'México', 'gratis', '2026-03-03', 'orgánico'),\n(27, 'España', 'gratis', '2026-03-10', 'anuncios'),\n(28, 'Colombia', 'gratis', '2026-03-07', 'referido'),\n(29, 'Chile', 'gratis', '2026-03-10', 'orgánico'),\n(30, 'Colombia', 'pro', '2026-03-03', 'orgánico'),\n(31, 'Argentina', 'gratis', '2026-03-12', 'anuncios'),\n(32, 'España', 'pro', '2026-03-09', 'anuncios'),\n(33, 'México', 'gratis', '2026-03-14', 'anuncios'),\n(34, 'Argentina', 'gratis', '2026-03-03', 'redes'),\n(35, 'Colombia', 'pro', '2026-03-07', 'redes'),\n(36, 'Colombia', 'gratis', '2026-03-13', 'referido'),\n(37, 'Chile', 'pro', '2026-03-13', 'redes'),\n(38, 'Perú', 'pro', '2026-03-11', 'redes'),\n(39, 'México', 'gratis', '2026-03-11', 'anuncios'),\n(40, 'Perú', 'gratis', '2026-03-08', 'redes');\nINSERT INTO eventos (id, usuario_id, tipo, fecha, monto) VALUES\n(1, 11, 'ver_leccion', '2026-03-02 11:02', NULL),\n(2, 11, 'registro', '2026-03-02 11:32', NULL),\n(3, 22, 'registro', '2026-03-03 08:39', NULL),\n(4, 15, 'ver_leccion', '2026-03-03 08:42', NULL),\n(5, 34, 'registro', '2026-03-03 08:47', NULL),\n(6, 15, 'registro', '2026-03-03 09:09', NULL),\n(7, 6, 'registro', '2026-03-03 11:01', NULL),\n(8, 11, 'ver_leccion', '2026-03-03 12:28', NULL),\n(9, 11, 'login', '2026-03-03 14:53', NULL),\n(10, 30, 'registro', '2026-03-03 15:50', NULL),\n(11, 26, 'registro', '2026-03-03 19:02', NULL),\n(12, 30, 'ver_leccion', '2026-03-04 19:57', NULL),\n(13, 13, 'registro', '2026-03-05 08:19', NULL),\n(14, 30, 'ver_leccion', '2026-03-05 08:22', NULL),\n(15, 11, 'ver_leccion', '2026-03-05 08:38', NULL),\n(16, 6, 'compra', '2026-03-05 12:21', 9.99),\n(17, 13, 'ver_leccion', '2026-03-05 12:27', NULL),\n(18, 34, 'ver_leccion', '2026-03-05 21:27', NULL),\n(19, 22, 'ver_leccion', '2026-03-05 23:38', NULL),\n(20, 11, 'login', '2026-03-06 08:12', NULL),\n(21, 19, 'registro', '2026-03-06 10:16', NULL),\n(22, 13, 'compra', '2026-03-06 11:41', 9.99),\n(23, 34, 'ver_leccion', '2026-03-06 14:43', NULL),\n(24, 13, 'ver_leccion', '2026-03-06 19:36', NULL),\n(25, 5, 'registro', '2026-03-07 08:12', NULL),\n(26, 35, 'registro', '2026-03-07 08:39', NULL),\n(27, 1, 'registro', '2026-03-07 14:17', NULL),\n(28, 16, 'registro', '2026-03-07 14:24', NULL),\n(29, 28, 'registro', '2026-03-07 15:45', NULL),\n(30, 5, 'ver_leccion', '2026-03-07 23:04', NULL),\n(31, 30, 'ver_leccion', '2026-03-07 23:10', NULL),\n(32, 22, 'compra', '2026-03-08 08:56', 49.0),\n(33, 2, 'registro', '2026-03-08 10:43', NULL),\n(34, 34, 'login', '2026-03-08 10:57', NULL),\n(35, 40, 'registro', '2026-03-08 11:31', NULL),\n(36, 13, 'ver_leccion', '2026-03-08 19:13', NULL),\n(37, 16, 'login', '2026-03-08 20:23', NULL),\n(38, 2, 'ver_leccion', '2026-03-08 22:37', NULL),\n(39, 16, 'ver_leccion', '2026-03-08 23:32', NULL),\n(40, 6, 'login', '2026-03-09 08:11', NULL),\n(41, 17, 'registro', '2026-03-09 08:54', NULL),\n(42, 11, 'ver_leccion', '2026-03-09 08:56', NULL),\n(43, 32, 'registro', '2026-03-09 11:20', NULL),\n(44, 2, 'login', '2026-03-09 11:33', NULL),\n(45, 20, 'registro', '2026-03-09 12:24', NULL),\n(46, 20, 'ver_leccion', '2026-03-09 14:09', NULL),\n(47, 30, 'ver_leccion', '2026-03-09 14:29', NULL),\n(48, 6, 'ver_leccion', '2026-03-09 17:46', NULL),\n(49, 20, 'login', '2026-03-09 18:19', NULL),\n(50, 16, 'ver_leccion', '2026-03-09 19:06', NULL),\n(51, 34, 'login', '2026-03-09 19:45', NULL),\n(52, 3, 'registro', '2026-03-09 20:08', NULL),\n(53, 19, 'ver_leccion', '2026-03-09 23:15', NULL),\n(54, 5, 'ver_leccion', '2026-03-10 08:38', NULL),\n(55, 10, 'registro', '2026-03-10 09:26', NULL),\n(56, 13, 'compra', '2026-03-10 09:36', 9.99),\n(57, 27, 'ver_leccion', '2026-03-10 09:52', NULL),\n(58, 14, 'registro', '2026-03-10 10:22', NULL),\n(59, 18, 'registro', '2026-03-10 10:56', NULL),\n(60, 32, 'login', '2026-03-10 11:09', NULL),\n(61, 21, 'registro', '2026-03-10 11:23', NULL),\n(62, 5, 'ver_leccion', '2026-03-10 13:19', NULL),\n(63, 5, 'login', '2026-03-10 16:06', NULL),\n(64, 15, 'ver_leccion', '2026-03-10 16:41', NULL),\n(65, 29, 'ver_leccion', '2026-03-10 16:48', NULL),\n(66, 29, 'registro', '2026-03-10 17:52', NULL),\n(67, 27, 'registro', '2026-03-10 21:52', NULL),\n(68, 35, 'ver_leccion', '2026-03-10 23:01', NULL),\n(69, 11, 'login', '2026-03-11 07:06', NULL),\n(70, 21, 'compra', '2026-03-11 07:25', 49.0),\n(71, 38, 'registro', '2026-03-11 08:51', NULL),\n(72, 20, 'ver_leccion', '2026-03-11 09:28', NULL),\n(73, 39, 'registro', '2026-03-11 09:41', NULL),\n(74, 24, 'registro', '2026-03-11 12:41', NULL),\n(75, 7, 'registro', '2026-03-11 12:42', NULL),\n(76, 35, 'ver_leccion', '2026-03-11 12:45', NULL),\n(77, 19, 'ver_leccion', '2026-03-11 12:50', NULL),\n(78, 19, 'ver_leccion', '2026-03-11 13:11', NULL),\n(79, 27, 'login', '2026-03-11 13:18', NULL),\n(80, 11, 'ver_leccion', '2026-03-11 13:59', NULL),\n(81, 30, 'compra', '2026-03-11 17:10', 49.0),\n(82, 4, 'registro', '2026-03-11 18:16', NULL),\n(83, 20, 'compra', '2026-03-11 18:34', 49.0),\n(84, 13, 'ver_leccion', '2026-03-11 18:41', NULL),\n(85, 27, 'ver_leccion', '2026-03-11 19:06', NULL),\n(86, 24, 'ver_leccion', '2026-03-12 07:10', NULL),\n(87, 22, 'compra', '2026-03-12 07:24', 9.99),\n(88, 20, 'login', '2026-03-12 08:18', NULL),\n(89, 14, 'ver_leccion', '2026-03-12 08:58', NULL),\n(90, 21, 'ver_leccion', '2026-03-12 09:40', NULL),\n(91, 31, 'registro', '2026-03-12 10:21', NULL),\n(92, 14, 'ver_leccion', '2026-03-12 10:24', NULL),\n(93, 30, 'login', '2026-03-12 11:55', NULL),\n(94, 10, 'login', '2026-03-12 13:20', NULL),\n(95, 39, 'ver_leccion', '2026-03-12 14:11', NULL),\n(96, 21, 'login', '2026-03-12 14:45', NULL),\n(97, 39, 'login', '2026-03-12 14:52', NULL),\n(98, 21, 'ver_leccion', '2026-03-12 15:25', NULL),\n(99, 19, 'login', '2026-03-12 15:43', NULL),\n(100, 22, 'login', '2026-03-12 16:04', NULL),\n(101, 9, 'registro', '2026-03-12 17:15', NULL),\n(102, 11, 'ver_leccion', '2026-03-12 18:13', NULL),\n(103, 7, 'login', '2026-03-12 18:26', NULL),\n(104, 8, 'registro', '2026-03-12 18:26', NULL),\n(105, 2, 'ver_leccion', '2026-03-12 19:25', NULL),\n(106, 10, 'login', '2026-03-12 20:29', NULL),\n(107, 12, 'registro', '2026-03-12 21:20', NULL),\n(108, 35, 'login', '2026-03-12 21:34', NULL),\n(109, 12, 'ver_leccion', '2026-03-12 22:04', NULL),\n(110, 39, 'ver_leccion', '2026-03-13 08:30', NULL),\n(111, 27, 'login', '2026-03-13 10:02', NULL),\n(112, 32, 'login', '2026-03-13 10:17', NULL),\n(113, 30, 'login', '2026-03-13 13:19', NULL),\n(114, 29, 'ver_leccion', '2026-03-13 14:31', NULL),\n(115, 36, 'registro', '2026-03-13 18:03', NULL),\n(116, 37, 'registro', '2026-03-13 18:35', NULL),\n(117, 5, 'ver_leccion', '2026-03-13 19:12', NULL),\n(118, 20, 'ver_leccion', '2026-03-13 20:26', NULL),\n(119, 22, 'ver_leccion', '2026-03-13 20:52', NULL),\n(120, 32, 'compra', '2026-03-13 21:02', 19.99),\n(121, 35, 'compra', '2026-03-13 21:13', 19.99),\n(122, 12, 'ver_leccion', '2026-03-14 09:13', NULL),\n(123, 23, 'registro', '2026-03-14 09:47', NULL),\n(124, 19, 'ver_leccion', '2026-03-14 10:16', NULL),\n(125, 25, 'registro', '2026-03-14 14:46', NULL),\n(126, 10, 'ver_leccion', '2026-03-14 15:12', NULL),\n(127, 12, 'ver_leccion', '2026-03-14 15:26', NULL),\n(128, 34, 'ver_leccion', '2026-03-14 15:54', NULL),\n(129, 33, 'registro', '2026-03-14 16:40', NULL),\n(130, 31, 'ver_leccion', '2026-03-14 17:38', NULL),\n(131, 5, 'login', '2026-03-14 17:45', NULL),\n(132, 38, 'compra', '2026-03-14 18:40', 49.0),\n(133, 34, 'ver_leccion', '2026-03-14 20:54', NULL),\n(134, 11, 'login', '2026-03-14 21:02', NULL),\n(135, 16, 'ver_leccion', '2026-03-14 21:53', NULL),\n(136, 4, 'login', '2026-03-15 07:00', NULL),\n(137, 16, 'ver_leccion', '2026-03-15 07:00', NULL),\n(138, 36, 'login', '2026-03-15 09:51', NULL),\n(139, 9, 'ver_leccion', '2026-03-15 12:15', NULL),\n(140, 25, 'login', '2026-03-15 12:22', NULL),\n(141, 24, 'ver_leccion', '2026-03-15 13:10', NULL),\n(142, 4, 'ver_leccion', '2026-03-15 13:24', NULL),\n(143, 2, 'ver_leccion', '2026-03-15 14:50', NULL),\n(144, 27, 'ver_leccion', '2026-03-15 15:01', NULL),\n(145, 27, 'login', '2026-03-15 16:03', NULL),\n(146, 30, 'login', '2026-03-15 17:22', NULL),\n(147, 8, 'ver_leccion', '2026-03-15 17:23', NULL),\n(148, 35, 'compra', '2026-03-15 19:32', 9.99),\n(149, 2, 'login', '2026-03-15 19:59', NULL),\n(150, 25, 'ver_leccion', '2026-03-16 07:02', NULL),\n(151, 20, 'login', '2026-03-16 08:01', NULL),\n(152, 8, 'ver_leccion', '2026-03-16 08:16', NULL),\n(153, 8, 'login', '2026-03-16 09:01', NULL),\n(154, 7, 'ver_leccion', '2026-03-16 10:00', NULL),\n(155, 5, 'ver_leccion', '2026-03-16 12:57', NULL),\n(156, 4, 'ver_leccion', '2026-03-16 14:30', NULL),\n(157, 38, 'login', '2026-03-16 16:20', NULL),\n(158, 7, 'ver_leccion', '2026-03-16 16:52', NULL),\n(159, 15, 'login', '2026-03-16 19:38', NULL),\n(160, 16, 'ver_leccion', '2026-03-16 21:15', NULL),\n(161, 19, 'ver_leccion', '2026-03-16 21:35', NULL),\n(162, 8, 'ver_leccion', '2026-03-16 22:08', NULL),\n(163, 21, 'login', '2026-03-17 07:02', NULL),\n(164, 35, 'login', '2026-03-17 07:24', NULL),\n(165, 20, 'ver_leccion', '2026-03-17 08:08', NULL),\n(166, 16, 'login', '2026-03-17 11:05', NULL),\n(167, 37, 'ver_leccion', '2026-03-17 11:49', NULL),\n(168, 29, 'login', '2026-03-17 12:31', NULL),\n(169, 35, 'ver_leccion', '2026-03-17 12:57', NULL),\n(170, 14, 'ver_leccion', '2026-03-17 13:19', NULL),\n(171, 10, 'login', '2026-03-17 14:15', NULL),\n(172, 5, 'ver_leccion', '2026-03-17 15:14', NULL),\n(173, 23, 'ver_leccion', '2026-03-17 15:14', NULL),\n(174, 36, 'login', '2026-03-17 16:47', NULL),\n(175, 38, 'login', '2026-03-17 17:50', NULL),\n(176, 5, 'ver_leccion', '2026-03-17 18:14', NULL),\n(177, 35, 'ver_leccion', '2026-03-17 18:33', NULL),\n(178, 14, 'login', '2026-03-17 19:05', NULL),\n(179, 30, 'ver_leccion', '2026-03-17 20:56', NULL),\n(180, 9, 'login', '2026-03-18 08:30', NULL),\n(181, 38, 'ver_leccion', '2026-03-18 09:42', NULL),\n(182, 10, 'ver_leccion', '2026-03-18 10:49', NULL),\n(183, 24, 'compra', '2026-03-18 14:24', 19.99),\n(184, 2, 'ver_leccion', '2026-03-18 16:54', NULL),\n(185, 12, 'login', '2026-03-18 19:42', NULL),\n(186, 37, 'ver_leccion', '2026-03-18 20:29', NULL),\n(187, 2, 'login', '2026-03-18 21:05', NULL),\n(188, 19, 'login', '2026-03-18 23:03', NULL),\n(189, 39, 'ver_leccion', '2026-03-18 23:05', NULL),\n(190, 8, 'login', '2026-03-19 08:16', NULL),\n(191, 36, 'login', '2026-03-19 09:26', NULL),\n(192, 9, 'ver_leccion', '2026-03-19 09:32', NULL),\n(193, 13, 'ver_leccion', '2026-03-19 12:08', NULL),\n(194, 35, 'ver_leccion', '2026-03-19 13:33', NULL),\n(195, 4, 'login', '2026-03-19 14:01', NULL),\n(196, 5, 'ver_leccion', '2026-03-19 14:29', NULL),\n(197, 10, 'ver_leccion', '2026-03-19 14:47', NULL),\n(198, 27, 'ver_leccion', '2026-03-19 16:39', NULL),\n(199, 29, 'ver_leccion', '2026-03-19 16:52', NULL),\n(200, 7, 'compra', '2026-03-19 18:34', 9.99),\n(201, 14, 'login', '2026-03-19 19:33', NULL),\n(202, 8, 'ver_leccion', '2026-03-19 19:50', NULL),\n(203, 4, 'login', '2026-03-19 21:17', NULL),\n(204, 16, 'compra', '2026-03-19 23:05', 19.99),\n(205, 36, 'ver_leccion', '2026-03-19 23:14', NULL),\n(206, 29, 'ver_leccion', '2026-03-19 23:16', NULL),\n(207, 12, 'login', '2026-03-20 09:41', NULL),\n(208, 35, 'ver_leccion', '2026-03-20 10:02', NULL),\n(209, 9, 'ver_leccion', '2026-03-20 12:27', NULL),\n(210, 32, 'ver_leccion', '2026-03-20 12:42', NULL),\n(211, 2, 'ver_leccion', '2026-03-20 13:05', NULL),\n(212, 18, 'ver_leccion', '2026-03-20 14:04', NULL),\n(213, 31, 'login', '2026-03-20 16:48', NULL),\n(214, 21, 'ver_leccion', '2026-03-20 18:38', NULL),\n(215, 21, 'ver_leccion', '2026-03-20 23:46', NULL),\n(216, 2, 'ver_leccion', '2026-03-21 07:08', NULL),\n(217, 37, 'compra', '2026-03-21 14:17', 19.99),\n(218, 32, 'login', '2026-03-21 16:27', NULL),\n(219, 7, 'compra', '2026-03-21 17:23', 9.99),\n(220, 27, 'ver_leccion', '2026-03-21 17:49', NULL),\n(221, 27, 'login', '2026-03-21 20:01', NULL),\n(222, 21, 'login', '2026-03-22 07:03', NULL),\n(223, 29, 'ver_leccion', '2026-03-22 07:22', NULL),\n(224, 4, 'ver_leccion', '2026-03-22 10:04', NULL),\n(225, 39, 'ver_leccion', '2026-03-22 10:35', NULL),\n(226, 24, 'ver_leccion', '2026-03-22 13:56', NULL),\n(227, 27, 'ver_leccion', '2026-03-22 16:30', NULL),\n(228, 20, 'ver_leccion', '2026-03-22 16:40', NULL),\n(229, 20, 'ver_leccion', '2026-03-22 17:46', NULL),\n(230, 14, 'ver_leccion', '2026-03-22 19:39', NULL),\n(231, 2, 'ver_leccion', '2026-03-22 23:54', NULL),\n(232, 7, 'ver_leccion', '2026-03-23 08:45', NULL),\n(233, 39, 'ver_leccion', '2026-03-23 11:13', NULL),\n(234, 31, 'ver_leccion', '2026-03-23 11:46', NULL),\n(235, 18, 'ver_leccion', '2026-03-23 15:10', NULL),\n(236, 10, 'login', '2026-03-23 15:36', NULL),\n(237, 8, 'ver_leccion', '2026-03-23 17:59', NULL),\n(238, 14, 'login', '2026-03-23 22:11', NULL),\n(239, 14, 'ver_leccion', '2026-03-24 12:40', NULL),\n(240, 23, 'login', '2026-03-24 17:57', NULL),\n(241, 8, 'ver_leccion', '2026-03-24 19:02', NULL),\n(242, 24, 'compra', '2026-03-24 22:30', 9.99),\n(243, 39, 'ver_leccion', '2026-03-25 09:42', NULL),\n(244, 39, 'ver_leccion', '2026-03-25 12:39', NULL),\n(245, 7, 'login', '2026-03-25 13:24', NULL),\n(246, 39, 'ver_leccion', '2026-03-25 16:12', NULL),\n(247, 38, 'ver_leccion', '2026-03-25 16:54', NULL),\n(248, 36, 'ver_leccion', '2026-03-25 21:13', NULL),\n(249, 8, 'login', '2026-03-25 22:45', NULL),\n(250, 8, 'ver_leccion', '2026-03-26 07:51', NULL),\n(251, 9, 'login', '2026-03-26 09:16', NULL),\n(252, 25, 'login', '2026-03-26 09:36', NULL),\n(253, 23, 'compra', '2026-03-26 15:45', 49.0),\n(254, 37, 'compra', '2026-03-27 15:27', 9.99),\n(255, 36, 'ver_leccion', '2026-03-27 18:37', NULL),\n(256, 25, 'login', '2026-03-28 08:01', NULL);"
+  }
+ },
+ "ejercicios": [
+  {
+   "id": "t01",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Productos de electrónica",
+   "enunciado": "Muestra el `nombre` y el `precio` de los productos de la categoría **Electrónica**, del más caro al más barato.",
+   "solucion": "SELECT nombre, precio FROM productos WHERE categoria = 'Electrónica' ORDER BY precio DESC;",
+   "orden": true,
+   "pista": "Filtra con `WHERE categoria = '...'` y ordena con `ORDER BY precio DESC`."
+  },
+  {
+   "id": "t02",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Clientes recientes de México y Colombia",
+   "enunciado": "Lista `id`, `nombre` y `pais` de los clientes de **México** o **Colombia** registrados desde el **2025-01-01** (inclusive).",
+   "solucion": "SELECT id, nombre, pais FROM clientes WHERE pais IN ('México','Colombia') AND fecha_registro >= '2025-01-01';",
+   "orden": false,
+   "pista": "Combina `IN (...)` con una comparación de fecha. Las fechas en texto ISO se comparan bien como texto."
+  },
+  {
+   "id": "t03",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Países sin repetir",
+   "enunciado": "Muestra la lista de países distintos donde hay clientes, en orden alfabético.",
+   "solucion": "SELECT DISTINCT pais FROM clientes ORDER BY pais;",
+   "orden": true,
+   "pista": "`SELECT DISTINCT` elimina duplicados."
+  },
+  {
+   "id": "t04",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "NULL y CASE",
+   "titulo": "Clientes sin ciudad",
+   "enunciado": "Muestra el `nombre` de los clientes que **no tienen ciudad** registrada.",
+   "solucion": "SELECT nombre FROM clientes WHERE ciudad IS NULL;",
+   "orden": false,
+   "pista": "Con NULL no sirve `= NULL`: usa `IS NULL`."
+  },
+  {
+   "id": "t05",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Agregación",
+   "titulo": "Pedidos por estado",
+   "enunciado": "Cuenta cuántos pedidos hay en cada `estado`. Columnas: estado, cantidad.",
+   "solucion": "SELECT estado, COUNT(*) FROM pedidos GROUP BY estado;",
+   "orden": false,
+   "pista": "`GROUP BY estado` y `COUNT(*)`."
+  },
+  {
+   "id": "t06",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "NULL y CASE",
+   "titulo": "Clasificar productos por precio",
+   "enunciado": "Para cada producto muestra `nombre` y una clase: **'barato'** si cuesta menos de 20, **'medio'** si cuesta de 20 a 100 (incluidos) y **'caro'** si cuesta más de 100.",
+   "solucion": "SELECT nombre, CASE WHEN precio < 20 THEN 'barato' WHEN precio <= 100 THEN 'medio' ELSE 'caro' END FROM productos;",
+   "orden": false,
+   "pista": "`CASE WHEN ... THEN ... WHEN ... THEN ... ELSE ... END`. El orden de los WHEN importa."
+  },
+  {
+   "id": "t07",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "JOIN",
+   "titulo": "Pedidos entregados con su cliente",
+   "enunciado": "Para cada pedido **entregado**, muestra el id del pedido, el nombre del cliente y la fecha.",
+   "solucion": "SELECT p.id, c.nombre, p.fecha FROM pedidos p JOIN clientes c ON c.id = p.cliente_id WHERE p.estado = 'entregado';",
+   "orden": false,
+   "pista": "Une `pedidos` con `clientes` por `pedidos.cliente_id = clientes.id`."
+  },
+  {
+   "id": "t08",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "JOIN",
+   "titulo": "Clientes que nunca compraron",
+   "enunciado": "Muestra el `nombre` de los clientes que **no tienen ningún pedido**.",
+   "solucion": "SELECT c.nombre FROM clientes c LEFT JOIN pedidos p ON p.cliente_id = c.id WHERE p.id IS NULL;",
+   "orden": false,
+   "pista": "`LEFT JOIN` conserva a todos los clientes; los que no tienen pedido quedan con columnas de pedidos en NULL."
+  },
+  {
+   "id": "t09",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Agregación",
+   "titulo": "Clientes frecuentes",
+   "enunciado": "Muestra el `nombre` de los clientes con **más de 4 pedidos** (de cualquier estado) y cuántos pedidos tienen.",
+   "solucion": "SELECT c.nombre, COUNT(*) FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.id HAVING COUNT(*) > 4;",
+   "orden": false,
+   "pista": "Filtrar después de agrupar se hace con `HAVING`, no con `WHERE`."
+  },
+  {
+   "id": "t10",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Agregación",
+   "titulo": "Ingresos por categoría",
+   "enunciado": "Calcula el ingreso total (`cantidad * precio_unitario`) por **categoría** de producto, **sin contar pedidos cancelados**, redondeado a 2 decimales y ordenado de mayor a menor. Columnas: categoria, ingreso.",
+   "solucion": "SELECT pr.categoria, ROUND(SUM(d.cantidad * d.precio_unitario), 2) AS ingreso FROM detalle_pedido d JOIN pedidos p ON p.id = d.pedido_id JOIN productos pr ON pr.id = d.producto_id WHERE p.estado <> 'cancelado' GROUP BY pr.categoria ORDER BY ingreso DESC;",
+   "orden": true,
+   "pista": "Necesitas tres tablas: detalle_pedido, pedidos (para el estado) y productos (para la categoría)."
+  },
+  {
+   "id": "t11",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Fechas y texto",
+   "titulo": "Pedidos por mes",
+   "enunciado": "Cuenta los pedidos de cada mes con el formato **AAAA-MM** (por ejemplo `2026-01`), ordenados por mes.",
+   "solucion": "SELECT strftime('%Y-%m', fecha) AS mes, COUNT(*) FROM pedidos GROUP BY mes ORDER BY mes;",
+   "orden": true,
+   "pista": "En SQLite: `strftime('%Y-%m', fecha)` o `substr(fecha, 1, 7)`."
+  },
+  {
+   "id": "t12",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Subconsultas y CTE",
+   "titulo": "Productos sobre el promedio",
+   "enunciado": "Muestra `nombre` y `precio` de los productos cuyo precio es **mayor que el precio promedio** de todos los productos.",
+   "solucion": "SELECT nombre, precio FROM productos WHERE precio > (SELECT AVG(precio) FROM productos);",
+   "orden": false,
+   "pista": "Una subconsulta escalar `(SELECT AVG(precio) FROM productos)` se puede usar dentro del WHERE."
+  },
+  {
+   "id": "t13",
+   "base": "tienda",
+   "nivel": "avanzado",
+   "concepto": "Subconsultas y CTE",
+   "titulo": "Ticket promedio por país",
+   "enunciado": "Calcula el total de cada pedido **no cancelado** (suma de `cantidad * precio_unitario`) y luego el **promedio de esos totales por país** del cliente, redondeado a 2 decimales. Columnas: pais, ticket_promedio.",
+   "solucion": "WITH totales AS (SELECT p.id, p.cliente_id, SUM(d.cantidad * d.precio_unitario) AS total FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY p.id) SELECT c.pais, ROUND(AVG(t.total), 2) FROM totales t JOIN clientes c ON c.id = t.cliente_id GROUP BY c.pais;",
+   "orden": false,
+   "pista": "Primero un CTE con el total por pedido; después agrupa ese resultado por país. Promediar las líneas de detalle directamente da otro número."
+  },
+  {
+   "id": "t14",
+   "base": "tienda",
+   "nivel": "avanzado",
+   "concepto": "Funciones de ventana",
+   "titulo": "Producto más vendido por categoría",
+   "enunciado": "Para cada categoría muestra el producto con **más unidades vendidas** (pedidos no cancelados) y sus unidades. Si hay empate, gana el de **nombre alfabéticamente menor**. Columnas: categoria, producto, unidades.",
+   "solucion": "WITH u AS (SELECT pr.categoria, pr.nombre, SUM(d.cantidad) AS unidades FROM detalle_pedido d JOIN pedidos p ON p.id = d.pedido_id JOIN productos pr ON pr.id = d.producto_id WHERE p.estado <> 'cancelado' GROUP BY pr.id), r AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY unidades DESC, nombre) AS n FROM u) SELECT categoria, nombre, unidades FROM r WHERE n = 1;",
+   "orden": false,
+   "pista": "`ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY unidades DESC, nombre)` y quedarte con n = 1."
+  },
+  {
+   "id": "t15",
+   "base": "tienda",
+   "nivel": "avanzado",
+   "concepto": "Funciones de ventana",
+   "titulo": "Ingreso acumulado por mes",
+   "enunciado": "Para cada mes (AAAA-MM) muestra el ingreso del mes de pedidos no cancelados y el **ingreso acumulado** hasta ese mes, ambos redondeados a 2 decimales, ordenados por mes.",
+   "solucion": "WITH m AS (SELECT strftime('%Y-%m', p.fecha) AS mes, SUM(d.cantidad * d.precio_unitario) AS ingreso FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY mes) SELECT mes, ROUND(ingreso, 2), ROUND(SUM(ingreso) OVER (ORDER BY mes), 2) FROM m ORDER BY mes;",
+   "orden": true,
+   "pista": "Agrega por mes en un CTE y luego usa `SUM(ingreso) OVER (ORDER BY mes)`."
+  },
+  {
+   "id": "t16",
+   "base": "tienda",
+   "nivel": "avanzado",
+   "concepto": "NULL y CASE",
+   "titulo": "Cancelaciones por país",
+   "enunciado": "Calcula el **porcentaje de pedidos cancelados** por país del cliente (0 a 100, redondeado a 1 decimal). Columnas: pais, pct_cancelados.",
+   "solucion": "SELECT c.pais, ROUND(100.0 * SUM(CASE WHEN p.estado = 'cancelado' THEN 1 ELSE 0 END) / COUNT(*), 1) FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.pais;",
+   "orden": false,
+   "pista": "Cuenta los cancelados con `SUM(CASE WHEN ... THEN 1 ELSE 0 END)` y multiplica por `100.0` para no hacer división entera."
+  },
+  {
+   "id": "r01",
+   "base": "rrhh",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Salarios altos",
+   "enunciado": "Muestra `nombre` y `salario` de los empleados que ganan **más de 4000**, de mayor a menor salario.",
+   "solucion": "SELECT nombre, salario FROM empleados WHERE salario > 4000 ORDER BY salario DESC;",
+   "orden": true,
+   "pista": "`WHERE salario > 4000 ORDER BY salario DESC`."
+  },
+  {
+   "id": "r02",
+   "base": "rrhh",
+   "nivel": "basico",
+   "concepto": "Fechas y texto",
+   "titulo": "Ingresos de 2024",
+   "enunciado": "Muestra `nombre` y `fecha_ingreso` de los empleados que entraron durante **2024**.",
+   "solucion": "SELECT nombre, fecha_ingreso FROM empleados WHERE fecha_ingreso >= '2024-01-01' AND fecha_ingreso < '2025-01-01';",
+   "orden": false,
+   "pista": "Usa un rango semiabierto: desde el 1 de enero de 2024 y antes del 1 de enero de 2025."
+  },
+  {
+   "id": "r03",
+   "base": "rrhh",
+   "nivel": "intermedio",
+   "concepto": "JOIN",
+   "titulo": "Salario promedio por departamento",
+   "enunciado": "Muestra el **nombre del departamento** y el salario promedio de sus empleados, redondeado a 2 decimales. Solo departamentos con empleados.",
+   "solucion": "SELECT d.nombre, ROUND(AVG(e.salario), 2) FROM empleados e JOIN departamentos d ON d.id = e.departamento_id GROUP BY d.id;",
+   "orden": false,
+   "pista": "`JOIN` entre empleados y departamentos, luego `GROUP BY`."
+  },
+  {
+   "id": "r04",
+   "base": "rrhh",
+   "nivel": "intermedio",
+   "concepto": "JOIN",
+   "titulo": "Empleado y su jefe",
+   "enunciado": "Muestra el nombre de **cada empleado** y el nombre de su jefe. Quien no tiene jefe debe aparecer con el jefe en NULL.",
+   "solucion": "SELECT e.nombre, j.nombre FROM empleados e LEFT JOIN empleados j ON j.id = e.jefe_id;",
+   "orden": false,
+   "pista": "Es un *self join*: la tabla empleados unida consigo misma con alias distintos. Usa LEFT JOIN para no perder a la directora."
+  },
+  {
+   "id": "r05",
+   "base": "rrhh",
+   "nivel": "intermedio",
+   "concepto": "JOIN",
+   "titulo": "Departamentos vacíos",
+   "enunciado": "Muestra el `nombre` de los departamentos que **no tienen empleados**.",
+   "solucion": "SELECT d.nombre FROM departamentos d LEFT JOIN empleados e ON e.departamento_id = d.id WHERE e.id IS NULL;",
+   "orden": false,
+   "pista": "LEFT JOIN desde departamentos y quédate con los que no encontraron empleado. También sirve `NOT EXISTS`."
+  },
+  {
+   "id": "r06",
+   "base": "rrhh",
+   "nivel": "intermedio",
+   "concepto": "NULL y CASE",
+   "titulo": "Compensación total",
+   "enunciado": "Muestra `nombre` y la compensación total = `salario + comision`. Si no tiene comisión cuenta como 0.",
+   "solucion": "SELECT nombre, salario + COALESCE(comision, 0) FROM empleados;",
+   "orden": false,
+   "pista": "Cualquier suma con NULL da NULL. `COALESCE(comision, 0)` lo evita."
+  },
+  {
+   "id": "r07",
+   "base": "rrhh",
+   "nivel": "avanzado",
+   "concepto": "Funciones de ventana",
+   "titulo": "Ranking de salarios por departamento",
+   "enunciado": "Para cada empleado con departamento muestra `departamento_id`, `nombre`, `salario` y su posición en el ranking de salario **dentro de su departamento** (1 = el que más gana, con `RANK`).",
+   "solucion": "SELECT departamento_id, nombre, salario, RANK() OVER (PARTITION BY departamento_id ORDER BY salario DESC) FROM empleados WHERE departamento_id IS NOT NULL;",
+   "orden": false,
+   "pista": "`RANK() OVER (PARTITION BY departamento_id ORDER BY salario DESC)`."
+  },
+  {
+   "id": "r08",
+   "base": "rrhh",
+   "nivel": "avanzado",
+   "concepto": "Subconsultas y CTE",
+   "titulo": "Por encima del promedio de su área",
+   "enunciado": "Muestra `nombre` y `salario` de los empleados que ganan **más que el promedio de su propio departamento**.",
+   "solucion": "SELECT e.nombre, e.salario FROM empleados e WHERE e.salario > (SELECT AVG(x.salario) FROM empleados x WHERE x.departamento_id = e.departamento_id);",
+   "orden": false,
+   "pista": "Subconsulta correlacionada: el promedio se calcula para el departamento de cada fila."
+  },
+  {
+   "id": "r09",
+   "base": "rrhh",
+   "nivel": "avanzado",
+   "concepto": "Funciones de ventana",
+   "titulo": "Diferencia con el contratado anterior",
+   "enunciado": "Para cada empleado con departamento muestra `nombre`, `salario` y la **diferencia de salario con la persona contratada justo antes en su mismo departamento** (NULL para el primero).",
+   "solucion": "SELECT nombre, salario, salario - LAG(salario) OVER (PARTITION BY departamento_id ORDER BY fecha_ingreso) FROM empleados WHERE departamento_id IS NOT NULL;",
+   "orden": false,
+   "pista": "`LAG(salario) OVER (PARTITION BY departamento_id ORDER BY fecha_ingreso)` trae el salario de la fila anterior."
+  },
+  {
+   "id": "a01",
+   "base": "app",
+   "nivel": "basico",
+   "concepto": "Agregación",
+   "titulo": "Usuarios por plan",
+   "enunciado": "Cuenta cuántos usuarios hay en cada `plan`.",
+   "solucion": "SELECT plan, COUNT(*) FROM usuarios GROUP BY plan;",
+   "orden": false,
+   "pista": "`GROUP BY plan`."
+  },
+  {
+   "id": "a02",
+   "base": "app",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Compras grandes",
+   "enunciado": "Muestra `usuario_id`, `fecha` y `monto` de las compras de **más de 20**, de la más reciente a la más antigua.",
+   "solucion": "SELECT usuario_id, fecha, monto FROM eventos WHERE tipo = 'compra' AND monto > 20 ORDER BY fecha DESC;",
+   "orden": true,
+   "pista": "Filtra por `tipo = 'compra'` y por monto."
+  },
+  {
+   "id": "a03",
+   "base": "app",
+   "nivel": "intermedio",
+   "concepto": "Fechas y texto",
+   "titulo": "Usuarios activos por día",
+   "enunciado": "Cuenta los **usuarios distintos** con algún evento cada día entre el **2026-03-10 y el 2026-03-16** (incluidos). Columnas: dia (AAAA-MM-DD), usuarios. Ordena por día.",
+   "solucion": "SELECT date(fecha) AS dia, COUNT(DISTINCT usuario_id) FROM eventos WHERE date(fecha) BETWEEN '2026-03-10' AND '2026-03-16' GROUP BY dia ORDER BY dia;",
+   "orden": true,
+   "pista": "`date(fecha)` quita la hora. Para no contar dos veces a un usuario usa `COUNT(DISTINCT usuario_id)`."
+  },
+  {
+   "id": "a04",
+   "base": "app",
+   "nivel": "intermedio",
+   "concepto": "Agregación",
+   "titulo": "Países con más usuarios",
+   "enunciado": "Muestra los países con **4 o más usuarios** y cuántos tienen, de mayor a menor cantidad y, a igual cantidad, por país alfabético.",
+   "solucion": "SELECT pais, COUNT(*) AS n FROM usuarios GROUP BY pais HAVING COUNT(*) >= 4 ORDER BY n DESC, pais;",
+   "orden": true,
+   "pista": "`HAVING COUNT(*) >= 4` y un `ORDER BY` con dos criterios."
+  },
+  {
+   "id": "a05",
+   "base": "app",
+   "nivel": "intermedio",
+   "concepto": "Subconsultas y CTE",
+   "titulo": "Conversión por canal",
+   "enunciado": "Para cada `canal` muestra: usuarios, usuarios que compraron al menos una vez, y la tasa de conversión en % redondeada a 1 decimal.",
+   "solucion": "SELECT u.canal, COUNT(*), SUM(CASE WHEN EXISTS (SELECT 1 FROM eventos e WHERE e.usuario_id = u.id AND e.tipo = 'compra') THEN 1 ELSE 0 END) AS compradores, ROUND(100.0 * SUM(CASE WHEN EXISTS (SELECT 1 FROM eventos e WHERE e.usuario_id = u.id AND e.tipo = 'compra') THEN 1 ELSE 0 END) / COUNT(*), 1) FROM usuarios u GROUP BY u.canal;",
+   "orden": false,
+   "pista": "Cuidado: si haces JOIN con eventos, un usuario con dos compras se cuenta dos veces. Marca a cada usuario como comprador o no (EXISTS o un CTE con DISTINCT)."
+  },
+  {
+   "id": "a06",
+   "base": "app",
+   "nivel": "avanzado",
+   "concepto": "Subconsultas y CTE",
+   "titulo": "Embudo de conversión",
+   "enunciado": "En una sola fila muestra cuántos usuarios distintos tienen un evento de **registro**, cuántos tienen al menos un **ver_leccion** y cuántos tienen al menos una **compra**.",
+   "solucion": "SELECT COUNT(DISTINCT CASE WHEN tipo = 'registro' THEN usuario_id END), COUNT(DISTINCT CASE WHEN tipo = 'ver_leccion' THEN usuario_id END), COUNT(DISTINCT CASE WHEN tipo = 'compra' THEN usuario_id END) FROM eventos;",
+   "orden": false,
+   "pista": "`COUNT(DISTINCT CASE WHEN tipo = '...' THEN usuario_id END)`: el CASE sin ELSE devuelve NULL y COUNT ignora los NULL."
+  },
+  {
+   "id": "a07",
+   "base": "app",
+   "nivel": "avanzado",
+   "concepto": "Funciones de ventana",
+   "titulo": "Primera compra de cada usuario",
+   "enunciado": "Para cada usuario que compró, muestra `usuario_id`, la fecha de su **primera** compra y el monto de esa compra.",
+   "solucion": "SELECT usuario_id, fecha, monto FROM (SELECT usuario_id, fecha, monto, ROW_NUMBER() OVER (PARTITION BY usuario_id ORDER BY fecha) AS n FROM eventos WHERE tipo = 'compra') WHERE n = 1;",
+   "orden": false,
+   "pista": "`ROW_NUMBER()` por usuario ordenado por fecha y te quedas con la fila 1. `MIN(fecha)` solo no basta para traer el monto."
+  },
+  {
+   "id": "a08",
+   "base": "app",
+   "nivel": "avanzado",
+   "concepto": "Fechas y texto",
+   "titulo": "Días hasta la primera compra",
+   "enunciado": "Para cada usuario que compró, muestra `usuario_id` y los **días** entre su `fecha_alta` y su primera compra (número entero, usando solo la fecha sin hora).",
+   "solucion": "SELECT u.id, CAST(julianday(date(MIN(e.fecha))) - julianday(u.fecha_alta) AS INTEGER) FROM usuarios u JOIN eventos e ON e.usuario_id = u.id AND e.tipo = 'compra' GROUP BY u.id;",
+   "orden": false,
+   "pista": "En SQLite, `julianday(a) - julianday(b)` da la diferencia en días."
+  }
+ ]
+};

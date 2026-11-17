@@ -1,0 +1,156 @@
+/* ==========================================================================
+   NEXUS · Práctica: pestañas por tema, consola SQL y hoja "Mi nivel".
+   Usa las variables del tema activo (hoy, datos, web, ia).
+   ========================================================================== */
+
+/* Separador "Práctica" (al final de los separadores de cursos) */
+.separador.practica { --sep-bg: #1D1F24; --sep-txt: #FFFFFF; }
+body[data-tema="web"] .separador.practica { --sep-bg: #E6E8EC; --sep-txt: #14161B; }
+
+/* ---------- Pestañas ---------- */
+.practica .practica-tabs { margin-bottom: var(--e-5); }
+.practica .practica-tabs .tab { display: inline-flex; align-items: center; text-decoration: none; }
+.practica-cabecera { margin-bottom: var(--e-4); }
+.subtabs { display: flex; flex-wrap: wrap; gap: .4rem; padding: .2rem 0 .5rem; margin: var(--e-3) 0 var(--e-2); scrollbar-width: thin; }
+.subtab {
+  flex: none; display: inline-flex; align-items: center; gap: .35rem; min-height: 40px; padding: 0 .95rem;
+  border-radius: var(--r-pill); border: 1.5px solid var(--borde); background: var(--superficie);
+  color: var(--tinta); font-size: var(--t-sm); white-space: nowrap;
+}
+.subtab:hover { text-decoration: none; background: var(--superficie-2); }
+.subtab.activa { background: var(--chip-bg); border-color: var(--chip-bg); color: var(--chip-txt); font-weight: 700; }
+.subtab .cuenta { font-family: var(--f-mono); font-size: .72rem; }
+.chips-filtro { display: flex; flex-wrap: wrap; gap: .4rem; margin: var(--e-3) 0 var(--e-2); }
+.chips-filtro .chip-btn { display: inline-flex; align-items: center; text-decoration: none; }
+.chips-filtro .chip-btn.activo { background: var(--tinta); color: var(--papel); border-color: var(--tinta); font-weight: 600; }
+
+/* ---------- Niveles ---------- */
+.nivel-insignia {
+  display: inline-flex; align-items: center; min-height: 26px; padding: 0 .6rem; border-radius: 4px;
+  font-family: var(--f-mono); font-size: .72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  border: 1.5px solid currentColor; white-space: nowrap; transform: rotate(-1deg);
+}
+.nivel-insignia.sin { color: var(--tinta-2); border-style: dashed; }
+.nivel-insignia.principiante { color: var(--ko); }
+.nivel-insignia.basico { color: var(--aviso); }
+.nivel-insignia.intermedio { color: var(--acento); }
+.nivel-insignia.avanzado { color: var(--ok); }
+.nivel-insignia.profesional { color: var(--papel); background: var(--ok); border-color: var(--ok); }
+.barra-nivel { display: block; height: 8px; border-radius: var(--r-pill); background: color-mix(in srgb, var(--tinta) 10%, transparent); overflow: hidden; min-width: 80px; }
+.barra-nivel span { display: block; height: 100%; border-radius: var(--r-pill); background: var(--tinta-2); }
+.barra-nivel.principiante span { background: var(--ko); }
+.barra-nivel.basico span { background: var(--aviso); }
+.barra-nivel.intermedio span { background: var(--acento); }
+.barra-nivel.avanzado span, .barra-nivel.profesional span { background: var(--ok); }
+.margen .barra-nivel { margin: .5rem 0; }
+
+.niveles-resumen { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: var(--e-4); margin-top: var(--e-4); }
+.nivel-tema {
+  position: relative; display: flex; flex-direction: column; gap: .5rem; align-items: flex-start;
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--r-sm);
+  padding: 1.1rem 1rem .9rem; color: var(--tinta); box-shadow: 0 8px 18px rgba(0, 0, 0, .07);
+}
+.nivel-tema::before { content: ""; position: absolute; top: 0; left: 1rem; width: 44px; height: 6px; background: var(--franja-tema, var(--tinta)); }
+.nivel-tema.datos { --franja-tema: var(--sep-datos); }
+.nivel-tema.web { --franja-tema: var(--sep-web); }
+.nivel-tema.ia { --franja-tema: var(--sep-ia); }
+.nivel-tema:hover { text-decoration: none; transform: translateY(-2px); }
+.nivel-tema .barra-nivel { width: 100%; }
+
+.punto-tema { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: .45rem; vertical-align: middle; background: var(--tinta); }
+.punto-tema.datos { background: var(--sep-datos); }
+.punto-tema.web { background: var(--sep-web); }
+.punto-tema.ia { background: var(--sep-ia); }
+
+.reforzar { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--e-3); counter-reset: ref; }
+.reforzar li {
+  position: relative; background: var(--superficie); border: 1px solid var(--borde); border-left: 4px solid var(--ko);
+  border-radius: var(--r-sm); padding: .9rem 1rem .9rem 2.6rem; margin: 0; counter-increment: ref;
+}
+.reforzar li::before { content: counter(ref); position: absolute; left: .8rem; top: .85rem; font-family: var(--f-mano); font-size: 1.6rem; font-weight: 700; color: var(--ko); line-height: 1; }
+.reforzar-cab { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; align-items: center; }
+.reforzar p { margin: .35rem 0 .6rem; }
+.reforzar .btn { min-height: 40px; }
+
+.detalle-tema { margin-top: var(--e-5); }
+.detalle-tema .h-mano { font-size: 1.5rem; }
+.tabla-nivel { width: 100%; border-collapse: collapse; font-size: var(--t-sm); background: color-mix(in srgb, var(--superficie) 75%, transparent); }
+.tabla-nivel th { text-align: left; font-family: var(--f-mono); font-size: .7rem; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--tinta-2); padding: .4rem .5rem; border-bottom: 1.5px solid var(--tinta); }
+.tabla-nivel td { padding: .55rem .5rem; border-bottom: 1px solid var(--borde); vertical-align: middle; }
+.tabla-nivel tr:last-child td { border-bottom: 3px double var(--tinta); }
+.tabla-nivel .col-barra { width: 28%; }
+.num-celda { font-family: var(--f-mono); text-align: right; white-space: nowrap; }
+.tabla-nivel th:nth-child(n+4) { text-align: right; }
+
+.lista-falladas { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .8rem; }
+.lista-falladas li { display: flex; flex-direction: column; gap: .15rem; margin: 0; font-size: var(--t-sm); line-height: 1.4; }
+.lista-falladas a { color: var(--tinta); }
+.lista-bases { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .7rem; }
+.lista-bases li { display: flex; flex-direction: column; margin: 0; }
+.lista-bases a { font-family: var(--f-mono); }
+
+/* ---------- Lista de ejercicios ---------- */
+.grupo-ej { margin-top: var(--e-5); }
+.cap-row .cap-main .small { margin-top: .1rem; }
+
+/* ---------- Ejercicio y consola ---------- */
+.ej-sql { margin-bottom: var(--e-4); }
+.ej-sql .ej-head { align-items: center; flex-wrap: wrap; }
+.enunciado-ej { font-family: var(--f-lectura); font-size: 1.12rem; line-height: 1.6; margin: .9rem 0 .5rem; }
+.consola { margin-top: var(--e-3); }
+.sql-editor {
+  display: block; width: 100%; min-height: 170px; resize: vertical;
+  font-family: var(--f-mono-code); font-size: .92rem; line-height: 1.6; tab-size: 2;
+  padding: .9rem 1rem; border-radius: var(--r-md); border: 1.5px solid var(--code-borde);
+  background: var(--code-bg); color: var(--sx-txt); outline: none;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, .03);
+}
+.sql-editor:focus { border-color: var(--tinta); }
+.consola-acciones { margin: .7rem 0; }
+.consola-acciones .atajo { margin-left: auto; font-family: var(--f-mono); font-size: .72rem; }
+.salida { margin-top: .4rem; }
+.salida-cab { display: flex; justify-content: space-between; align-items: baseline; margin: .9rem 0 .4rem; }
+.tabla-scroll { overflow: auto; max-height: 420px; border: 1px solid var(--code-borde); border-radius: var(--r-md); background: var(--superficie); }
+.tabla-resultado { border-collapse: collapse; width: 100%; font-family: var(--f-mono); font-size: .82rem; }
+.tabla-resultado th { position: sticky; top: 0; background: var(--superficie-2); text-align: left; font-weight: 600; padding: .45rem .7rem; border-bottom: 1.5px solid var(--borde); white-space: nowrap; }
+.tabla-resultado td { padding: .38rem .7rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+.tabla-resultado tbody tr:nth-child(2n) td { background: color-mix(in srgb, var(--superficie-2) 55%, transparent); }
+.tabla-resultado td.num-celda { text-align: right; }
+.tabla-resultado td.nulo { color: var(--tinta-2); font-style: italic; }
+
+.feedback { border: 1px solid var(--borde); border-left: 4px solid var(--tinta-2); border-radius: var(--r-sm); background: var(--superficie); padding: .8rem 1rem; margin: .6rem 0; }
+.feedback p { margin: .2rem 0 0; }
+.feedback .btn { margin-top: .7rem; }
+.feedback.ok { border-left-color: var(--ok); }
+.feedback.ok strong:first-child { color: var(--ok); }
+.feedback.ko { border-left-color: var(--ko); }
+.feedback.ko strong:first-child { color: var(--ko); }
+
+.esquema { display: flex; flex-direction: column; gap: .9rem; }
+.esquema-tabla ul { list-style: none; margin: .3rem 0 0; padding: 0 0 0 .7rem; border-left: 2px dotted var(--borde); }
+.esquema-tabla li { display: flex; justify-content: space-between; gap: .6rem; margin: .1rem 0; font-family: var(--f-mono); font-size: .76rem; }
+.esquema-tabla .tipo-col { color: var(--tinta-2); }
+.esquema-nombre { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: .5rem; min-height: 38px; padding: 0 .5rem; border: 1px solid var(--borde); border-radius: var(--r-sm); background: var(--superficie); color: var(--tinta); font-family: var(--f-mono); font-size: .85rem; font-weight: 600; cursor: pointer; text-align: left; }
+.esquema-nombre:hover { background: var(--superficie-2); }
+
+/* ---------- Práctica de preguntas ---------- */
+.practica-preguntas { margin-top: var(--e-4); max-width: 760px; }
+.practica-preguntas .pregunta legend { font-family: var(--f-lectura); font-size: 1.1rem; }
+.mini-dominio { display: flex; height: 5px; width: min(220px, 100%); border-radius: 4px; background: color-mix(in srgb, var(--tinta) 10%, transparent); overflow: hidden; margin-top: .35rem; }
+.mini-dominio .bien { background: var(--ok); }
+.mini-dominio .mal { background: var(--ko); }
+.racha-practica { display: flex; align-items: baseline; gap: .5rem; font-family: var(--f-mano); font-size: 1.35rem; color: var(--tinta-2); }
+.racha-practica .racha-num { font-family: var(--f-titulo); font-size: 2.6rem; font-weight: 700; color: var(--tinta); line-height: 1; }
+.racha-practica.encendida .racha-num { color: var(--ok); }
+.racha-practica.encendida::after { content: "¡en racha!"; color: var(--ok); transform: rotate(-3deg); }
+.fin-practica h3 { font-size: 1.9rem; }
+
+/* ---------- Móvil ---------- */
+@media (max-width: 900px) {
+  .subtabs { flex-wrap: nowrap; overflow-x: auto; }
+  .tabla-nivel .col-barra { display: none; }
+  .tabla-nivel th:nth-child(5), .tabla-nivel td:nth-child(5) { display: none; }
+  .consola-acciones .atajo { display: none; }
+  .consola-acciones .btn { flex: 1 1 auto; }
+  .sql-editor { font-size: .88rem; min-height: 150px; }
+}
