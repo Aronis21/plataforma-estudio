@@ -4,7 +4,7 @@
   "subtitle": "Modelos de lenguaje, prompts que funcionan, herramientas, APIs y automatización, con experimentos sobre tus propios casos.",
   "level": "Principiante a intermedio",
   "author": "Aronis",
-  "updatedAt": "2026-11-16",
+  "updatedAt": "2026-11-18",
   "chapters": [
     {
       "id": "ia-01",
@@ -15,7 +15,127 @@
       "title": "Qué es un modelo de lenguaje",
       "subtitle": "Cómo genera texto y qué puede y no puede hacer.",
       "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Explicar con tus palabras cómo un modelo de lenguaje genera texto palabra por palabra.",
+        "Distinguir las tareas donde un modelo es fuerte de las que necesitan verificación.",
+        "Reconocer una alucinación y saber qué hacer cuando aparece."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-01-sec-1",
+          "title": "1. Predecir la siguiente palabra",
+          "body": "Un **modelo de lenguaje** es un programa entrenado con enormes cantidades de texto para hacer una sola cosa: dado un texto, calcular qué fragmento es más probable que venga después. Escribe una pieza, la agrega al texto y vuelve a predecir, hasta terminar la respuesta.\n\nDe ese mecanismo tan simple salen habilidades sorprendentes: resumir, traducir, escribir código, clasificar correos o explicar un concepto. El modelo no consulta una base de datos ni \"busca\" la respuesta: la **construye** a partir de patrones que aprendió.\n\nPor eso conviene pensar en él como un colaborador muy leído y muy rápido, no como un buscador ni una calculadora.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Texto que recibe:  \"El aceite del motor se cambia cada\"\nOpciones que evalúa (probabilidad aproximada):\n  \"5,000\"   0.41\n  \"cierto\"  0.22\n  \"3\"       0.15\n  ...\nElige una, la agrega y repite:\n  \"El aceite del motor se cambia cada 5,000 kilómetros o ...\"",
+          "keyTakeaway": "El modelo genera texto prediciendo, pieza por pieza, lo que es más probable que siga."
+        },
+        {
+          "id": "ia-01-sec-2",
+          "title": "2. Para qué sirve y para qué no",
+          "body": "Un modelo es **muy bueno** en tareas de lenguaje: redactar, reescribir con otro tono, resumir un documento largo, extraer datos de un texto desordenado, clasificar mensajes, explicar código o proponer ideas.\n\nEs **menos confiable** cuando la respuesta depende de:\n- **Datos exactos que no le diste** (el precio de hoy, el saldo de un cliente, una ley reciente).\n- **Cálculos largos** hechos \"de cabeza\". Si hay números importantes, pide que use una herramienta o verifica con Excel o Python.\n- **Hechos de nicho** que aparecen poco en internet.\n\nLa regla práctica: entre más depende la respuesta de información que tú tienes y el modelo no, más contexto debes darle.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Bueno para:                     Verifica siempre:\n- Redactar un correo            - Cifras, fechas y montos\n- Resumir un informe            - Citas de leyes o normas\n- Clasificar quejas             - Nombres de personas y lugares\n- Explicar una fórmula          - Cálculos de varios pasos",
+          "keyTakeaway": "Úsalo para trabajo de lenguaje; verifica los datos exactos y los cálculos."
+        },
+        {
+          "id": "ia-01-sec-3",
+          "title": "3. Alucinaciones: cuando suena bien pero es falso",
+          "body": "Una **alucinación** es una respuesta segura y bien escrita que es incorrecta: una cita que no existe, un artículo de ley inventado o una función de Excel con un argumento que no tiene.\n\nOcurre porque el modelo siempre produce el texto más probable, aunque no tenga la información. Formas de reducirla:\n1. **Dale la fuente**: pega el documento y pide que responda solo con lo que dice.\n2. **Permítele decir \"no sé\"**: escribe \"si el texto no lo dice, responde: no aparece\".\n3. **Pide la cita**: que indique de qué parte del documento sacó cada dato.\n4. **Verifica lo crítico** antes de usarlo con un cliente o un jefe.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Responde usando SOLO el reglamento que pego abajo.\nSi la respuesta no está en el reglamento, escribe exactamente: \"No aparece en el reglamento\".\nDespués de cada respuesta, copia la frase del reglamento en la que te basaste.\n\n<reglamento>\n...\n</reglamento>",
+          "keyTakeaway": "Da la fuente, permite el \"no sé\" y pide la cita: así bajan las alucinaciones."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo usar un modelo de lenguaje con criterio profesional.",
+        "rules": [
+          "Trata cada respuesta como un borrador de un colega: útil, pero se revisa.",
+          "Los números, fechas, nombres y citas legales se verifican siempre contra la fuente.",
+          "Si la tarea depende de datos tuyos, pégalos en el mensaje en lugar de esperar que el modelo los sepa.",
+          "Nunca pegues contraseñas, datos de tarjetas ni información personal de clientes sin permiso de tu empresa.",
+          "Guarda los prompts que te funcionan; son una herramienta de trabajo como cualquier plantilla."
+        ]
+      },
+      "comparison": {
+        "scenario": "Preguntar el reglamento de vacaciones de la empresa.",
+        "juniorLabel": "Así no",
+        "juniorCode": "¿Cuántos días de vacaciones me tocan según el reglamento de la empresa?",
+        "juniorFlaws": [
+          "El modelo no conoce el reglamento de tu empresa: va a inventar una cifra creíble.",
+          "No hay forma de comprobar de dónde salió la respuesta.",
+          "No dice cuánto tiempo llevas trabajando, que cambia el resultado."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Responde usando solo el reglamento que pego abajo. Llevo 3 años y 2 meses en la empresa.\n¿Cuántos días de vacaciones me tocan este año?\nSi el reglamento no lo dice, responde \"No aparece\". Cita el artículo que usaste.\n\n<reglamento>\n(pega aquí el texto)\n</reglamento>",
+        "intermediateBenefits": [
+          "El modelo trabaja con la fuente real, no con su memoria.",
+          "Tiene el dato que cambia la respuesta (la antigüedad).",
+          "La cita permite comprobar la respuesta en segundos."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-01-ej-1",
+          "title": "Experimento 1: Bueno o verifica",
+          "difficulty": "Básico",
+          "prompt": "Clasifica estas seis tareas en dos grupos: **el modelo lo hace bien** o **verifica siempre**. (a) Reescribir un aviso con tono amable; (b) calcular la depreciación de 14 vehículos; (c) resumir un acta de reunión; (d) decir el precio actual del dólar; (e) proponer 5 títulos para un informe; (f) citar el artículo exacto de una ley laboral.",
+          "hint": "Pregúntate: ¿la respuesta depende de datos exactos que el modelo no tiene, o de cálculos largos?",
+          "solutionExplanation": "Las tareas de lenguaje (a, c, e) son fuertes. Las que dependen de datos actuales, cálculos o citas exactas (b, d, f) deben verificarse o resolverse con otra herramienta.",
+          "solutionCode": "Lo hace bien: (a) reescribir con tono amable, (c) resumir el acta, (e) proponer títulos.\nVerifica siempre: (b) depreciación: cálculo de varios pasos, mejor en Excel;\n                  (d) precio del dólar: dato actual que el modelo no tiene;\n                  (f) artículo de ley: posible cita inventada, revisa la ley.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-01-ej-2",
+          "title": "Experimento 2: Atrapa una alucinación",
+          "difficulty": "Intermedio",
+          "prompt": "Pídele a un asistente de IA: \"Dame la referencia exacta del libro donde se explica X\" sobre un tema muy específico de tu trabajo. Luego reescribe el prompt para reducir la probabilidad de una respuesta inventada.",
+          "hint": "Agrega una salida permitida para cuando no sepa y pide que separe lo seguro de lo dudoso.",
+          "solutionExplanation": "El segundo prompt da permiso explícito de no saber y obliga a marcar el nivel de confianza, lo que deja ver qué partes debes verificar.",
+          "solutionCode": "Quiero lecturas sobre mantenimiento preventivo de flotas.\n- Sugiere solo libros o guías que estés seguro de que existen.\n- Si no estás seguro de un título o autor, dilo y no lo incluyas.\n- Para cada sugerencia, indica tu nivel de confianza (alto / medio).\n- No inventes números de página ni ediciones.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-01-q1",
+          "question": "¿Qué hace un modelo de lenguaje para generar una respuesta?",
+          "options": [
+            "Ejecuta un programa distinto para cada tipo de pregunta.",
+            "Copia el párrafo más parecido que encontró en internet.",
+            "Predice pieza por pieza el texto más probable que sigue.",
+            "Busca la respuesta exacta en una base de datos interna."
+          ],
+          "correctIndex": 2,
+          "explanation": "El modelo genera texto prediciendo el siguiente fragmento una y otra vez; no consulta una base de datos ni copia párrafos."
+        },
+        {
+          "id": "ia-01-q2",
+          "question": "¿Qué es una alucinación?",
+          "options": [
+            "Un error de conexión que deja la respuesta incompleta.",
+            "Una respuesta que el modelo se niega a dar por política.",
+            "Una respuesta segura y bien escrita que resulta falsa.",
+            "Un texto largo que repite varias veces la misma idea."
+          ],
+          "correctIndex": 2,
+          "explanation": "Alucinar es inventar con seguridad: suena correcto, pero el dato no existe o está mal."
+        },
+        {
+          "id": "ia-01-q3",
+          "question": "¿Cuál es la mejor forma de que responda sobre el reglamento de tu empresa?",
+          "options": [
+            "Escribir la pregunta en inglés para que lo entienda.",
+            "Pedirle que responda con más seguridad y sin dudas.",
+            "Preguntar varias veces hasta que dé la misma cifra.",
+            "Pegar el reglamento y pedir que responda solo con él."
+          ],
+          "correctIndex": 3,
+          "explanation": "El modelo no conoce documentos internos; dárselos y limitarlo a ellos es lo que hace confiable la respuesta."
+        }
+      ]
     },
     {
       "id": "ia-02",
@@ -26,7 +146,127 @@
       "title": "Tokens, contexto y límites",
       "subtitle": "Por qué el modelo olvida, inventa o se corta.",
       "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Explicar qué es un token y estimar cuántos ocupa un texto.",
+        "Entender la ventana de contexto y qué pasa cuando una conversación se alarga.",
+        "Usar la temperatura y el largo de salida a tu favor."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-02-sec-1",
+          "title": "1. Qué es un token",
+          "body": "Los modelos no leen letras ni palabras completas, leen **tokens**: trozos de texto de tamaño variable. Una palabra común puede ser un token; una palabra larga o rara se parte en varios; los números y los signos también cuentan.\n\nComo regla aproximada, en español **100 palabras son unos 130 a 150 tokens**. Los tokens importan por tres razones:\n- **Costo**: los servicios por API cobran por token que entra y por token que sale.\n- **Límite**: cada modelo tiene un máximo de tokens que puede manejar a la vez.\n- **Rapidez**: más tokens de salida significan más tiempo esperando la respuesta.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Texto:   \"Mantenimiento preventivo del camión\"\nTokens:  [\"Mant\"] [\"enimiento\"] [\" prevent\"] [\"ivo\"] [\" del\"] [\" cam\"] [\"ión\"]\n         7 tokens para 4 palabras\n\nRegla rápida: 1,000 palabras en español ≈ 1,300 a 1,500 tokens",
+          "keyTakeaway": "Se cobra y se limita por tokens, no por palabras; en español una palabra es algo más de un token."
+        },
+        {
+          "id": "ia-02-sec-2",
+          "title": "2. La ventana de contexto",
+          "body": "La **ventana de contexto** es todo lo que el modelo puede \"ver\" en una llamada: tus instrucciones, los documentos que pegaste, la conversación anterior y la respuesta que está escribiendo. Los modelos actuales tienen ventanas grandes (cientos de miles de tokens), pero no infinitas.\n\nEn una conversación larga ocurre esto:\n- Cada mensaje nuevo vuelve a enviar **toda la conversación**, así que el costo crece.\n- Cuando la conversación no cabe, la aplicación recorta o resume lo viejo y el modelo \"olvida\" detalles del inicio.\n- Mucho texto irrelevante distrae: la calidad baja aunque quepa.\n\nPor eso, para un tema nuevo, **abre una conversación nueva** y pega solo lo que hace falta.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "┌──────────── ventana de contexto ────────────┐\n│ instrucciones del sistema                   │\n│ documento pegado (12,000 tokens)            │\n│ mensaje 1 · respuesta 1                     │\n│ mensaje 2 · respuesta 2                     │\n│ tu pregunta nueva                           │\n│ respuesta que se está escribiendo  ───────► │\n└─────────────────────────────────────────────┘",
+          "keyTakeaway": "Todo lo de la conversación ocupa contexto; un tema nuevo merece una conversación nueva."
+        },
+        {
+          "id": "ia-02-sec-3",
+          "title": "3. Temperatura y largo de la respuesta",
+          "body": "Dos ajustes cambian mucho el resultado:\n- **Largo máximo de salida** (`max_tokens` en las API): el tope de tokens que puede escribir. Si se alcanza, la respuesta queda cortada a mitad de frase.\n- **Temperatura**: qué tanto se arriesga al elegir la siguiente pieza. Baja (0 a 0.3) da respuestas parecidas cada vez, buena para extraer datos o clasificar. Alta (0.8 a 1) da más variedad, útil para ideas o títulos. Algunos modelos recientes ajustan esto de forma automática y no aceptan cambiarla.\n\nEn los asistentes de chat no ves estos controles, pero puedes pedir el largo con palabras: \"en 3 viñetas\", \"máximo 80 palabras\".",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Tarea                         Temperatura    Largo\nExtraer RNC y monto           baja (0)       corto\nClasificar 200 quejas         baja (0)       una palabra\nProponer nombres de campaña   alta (0.9)     lista de 10\nRedactar un informe           media          según el formato",
+          "keyTakeaway": "Baja temperatura para tareas exactas, alta para ideas; pide el largo de forma explícita."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo cuidar el contexto y el costo de cada consulta.",
+        "rules": [
+          "Pega solo la parte del documento que hace falta para la pregunta.",
+          "Abre una conversación nueva cuando cambias de tema.",
+          "Indica el largo y el formato de la respuesta en el mismo mensaje.",
+          "Para tareas repetidas por API, mide los tokens de entrada y salida antes de procesar miles de filas.",
+          "Si una respuesta se corta, aumenta el largo máximo o pide la respuesta por partes."
+        ]
+      },
+      "comparison": {
+        "scenario": "Resumir un informe de 40 páginas para la gerencia.",
+        "juniorLabel": "Así no",
+        "juniorCode": "(pega las 40 páginas, incluidos anexos y tablas de datos crudos)\nResúmelo.",
+        "juniorFlaws": [
+          "Los anexos y datos crudos ocupan contexto y distraen del contenido importante.",
+          "\"Resúmelo\" no dice para quién, ni qué largo, ni qué formato.",
+          "El resultado puede ser demasiado largo o enfocado en lo que no importa a la gerencia."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Resume para la gerencia general el informe que pego (solo secciones 1 a 4, sin anexos).\nFormato: 5 viñetas de máximo 25 palabras y una línea final con la decisión que se necesita.\n\n<informe>\n...\n</informe>",
+        "intermediateBenefits": [
+          "Menos tokens: solo entra lo que aporta.",
+          "Público, largo y formato definidos.",
+          "La última línea convierte el resumen en algo accionable."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-02-ej-1",
+          "title": "Experimento 1: Estima los tokens",
+          "difficulty": "Básico",
+          "prompt": "Un correo de 350 palabras en español, más un prompt de 50 palabras, se envía a un modelo que responde con unas 200 palabras. Estima los tokens de entrada y de salida usando la regla de 1.4 tokens por palabra.",
+          "hint": "Entrada = correo + prompt. Salida = respuesta. Multiplica cada uno por 1.4.",
+          "solutionExplanation": "La entrada es (350 + 50) × 1.4 = 560 tokens y la salida 200 × 1.4 = 280 tokens. Es una estimación; el número exacto depende del modelo.",
+          "solutionCode": "Entrada: (350 + 50) palabras × 1.4 ≈ 560 tokens\nSalida:  200 palabras × 1.4        ≈ 280 tokens\nTotal por correo                    ≈ 840 tokens\nPara 1,000 correos                  ≈ 840,000 tokens",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-02-ej-2",
+          "title": "Experimento 2: Elige la temperatura",
+          "difficulty": "Básico",
+          "prompt": "Para cada tarea indica temperatura baja o alta y explica por qué: (1) sacar la fecha y el monto de 500 facturas; (2) proponer 10 eslóganes para una promoción; (3) etiquetar reseñas como positiva, negativa o neutra.",
+          "hint": "¿Quieres siempre la misma respuesta para la misma entrada, o quieres variedad?",
+          "solutionExplanation": "Extraer y etiquetar exigen consistencia (baja). Los eslóganes se benefician de variedad (alta).",
+          "solutionCode": "1) Baja: la fecha y el monto son uno solo; no queremos variaciones.\n2) Alta: buscamos ideas distintas entre sí.\n3) Baja: la misma reseña debe recibir siempre la misma etiqueta.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-02-q1",
+          "question": "¿Qué pasa cuando una respuesta alcanza el largo máximo de salida?",
+          "options": [
+            "Se corta, aunque la frase no haya terminado.",
+            "Se reinicia y empieza la respuesta desde cero.",
+            "El modelo pide permiso para seguir escribiendo.",
+            "El modelo resume solo lo que ya había escrito."
+          ],
+          "correctIndex": 0,
+          "explanation": "El largo máximo es un tope duro: al llegar, la generación se detiene donde esté."
+        },
+        {
+          "id": "ia-02-q2",
+          "question": "¿Qué incluye la ventana de contexto de una llamada?",
+          "options": [
+            "Todas las conversaciones que tuviste ese mismo mes.",
+            "Solo la última pregunta que escribió el usuario.",
+            "Únicamente los archivos adjuntos en formato PDF.",
+            "Instrucciones, documentos, historial y la respuesta."
+          ],
+          "correctIndex": 3,
+          "explanation": "Todo lo que el modelo ve en esa llamada ocupa contexto, incluida la respuesta que está generando."
+        },
+        {
+          "id": "ia-02-q3",
+          "question": "¿Qué temperatura conviene para clasificar 200 quejas en categorías?",
+          "options": [
+            "Alta, para que las categorías salgan más variadas.",
+            "La que sea, porque no afecta a las clasificaciones.",
+            "Baja, para que la misma queja reciba siempre la misma.",
+            "Media, porque es la única que acepta listas largas."
+          ],
+          "correctIndex": 2,
+          "explanation": "Clasificar pide consistencia; una temperatura baja reduce las variaciones entre respuestas."
+        }
+      ]
     },
     {
       "id": "ia-03",
@@ -37,7 +277,129 @@
       "title": "Rol, tarea y contexto",
       "subtitle": "La estructura básica de un buen pedido.",
       "estimatedMinutes": 30,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Escribir prompts con rol, tarea, contexto y formato.",
+        "Separar instrucciones y datos con etiquetas claras.",
+        "Decir qué hacer en lugar de solo qué evitar."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-03-sec-1",
+          "title": "1. Las cuatro piezas de un buen prompt",
+          "body": "Un prompt claro responde a cuatro preguntas que un compañero nuevo te haría:\n- **Rol**: ¿desde qué experiencia respondo? (\"Eres un analista de flota\").\n- **Tarea**: ¿qué hago exactamente? Un verbo concreto: resumir, clasificar, redactar, comparar.\n- **Contexto**: ¿para quién es, para qué se usará, qué datos tengo? Aquí está casi toda la calidad.\n- **Formato**: ¿cómo lo entrego? Viñetas, tabla, JSON, número de palabras.\n\nUna buena prueba: si le dieras el mismo mensaje a una persona capaz que no conoce tu empresa, ¿podría hacerlo bien? Si tendría que preguntarte algo, esa información falta en el prompt.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "ROL:      Eres asistente del departamento de compras de una distribuidora.\nTAREA:    Redacta un correo pidiendo cotización de 40 cauchos 295/80R22.5.\nCONTEXTO: Es para 3 proveedores nuevos; necesitamos entrega en 10 días en Santiago\n          y pago a 30 días. Es el primer contacto, tono formal pero breve.\nFORMATO:  Asunto + cuerpo de máximo 120 palabras + firma con [Nombre] y [Teléfono].",
+          "keyTakeaway": "Rol, tarea, contexto y formato: el contexto es lo que más mejora el resultado."
+        },
+        {
+          "id": "ia-03-sec-2",
+          "title": "2. Separa instrucciones y datos",
+          "body": "Cuando pegas un documento, un correo o una tabla, el modelo debe saber dónde terminan tus instrucciones y dónde empiezan los datos. Envuélvelos en **etiquetas** con nombres claros, como `<correo>` y `</correo>`.\n\nVentajas:\n- El modelo no confunde una frase del documento con una orden tuya.\n- Puedes referirte a cada parte por su nombre: \"según el `<contrato>`\".\n- Con varios documentos, cada uno queda identificado.\n\nPon los **documentos largos arriba** y la pregunta al final: con textos grandes, eso suele dar mejores respuestas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "<contrato>\n(texto del contrato de mantenimiento)\n</contrato>\n\n<factura>\n(texto de la factura de octubre)\n</factura>\n\n¿La factura cobra algún servicio que no esté incluido en el contrato?\nResponde con una lista: servicio, monto, cláusula del contrato que lo excluye.",
+          "keyTakeaway": "Etiqueta cada documento y deja la pregunta al final."
+        },
+        {
+          "id": "ia-03-sec-3",
+          "title": "3. Di qué hacer y explica el porqué",
+          "body": "Las instrucciones en positivo funcionan mejor que las prohibiciones. En lugar de \"no uses palabras técnicas\", escribe \"usa palabras que entienda un cliente sin conocimiento mecánico\".\n\nAyuda todavía más **explicar el motivo**. \"Responde en máximo 3 líneas\" funciona, pero \"responde en máximo 3 líneas, porque se va a leer en el celular por WhatsApp\" permite al modelo tomar mejores decisiones en casos que no previste.\n\nY sé directo: si quieres que el modelo haga cambios, pídele que los haga; si solo quieres sugerencias, dilo. Los modelos actuales siguen las instrucciones al pie de la letra.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Débil:  No escribas mucho y no seas técnico.\n\nMejor:  Escribe máximo 3 líneas con palabras que entienda un cliente sin\n        conocimientos de mecánica, porque se envía por WhatsApp y lo lee\n        desde el celular.",
+          "keyTakeaway": "Pide en positivo y explica el motivo; el modelo generaliza mejor."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Plantilla profesional de prompt para tareas de trabajo.",
+        "rules": [
+          "Empieza por la tarea y el contexto; el rol ayuda, pero no sustituye al contexto.",
+          "Etiqueta cada documento o dato pegado.",
+          "Escribe el formato de salida con un ejemplo de cómo debe verse.",
+          "Explica para qué es la respuesta y quién la va a leer.",
+          "Prueba el prompt con 2 o 3 casos reales antes de usarlo a diario."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Eres [rol].\n\nContexto: [para quién es, para qué se usará, datos importantes].\n\n<datos>\n[documento, tabla o texto]\n</datos>\n\nTarea: [verbo + qué exactamente].\n\nFormato de la respuesta: [estructura, largo, tono]. Ejemplo:\n[cómo debe verse]\n\nSi falta información para hacerlo bien, dilo antes de responder."
+      },
+      "comparison": {
+        "scenario": "Pedir un análisis de las quejas del mes.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Analiza estas quejas y no me des algo muy largo.\n\nEl cliente dice que el técnico llegó tarde. Otro dice que le cobraron de más...",
+        "juniorFlaws": [
+          "No dice para quién es el análisis ni qué decisión apoya.",
+          "Las quejas están mezcladas con las instrucciones.",
+          "\"No muy largo\" no define un formato."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Eres analista de servicio al cliente de un taller.\nEl informe es para el gerente de operaciones, que decide dónde poner un técnico extra.\n\n<quejas>\n1. El técnico llegó 2 horas tarde (Santiago).\n2. Me cobraron un filtro que no cambiaron (Santo Domingo).\n...\n</quejas>\n\nAgrupa las quejas por tipo y por ciudad. Entrega una tabla (tipo, ciudad, cantidad)\ny 2 líneas de conclusión sobre dónde hace más falta el técnico extra.",
+        "intermediateBenefits": [
+          "Rol y lector definidos, con la decisión que se apoya.",
+          "Datos separados con etiquetas.",
+          "Formato concreto que se puede leer en un minuto."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-03-ej-1",
+          "title": "Experimento 1: Completa las cuatro piezas",
+          "difficulty": "Básico",
+          "prompt": "Reescribe este prompt con rol, tarea, contexto y formato: \"Hazme un mensaje para los clientes sobre el cambio de horario\".",
+          "hint": "Inventa los datos que faltan: horario viejo, horario nuevo, fecha, canal de envío.",
+          "solutionExplanation": "La versión mejorada da al modelo todo lo que necesitaría una persona: quién escribe, a quién, qué cambia, desde cuándo y por qué medio.",
+          "solutionCode": "Eres encargado de atención al cliente de un taller mecánico.\nTarea: redacta un aviso del cambio de horario.\nContexto: desde el lunes 2 de diciembre abrimos de 7:00 a. m. a 5:00 p. m.\n(antes 8:00 a. m. a 6:00 p. m.). Se envía por WhatsApp a clientes frecuentes.\nFormato: máximo 60 palabras, tono amable, termina invitando a agendar por este número.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-03-ej-2",
+          "title": "Experimento 2: Etiqueta los datos",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes un correo de un cliente y la política de devoluciones. Escribe un prompt que pida decidir si la devolución procede, separando ambos textos con etiquetas y pidiendo una respuesta en formato fijo.",
+          "hint": "Usa <correo> y <politica>. Pide: decisión, motivo y la línea de la política que aplica.",
+          "solutionExplanation": "Las etiquetas evitan que el modelo confunda el correo con instrucciones, y el formato fijo hace la respuesta fácil de revisar.",
+          "solutionCode": "<politica>\n(texto de la política de devoluciones)\n</politica>\n\n<correo>\n(correo del cliente)\n</correo>\n\nDecide si la devolución procede según la <politica>.\nResponde exactamente así:\nDecisión: Procede / No procede\nMotivo: (una oración)\nRegla aplicada: (copia la línea de la política)",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-03-q1",
+          "question": "¿Qué pieza del prompt suele aportar más calidad a la respuesta?",
+          "options": [
+            "El contexto: para quién, para qué y con qué datos.",
+            "Un saludo cordial al inicio de cada conversación.",
+            "El rol, porque decide todo lo que el modelo sabe.",
+            "Los signos de exclamación que marcan lo importante."
+          ],
+          "correctIndex": 0,
+          "explanation": "El rol ayuda, pero el contexto es lo que permite al modelo adaptar la respuesta a tu caso."
+        },
+        {
+          "id": "ia-03-q2",
+          "question": "¿Para qué sirve envolver un documento en etiquetas como <contrato>?",
+          "options": [
+            "Para separar los datos de tus instrucciones.",
+            "Para que el texto ocupe menos tokens totales.",
+            "Para que el modelo responda más rápido.",
+            "Para cifrar el documento antes de enviarlo."
+          ],
+          "correctIndex": 0,
+          "explanation": "Las etiquetas marcan dónde empiezan y terminan los datos y permiten referirse a ellos por nombre."
+        },
+        {
+          "id": "ia-03-q3",
+          "question": "¿Cuál instrucción suele funcionar mejor?",
+          "options": [
+            "IMPORTANTE: ¡NADA TÉCNICO EN LA RESPUESTA!",
+            "Usa palabras simples porque lo lee un cliente.",
+            "No uses palabras técnicas, nunca, bajo ningún caso.",
+            "Evita lo técnico, lo complejo y lo innecesario."
+          ],
+          "correctIndex": 1,
+          "explanation": "Decir qué hacer y por qué da al modelo un criterio para decidir; las prohibiciones en mayúsculas no lo dan."
+        }
+      ]
     },
     {
       "id": "ia-04",
@@ -48,7 +410,129 @@
       "title": "Ejemplos y formatos de salida",
       "subtitle": "Few-shot y respuestas siempre con el mismo formato.",
       "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Usar ejemplos (few-shot) para fijar el estilo y el criterio de una tarea.",
+        "Pedir salidas con estructura fija: listas, tablas y JSON.",
+        "Detectar cuándo los ejemplos sesgan la respuesta."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-04-sec-1",
+          "title": "1. Enseñar con ejemplos",
+          "body": "A veces es más fácil **mostrar** que explicar. Si das 2 a 5 ejemplos de entrada y salida, el modelo imita el criterio, el tono y el formato. A esto se le llama *few-shot*.\n\nBuenos ejemplos:\n- Son **variados**: cubren casos fáciles, difíciles y bordes (una queja ambigua, un mensaje en inglés).\n- Son **parecidos a los reales**: mismos tipos de texto que vas a procesar.\n- Van **etiquetados**: `<ejemplo>`, para que no se confundan con la tarea.\n\nCuidado: si todos tus ejemplos son de la misma categoría, el modelo tenderá a responder esa categoría.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Clasifica cada mensaje en: VENTA, SOPORTE o RECLAMO.\n\n<ejemplos>\nMensaje: ¿Tienen baterías para Hilux 2019?        → VENTA\nMensaje: La luz del motor sigue encendida.         → SOPORTE\nMensaje: Me cobraron dos veces la alineación.      → RECLAMO\nMensaje: ¿El aceite que me pusieron es sintético?  → SOPORTE\n</ejemplos>\n\nMensaje: Quiero cotizar 4 gomas para mi Corolla.  →",
+          "keyTakeaway": "Unos pocos ejemplos variados enseñan el criterio mejor que un párrafo de reglas."
+        },
+        {
+          "id": "ia-04-sec-2",
+          "title": "2. Formatos de salida que se pueden usar",
+          "body": "Si la respuesta va a terminar en Excel, en un sistema o en otro prompt, pide un **formato fijo**:\n- **Lista o viñetas** para leer rápido.\n- **Tabla** (Markdown o separada por comas) para pegar en una hoja de cálculo.\n- **JSON** para que un programa lo lea sin errores.\n\nDescribe el formato con un ejemplo exacto, nombra cada campo y di qué poner cuando falta un dato (`null`, \"sin dato\"). Cuando usas un modelo por API, existen **salidas estructuradas** que obligan a que la respuesta cumpla un esquema JSON; las verás en el capítulo de API.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"cliente\": \"Transporte Cibao SRL\",\n  \"rnc\": \"1-31-45678-9\",\n  \"monto_total\": 48250.00,\n  \"moneda\": \"DOP\",\n  \"fecha\": \"2026-11-04\",\n  \"vencimiento\": null\n}",
+          "keyTakeaway": "Para que otro programa o persona use la salida, fija el formato con un ejemplo y define los vacíos."
+        },
+        {
+          "id": "ia-04-sec-3",
+          "title": "3. Pedir que piense antes de responder",
+          "body": "Para tareas con varios pasos (comparar tres cotizaciones, revisar si una factura cumple el contrato), pedir que el modelo **razone antes de dar la respuesta final** mejora los resultados. Los modelos actuales ya razonan por dentro, pero ayuda pedirle que muestre el análisis en una sección y la conclusión en otra.\n\nSepara las partes con etiquetas, por ejemplo `<analisis>` y `<respuesta>`. Así puedes revisar cómo llegó a la conclusión y, si usas la salida en otro sistema, tomar solo la parte de la respuesta.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Compara las 3 cotizaciones que pego.\nPrimero, dentro de <analisis>, revisa precio, garantía y plazo de entrega de cada una.\nDespués, dentro de <respuesta>, escribe solo el nombre del proveedor recomendado\ny una oración con el motivo principal.",
+          "keyTakeaway": "Para decisiones con varios criterios, separa el análisis de la respuesta final."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo pedir una salida que otro proceso pueda usar.",
+        "rules": [
+          "Muestra el formato con un ejemplo exacto, no solo con palabras.",
+          "Define qué poner cuando un dato no aparece (null o \"sin dato\").",
+          "Usa entre 2 y 5 ejemplos variados; incluye al menos un caso difícil.",
+          "Revisa que tus ejemplos no repitan siempre la misma categoría.",
+          "Si un programa leerá la salida, pide solo el JSON, sin texto antes ni después."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Extrae los datos de la factura y responde SOLO con este JSON:\n{\"proveedor\": texto, \"rnc\": texto, \"fecha\": \"AAAA-MM-DD\",\n \"subtotal\": número, \"itbis\": número, \"total\": número}\nSi un dato no aparece, usa null. No agregues comentarios.\n\n<factura>\n...\n</factura>"
+      },
+      "comparison": {
+        "scenario": "Extraer datos de 300 facturas para Excel.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Dime los datos importantes de esta factura.",
+        "juniorFlaws": [
+          "Cada respuesta saldrá con un formato distinto.",
+          "\"Importantes\" cambia según la factura.",
+          "Pegar 300 respuestas diferentes en Excel es trabajo manual."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Responde SOLO con una línea separada por punto y coma, en este orden:\nproveedor;rnc;fecha AAAA-MM-DD;subtotal;itbis;total\nSi falta un dato, deja el campo vacío.\nEjemplo: Repuestos del Norte;1-01-12345-6;2026-10-12;10000.00;1800.00;11800.00\n\n<factura>\n...\n</factura>",
+        "intermediateBenefits": [
+          "Todas las respuestas tienen la misma forma y orden.",
+          "Se pegan directo en Excel y se separan en columnas.",
+          "Los vacíos quedan claros y no se inventan."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-04-ej-1",
+          "title": "Experimento 1: Clasificador con ejemplos",
+          "difficulty": "Básico",
+          "prompt": "Escribe un prompt few-shot que clasifique reseñas de clientes como POSITIVA, NEGATIVA o MIXTA. Incluye 4 ejemplos, uno de ellos mixto.",
+          "hint": "Una reseña mixta tiene algo bueno y algo malo: \"buen servicio pero tardaron mucho\".",
+          "solutionExplanation": "Los ejemplos cubren las tres categorías y un caso ambiguo, lo que enseña al modelo el criterio para la categoría más difícil.",
+          "solutionCode": "Clasifica la reseña en POSITIVA, NEGATIVA o MIXTA. Responde solo la etiqueta.\n\n<ejemplos>\n\"Excelente atención, me explicaron todo.\" → POSITIVA\n\"Nunca más, perdieron mi llave.\" → NEGATIVA\n\"El trabajo quedó bien, pero esperé 4 horas.\" → MIXTA\n\"Rápidos y el precio justo.\" → POSITIVA\n</ejemplos>\n\nReseña: \"{texto}\" →",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-04-ej-2",
+          "title": "Experimento 2: Diseña un JSON",
+          "difficulty": "Intermedio",
+          "prompt": "Un supervisor manda por WhatsApp reportes como: \"Ficha 214, placa L123456, cambio de aceite y filtro, 152,300 km, listo 3pm\". Diseña el prompt y el JSON de salida para registrar estos reportes.",
+          "hint": "Piensa qué campos necesitaría la tabla de mantenimiento y qué tipo tiene cada uno.",
+          "solutionExplanation": "El JSON tiene un campo por dato, tipos claros (el kilometraje como número) y una lista para los trabajos, porque un reporte puede incluir varios.",
+          "solutionCode": "Convierte el reporte en JSON con esta forma exacta y responde solo el JSON:\n{\n  \"ficha\": número,\n  \"placa\": texto,\n  \"trabajos\": [lista de textos],\n  \"kilometraje\": número sin comas,\n  \"hora_listo\": \"HH:MM\" en 24 horas o null\n}\n\n<reporte>Ficha 214, placa L123456, cambio de aceite y filtro, 152,300 km, listo 3pm</reporte>\n\nSalida esperada:\n{\"ficha\": 214, \"placa\": \"L123456\", \"trabajos\": [\"cambio de aceite\", \"cambio de filtro\"],\n \"kilometraje\": 152300, \"hora_listo\": \"15:00\"}",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-04-q1",
+          "question": "¿Qué riesgo tienen unos ejemplos que son todos de la misma categoría?",
+          "options": [
+            "Que el modelo tienda a responder esa categoría.",
+            "Que la respuesta salga en otro idioma distinto.",
+            "Que el modelo ignore los ejemplos por completo.",
+            "Que la llamada falle por exceso de ejemplos."
+          ],
+          "correctIndex": 0,
+          "explanation": "Los ejemplos guían el criterio; si todos apuntan a lo mismo, sesgan la respuesta hacia eso."
+        },
+        {
+          "id": "ia-04-q2",
+          "question": "¿Qué debes indicar al pedir un JSON con datos de una factura?",
+          "options": [
+            "Los campos, sus tipos y qué poner si falta uno.",
+            "Que use comillas simples para que sea más corto.",
+            "Que agregue una explicación antes del resultado.",
+            "Solo que la respuesta sea un JSON bien bonito."
+          ],
+          "correctIndex": 0,
+          "explanation": "Un formato útil define cada campo, su tipo y el valor para datos ausentes."
+        },
+        {
+          "id": "ia-04-q3",
+          "question": "¿Para qué sirve separar <analisis> de <respuesta>?",
+          "options": [
+            "Para que el modelo gaste menos tokens en la tarea.",
+            "Para que el análisis quede oculto al usuario final.",
+            "Para revisar el razonamiento y usar solo la conclusión.",
+            "Para obligar al modelo a responder en dos idiomas."
+          ],
+          "correctIndex": 2,
+          "explanation": "La separación permite auditar cómo llegó a la conclusión y tomar solo la respuesta cuando hace falta."
+        }
+      ]
     },
     {
       "id": "ia-05",
@@ -59,7 +543,127 @@
       "title": "Cadenas de prompts",
       "subtitle": "Dividir un trabajo grande en pasos revisables.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Dividir una tarea grande en pasos con una entrada y una salida claras.",
+        "Pasar el resultado de un paso al siguiente sin perder información.",
+        "Agregar un paso de revisión que corrija antes de entregar."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-05-sec-1",
+          "title": "1. Por qué dividir el trabajo",
+          "body": "Un prompt gigante que pide \"lee estas 80 quejas, agrúpalas, saca conclusiones y redacta un informe para la gerencia\" suele dar un resultado mediocre y difícil de corregir: si algo sale mal, no sabes en qué parte.\n\nUna **cadena de prompts** divide el trabajo en pasos pequeños, cada uno con una sola responsabilidad. La salida de un paso es la entrada del siguiente.\n\nVentajas:\n- Cada paso se puede **revisar** y repetir sin rehacer todo.\n- Cada prompt es corto y enfocado, así que el modelo se equivoca menos.\n- Puedes cambiar un paso (por ejemplo, el formato del informe) sin tocar los demás.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Paso 1  EXTRAER     80 quejas  ──►  tabla: fecha, ciudad, tipo, gravedad\nPaso 2  AGRUPAR      tabla      ──►  conteo por tipo y ciudad\nPaso 3  CONCLUIR     conteo     ──►  3 hallazgos con evidencia\nPaso 4  REDACTAR     hallazgos  ──►  informe de 1 página para gerencia\nPaso 5  REVISAR      informe    ──►  informe corregido + lista de cambios",
+          "keyTakeaway": "Un paso, una responsabilidad; la salida de uno alimenta al siguiente."
+        },
+        {
+          "id": "ia-05-sec-2",
+          "title": "2. Pasar resultados entre pasos",
+          "body": "Para que la cadena funcione, cada paso debe entregar algo que el siguiente pueda leer sin adivinar. Por eso los pasos intermedios usan **formatos fijos** (tablas, listas numeradas, JSON) y los pasos finales usan texto para personas.\n\nAl pasar el resultado, **etiquétalo**: `<tabla_quejas>`, `<hallazgos>`. Y en cada paso repite solo el contexto que hace falta: el paso de redacción necesita saber quién es el lector, pero no necesita las 80 quejas originales.\n\nEn un asistente de chat puedes hacerlo a mano copiando y pegando; con una API, un programa corto lo hace automáticamente.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "PASO 3 (prompt):\nEres analista de calidad del servicio.\nCon base en el conteo de <conteo>, escribe exactamente 3 hallazgos.\nCada hallazgo: una oración + la cifra que lo respalda.\n\n<conteo>\n(salida del paso 2)\n</conteo>",
+          "keyTakeaway": "Formatos fijos entre pasos y etiquetas para cada resultado intermedio."
+        },
+        {
+          "id": "ia-05-sec-3",
+          "title": "3. El paso de revisión",
+          "body": "Un patrón muy útil es **generar, revisar y corregir**: después de producir un borrador, un segundo prompt lo revisa contra una lista de criterios y un tercero aplica las correcciones.\n\nEl revisor funciona mejor si:\n- Tiene **criterios concretos** (\"¿cada cifra del informe aparece en el conteo?\"), no \"revisa si está bien\".\n- Recibe la **fuente** para comparar, no solo el borrador.\n- Devuelve una lista de problemas con su ubicación, para que la corrección sea precisa.\n\nEste paso atrapa errores de cifras, tono inadecuado y partes que faltan antes de que lleguen a tu jefe.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Revisa el <informe> contra el <conteo>. Para cada criterio responde SÍ o NO\ny, si es NO, indica la frase exacta con el problema:\n1. Cada número del informe aparece igual en el conteo.\n2. Están los 3 hallazgos.\n3. No hay recomendaciones que el conteo no respalde.\n4. Cabe en una página (máximo 350 palabras).",
+          "keyTakeaway": "Revisa con criterios concretos y con la fuente al lado."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo diseñar una cadena de prompts mantenible.",
+        "rules": [
+          "Dibuja la cadena antes de escribir los prompts: pasos, entradas y salidas.",
+          "Cada paso intermedio entrega un formato fijo que el siguiente puede leer.",
+          "Guarda la salida de cada paso; si algo falla, repites solo ese paso.",
+          "Incluye un paso de revisión con criterios medibles y la fuente original.",
+          "Si dos pasos no dependen uno del otro, pueden hacerse en paralelo."
+        ]
+      },
+      "comparison": {
+        "scenario": "Preparar el informe mensual de quejas.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Lee las 80 quejas, agrúpalas, saca conclusiones, haz recomendaciones y\nredacta un informe profesional para la gerencia.\n\n(80 quejas pegadas)",
+        "juniorFlaws": [
+          "Si el informe tiene un error, no se sabe en qué parte ocurrió.",
+          "No hay forma de revisar el conteo antes de redactar.",
+          "Cambiar el formato obliga a repetir todo el análisis."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "1. <quejas>   → EXTRAER  → tabla fecha;ciudad;tipo;gravedad  (reviso 5 filas al azar)\n2. tabla      → AGRUPAR  → conteo por tipo y ciudad\n3. conteo     → CONCLUIR → 3 hallazgos con su cifra\n4. hallazgos  → REDACTAR → informe de 1 página\n5. informe + conteo → REVISAR → lista de problemas → CORREGIR",
+        "intermediateBenefits": [
+          "Cada paso se revisa por separado.",
+          "Las cifras del informe se comprueban contra el conteo.",
+          "Cambiar el formato solo repite el paso 4."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-05-ej-1",
+          "title": "Experimento 1: Diseña la cadena",
+          "difficulty": "Básico",
+          "prompt": "Quieres convertir las notas desordenadas de una reunión en un acta con acuerdos, responsables y fechas, y luego en un correo de seguimiento. Diseña la cadena: pasos, entrada y salida de cada uno.",
+          "hint": "Piensa en tres o cuatro pasos. ¿Qué formato intermedio permite revisar los acuerdos antes del correo?",
+          "solutionExplanation": "La tabla de acuerdos es el formato intermedio que se puede revisar; el acta y el correo se generan desde ella, así que siempre coinciden.",
+          "solutionCode": "Paso 1  notas         → EXTRAER  → tabla: acuerdo;responsable;fecha límite\nPaso 2  tabla         → REVISAR  → acuerdos sin responsable o sin fecha (para preguntar)\nPaso 3  tabla + notas → REDACTAR → acta formal\nPaso 4  tabla         → REDACTAR → correo de seguimiento a cada responsable",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-05-ej-2",
+          "title": "Experimento 2: Escribe el revisor",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el prompt del paso de revisión para una cadena que redacta respuestas a clientes. Debe revisar la respuesta contra la política de garantías y el correo original del cliente.",
+          "hint": "Define criterios que se puedan contestar con SÍ o NO, y pide la frase exacta cuando haya un problema.",
+          "solutionExplanation": "Los criterios concretos y la fuente al lado permiten encontrar errores reales; pedir la frase exacta hace fácil la corrección.",
+          "solutionCode": "Revisa la <respuesta> antes de enviarla al cliente.\n\n<politica_garantia>...</politica_garantia>\n<correo_cliente>...</correo_cliente>\n<respuesta>...</respuesta>\n\nPara cada criterio responde SÍ o NO; si es NO, copia la frase con el problema:\n1. Responde todas las preguntas del correo del cliente.\n2. Todo lo que promete está permitido por la política.\n3. Los plazos y montos coinciden con la política.\n4. El tono es amable y no culpa al cliente.\nAl final escribe: APROBADA o CORREGIR.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-05-q1",
+          "question": "¿Cuál es la principal ventaja de una cadena de prompts?",
+          "options": [
+            "Siempre gasta menos tokens que un solo prompt.",
+            "Cada paso se revisa y se repite por separado.",
+            "No hace falta revisar nada de lo que entrega.",
+            "El modelo recuerda más tiempo la conversación."
+          ],
+          "correctIndex": 1,
+          "explanation": "Al dividir el trabajo, un error se localiza y se corrige en su paso sin rehacer todo."
+        },
+        {
+          "id": "ia-05-q2",
+          "question": "¿Qué formato conviene en los pasos intermedios?",
+          "options": [
+            "Un resumen distinto cada vez que corre.",
+            "Uno fijo, como una tabla o un JSON.",
+            "Texto libre con el estilo del modelo.",
+            "Un párrafo con todas las conclusiones."
+          ],
+          "correctIndex": 1,
+          "explanation": "El siguiente paso necesita leer la salida sin adivinar; un formato fijo lo hace posible."
+        },
+        {
+          "id": "ia-05-q3",
+          "question": "¿Qué hace más útil a un paso de revisión?",
+          "options": [
+            "Hacerlo con el mismo prompt que lo redactó.",
+            "Pedirle que diga si el texto le parece bueno.",
+            "Criterios concretos y la fuente para comparar.",
+            "Darle solo el borrador, sin ningún contexto."
+          ],
+          "correctIndex": 2,
+          "explanation": "Un revisor necesita qué revisar (criterios) y contra qué (la fuente)."
+        }
+      ]
     },
     {
       "id": "ia-06",
@@ -70,7 +674,127 @@
       "title": "Asistentes, búsqueda y documentos",
       "subtitle": "Usar la IA con tus archivos y con la web.",
       "estimatedMinutes": 35,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Trabajar con documentos adjuntos en un asistente de IA y obtener respuestas con cita.",
+        "Saber cuándo conviene activar la búsqueda web y cómo comprobar las fuentes.",
+        "Proteger la información de la empresa al usar asistentes."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-06-sec-1",
+          "title": "1. Preguntar sobre tus documentos",
+          "body": "Los asistentes de chat actuales permiten **adjuntar archivos**: PDF, Word, hojas de cálculo e imágenes. El modelo lee el contenido y responde sobre él. Es ideal para contratos, manuales, actas o informes largos.\n\nPara buenas respuestas:\n- Pide que **cite la página o sección** de donde saca cada dato.\n- Haz preguntas concretas: \"¿cuál es la penalidad por retraso en la entrega?\" en lugar de \"¿qué dice el contrato?\".\n- Si el documento es un escaneo de mala calidad, revisa que el texto se haya leído bien (nombres, montos).\n- Con varios archivos, nómbralos en la pregunta: \"compara la cláusula 7 del contrato A con la del contrato B\".",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "(adjunto: contrato_mantenimiento_2026.pdf)\n\n¿Qué servicios están EXCLUIDOS del contrato?\nResponde en una lista: servicio + número de cláusula + página.\nSi algo no está claro en el texto, indícalo como \"ambiguo\" en lugar de suponer.",
+          "keyTakeaway": "Preguntas concretas sobre el archivo y siempre con cita de dónde sale el dato."
+        },
+        {
+          "id": "ia-06-sec-2",
+          "title": "2. Búsqueda web: información actual",
+          "body": "Un modelo solo conoce lo que vio durante su entrenamiento. Para información reciente (precios, normas nuevas, noticias), muchos asistentes pueden **buscar en la web** y leer páginas antes de responder.\n\nAl usarla:\n- Pide que **enlace las fuentes** y revisa al menos la principal.\n- Prefiere fuentes oficiales (DGII, Banco Central, el sitio del fabricante) sobre blogs.\n- Fíjate en la **fecha** de la página: una norma de 2019 puede estar derogada.\n- Si dos fuentes dicen cosas distintas, pide que lo señale en vez de elegir una en silencio.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Busca en la web la tasa de ITBIS vigente en República Dominicana\npara servicios de reparación de vehículos.\n- Usa solo fuentes oficiales (DGII o leyes publicadas).\n- Incluye el enlace y la fecha de cada fuente.\n- Si hay excepciones o cambios recientes, menciónalos aparte.",
+          "keyTakeaway": "La búsqueda web trae datos actuales; tu trabajo es revisar la fuente y la fecha."
+        },
+        {
+          "id": "ia-06-sec-3",
+          "title": "3. Privacidad y datos de la empresa",
+          "body": "Antes de subir un archivo, pregúntate quién podría verlo. Las reglas cambian según el producto y el plan: algunos servicios para empresas no usan tus datos para entrenar y tienen controles de acceso; otros planes personales pueden tener reglas distintas.\n\nBuenas prácticas:\n- **Lee la política de tu empresa** sobre herramientas de IA; si no existe, pregunta.\n- No subas **cédulas, datos bancarios, contraseñas ni historiales médicos** de clientes sin autorización.\n- **Anonimiza** cuando puedas: cambia nombres por \"Cliente A\" y quita cédulas y teléfonos.\n- Prefiere las cuentas corporativas que tu empresa aprobó sobre cuentas personales.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Original:     Juan Pérez, cédula 001-1234567-8, tel. 809-555-0101, debe RD$45,000.\nAnonimizado:  Cliente A, debe RD$45,000.\n\n(El análisis de morosidad funciona igual y no expones datos personales.)",
+          "keyTakeaway": "Anonimiza y usa solo las herramientas aprobadas por tu empresa."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Uso profesional de asistentes con documentos y web.",
+        "rules": [
+          "Pide cita (página, sección o enlace) para cada dato que vayas a usar.",
+          "Comprueba al menos la fuente principal antes de reenviar la respuesta.",
+          "Revisa la fecha de las fuentes web en temas legales y de precios.",
+          "Anonimiza datos personales antes de subir un archivo.",
+          "Usa solo las herramientas y cuentas que tu empresa aprobó."
+        ]
+      },
+      "comparison": {
+        "scenario": "Revisar una norma de seguridad vial nueva.",
+        "juniorLabel": "Así no",
+        "juniorCode": "¿Qué dice la nueva ley de tránsito sobre los camiones?",
+        "juniorFlaws": [
+          "\"Nueva\" no dice qué ley ni de qué año; el modelo puede usar una versión vieja.",
+          "No pide fuentes, así que no se puede comprobar.",
+          "La pregunta es tan amplia que la respuesta será genérica."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Busca en la web la ley de movilidad y tránsito vigente en República Dominicana.\n¿Qué obligaciones tiene un vehículo de carga de más de 10 toneladas\nsobre horarios de circulación en el Gran Santo Domingo?\nUsa fuentes oficiales, enlaza cada una e indica su fecha.\nSi no encuentras una regla clara, dilo.",
+        "intermediateBenefits": [
+          "Pregunta concreta, con el caso exacto.",
+          "Fuentes oficiales con enlace y fecha para verificar.",
+          "Permite decir que no encontró una regla clara."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-06-ej-1",
+          "title": "Experimento 1: Pregunta con cita",
+          "difficulty": "Básico",
+          "prompt": "Tienes el manual del fabricante de un montacargas en PDF. Escribe tres preguntas concretas que harías al asistente para preparar el plan de mantenimiento, cada una pidiendo cita.",
+          "hint": "Piensa en intervalos, piezas y advertencias de seguridad.",
+          "solutionExplanation": "Las preguntas son concretas, piden una forma de respuesta y exigen la página, lo que permite verificar cada dato contra el manual.",
+          "solutionCode": "1. ¿Cada cuántas horas de uso se cambia el aceite hidráulico? Indica la página.\n2. Haz una tabla con las piezas de revisión diaria y la página donde aparece cada una.\n3. ¿Qué advertencias de seguridad da el manual para cargar la batería? Copia el texto\n   y la página; si no hay, responde \"no aparece\".",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-06-ej-2",
+          "title": "Experimento 2: Anonimiza antes de subir",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes una hoja con columnas: nombre, cédula, teléfono, ciudad, monto adeudado y días de atraso. Quieres que un asistente te ayude a segmentar la cartera morosa. ¿Qué columnas quitas o cambias y qué prompt usas?",
+          "hint": "El análisis de segmentos necesita ciudad, monto y días; no necesita saber quién es cada persona.",
+          "solutionExplanation": "Se reemplazan los datos personales por un código y se conservan solo las columnas que el análisis necesita. El código permite volver a unir los resultados con tu hoja original.",
+          "solutionCode": "Quitar: nombre, cédula, teléfono.\nAgregar: codigo (C001, C002, ...) para unir luego con la hoja original.\nConservar: ciudad, monto_adeudado, dias_atraso.\n\nPrompt:\nCon la tabla adjunta (codigo, ciudad, monto_adeudado, dias_atraso), propone\n3 a 4 segmentos de cobro. Para cada segmento: regla (por ejemplo, más de 90 días\ny más de RD$50,000), cantidad de clientes y una acción de cobro sugerida.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-06-q1",
+          "question": "¿Por qué conviene pedir la página o sección de cada dato de un documento?",
+          "options": [
+            "Para que el documento ocupe menos contexto.",
+            "Para que el modelo lea el archivo más rápido.",
+            "Porque sin cita el asistente no puede responder.",
+            "Para poder comprobarlo rápido en el original."
+          ],
+          "correctIndex": 3,
+          "explanation": "La cita te deja verificar el dato en segundos y detectar si el modelo lo inventó."
+        },
+        {
+          "id": "ia-06-q2",
+          "question": "¿Cuándo es más útil activar la búsqueda web?",
+          "options": [
+            "Cuando el documento adjunto es demasiado largo.",
+            "Cuando quieres que el texto suene más profesional.",
+            "Cuando necesitas que la respuesta sea más corta.",
+            "Cuando la respuesta depende de información reciente."
+          ],
+          "correctIndex": 3,
+          "explanation": "El modelo no conoce lo que pasó después de su entrenamiento; la búsqueda trae información actual."
+        },
+        {
+          "id": "ia-06-q3",
+          "question": "¿Qué haces antes de subir una hoja con datos de clientes?",
+          "options": [
+            "Nada, los asistentes nunca guardan archivos.",
+            "Convertirla a PDF para que no se pueda leer.",
+            "Quitar o reemplazar los datos personales.",
+            "Subirla dividida en varias partes pequeñas."
+          ],
+          "correctIndex": 2,
+          "explanation": "Anonimizar protege a los clientes y casi nunca afecta el análisis."
+        }
+      ]
     },
     {
       "id": "ia-07",
@@ -81,7 +805,127 @@
       "title": "IA para hojas de cálculo y datos",
       "subtitle": "Limpiar, resumir y analizar tablas con ayuda.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Usar la IA para limpiar y normalizar columnas de texto desordenadas.",
+        "Pedir fórmulas de Excel y código pandas explicados, y comprobarlos.",
+        "Obtener un resumen de una tabla sin perder el control de las cifras."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-07-sec-1",
+          "title": "1. Limpiar texto desordenado",
+          "body": "Las hojas reales tienen columnas escritas a mano: \"Sto. Dgo\", \"santo domingo\", \"SDQ\", \"Sto Domingo Este\". Normalizar eso con fórmulas es tedioso; un modelo lo hace bien porque entiende el significado.\n\nEl método seguro:\n1. Saca la lista de **valores únicos** de la columna (no todas las filas).\n2. Pide al modelo una **tabla de equivalencias**: valor original → valor normalizado.\n3. Revisa la tabla (es corta) y aplícala con BUSCARV o `merge` en pandas.\n\nAsí el modelo no toca tus 20,000 filas: solo propone un diccionario que tú controlas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Normaliza estos nombres de ciudad al nombre oficial de la provincia o municipio.\nResponde solo una tabla: original;normalizado. Si no estás seguro, pon REVISAR.\n\nSto. Dgo\nsanto domingo\nSDQ\nStgo\nSantiago de los Caballeros\nSto Domingo Este\nLa Romana \nlaromana",
+          "keyTakeaway": "Normaliza la lista de valores únicos y aplica tú la tabla de equivalencias."
+        },
+        {
+          "id": "ia-07-sec-2",
+          "title": "2. Fórmulas y código que tú entiendes",
+          "body": "Pedir una fórmula es de los usos más productivos: describes lo que quieres con tus columnas y el modelo propone la fórmula. Para que funcione:\n- Di **qué columnas y filas** tienes y la versión de Excel (o si usas Google Sheets).\n- Pide que **explique** cada parte de la fórmula.\n- **Pruébala** con 3 o 4 casos que sepas calcular a mano, incluidos casos raros (celdas vacías, fechas al cierre del mes).\n\nLo mismo con pandas: pide el código, pero ejecútalo sobre una copia y compara los totales con lo que ya conoces.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\n\n# Ventas por mes y vendedor, con el total general para comprobar\nventas = pd.read_excel(\"ventas_2026.xlsx\")\nventas[\"mes\"] = ventas[\"fecha\"].dt.to_period(\"M\")\nresumen = ventas.pivot_table(index=\"vendedor\", columns=\"mes\",\n                             values=\"monto\", aggfunc=\"sum\", fill_value=0)\n\n# Comprobación: el total del resumen debe ser igual al total original\nassert round(resumen.to_numpy().sum(), 2) == round(ventas[\"monto\"].sum(), 2)\nprint(resumen)",
+          "keyTakeaway": "Pide la fórmula explicada y pruébala con casos que conoces."
+        },
+        {
+          "id": "ia-07-sec-3",
+          "title": "3. Resumir una tabla sin perder las cifras",
+          "body": "Si pegas una tabla grande y pides \"analízala\", el modelo puede hacer sumas mal o fijarse en lo que no importa. La forma confiable es dividir el trabajo:\n- **Los números los calculas tú** (tabla dinámica, pandas, o un asistente que ejecuta código y te muestra el código).\n- **El modelo interpreta**: le das el resumen ya calculado y le pides hallazgos, preguntas para investigar o un texto para la gerencia.\n\nAlgunos asistentes ejecutan Python por dentro al analizar archivos; si es así, pide ver el código que usó y revisa que el total coincida con tu hoja.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "<resumen_ventas>\nzona;2025;2026;variacion\nNorte;12.4M;14.1M;+13.7%\nSur;8.9M;8.1M;-9.0%\nEste;10.2M;11.0M;+7.8%\n</resumen_ventas>\n\nCon estas cifras (ya verificadas), escribe 3 hallazgos y 2 preguntas\nque la gerencia debería investigar. No calcules cifras nuevas.",
+          "keyTakeaway": "Calcula los números con herramientas; usa el modelo para interpretarlos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo trabajar con datos y la IA sin perder el control.",
+        "rules": [
+          "Trabaja sobre una copia de la hoja, nunca sobre el original.",
+          "Normaliza con una tabla de equivalencias que revisas antes de aplicar.",
+          "Comprueba cada fórmula o script con casos que puedas calcular a mano.",
+          "Compara el total final con el total original de la hoja.",
+          "Deja que el modelo interprete cifras ya calculadas, no que las calcule de memoria."
+        ]
+      },
+      "comparison": {
+        "scenario": "Corregir los nombres de ciudad de 20,000 ventas.",
+        "juniorLabel": "Así no",
+        "juniorCode": "(pega las 20,000 filas)\nCorrige la columna ciudad y devuélveme la tabla completa.",
+        "juniorFlaws": [
+          "Puede no caber en el contexto o cortarse a mitad.",
+          "El modelo podría cambiar otros valores de la tabla sin que lo notes.",
+          "Revisar 20,000 filas devueltas es imposible."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "1. =UNICOS(C2:C20001)        → 37 valores distintos\n2. Prompt: normaliza estos 37 valores → tabla original;normalizado\n3. Reviso la tabla de 37 filas\n4. =BUSCARV(C2; Equivalencias!A:B; 2; FALSO) en una columna nueva",
+        "intermediateBenefits": [
+          "Solo se envían 37 valores.",
+          "El resto de la tabla no se toca.",
+          "La revisión cabe en una pantalla."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-07-ej-1",
+          "title": "Experimento 1: Pide una fórmula",
+          "difficulty": "Básico",
+          "prompt": "En una hoja tienes la columna B con la fecha de vencimiento de cada factura y la C con el monto. Escribe el prompt para obtener una fórmula que diga \"Vencida\", \"Vence esta semana\" o \"Al día\", y escribe la fórmula que esperarías.",
+          "hint": "Usa HOY() y compara la diferencia de días.",
+          "solutionExplanation": "El prompt describe columnas, reglas y la versión; la fórmula compara la fecha con HOY() en dos niveles.",
+          "solutionCode": "Prompt:\nEn Excel 365, la columna B tiene fechas de vencimiento (desde B2). Quiero en D2\nuna fórmula que diga \"Vencida\" si la fecha ya pasó, \"Vence esta semana\" si vence\nen los próximos 7 días y \"Al día\" en otro caso. Explica cada parte.\n\nFórmula esperada:\n=SI(B2<HOY(); \"Vencida\"; SI(B2-HOY()<=7; \"Vence esta semana\"; \"Al día\"))",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-07-ej-2",
+          "title": "Experimento 2: Comprueba el código",
+          "difficulty": "Intermedio",
+          "prompt": "Un asistente te dio este código para sumar ventas por zona: `df.groupby(\"zona\")[\"monto\"].mean()`. Explica el error y escribe la versión correcta con una comprobación del total.",
+          "hint": "Lee con atención la función de agregación.",
+          "solutionExplanation": "El código usa el promedio en vez de la suma. La comprobación del total habría detectado el error al instante, porque la suma de promedios no coincide con el total.",
+          "solutionCode": "import pandas as pd\n\ndf = pd.read_excel(\"ventas.xlsx\")\n# Error: .mean() calcula el promedio, no la suma\npor_zona = df.groupby(\"zona\")[\"monto\"].sum()\n\n# Comprobación que atrapa errores de este tipo\nassert round(por_zona.sum(), 2) == round(df[\"monto\"].sum(), 2)\nprint(por_zona.sort_values(ascending=False))",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-07-q1",
+          "question": "¿Cuál es la forma segura de normalizar una columna de ciudades?",
+          "options": [
+            "Borrar las filas que tengan nombres con errores.",
+            "Normalizar los valores únicos y aplicar una tabla.",
+            "Pegar todas las filas y pedir la tabla corregida.",
+            "Pedir al modelo que adivine la ciudad de cada fila."
+          ],
+          "correctIndex": 1,
+          "explanation": "Trabajar con los valores únicos produce una tabla corta que puedes revisar y aplicar con una fórmula."
+        },
+        {
+          "id": "ia-07-q2",
+          "question": "¿Cómo compruebas una fórmula que te sugirió la IA?",
+          "options": [
+            "Con casos que puedas calcular a mano, incluidos raros.",
+            "Comparándola con otra fórmula que se vea parecida.",
+            "Copiándola en todas las filas y viendo si da error.",
+            "Preguntándole al mismo modelo si está bien hecha."
+          ],
+          "correctIndex": 0,
+          "explanation": "Los casos conocidos, incluidas celdas vacías y fechas límite, muestran si la fórmula hace lo que necesitas."
+        },
+        {
+          "id": "ia-07-q3",
+          "question": "En un análisis de ventas, ¿qué parte conviene dejar al modelo?",
+          "options": [
+            "Interpretar cifras ya calculadas y verificadas.",
+            "Inventar las cifras que faltan en el resumen.",
+            "Sumar de memoria todas las filas de la tabla.",
+            "Decidir qué filas borrar sin mostrar el código."
+          ],
+          "correctIndex": 0,
+          "explanation": "Los cálculos se hacen con herramientas exactas; el modelo aporta interpretación y redacción."
+        }
+      ]
     },
     {
       "id": "ia-08",
@@ -92,7 +936,129 @@
       "title": "Tu primera llamada a una API de IA",
       "subtitle": "Claves, costos y seguridad.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Crear y guardar una clave de API de forma segura.",
+        "Hacer una llamada a un modelo desde Python y leer la respuesta.",
+        "Calcular y controlar el costo de un proceso que llama a la API muchas veces."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-08-sec-1",
+          "title": "1. Qué es una API de IA y cómo se protege la clave",
+          "body": "Un asistente de chat es cómodo para una persona, pero si quieres procesar 500 correos o conectar la IA a tu sistema, necesitas la **API**: una dirección a la que tu programa envía el mensaje y de la que recibe la respuesta.\n\nPara usarla creas una **clave de API** en la consola del proveedor (en el caso de Claude, la consola de Anthropic). La clave es como la tarjeta de crédito de tu cuenta:\n- Guárdala en una **variable de entorno** o en un archivo `.env`, nunca escrita dentro del código.\n- Agrega `.env` a tu `.gitignore` para que no termine en GitHub.\n- Si se filtra, **revócala** de inmediato en la consola y crea otra.\n- Configura un **límite de gasto** mensual en la consola.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Instalar el SDK oficial de Python\npip install anthropic python-dotenv\n\n# Archivo .env (NO se sube a GitHub)\nANTHROPIC_API_KEY=sk-ant-...tu-clave...\n\n# .gitignore\n.env",
+          "keyTakeaway": "La clave vive en una variable de entorno o en .env, nunca en el código ni en GitHub."
+        },
+        {
+          "id": "ia-08-sec-2",
+          "title": "2. Tu primera llamada",
+          "body": "Con el SDK oficial, una llamada tiene cuatro partes:\n- `model`: qué modelo usar (por ejemplo `claude-opus-5-5`, o uno más rápido y económico como `claude-haiku-5-5` para tareas simples).\n- `max_tokens`: el máximo que puede escribir.\n- `system`: las instrucciones generales (rol, reglas, formato).\n- `messages`: la conversación, con mensajes de `user` y `assistant`.\n\nLa respuesta trae una lista de bloques en `content`; el texto está en los bloques de tipo `text`. También trae `stop_reason`, que dice por qué terminó: `end_turn` (terminó normal), `max_tokens` (se cortó) o `refusal` (se negó).",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\nfrom dotenv import load_dotenv\n\nload_dotenv()                      # lee ANTHROPIC_API_KEY del archivo .env\nclient = anthropic.Anthropic()     # toma la clave de la variable de entorno\n\nrespuesta = client.messages.create(\n    model=\"claude-opus-5-5\",\n    max_tokens=1024,\n    system=\"Eres asistente de un taller. Respondes en español, en máximo 3 líneas.\",\n    messages=[{\"role\": \"user\", \"content\": \"¿Cada cuánto se revisa la presión de las gomas?\"}],\n)\n\nfor bloque in respuesta.content:\n    if bloque.type == \"text\":\n        print(bloque.text)\n\nprint(\"Terminó por:\", respuesta.stop_reason)",
+          "keyTakeaway": "El SDK envía model, max_tokens, system y messages; el texto viene en los bloques de tipo text."
+        },
+        {
+          "id": "ia-08-sec-3",
+          "title": "3. Costos, errores y límites",
+          "body": "La API cobra por **tokens de entrada y de salida**, con precios distintos por modelo (revisa la página de precios del proveedor; cambian). Cada respuesta trae `usage` con los tokens exactos: úsalo para medir antes de procesar miles de registros.\n\nPara controlar el gasto:\n- Prueba con **10 casos**, mide los tokens y multiplica por el total antes de lanzar el proceso completo.\n- Usa el modelo más económico que haga bien la tarea; clasificar no necesita el modelo más potente.\n- Limita `max_tokens` a lo que la tarea necesita.\n\nY maneja los errores: la red puede fallar o puedes exceder el límite de solicitudes por minuto. El SDK ya **reintenta** varios errores temporales; tú captura los demás para que un fallo no detenga todo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\n\nclient = anthropic.Anthropic()\n\ntry:\n    r = client.messages.create(\n        model=\"claude-haiku-5-5\",\n        max_tokens=50,\n        messages=[{\"role\": \"user\", \"content\": \"Clasifica: 'me cobraron doble'. Solo la categoría.\"}],\n    )\n    print(r.content[0].text)\n    print(\"Entrada:\", r.usage.input_tokens, \"tokens · Salida:\", r.usage.output_tokens, \"tokens\")\nexcept anthropic.RateLimitError:\n    print(\"Demasiadas solicitudes por minuto: espera y vuelve a intentar.\")\nexcept anthropic.APIStatusError as e:\n    print(\"La API respondió con error\", e.status_code)\nexcept anthropic.APIConnectionError:\n    print(\"No hubo conexión con la API.\")",
+          "keyTakeaway": "Mide con usage en una muestra, elige el modelo justo y captura los errores."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Una llamada a la API lista para usar en un proceso real.",
+        "rules": [
+          "La clave se lee de una variable de entorno; nunca aparece en el código.",
+          "Hay un límite de gasto configurado en la consola del proveedor.",
+          "Se revisa stop_reason: max_tokens significa respuesta cortada y refusal, negativa.",
+          "Se registran los tokens de usage para conocer el costo real.",
+          "Los errores se capturan por tipo y el proceso sigue con el siguiente registro."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import anthropic\n\nclient = anthropic.Anthropic()\n\n\ndef preguntar(texto: str, sistema: str, max_tokens: int = 1024) -> str | None:\n    \"\"\"Hace una llamada y devuelve el texto, o None si no hubo respuesta útil.\"\"\"\n    try:\n        r = client.messages.create(\n            model=\"claude-opus-5-5\",\n            max_tokens=max_tokens,\n            system=sistema,\n            messages=[{\"role\": \"user\", \"content\": texto}],\n        )\n    except anthropic.APIError as e:\n        print(\"Error de la API:\", e)\n        return None\n    if r.stop_reason == \"refusal\":\n        print(\"El modelo no respondió esta solicitud.\")\n        return None\n    if r.stop_reason == \"max_tokens\":\n        print(\"Aviso: la respuesta se cortó; sube max_tokens.\")\n    print(f\"tokens: {r.usage.input_tokens} entrada, {r.usage.output_tokens} salida\")\n    return \"\".join(b.text for b in r.content if b.type == \"text\")"
+      },
+      "comparison": {
+        "scenario": "Conectar un script a la API.",
+        "juniorLabel": "Así no",
+        "juniorCode": "import anthropic\n\nclient = anthropic.Anthropic(api_key=\"sk-ant-api03-AbC...\")\nr = client.messages.create(model=\"claude-opus-5-5\", max_tokens=100,\n                           messages=[{\"role\": \"user\", \"content\": correo}])\nprint(r.content[0].text)",
+        "juniorFlaws": [
+          "La clave está escrita en el código y se filtra al subirlo a GitHub.",
+          "max_tokens=100 puede cortar la respuesta sin que lo notes.",
+          "No revisa stop_reason ni captura errores: un fallo detiene todo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "import anthropic\n\nclient = anthropic.Anthropic()  # lee ANTHROPIC_API_KEY del entorno\n\ntry:\n    r = client.messages.create(model=\"claude-opus-5-5\", max_tokens=1024,\n                               messages=[{\"role\": \"user\", \"content\": correo}])\n    if r.stop_reason == \"max_tokens\":\n        print(\"Aviso: respuesta cortada\")\n    print(\"\".join(b.text for b in r.content if b.type == \"text\"))\nexcept anthropic.APIError as e:\n    print(\"Error de la API:\", e)",
+        "intermediateBenefits": [
+          "La clave nunca aparece en el código.",
+          "Detecta respuestas cortadas.",
+          "Un error se informa sin romper el programa."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ia-08-ej-1",
+          "title": "Experimento 1: Estima el costo antes de lanzar",
+          "difficulty": "Básico",
+          "prompt": "Probaste tu clasificador con 10 correos y `usage` sumó 6,200 tokens de entrada y 300 de salida. Vas a procesar 4,000 correos. Supón un precio de 1 dólar por millón de tokens de entrada y 5 por millón de salida (precio inventado para el ejercicio). ¿Cuánto costará?",
+          "hint": "Calcula el promedio por correo, multiplica por 4,000 y aplica cada precio.",
+          "solutionExplanation": "Por correo hay 620 tokens de entrada y 30 de salida. En 4,000 correos son 2.48 millones de entrada y 0.12 millones de salida: 2.48 + 0.60 = 3.08 dólares. Medir con una muestra evita sorpresas.",
+          "solutionCode": "Por correo:  6,200 / 10 = 620 tokens de entrada · 300 / 10 = 30 de salida\n4,000 correos: 620 × 4,000 = 2,480,000 entrada · 30 × 4,000 = 120,000 salida\nCosto: 2.48 × $1 + 0.12 × $5 = $2.48 + $0.60 = $3.08",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-08-ej-2",
+          "title": "Experimento 2: Resume un correo desde Python",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una función `resumir(correo)` que use la API para devolver un resumen de una línea, con la clave tomada del entorno, un `system` claro y manejo de errores.",
+          "hint": "Usa client.messages.create con system y un max_tokens pequeño pero suficiente; une los bloques de texto.",
+          "solutionExplanation": "La función centraliza las buenas prácticas: clave del entorno, instrucciones en system, comprobación de stop_reason y captura de errores.",
+          "solutionCode": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSISTEMA = (\n    \"Resumes correos de clientes de un taller en UNA línea de máximo 20 palabras, \"\n    \"en español, indicando qué pide el cliente.\"\n)\n\n\ndef resumir(correo: str) -> str:\n    try:\n        r = client.messages.create(\n            model=\"claude-haiku-5-5\",\n            max_tokens=200,\n            system=SISTEMA,\n            messages=[{\"role\": \"user\", \"content\": f\"<correo>\\n{correo}\\n</correo>\"}],\n        )\n    except anthropic.APIError as e:\n        return f\"(error: {e})\"\n    if r.stop_reason == \"refusal\":\n        return \"(sin respuesta)\"\n    return \"\".join(b.text for b in r.content if b.type == \"text\").strip()\n\n\nprint(resumir(\"Buenas, llevé la camioneta el lunes y todavía no me dicen cuándo está lista.\"))",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-08-q1",
+          "question": "¿Dónde debe guardarse la clave de API?",
+          "options": [
+            "En el README para que el equipo la encuentre.",
+            "En el código, pero dentro de un comentario.",
+            "En una variable de entorno o un .env ignorado.",
+            "En un archivo de texto subido al repositorio."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las claves en el código o el repositorio se filtran; el entorno y un .env en .gitignore las mantienen fuera."
+        },
+        {
+          "id": "ia-08-q2",
+          "question": "¿Qué significa stop_reason igual a max_tokens?",
+          "options": [
+            "Que la respuesta se cortó al llegar al tope.",
+            "Que la cuenta se quedó sin saldo disponible.",
+            "Que el modelo terminó la respuesta normalmente.",
+            "Que el modelo se negó a responder la pregunta."
+          ],
+          "correctIndex": 0,
+          "explanation": "max_tokens indica que la generación llegó al límite fijado y la respuesta quedó incompleta."
+        },
+        {
+          "id": "ia-08-q3",
+          "question": "¿Cómo estimas el costo antes de procesar 10,000 registros?",
+          "options": [
+            "Procesas todo y miras la factura del mes.",
+            "Usas siempre el modelo más grande disponible.",
+            "Cuentas las letras de cada registro a mano.",
+            "Pruebas una muestra, mides usage y multiplicas."
+          ],
+          "correctIndex": 3,
+          "explanation": "La muestra da el promedio real de tokens por registro; multiplicado por el total da una estimación confiable."
+        }
+      ]
     },
     {
       "id": "ia-09",
@@ -103,7 +1069,127 @@
       "title": "Embeddings y búsqueda en tus documentos",
       "subtitle": "Encontrar respuestas en tus propios textos.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Explicar qué es un embedding y por qué encuentra textos por significado.",
+        "Dividir documentos en fragmentos y buscar los más parecidos a una pregunta.",
+        "Construir una respuesta con fuentes (RAG) usando los fragmentos encontrados."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-09-sec-1",
+          "title": "1. Buscar por significado, no por palabras",
+          "body": "Una búsqueda normal encuentra textos que contienen **las mismas palabras**. Si preguntas \"¿cuándo cambio el líquido de frenos?\" y el manual dice \"sustituya el fluido hidráulico del sistema de frenado cada 2 años\", la búsqueda por palabras puede fallar.\n\nUn **embedding** convierte un texto en una lista de números (un vector) que representa su significado. Textos que dicen lo mismo con otras palabras quedan con vectores **cercanos**. Para buscar:\n1. Calculas el embedding de cada fragmento de tus documentos (una vez).\n2. Calculas el embedding de la pregunta.\n3. Te quedas con los fragmentos más cercanos (similitud coseno).\n\nAnthropic no ofrece un modelo de embeddings propio; se usan proveedores especializados (su documentación sugiere, por ejemplo, Voyage AI) o modelos abiertos que corren en tu computadora.",
+          "codeLanguage": "python",
+          "codeSnippet": "import numpy as np\n\n\ndef similitud_coseno(a: np.ndarray, b: np.ndarray) -> float:\n    \"\"\"1 = mismo significado, 0 = nada que ver.\"\"\"\n    return float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b)))\n\n\n# Vectores de ejemplo (los reales tienen cientos o miles de números)\npregunta = np.array([0.8, 0.1, 0.3])\nfrenos = np.array([0.7, 0.2, 0.3])     # fragmento sobre el líquido de frenos\ngomas = np.array([0.1, 0.9, 0.2])      # fragmento sobre la presión de gomas\nprint(similitud_coseno(pregunta, frenos))  # alta\nprint(similitud_coseno(pregunta, gomas))   # baja",
+          "keyTakeaway": "Un embedding es un vector de significado; se busca por cercanía entre vectores."
+        },
+        {
+          "id": "ia-09-sec-2",
+          "title": "2. Preparar tus documentos: fragmentos",
+          "body": "Un manual de 300 páginas no se compara entero con la pregunta: se divide en **fragmentos** (chunks) de unos pocos párrafos. Recomendaciones:\n- Corta por **secciones o párrafos**, no a mitad de frase.\n- Un tamaño típico es de 200 a 500 palabras, con un pequeño **solapamiento** para no perder contexto en los bordes.\n- Guarda con cada fragmento sus **metadatos**: documento, página y sección. Los necesitarás para citar.\n\nPara practicar sin servicios externos, puedes usar TF-IDF de scikit-learn: no entiende sinónimos como un embedding, pero el flujo de búsqueda es idéntico y luego solo cambias la forma de calcular los vectores.",
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.feature_extraction.text import TfidfVectorizer\nfrom sklearn.metrics.pairwise import cosine_similarity\n\nfragmentos = [\n    {\"texto\": \"Sustituya el fluido del sistema de frenos cada 2 años.\", \"doc\": \"manual\", \"pag\": 41},\n    {\"texto\": \"La presión de los neumáticos se revisa en frío cada semana.\", \"doc\": \"manual\", \"pag\": 18},\n    {\"texto\": \"El filtro de aire se cambia cada 15,000 km.\", \"doc\": \"manual\", \"pag\": 22},\n]\n\nvectorizador = TfidfVectorizer()\nmatriz = vectorizador.fit_transform([f[\"texto\"] for f in fragmentos])\n\n\ndef buscar(pregunta: str, k: int = 2) -> list[dict]:\n    v = vectorizador.transform([pregunta])\n    puntajes = cosine_similarity(v, matriz)[0]\n    orden = puntajes.argsort()[::-1][:k]\n    return [fragmentos[i] | {\"puntaje\": round(float(puntajes[i]), 3)} for i in orden]\n\n\nfor f in buscar(\"¿Cada cuánto se cambia el fluido de frenos?\"):\n    print(f[\"pag\"], f[\"puntaje\"], f[\"texto\"])",
+          "keyTakeaway": "Fragmentos por sección, con solapamiento y con su página guardada para citar."
+        },
+        {
+          "id": "ia-09-sec-3",
+          "title": "3. RAG: buscar y luego responder",
+          "body": "**RAG** (generación aumentada con recuperación) une las dos piezas: primero **buscas** los fragmentos más parecidos a la pregunta y después **le das esos fragmentos al modelo** para que responda solo con ellos y cite la fuente.\n\nAsí el modelo responde sobre documentos que nunca vio en su entrenamiento, con información actualizada y con citas comprobables. Si la respuesta no está en los fragmentos, debe decirlo.\n\nCuando tus documentos son pocos y caben en el contexto, a veces es más simple pegarlos completos. RAG vale la pena cuando tienes muchos documentos o cambian a menudo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\n\nclient = anthropic.Anthropic()\n\n\ndef responder(pregunta: str) -> str:\n    encontrados = buscar(pregunta, k=3)          # función de la sección anterior\n    fuentes = \"\\n\".join(\n        f'<fragmento doc=\"{f[\"doc\"]}\" pag=\"{f[\"pag\"]}\">{f[\"texto\"]}</fragmento>'\n        for f in encontrados\n    )\n    r = client.messages.create(\n        model=\"claude-opus-5-5\",\n        max_tokens=1024,\n        system=(\"Respondes preguntas de técnicos usando SOLO los fragmentos dados. \"\n                \"Cita la página entre paréntesis. Si no está, responde: No aparece en el manual.\"),\n        messages=[{\"role\": \"user\", \"content\": f\"{fuentes}\\n\\nPregunta: {pregunta}\"}],\n    )\n    return \"\".join(b.text for b in r.content if b.type == \"text\")",
+          "keyTakeaway": "RAG = buscar los fragmentos relevantes y responder solo con ellos, citando."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Un buscador de documentos internos confiable.",
+        "rules": [
+          "Cada fragmento guarda su documento, página y fecha de actualización.",
+          "Los fragmentos se cortan por secciones y no a mitad de frase.",
+          "La respuesta cita la fuente de cada dato y dice \"no aparece\" cuando no está.",
+          "Se prueba con preguntas reales cuya respuesta conoces, incluidas preguntas sin respuesta.",
+          "Al cambiar un documento, se recalculan sus fragmentos y vectores."
+        ]
+      },
+      "comparison": {
+        "scenario": "Responder preguntas sobre los procedimientos internos.",
+        "juniorLabel": "Así no",
+        "juniorCode": "r = client.messages.create(model=\"claude-opus-5-5\", max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": \"¿Cuál es nuestro procedimiento para \"\n               \"recibir un vehículo en garantía?\"}])",
+        "juniorFlaws": [
+          "El modelo no conoce los procedimientos de tu empresa: inventará uno genérico.",
+          "No hay fuentes, así que nadie puede comprobar la respuesta.",
+          "Si el procedimiento cambia, la respuesta no se entera."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "encontrados = buscar(\"recibir un vehículo en garantía\", k=3)\nfuentes = \"\\n\".join(f'<fragmento pag=\"{f[\"pag\"]}\">{f[\"texto\"]}</fragmento>' for f in encontrados)\nr = client.messages.create(model=\"claude-opus-5-5\", max_tokens=1024,\n    system=\"Responde solo con los fragmentos y cita la página. Si no está, dilo.\",\n    messages=[{\"role\": \"user\", \"content\": fuentes + \"\\n\\n¿Cómo se recibe un vehículo en garantía?\"}])",
+        "intermediateBenefits": [
+          "Responde con el procedimiento real de la empresa.",
+          "Cada paso trae la página de donde salió.",
+          "Al actualizar el documento, la respuesta cambia sola."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ia-09-ej-1",
+          "title": "Experimento 1: Divide en fragmentos",
+          "difficulty": "Básico",
+          "prompt": "Escribe una función `fragmentar(texto, palabras=200, solape=30)` que divida un texto en trozos de 200 palabras, donde cada trozo repite las últimas 30 palabras del anterior.",
+          "hint": "Separa el texto en palabras con split() y avanza de (palabras - solape) en (palabras - solape).",
+          "solutionExplanation": "El solapamiento evita que una idea que cae justo en el borde quede partida entre dos fragmentos sin contexto.",
+          "solutionCode": "def fragmentar(texto: str, palabras: int = 200, solape: int = 30) -> list[str]:\n    lista = texto.split()\n    paso = palabras - solape\n    trozos = []\n    for inicio in range(0, len(lista), paso):\n        trozos.append(\" \".join(lista[inicio:inicio + palabras]))\n        if inicio + palabras >= len(lista):\n            break\n    return trozos\n\n\nprint(len(fragmentar(\"palabra \" * 500)))  # 3 fragmentos",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "ia-09-ej-2",
+          "title": "Experimento 2: Pon a prueba tu buscador",
+          "difficulty": "Intermedio",
+          "prompt": "Con el buscador TF-IDF de la sección 2, escribe una prueba con 3 preguntas cuya página correcta conoces y calcula en cuántas aparece la página correcta entre los 2 primeros resultados.",
+          "hint": "Guarda pares (pregunta, página esperada) y cuenta los aciertos.",
+          "solutionExplanation": "Medir el buscador por separado es clave: si no encuentra el fragmento correcto, ningún prompt podrá dar una buena respuesta.",
+          "solutionCode": "pruebas = [\n    (\"¿Cada cuánto cambio el fluido de frenos?\", 41),\n    (\"¿Cuándo se revisa la presión de las gomas?\", 18),\n    (\"¿Cada cuántos kilómetros va el filtro de aire?\", 22),\n]\n\naciertos = 0\nfor pregunta, pag in pruebas:\n    paginas = [f[\"pag\"] for f in buscar(pregunta, k=2)]\n    ok = pag in paginas\n    aciertos += ok\n    print(\"OK \" if ok else \"FALLA\", pregunta, paginas)\n\nprint(f\"Encontró la página correcta en {aciertos} de {len(pruebas)}\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-09-q1",
+          "question": "¿Qué representa un embedding?",
+          "options": [
+            "Un resumen corto del texto en una oración.",
+            "El significado de un texto como un vector.",
+            "La cantidad de tokens que ocupa el texto.",
+            "La traducción del texto al idioma inglés."
+          ],
+          "correctIndex": 1,
+          "explanation": "El embedding convierte el texto en números; textos con significado parecido quedan cerca."
+        },
+        {
+          "id": "ia-09-q2",
+          "question": "¿Por qué se guarda la página con cada fragmento?",
+          "options": [
+            "Para que el vector ocupe menos espacio.",
+            "Para ordenar los fragmentos por tamaño.",
+            "Para que la respuesta pueda citar la fuente.",
+            "Para que el modelo responda más rápido."
+          ],
+          "correctIndex": 2,
+          "explanation": "Sin metadatos no hay cita; con ellos, cada dato se comprueba en el documento original."
+        },
+        {
+          "id": "ia-09-q3",
+          "question": "¿Qué hace un sistema RAG antes de llamar al modelo?",
+          "options": [
+            "Entrena al modelo de nuevo con tus documentos.",
+            "Busca los fragmentos más parecidos a la pregunta.",
+            "Borra los documentos que el modelo ya conoce.",
+            "Traduce todos los documentos a un solo idioma."
+          ],
+          "correctIndex": 1,
+          "explanation": "RAG recupera primero los fragmentos relevantes y luego se los da al modelo como contexto."
+        }
+      ]
     },
     {
       "id": "ia-10",
@@ -114,7 +1200,129 @@
       "title": "Flujos automáticos con IA",
       "subtitle": "Del disparador al resultado sin intervención.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Describir un flujo automático como disparador, pasos y resultado.",
+        "Obtener salidas estructuradas que un programa puede guardar sin errores.",
+        "Decidir dónde debe intervenir una persona antes de actuar."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-10-sec-1",
+          "title": "1. Disparador, pasos y resultado",
+          "body": "Un flujo automático con IA tiene siempre tres partes:\n- **Disparador**: lo que lo inicia. Llega un correo, se sube un archivo a una carpeta, son las 7:00 a. m., se llena un formulario.\n- **Pasos**: leer el dato, llamar al modelo, validar la respuesta, consultar o actualizar un sistema.\n- **Resultado**: una fila nueva en una hoja, un ticket creado, un mensaje enviado o un borrador listo para revisar.\n\nPuedes construirlo con **código** (un script de Python que se ejecuta con el Programador de tareas de Windows o con cron) o con **herramientas sin código** (Power Automate, Make, Zapier), que ya traen conectores a correo, hojas y modelos de IA. La lógica es la misma.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "DISPARADOR   Llega un correo a soporte@empresa.com\n   │\nPASO 1       Extraer remitente, asunto y texto\nPASO 2       Modelo: clasificar (categoría, urgencia, resumen) en JSON\nPASO 3       Validar el JSON; si falla, mandar a la bandeja \"revisar\"\nPASO 4       Crear el ticket en la hoja de seguimiento\n   │\nRESULTADO    Ticket creado + aviso por Teams si la urgencia es ALTA",
+          "keyTakeaway": "Todo flujo es disparador, pasos y resultado, con código o sin código."
+        },
+        {
+          "id": "ia-10-sec-2",
+          "title": "2. Salidas estructuradas",
+          "body": "En un flujo nadie lee la respuesta antes del siguiente paso, así que el formato debe ser **exacto**. Con la API puedes usar **salidas estructuradas**: defines un esquema (por ejemplo con Pydantic en Python) y la respuesta llega validada con esos campos y tipos.\n\nEso elimina los errores clásicos: un JSON con texto antes, un campo con otro nombre o un número escrito como texto. Aun así, **valida los valores**: que la categoría sea una de las permitidas, que la fecha tenga sentido.\n\nPara procesar miles de registros sin prisa, los proveedores ofrecen procesamiento por **lotes** (batch) a menor costo, con resultados en unas horas.",
+          "codeLanguage": "python",
+          "codeSnippet": "from typing import Literal\n\nimport anthropic\nfrom pydantic import BaseModel\n\n\nclass Ticket(BaseModel):\n    categoria: Literal[\"facturacion\", \"averia\", \"cita\", \"otro\"]\n    urgencia: Literal[\"alta\", \"media\", \"baja\"]\n    resumen: str\n\n\nclient = anthropic.Anthropic()\n\nr = client.messages.parse(\n    model=\"claude-opus-5-5\",\n    max_tokens=1024,\n    system=\"Clasificas correos de clientes de un taller.\",\n    messages=[{\"role\": \"user\", \"content\": \"<correo>El camión se apagó en la autopista y no prende.</correo>\"}],\n    output_format=Ticket,\n)\nticket = r.parsed_output\nprint(ticket.categoria, ticket.urgencia, ticket.resumen)",
+          "keyTakeaway": "Con salidas estructuradas la respuesta llega con el esquema exacto que definiste."
+        },
+        {
+          "id": "ia-10-sec-3",
+          "title": "3. Dónde va la persona",
+          "body": "Automatizar no significa quitar a las personas: significa ponerlas **donde aportan**. Regla práctica:\n- **Automático** cuando el error es barato y se corrige fácil: clasificar, etiquetar, resumir para uso interno.\n- **Borrador para aprobar** cuando la acción sale de la empresa o cuesta dinero: responder a un cliente, aprobar un reembolso, cambiar un precio.\n- **Nunca automático** cuando el error es grave o irreversible: despedir, negar un crédito, borrar registros.\n\nDiseña también el camino del error: si el modelo no responde o la validación falla, el registro va a una cola de **revisión manual**, no se pierde.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Acción                              Modo\nClasificar correos entrantes        automático\nResumen diario para el supervisor   automático\nRespuesta al cliente                borrador → la aprueba un agente\nReembolso mayor de RD$5,000         borrador → lo aprueba el gerente\nEliminar un cliente del sistema     nunca automático",
+          "keyTakeaway": "Automático si el error es barato; aprobación humana si sale de la empresa o cuesta dinero."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Un flujo automático que se puede dejar corriendo.",
+        "rules": [
+          "El flujo está dibujado: disparador, pasos, resultado y camino del error.",
+          "Las respuestas del modelo usan un esquema estructurado y se validan los valores.",
+          "Lo que falla va a una cola de revisión manual, nunca se pierde.",
+          "Las acciones externas o con dinero pasan por aprobación humana.",
+          "Cada ejecución queda registrada: fecha, entrada, salida y errores."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import csv\nimport datetime\n\nimport anthropic\n\nclient = anthropic.Anthropic()\n\n\ndef procesar(correos: list[dict]) -> None:\n    with open(\"tickets.csv\", \"a\", newline=\"\", encoding=\"utf-8\") as ok, \\\n         open(\"revisar.csv\", \"a\", newline=\"\", encoding=\"utf-8\") as mal:\n        w_ok, w_mal = csv.writer(ok), csv.writer(mal)\n        for c in correos:\n            ahora = datetime.datetime.now().isoformat(timespec=\"seconds\")\n            try:\n                r = client.messages.parse(\n                    model=\"claude-opus-5-5\", max_tokens=1024,\n                    system=\"Clasificas correos de clientes de un taller.\",\n                    messages=[{\"role\": \"user\", \"content\": c[\"texto\"]}],\n                    output_format=Ticket,  # esquema de la sección 2\n                )\n                t = r.parsed_output\n                w_ok.writerow([ahora, c[\"id\"], t.categoria, t.urgencia, t.resumen])\n            except Exception as e:  # cualquier fallo va a revisión manual\n                w_mal.writerow([ahora, c[\"id\"], repr(e)])"
+      },
+      "comparison": {
+        "scenario": "Responder automáticamente las quejas de clientes.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Disparador: llega un correo de queja\nPaso: el modelo redacta una respuesta\nResultado: se envía al cliente de inmediato",
+        "juniorFlaws": [
+          "La respuesta sale de la empresa sin que nadie la revise.",
+          "El modelo podría prometer reembolsos o plazos que no existen.",
+          "No hay camino para los errores ni registro de lo enviado."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Disparador: llega un correo de queja\nPaso 1: clasificar (categoría, urgencia) con esquema estructurado\nPaso 2: redactar borrador según la política de garantías\nPaso 3: guardar el borrador en la cola del agente de turno\nResultado: el agente revisa, edita si hace falta y envía\nError: si algo falla, el correo queda en \"revisar\" con el motivo",
+        "intermediateBenefits": [
+          "Una persona aprueba todo lo que llega al cliente.",
+          "El borrador se basa en la política real.",
+          "Los fallos quedan registrados y no se pierden correos."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-10-ej-1",
+          "title": "Experimento 1: Dibuja tu flujo",
+          "difficulty": "Básico",
+          "prompt": "Elige una tarea repetitiva de tu trabajo (por ejemplo, registrar las facturas que llegan por correo) y descríbela como disparador, pasos, resultado y camino del error. Indica en qué paso interviene una persona.",
+          "hint": "Pregúntate qué pasa si el modelo se equivoca en cada paso y cuánto costaría ese error.",
+          "solutionExplanation": "Un flujo bien descrito hace explícito el camino del error y el punto de aprobación, que son las partes que más se olvidan.",
+          "solutionCode": "Disparador:  llega un correo a facturas@ con un PDF adjunto\nPaso 1:      extraer el texto del PDF\nPaso 2:      modelo → JSON (proveedor, rnc, fecha, subtotal, itbis, total)\nPaso 3:      validar: subtotal + itbis = total y el RNC tiene 9 u 11 dígitos\nPaso 4:      guardar en la hoja \"Facturas por pagar\" con estado PENDIENTE\nPersona:     contabilidad aprueba el pago (el flujo nunca paga solo)\nError:       si la validación falla, la factura va a la hoja \"Revisar\" con el motivo",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-10-ej-2",
+          "title": "Experimento 2: Valida la salida",
+          "difficulty": "Intermedio",
+          "prompt": "Define con Pydantic un esquema `Factura` con proveedor, rnc, subtotal, itbis y total, y escribe una función que, además del esquema, compruebe que subtotal + itbis coincide con el total (con tolerancia de 1 peso).",
+          "hint": "El esquema garantiza los tipos; la regla de negocio la compruebas tú después.",
+          "solutionExplanation": "El esquema estructurado asegura la forma; la validación de negocio atrapa errores de lectura del documento que el esquema no puede ver.",
+          "solutionCode": "from pydantic import BaseModel\n\n\nclass Factura(BaseModel):\n    proveedor: str\n    rnc: str\n    subtotal: float\n    itbis: float\n    total: float\n\n\ndef problemas(f: Factura) -> list[str]:\n    errores = []\n    if abs(f.subtotal + f.itbis - f.total) > 1:\n        errores.append(\"subtotal + itbis no coincide con el total\")\n    if len(f.rnc.replace(\"-\", \"\")) not in (9, 11):\n        errores.append(\"el RNC o la cédula no tiene 9 u 11 dígitos\")\n    return errores\n\n\nprint(problemas(Factura(proveedor=\"Repuestos del Norte\", rnc=\"1-01-12345-6\",\n                        subtotal=10000, itbis=1800, total=11800)))  # []",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-10-q1",
+          "question": "¿Cuáles son las tres partes de un flujo automático?",
+          "options": [
+            "Entrada, memoria y pantalla.",
+            "Disparador, pasos y resultado.",
+            "Usuario, contraseña y servidor.",
+            "Prompt, modelo y temperatura."
+          ],
+          "correctIndex": 1,
+          "explanation": "Todo flujo empieza con algo que lo dispara, ejecuta pasos y deja un resultado."
+        },
+        {
+          "id": "ia-10-q2",
+          "question": "¿Qué ventaja dan las salidas estructuradas en un flujo?",
+          "options": [
+            "Ya no hace falta registrar las ejecuciones.",
+            "La respuesta llega con los campos del esquema.",
+            "La llamada a la API no tiene ningún costo.",
+            "El modelo deja de cometer errores de contenido."
+          ],
+          "correctIndex": 1,
+          "explanation": "Garantizan la forma de la respuesta; el contenido aún se valida con reglas de negocio."
+        },
+        {
+          "id": "ia-10-q3",
+          "question": "¿Qué acción conviene dejar como borrador para aprobar?",
+          "options": [
+            "Resumir un acta para el equipo.",
+            "Responder por correo a un cliente.",
+            "Contar los tickets abiertos del día.",
+            "Etiquetar un correo interno recibido."
+          ],
+          "correctIndex": 1,
+          "explanation": "Lo que sale de la empresa o compromete dinero necesita la aprobación de una persona."
+        }
+      ]
     },
     {
       "id": "ia-11",
@@ -125,7 +1333,127 @@
       "title": "Evaluar y vigilar resultados",
       "subtitle": "Cómo saber si tu automatización funciona bien.",
       "estimatedMinutes": 40,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Armar un conjunto de prueba con respuestas esperadas.",
+        "Medir la exactitud de una automatización y compararla entre versiones.",
+        "Vigilar un flujo en producción para detectar cuando empeora."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-11-sec-1",
+          "title": "1. El conjunto de prueba",
+          "body": "\"Lo probé con tres correos y funcionó\" no es una evaluación. Para saber si una automatización funciona necesitas un **conjunto de prueba**: casos reales con la respuesta correcta escrita por una persona.\n\nCómo armarlo:\n- Entre **30 y 100 casos** reales para empezar.\n- Incluye los **difíciles**: mensajes ambiguos, con faltas, en inglés, muy largos, vacíos.\n- Respeta la proporción real (si el 5% de los correos son urgentes, que haya urgentes) y agrega algunos casos raros a propósito.\n- **No lo cambies** cada vez que cambias el prompt: es tu regla fija para comparar versiones.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "id;texto;categoria_esperada;urgencia_esperada\n1;El camión se apagó en la autopista y no prende;averia;alta\n2;¿Me pueden enviar la factura de octubre?;facturacion;baja\n3;quiero cita pa el martes temprano;cita;media\n4;Hello, my truck is leaking oil;averia;media\n5;(mensaje vacío);otro;baja",
+          "keyTakeaway": "Un conjunto de prueba fijo, con casos difíciles, es la base para mejorar con datos."
+        },
+        {
+          "id": "ia-11-sec-2",
+          "title": "2. Medir y comparar versiones",
+          "body": "Con el conjunto de prueba corres tu automatización y comparas cada respuesta con la esperada. Métricas útiles:\n- **Exactitud**: porcentaje de casos correctos.\n- **Errores por tipo**: qué categorías confunde (por ejemplo, avería que sale como cita).\n- **Costo y tiempo** promedio por caso.\n\nCuando cambias el prompt, el modelo o los ejemplos, vuelves a correr el **mismo** conjunto y comparas. Así sabes si el cambio mejoró de verdad o solo arregló el caso que estabas mirando y rompió otros.\n\nPara respuestas de texto libre (resúmenes, correos), puedes usar una **rúbrica** con criterios de SÍ o NO, revisada por una persona o por otro modelo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import csv\nfrom collections import Counter\n\n\ndef evaluar(ruta: str, clasificar) -> float:\n    casos = list(csv.DictReader(open(ruta, encoding=\"utf-8\"), delimiter=\";\"))\n    aciertos = 0\n    confusiones = Counter()\n    for c in casos:\n        obtenida = clasificar(c[\"texto\"])\n        if obtenida == c[\"categoria_esperada\"]:\n            aciertos += 1\n        else:\n            confusiones[(c[\"categoria_esperada\"], obtenida)] += 1\n    exactitud = aciertos / len(casos)\n    print(f\"Exactitud: {exactitud:.0%} ({aciertos} de {len(casos)})\")\n    for (esperada, obtenida), n in confusiones.most_common(5):\n        print(f\"  {esperada} → {obtenida}: {n}\")\n    return exactitud",
+          "keyTakeaway": "Corre siempre el mismo conjunto y compara exactitud y errores por tipo entre versiones."
+        },
+        {
+          "id": "ia-11-sec-3",
+          "title": "3. Vigilar en producción",
+          "body": "Un flujo que funcionó en la prueba puede empeorar con el tiempo: llegan tipos de mensajes nuevos, cambia un formato de factura o alguien edita el prompt. Para notarlo a tiempo:\n- **Registra** cada ejecución: fecha, entrada, salida, tokens y errores.\n- Revisa la **distribución**: si las \"averías\" pasan de 20% a 60% en una semana, algo cambió.\n- Haz una **revisión humana por muestreo**: 10 casos al azar cada semana, comparados con lo que habría respondido una persona.\n- Vigila la **cola de revisión manual**: si crece, el flujo está fallando más.\n- Agrega a tu conjunto de prueba los casos reales que fallaron.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Tablero semanal del clasificador\n────────────────────────────────\nCorreos procesados:        1,240\nEnviados a revisión:          31  (2.5%)   ▲ antes 1.1%\nRevisión humana (muestra):  9/10 correctos\nDistribución: averia 22% · facturacion 41% · cita 30% · otro 7%\nCosto de la semana:        US$4.10",
+          "keyTakeaway": "Registra todo, mira la distribución y revisa una muestra cada semana."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Evaluación y monitoreo de una automatización con IA.",
+        "rules": [
+          "Existe un conjunto de prueba fijo con casos difíciles y respuestas revisadas por una persona.",
+          "Ningún cambio de prompt o de modelo sale a producción sin correr la evaluación.",
+          "Se miden exactitud, errores por tipo, costo y tiempo.",
+          "En producción se registra cada ejecución y se revisa una muestra cada semana.",
+          "Los casos reales que fallan se agregan al conjunto de prueba."
+        ]
+      },
+      "comparison": {
+        "scenario": "Mejorar el prompt del clasificador.",
+        "juniorLabel": "Así no",
+        "juniorCode": "1. Veo un correo mal clasificado.\n2. Cambio el prompt para ese caso.\n3. Lo pruebo con ese correo: ahora sale bien.\n4. Lo subo a producción.",
+        "juniorFlaws": [
+          "Solo comprobó el caso que estaba mirando.",
+          "El cambio pudo romper otros casos sin que nadie lo note.",
+          "No hay un número que diga si mejoró o empeoró."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "1. Agrego el correo mal clasificado al conjunto de prueba.\n2. Corro la evaluación con el prompt actual: 86% de exactitud.\n3. Cambio el prompt.\n4. Corro la misma evaluación: 91%, sin nuevas confusiones.\n5. Lo subo a producción y anoto la versión y el resultado.",
+        "intermediateBenefits": [
+          "El caso nuevo queda protegido para siempre.",
+          "La mejora se mide en todos los casos, no en uno.",
+          "Hay registro de qué versión dio qué resultado."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-11-ej-1",
+          "title": "Experimento 1: Arma tu conjunto de prueba",
+          "difficulty": "Básico",
+          "prompt": "Para un clasificador de reseñas (POSITIVA, NEGATIVA, MIXTA), escribe 8 casos de prueba con su respuesta esperada. Incluye al menos 3 casos difíciles y explica por qué lo son.",
+          "hint": "Piensa en sarcasmo, reseñas muy cortas, otro idioma y reseñas con algo bueno y algo malo.",
+          "solutionExplanation": "Los casos difíciles son los que distinguen un buen prompt de uno mediocre; sin ellos, todas las versiones parecen iguales.",
+          "solutionCode": "texto;esperada\nExcelente servicio, volveré.;POSITIVA\nMe perdieron la llave de repuesto.;NEGATIVA\nBuen trabajo pero carísimo.;MIXTA                  ← difícil: dos polos\n\"Genial\", otra semana sin mi carro.;NEGATIVA      ← difícil: sarcasmo\nok;POSITIVA                                      ← difícil: muy corta\nGreat service, fast and fair.;POSITIVA           ← difícil: inglés\nNo me gustó la espera, el resto bien.;MIXTA\nNunca contestan el teléfono.;NEGATIVA",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-11-ej-2",
+          "title": "Experimento 2: Compara dos versiones",
+          "difficulty": "Intermedio",
+          "prompt": "Usando la función `evaluar` de la sección 2, escribe el código que compara dos funciones de clasificación (`clasificar_v1` y `clasificar_v2`) sobre el mismo archivo y decide cuál usar. Solo acepta la nueva si mejora al menos 2 puntos.",
+          "hint": "Llama a evaluar dos veces con la misma ruta y compara los resultados.",
+          "solutionExplanation": "Fijar un umbral de mejora evita cambiar de versión por diferencias que son solo ruido.",
+          "solutionCode": "RUTA = \"prueba_clasificador.csv\"\n\nprint(\"Versión 1:\")\nv1 = evaluar(RUTA, clasificar_v1)\nprint(\"Versión 2:\")\nv2 = evaluar(RUTA, clasificar_v2)\n\nif v2 - v1 >= 0.02:\n    print(f\"Usar la versión 2 (+{(v2 - v1) * 100:.1f} puntos)\")\nelse:\n    print(\"Mantener la versión 1: la mejora no es suficiente\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-11-q1",
+          "question": "¿Qué debe tener un buen conjunto de prueba?",
+          "options": [
+            "Casos inventados por el mismo modelo que se evalúa.",
+            "Solo los casos que ya funcionan bien hoy en día.",
+            "Un caso por categoría para que la prueba sea rápida.",
+            "Casos reales y difíciles con su respuesta correcta."
+          ],
+          "correctIndex": 3,
+          "explanation": "Casos reales, incluidos los difíciles, con respuestas revisadas por una persona, muestran el rendimiento verdadero."
+        },
+        {
+          "id": "ia-11-q2",
+          "question": "¿Por qué no se cambia el conjunto de prueba con cada versión del prompt?",
+          "options": [
+            "Porque cambiarlo cuesta más tokens que el prompt.",
+            "Porque así lo exige la API para poder evaluar.",
+            "Porque el modelo lo memoriza y deja de funcionar.",
+            "Porque es la regla fija para comparar versiones."
+          ],
+          "correctIndex": 3,
+          "explanation": "Si cambias la prueba y el prompt a la vez, no sabes cuál de los dos causó la diferencia."
+        },
+        {
+          "id": "ia-11-q3",
+          "question": "¿Qué señal en producción indica que el flujo puede estar empeorando?",
+          "options": [
+            "El número de correos procesados es estable.",
+            "La muestra semanal sale correcta en 10 de 10.",
+            "Crece la proporción enviada a revisión manual.",
+            "El costo semanal se mantiene igual que antes."
+          ],
+          "correctIndex": 2,
+          "explanation": "Más casos en revisión manual significan más fallos de validación o respuestas inesperadas."
+        }
+      ]
     },
     {
       "id": "ia-12",
@@ -136,7 +1464,129 @@
       "title": "Herramientas y agentes",
       "subtitle": "Modelos que usan herramientas para cumplir tareas.",
       "estimatedMinutes": 45,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Definir una herramienta con nombre, descripción y esquema de entrada.",
+        "Entender el ciclo en el que el modelo pide una herramienta y tu código la ejecuta.",
+        "Poner límites y aprobaciones a un agente para que sea seguro."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-12-sec-1",
+          "title": "1. Qué es una herramienta",
+          "body": "Un modelo solo produce texto. Para que **haga cosas** (consultar el inventario, buscar una orden, crear una cita), le das **herramientas**: funciones de tu programa descritas con un nombre, una descripción y un esquema de los datos que reciben.\n\nEl modelo no ejecuta la función: cuando la necesita, responde con un bloque `tool_use` que dice qué herramienta quiere y con qué datos. **Tu código** la ejecuta y le devuelve el resultado. Así controlas exactamente qué puede hacer.\n\nLa **descripción** es la parte más importante: el modelo decide cuándo usar la herramienta leyéndola. Explica qué hace, cuándo usarla y qué devuelve.",
+          "codeLanguage": "python",
+          "codeSnippet": "herramienta_inventario = {\n    \"name\": \"consultar_inventario\",\n    \"description\": (\n        \"Devuelve cuántas unidades hay de una pieza en el almacén y su precio. \"\n        \"Úsala cuando el cliente pregunte si hay una pieza o cuánto cuesta. \"\n        \"Recibe el código de la pieza (por ejemplo FLT-2201).\"\n    ),\n    \"input_schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"codigo\": {\"type\": \"string\", \"description\": \"Código de la pieza, ej. FLT-2201\"}\n        },\n        \"required\": [\"codigo\"],\n    },\n}",
+          "keyTakeaway": "Una herramienta es una función tuya descrita para que el modelo sepa cuándo pedirla."
+        },
+        {
+          "id": "ia-12-sec-2",
+          "title": "2. El ciclo de un agente",
+          "body": "Un **agente** es un modelo que usa herramientas en un ciclo hasta terminar la tarea:\n1. Envías la pregunta y la lista de herramientas.\n2. Si el modelo necesita algo, responde con `stop_reason == \"tool_use\"` y uno o más bloques `tool_use`.\n3. Tu código ejecuta cada herramienta y devuelve los resultados como bloques `tool_result` (todos juntos, en un mensaje del usuario), con el mismo `tool_use_id`.\n4. Repites hasta que el modelo responde con texto final.\n\nEl SDK de Python incluye un **ejecutor de herramientas** (tool runner, en beta) que hace este ciclo por ti a partir de funciones con el decorador `@beta_tool`. Conviene entender el ciclo manual para saber qué pasa por dentro.",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\n\nclient = anthropic.Anthropic()\nmensajes = [{\"role\": \"user\", \"content\": \"¿Tienen el filtro FLT-2201? ¿Cuánto cuesta?\"}]\n\nwhile True:\n    r = client.messages.create(model=\"claude-opus-5-5\", max_tokens=4096,\n                               tools=[herramienta_inventario], messages=mensajes)\n    if r.stop_reason != \"tool_use\":\n        break\n    mensajes.append({\"role\": \"assistant\", \"content\": r.content})\n    resultados = []\n    for b in r.content:\n        if b.type == \"tool_use\":\n            salida = ejecutar(b.name, b.input)       # tu función\n            resultados.append({\"type\": \"tool_result\", \"tool_use_id\": b.id, \"content\": salida})\n    mensajes.append({\"role\": \"user\", \"content\": resultados})\n\nprint(\"\".join(b.text for b in r.content if b.type == \"text\"))",
+          "keyTakeaway": "El modelo pide, tu código ejecuta y devuelve el resultado, hasta que hay respuesta final."
+        },
+        {
+          "id": "ia-12-sec-3",
+          "title": "3. Agentes seguros",
+          "body": "Un agente con herramientas puede equivocarse **actuando**, no solo escribiendo. Por eso:\n- **Mínimos permisos**: dale solo las herramientas que la tarea necesita. Un agente que responde preguntas de inventario no necesita poder borrar pedidos.\n- **Lectura libre, escritura con aprobación**: las herramientas que consultan pueden ejecutarse solas; las que crean, cambian o envían, piden confirmación a una persona.\n- **Límite de vueltas**: corta el ciclo después de, por ejemplo, 10 llamadas.\n- **Valida las entradas** dentro de cada herramienta: que el código exista, que el monto tenga sentido.\n- **Registra** cada llamada a herramienta con sus datos y su resultado.",
+          "codeLanguage": "python",
+          "codeSnippet": "SOLO_LECTURA = {\"consultar_inventario\", \"buscar_orden\"}\n\n\ndef ejecutar(nombre: str, datos: dict) -> str:\n    if nombre not in SOLO_LECTURA:\n        ok = input(f\"El agente quiere {nombre} con {datos}. ¿Aprobar? (s/n) \")\n        if ok.lower() != \"s\":\n            return \"La persona no aprobó esta acción.\"\n    if nombre == \"consultar_inventario\":\n        return consultar_inventario(**datos)\n    if nombre == \"crear_cita\":\n        return crear_cita(**datos)\n    return f\"Herramienta desconocida: {nombre}\"",
+          "keyTakeaway": "Pocas herramientas, aprobación para lo que cambia algo, límite de vueltas y registro."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Herramientas que un agente puede usar sin sorpresas.",
+        "rules": [
+          "Cada herramienta tiene una descripción que dice qué hace, cuándo usarla y qué devuelve.",
+          "El esquema marca los campos obligatorios y describe cada uno con un ejemplo.",
+          "Las herramientas de escritura piden aprobación de una persona.",
+          "Los errores de una herramienta se devuelven como texto claro, para que el modelo pueda corregirse.",
+          "El ciclo tiene un máximo de vueltas y registra cada llamada."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import anthropic\nfrom anthropic import beta_tool\n\nclient = anthropic.Anthropic()\nINVENTARIO = {\"FLT-2201\": (14, 650.0), \"BAT-12V70\": (0, 7900.0)}\n\n\n@beta_tool\ndef consultar_inventario(codigo: str) -> str:\n    \"\"\"Devuelve las unidades disponibles y el precio en RD$ de una pieza.\n\n    Args:\n        codigo: Código de la pieza, por ejemplo FLT-2201.\n    \"\"\"\n    if codigo not in INVENTARIO:\n        return f\"No existe la pieza {codigo}. Pide al cliente que confirme el código.\"\n    unidades, precio = INVENTARIO[codigo]\n    return f\"{codigo}: {unidades} unidades, RD${precio:,.2f}\"\n\n\nrunner = client.beta.messages.tool_runner(\n    model=\"claude-opus-5-5\",\n    max_tokens=4096,\n    system=\"Atiendes consultas de piezas de un taller. Responde en español y en pocas líneas.\",\n    tools=[consultar_inventario],\n    messages=[{\"role\": \"user\", \"content\": \"¿Hay batería BAT-12V70?\"}],\n)\nfor mensaje in runner:\n    for b in mensaje.content:\n        if b.type == \"text\":\n            print(b.text)"
+      },
+      "comparison": {
+        "scenario": "Dar herramientas a un asistente de servicio al cliente.",
+        "juniorLabel": "Así no",
+        "juniorCode": "tools = [\n  {\"name\": \"sql\", \"description\": \"Ejecuta SQL\",\n   \"input_schema\": {\"type\": \"object\", \"properties\": {\"q\": {\"type\": \"string\"}}}}\n]\n# ejecutar(): corre cualquier consulta que pida el modelo, sin revisar",
+        "juniorFlaws": [
+          "Una sola herramienta que puede leer, cambiar o borrar cualquier tabla.",
+          "La descripción no dice cuándo usarla ni qué devuelve.",
+          "Nada pide aprobación ni limita lo que se ejecuta."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "tools = [\n  {\"name\": \"buscar_orden\",\n   \"description\": \"Devuelve estado y fecha estimada de una orden de trabajo. \"\n                  \"Úsala cuando el cliente pregunte por su vehículo. Recibe el número OT.\",\n   \"input_schema\": {\"type\": \"object\",\n                    \"properties\": {\"ot\": {\"type\": \"string\", \"description\": \"Ej. OT-2291\"}},\n                    \"required\": [\"ot\"]}},\n  {\"name\": \"crear_cita\",\n   \"description\": \"Agenda una cita (requiere aprobación). Recibe fecha AAAA-MM-DD y hora HH:MM.\",\n   \"input_schema\": {\"type\": \"object\",\n                    \"properties\": {\"fecha\": {\"type\": \"string\"}, \"hora\": {\"type\": \"string\"}},\n                    \"required\": [\"fecha\", \"hora\"]}}\n]",
+        "intermediateBenefits": [
+          "Herramientas pequeñas con un solo propósito.",
+          "Descripciones que dicen cuándo usarlas y con qué formato.",
+          "La herramienta que escribe está marcada para aprobación."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ia-12-ej-1",
+          "title": "Experimento 1: Describe una herramienta",
+          "difficulty": "Básico",
+          "prompt": "Escribe la definición (nombre, descripción y esquema) de una herramienta `consultar_saldo` que recibe el código de un cliente y devuelve su saldo pendiente y los días de atraso.",
+          "hint": "En la descripción di qué devuelve y cuándo usarla; marca el código como obligatorio.",
+          "solutionExplanation": "Una descripción completa permite que el modelo la use en el momento correcto y con el dato en el formato correcto.",
+          "solutionCode": "consultar_saldo = {\n    \"name\": \"consultar_saldo\",\n    \"description\": (\n        \"Devuelve el saldo pendiente en RD$ y los días de atraso de un cliente. \"\n        \"Úsala cuando pregunten cuánto debe un cliente o si está al día. \"\n        \"Recibe el código del cliente (por ejemplo C-0042).\"\n    ),\n    \"input_schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"codigo\": {\"type\": \"string\", \"description\": \"Código del cliente, ej. C-0042\"}\n        },\n        \"required\": [\"codigo\"],\n    },\n}",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "ia-12-ej-2",
+          "title": "Experimento 2: Limita las vueltas",
+          "difficulty": "Intermedio",
+          "prompt": "Modifica el ciclo manual de la sección 2 para que se detenga después de 8 vueltas como máximo y avise si se alcanzó el límite.",
+          "hint": "Cambia el while True por un for con range y usa else para el caso en que nunca hubo break.",
+          "solutionExplanation": "El límite evita que un agente confundido llame herramientas sin fin y gaste tokens; el aviso deja claro que la tarea no terminó.",
+          "solutionCode": "MAX_VUELTAS = 8\n\nfor vuelta in range(MAX_VUELTAS):\n    r = client.messages.create(model=\"claude-opus-5-5\", max_tokens=4096,\n                               tools=herramientas, messages=mensajes)\n    if r.stop_reason != \"tool_use\":\n        break\n    mensajes.append({\"role\": \"assistant\", \"content\": r.content})\n    resultados = [\n        {\"type\": \"tool_result\", \"tool_use_id\": b.id, \"content\": ejecutar(b.name, b.input)}\n        for b in r.content if b.type == \"tool_use\"\n    ]\n    mensajes.append({\"role\": \"user\", \"content\": resultados})\nelse:\n    print(f\"Se alcanzó el límite de {MAX_VUELTAS} vueltas sin respuesta final.\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-12-q1",
+          "question": "Cuando el modelo necesita una herramienta, ¿quién la ejecuta?",
+          "options": [
+            "El modelo, dentro de los servidores del proveedor.",
+            "Nadie: el modelo inventa el resultado esperado.",
+            "El navegador del usuario, de forma automática.",
+            "Tu código, que luego devuelve el resultado."
+          ],
+          "correctIndex": 3,
+          "explanation": "El modelo solo pide la herramienta con un bloque tool_use; tu programa la ejecuta y envía el tool_result."
+        },
+        {
+          "id": "ia-12-q2",
+          "question": "¿Qué parte de la definición usa el modelo para decidir cuándo llamar una herramienta?",
+          "options": [
+            "El orden en que aparece dentro de la lista.",
+            "El lenguaje en que está escrita la función.",
+            "La cantidad de letras que tiene su nombre.",
+            "La descripción de lo que hace y cuándo usarla."
+          ],
+          "correctIndex": 3,
+          "explanation": "El modelo lee la descripción; una buena descripción dice qué hace, cuándo usarla y qué devuelve."
+        },
+        {
+          "id": "ia-12-q3",
+          "question": "¿Qué herramientas deberían pedir aprobación de una persona?",
+          "options": [
+            "Las que crean, cambian o envían algo.",
+            "Las que devuelven textos muy cortos.",
+            "Las que se usan más de una vez al día.",
+            "Las que solo consultan un dato interno."
+          ],
+          "correctIndex": 0,
+          "explanation": "Consultar es de bajo riesgo; crear, modificar o enviar puede causar daños difíciles de deshacer."
+        }
+      ]
     },
     {
       "id": "ia-13",
@@ -147,7 +1597,129 @@
       "title": "Proyecto final: tu propio asistente",
       "subtitle": "Un asistente que resuelve una tarea real de tu trabajo.",
       "estimatedMinutes": 180,
-      "status": "en-preparacion"
+      "status": "published",
+      "objectives": [
+        "Elegir una tarea real de tu trabajo y definir qué significa que el asistente la haga bien.",
+        "Construir el asistente uniendo prompt de sistema, documentos, herramientas y salidas estructuradas.",
+        "Evaluarlo con un conjunto de prueba y preparar su puesta en marcha."
+      ],
+      "theorySections": [
+        {
+          "id": "ia-13-sec-1",
+          "title": "1. Elegir la tarea y definir el éxito",
+          "body": "Un buen proyecto final resuelve **una tarea concreta y repetida** de tu trabajo, no \"un asistente para todo\". Ejemplos: responder preguntas de los técnicos sobre el manual de la flota; clasificar y resumir los correos de soporte; preparar el borrador de la cotización a partir de un pedido por WhatsApp.\n\nAntes de programar, escribe la **ficha del proyecto**:\n- Quién lo usa y cuántas veces al día.\n- Qué entra y qué sale (con un ejemplo real).\n- Qué datos o documentos necesita.\n- Qué acciones puede hacer solo y cuáles necesitan aprobación.\n- **Cómo sabrás que funciona**: la métrica y la meta (por ejemplo, 90% de respuestas correctas en 40 casos de prueba).",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "FICHA DEL PROYECTO\nNombre:      Asistente del manual de flota\nUsuarios:    12 técnicos, ~30 preguntas al día\nEntrada:     pregunta escrita (\"¿torque de las tuercas de la rueda del Hino 500?\")\nSalida:      respuesta de máx. 4 líneas + página del manual\nDatos:       3 manuales en PDF (Hino, Isuzu, Toyota), ~900 páginas\nAcciones:    solo lectura (no crea ni modifica nada)\nÉxito:       ≥ 90% correctas en 40 preguntas reales; 100% dice \"no aparece\"\n             cuando la respuesta no está en los manuales",
+          "keyTakeaway": "Una tarea concreta, con entradas, salidas y una meta medible antes de programar."
+        },
+        {
+          "id": "ia-13-sec-2",
+          "title": "2. Construir el asistente",
+          "body": "Con lo aprendido en el curso, el asistente se arma por piezas:\n1. **Prompt de sistema** con rol, reglas, formato y qué hacer cuando no sabe (capítulos 3 y 4).\n2. **Documentos** divididos en fragmentos y un buscador (capítulo 9).\n3. **Herramientas** si necesita datos vivos o hacer acciones, con aprobación para lo que escribe (capítulo 12).\n4. **Salida estructurada** si otro sistema lee el resultado (capítulo 10).\n5. **Registro** de cada pregunta, respuesta, tokens y errores (capítulo 11).\n\nEmpieza con la versión más simple que pueda funcionar (quizá solo el prompt y los documentos) y agrega piezas solo si la evaluación muestra que hacen falta.",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSISTEMA = \"\"\"Eres el asistente técnico de la flota de una distribuidora.\nRespondes preguntas de mecánicos usando SOLO los fragmentos del manual que se te dan.\nReglas:\n- Máximo 4 líneas, con la cifra exacta y su unidad.\n- Termina con la fuente: (Manual <marca>, pág. <n>).\n- Si los fragmentos no tienen la respuesta, responde: No aparece en los manuales.\n- Si la pregunta implica un riesgo de seguridad, recuerda el procedimiento de seguridad del manual.\"\"\"\n\n\ndef asistente(pregunta: str) -> str:\n    encontrados = buscar(pregunta, k=4)  # buscador del capítulo 9\n    fuentes = \"\\n\".join(\n        f'<fragmento manual=\"{f[\"doc\"]}\" pag=\"{f[\"pag\"]}\">{f[\"texto\"]}</fragmento>'\n        for f in encontrados\n    )\n    r = client.messages.create(\n        model=\"claude-opus-5-5\",\n        max_tokens=1024,\n        system=SISTEMA,\n        messages=[{\"role\": \"user\", \"content\": f\"{fuentes}\\n\\nPregunta: {pregunta}\"}],\n    )\n    registrar(pregunta, r)               # registro del capítulo 11\n    return \"\".join(b.text for b in r.content if b.type == \"text\")",
+          "keyTakeaway": "Arma por piezas y agrega cada una solo cuando la evaluación diga que hace falta."
+        },
+        {
+          "id": "ia-13-sec-3",
+          "title": "3. Evaluar, presentar y poner en marcha",
+          "body": "Antes de entregarlo:\n- Corre el **conjunto de prueba** y anota el resultado contra la meta de la ficha.\n- Prueba **casos de borde**: preguntas fuera de tema, documentos que no tienen la respuesta, mensajes con datos personales.\n- Haz una **prueba piloto** de una o dos semanas con pocos usuarios y recoge sus comentarios.\n\nPara presentarlo a tu jefe o equipo, muestra: el problema y cuánto tiempo cuesta hoy, una demostración con casos reales, el resultado de la evaluación, el costo estimado por mes y los límites (qué no hace y quién revisa). Un proyecto pequeño, medido y seguro convence más que una demostración espectacular sin números.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "LISTA DE PUESTA EN MARCHA\n[ ] Evaluación: 37/40 correctas (92.5%) · meta 90% ✓\n[ ] 10/10 preguntas sin respuesta → \"No aparece en los manuales\" ✓\n[ ] Clave de API en variable de entorno y límite de gasto configurado\n[ ] Registro activo (pregunta, respuesta, tokens, errores)\n[ ] Piloto con 3 técnicos durante 2 semanas\n[ ] Costo estimado: ~900 preguntas/mes\n[ ] Responsable de revisar la muestra semanal: supervisor de taller",
+          "keyTakeaway": "Evalúa contra la meta, haz un piloto y presenta con números y límites claros."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Rúbrica del proyecto final.",
+        "rules": [
+          "La ficha define tarea, usuarios, entradas, salidas, acciones permitidas y una meta medible.",
+          "El prompt de sistema tiene rol, reglas, formato y qué hacer cuando no sabe.",
+          "Hay un conjunto de prueba de al menos 30 casos reales, incluidos casos sin respuesta.",
+          "La clave está protegida, hay límite de gasto y las acciones de escritura piden aprobación.",
+          "Se presenta con resultado de la evaluación, costo estimado y límites conocidos."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "ENTREGABLES\n1. ficha.md            Ficha del proyecto con la meta\n2. asistente.py        Código del asistente (prompt de sistema + piezas)\n3. prueba.csv          Conjunto de prueba con respuestas esperadas\n4. evaluar.py          Script que mide el resultado\n5. resultados.md       Exactitud, errores típicos, costo por pregunta\n6. presentacion        5 diapositivas: problema, demo, números, costo, límites"
+      },
+      "comparison": {
+        "scenario": "Plantear el proyecto final.",
+        "juniorLabel": "Así no",
+        "juniorCode": "Proyecto: un asistente de IA para la empresa que responda todo lo que\nlos empleados pregunten y automatice los procesos.",
+        "juniorFlaws": [
+          "\"Todo\" no se puede evaluar: no hay forma de saber si funciona.",
+          "No dice qué datos usa ni qué acciones puede hacer.",
+          "Es demasiado grande para terminarlo y demostrarlo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "Proyecto: asistente que responde preguntas de los 12 técnicos sobre los\nmanuales de la flota (3 PDF). Solo lectura. Responde en 4 líneas con la página.\nMeta: 90% correctas en 40 preguntas reales y \"no aparece\" en el 100%\nde las preguntas sin respuesta. Piloto de 2 semanas con 3 técnicos.",
+        "intermediateBenefits": [
+          "Tarea, usuarios y datos concretos.",
+          "Meta medible que se puede comprobar.",
+          "Alcance que se termina y se demuestra en poco tiempo."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "ia-13-ej-1",
+          "title": "Experimento 1: Escribe tu ficha",
+          "difficulty": "Intermedio",
+          "prompt": "Elige una tarea real de tu trabajo y escribe la ficha del proyecto: nombre, usuarios, entrada, salida, datos, acciones permitidas y meta medible. Incluye un ejemplo real de entrada y de salida esperada.",
+          "hint": "Si no puedes escribir la meta como un número, la tarea todavía es demasiado vaga.",
+          "solutionExplanation": "La ficha es la mitad del proyecto: obliga a elegir una tarea medible y define desde el inicio qué puede hacer solo y qué no.",
+          "solutionCode": "Nombre:    Clasificador de correos de soporte\nUsuarios:  equipo de servicio al cliente (4 personas), ~120 correos al día\nEntrada:   correo del cliente\n           Ej.: \"El camión se apagó en la autopista y no prende\"\nSalida:    JSON {categoria, urgencia, resumen}\n           Ej.: {\"categoria\": \"averia\", \"urgencia\": \"alta\",\n                 \"resumen\": \"Camión apagado en autopista, no enciende\"}\nDatos:     lista de categorías y criterios de urgencia\nAcciones:  crea el ticket solo; responder al cliente lo hace una persona\nMeta:      ≥ 90% de categoría correcta y 100% de urgencias ALTA detectadas\n           en 60 correos reales",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ia-13-ej-2",
+          "title": "Experimento 2: Evalúa tu asistente",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe `evaluar.py` para el asistente del manual: lee `prueba.csv` (pregunta;debe_contener), llama a `asistente()` para cada pregunta y cuenta como correcta la respuesta que contiene el texto esperado (sin distinguir mayúsculas). Muestra la exactitud y las preguntas que fallaron.",
+          "hint": "Para las preguntas sin respuesta, el texto esperado es \"no aparece\".",
+          "solutionExplanation": "Una comprobación simple por texto esperado es suficiente para empezar; los fallos listados indican qué mejorar (el buscador, el prompt o los documentos).",
+          "solutionCode": "import csv\n\nfrom asistente import asistente\n\ncasos = list(csv.DictReader(open(\"prueba.csv\", encoding=\"utf-8\"), delimiter=\";\"))\nfallos = []\nfor c in casos:\n    respuesta = asistente(c[\"pregunta\"])\n    if c[\"debe_contener\"].lower() not in respuesta.lower():\n        fallos.append((c[\"pregunta\"], c[\"debe_contener\"], respuesta[:120]))\n\ncorrectas = len(casos) - len(fallos)\nprint(f\"Exactitud: {correctas / len(casos):.0%} ({correctas} de {len(casos)})\")\nfor pregunta, esperado, obtenido in fallos:\n    print(f\"- {pregunta}\\n  esperaba: {esperado}\\n  obtuvo:   {obtenido}\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ia-13-q1",
+          "question": "¿Qué caracteriza a un buen proyecto final?",
+          "options": [
+            "Una demostración llamativa aunque no tenga números.",
+            "Un asistente que responde cualquier pregunta posible.",
+            "Una tarea concreta con una meta que se puede medir.",
+            "El uso del modelo más grande y de más herramientas."
+          ],
+          "correctIndex": 2,
+          "explanation": "Una tarea acotada y medible se puede terminar, evaluar y demostrar con evidencia."
+        },
+        {
+          "id": "ia-13-q2",
+          "question": "¿Cuándo conviene agregar herramientas o un buscador al asistente?",
+          "options": [
+            "Cuando la evaluación muestra que hacen falta.",
+            "Solo cuando el presupuesto está agotado.",
+            "Siempre desde el primer día del proyecto.",
+            "Nunca, porque complican demasiado el código."
+          ],
+          "correctIndex": 0,
+          "explanation": "Empezar simple y agregar piezas según la evaluación evita complejidad que no mejora el resultado."
+        },
+        {
+          "id": "ia-13-q3",
+          "question": "¿Qué debe incluir la presentación del proyecto a tu jefe?",
+          "options": [
+            "Una lista de todas las funciones que tendrá en el futuro.",
+            "El problema, una demo, la evaluación, el costo y los límites.",
+            "El código completo leído línea por línea en la reunión.",
+            "Solo la demo, porque los números se explican más adelante."
+          ],
+          "correctIndex": 1,
+          "explanation": "Números, costo y límites claros generan confianza y permiten decidir si se adopta."
+        }
+      ]
     }
   ]
 }
