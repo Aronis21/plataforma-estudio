@@ -52,7 +52,7 @@
           "Usa alias descriptivos de una o dos palabras claras (ej. pedidos, clientes) en lugar de letras crípticas como a, b, t1."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Grano de salida: 1 fila por mes_contable\n-- Regla de negocio: solo pedidos completados; excluye pedidos de prueba (es_prueba = TRUE)\nWITH pedidos_validos AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    DATE_TRUNC('month', fecha_creacion)::date AS mes_contable,\n    monto_neto\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n    AND es_prueba = FALSE\n)\nSELECT\n  mes_contable,\n  COUNT(DISTINCT pedido_id) AS total_pedidos,\n  SUM(monto_neto) AS ingreso_neto\nFROM pedidos_validos\nGROUP BY mes_contable\nORDER BY mes_contable;"
+        "referenceCode": "-- Grano de salida: 1 fila por mes_contable\n-- Regla de negocio: solo pedidos completados; excluye pedidos de prueba (es_prueba = 1)\nWITH pedidos_validos AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    CAST(DATETRUNC(month, fecha_creacion) AS DATE) AS mes_contable,\n    monto_neto\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n    AND es_prueba = 0\n)\nSELECT\n  mes_contable,\n  COUNT(DISTINCT pedido_id) AS total_pedidos,\n  SUM(monto_neto) AS ingreso_neto\nFROM pedidos_validos\nGROUP BY mes_contable\nORDER BY mes_contable;"
       },
       "comparison": {
         "scenario": "Dirección solicita el ingreso neto mensual de pedidos completados para el cierre del trimestre.",
@@ -64,10 +64,10 @@
           "No filtra pedidos cancelados, reembolsados ni pedidos de prueba."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "WITH pedidos_limpios AS (\n  SELECT\n    p.pedido_id,\n    DATE_TRUNC('month', p.fecha_utc)::date AS mes_anio,\n    p.monto_neto\n  FROM ventas.pedidos AS p\n  WHERE p.estado = 'completado'\n    AND p.es_prueba = FALSE\n)\nSELECT\n  mes_anio,\n  COUNT(*) AS pedidos_unicos,\n  SUM(monto_neto) AS ingreso_neto\nFROM pedidos_limpios\nGROUP BY mes_anio\nORDER BY mes_anio;",
+        "intermediateCode": "WITH pedidos_limpios AS (\n  SELECT\n    p.pedido_id,\n    CAST(DATETRUNC(month, p.fecha_utc) AS DATE) AS mes_anio,\n    p.monto_neto\n  FROM ventas.pedidos AS p\n  WHERE p.estado = 'completado'\n    AND p.es_prueba = 0\n)\nSELECT\n  mes_anio,\n  COUNT(*) AS pedidos_unicos,\n  SUM(monto_neto) AS ingreso_neto\nFROM pedidos_limpios\nGROUP BY mes_anio\nORDER BY mes_anio;",
         "intermediateBenefits": [
           "Mantiene el grano de 1 fila por pedido antes de agregar, evitando inflar el ingreso.",
-          "Preserva año + mes con DATE_TRUNC para series temporales consistentes.",
+          "Preserva año + mes con `DATETRUNC(month, fecha)` para series temporales consistentes.",
           "Hace explícitos los filtros de estado y exclusión de pruebas."
         ],
         "codeLanguage": "sql"
@@ -100,8 +100,8 @@
           "question": "¿Cuál es el riesgo principal de unir una tabla de cabecera (`pedidos`) con una tabla de detalle (`items_pedido`) antes de sumar `pedidos.monto_total`?",
           "options": [
             "La base de datos rechazará la consulta con un error de sintaxis, porque no se puede sumar una columna de cabecera tras un JOIN.",
-            "El orden de las filas cambiará de forma impredecible, pero la suma del monto total de cada pedido seguirá siendo exacta.",
             "Los pedidos sin ítems desaparecerán del resultado, aunque el monto de los pedidos restantes se sumará una sola vez.",
+            "El orden de las filas cambiará de forma impredecible, pero la suma del monto total de cada pedido seguirá siendo exacta.",
             "El monto total del pedido se sumará tantas veces como ítems tenga el pedido, inflando silenciosamente la métrica."
           ],
           "correctIndex": 3,
@@ -112,8 +112,8 @@
           "question": "¿Qué significa definir el \"grano\" (grain) de una tabla o consulta?",
           "options": [
             "Elegir el formato de almacenamiento y compresión del archivo, por ejemplo Parquet o CSV.",
-            "Fijar el orden en que se presentan las filas, de la más reciente a la más antigua.",
             "Definir la precisión decimal con que se guardan las columnas numéricas de la tabla.",
+            "Fijar el orden en que se presentan las filas, de la más reciente a la más antigua.",
             "Especificar exactamente qué entidad o nivel de detalle representa cada fila."
           ],
           "correctIndex": 3,
@@ -121,23 +121,23 @@
         },
         {
           "id": "intro-q3",
-          "question": "¿Por qué se prefiere `DATE_TRUNC('month', fecha)` sobre `MONTH(fecha)` en series temporales?",
+          "question": "¿Por qué se prefiere `DATETRUNC(month, fecha)` sobre `MONTH(fecha)` en series temporales?",
           "options": [
-            "Porque `MONTH()` no se puede usar dentro de un `GROUP BY` y obliga a agrupar por la fecha completa.",
-            "Porque `DATE_TRUNC` ajusta automáticamente cada fecha a la zona horaria UTC antes de agrupar los datos.",
             "Porque `MONTH(fecha)` devuelve el nombre del mes como texto y eso impide ordenar la serie cronológicamente.",
+            "Porque `DATETRUNC` ajusta automáticamente cada fecha a la zona horaria UTC antes de agrupar los datos.",
+            "Porque `MONTH()` no se puede usar dentro de un `GROUP BY` y obliga a agrupar por la fecha completa.",
             "Porque `MONTH(fecha)` colapsa el mismo mes de distintos años (ej. enero 2025 y enero 2026 juntos)."
           ],
           "correctIndex": 3,
-          "explanation": "`MONTH()` devuelve un entero del 1 al 12, mezclando datos de diferentes años. `DATE_TRUNC('month', fecha)` conserva el año y permite ordenar cronológicamente."
+          "explanation": "`MONTH()` devuelve un entero del 1 al 12, mezclando datos de diferentes años. `DATETRUNC(month, fecha)` (SQL Server 2022+) o `DATEFROMPARTS(YEAR(fecha), MONTH(fecha), 1)` conservan el año y permiten ordenar cronológicamente."
         },
         {
           "id": "intro-q4",
           "question": "¿Cuál es la mejor práctica respecto a filtros de negocio como excluir órdenes canceladas o cuentas de prueba?",
           "options": [
-            "Confiar en `SELECT DISTINCT` para que las órdenes canceladas y las cuentas de prueba se eliminen solas.",
-            "Aplicarlos después de exportar, en Excel, para que el código SQL quede más simple y genérico.",
             "Omitirlos en la consulta y mencionarlos solo de palabra en la reunión, para que el SQL sea más corto.",
+            "Aplicarlos después de exportar, en Excel, para que el código SQL quede más simple y genérico.",
+            "Confiar en `SELECT DISTINCT` para que las órdenes canceladas y las cuentas de prueba se eliminen solas.",
             "Incluirlos explícitamente en el código SQL/Python y documentarlos en el encabezado o entrega."
           ],
           "correctIndex": 3,
@@ -166,7 +166,7 @@
           "title": "1. Pensamiento por capas con CTEs (WITH)",
           "body": "Cuando una consulta requiere limpiar datos, pre-agregar métricas y luego comparar periodos, escribir subconsultas anidadas obliga a leer el código de adentro hacia afuera. Las Common Table Expressions (CTEs) invierten el flujo a una lectura lineal de arriba hacia abajo: cada bloque tiene una única responsabilidad y un nombre que explica su grano.\n\nUna arquitectura limpia suele seguir cuatro etapas: 1) Extracción y filtrado temprano (`base_*`), 2) Normalización o deduplicación, 3) Enriquecimiento/Agregación al grano destino, y 4) Presentación final.",
           "codeLanguage": "sql",
-          "codeSnippet": "WITH ventas_filtradas AS (\n  SELECT\n    venta_id,\n    cliente_id,\n    fecha_venta,\n    monto_neto\n  FROM dwh.fact_ventas\n  WHERE fecha_venta >= DATE '2026-01-01'\n    AND estado = 'completada'\n),\nresumen_cliente AS (\n  SELECT\n    cliente_id,\n    COUNT(*) AS num_compras,\n    SUM(monto_neto) AS ltv_periodo\n  FROM ventas_filtradas\n  GROUP BY cliente_id\n)\nSELECT\n  cliente_id,\n  num_compras,\n  ltv_periodo\nFROM resumen_cliente\nORDER BY ltv_periodo DESC;",
+          "codeSnippet": "WITH ventas_filtradas AS (\n  SELECT\n    venta_id,\n    cliente_id,\n    fecha_venta,\n    monto_neto\n  FROM dwh.fact_ventas\n  WHERE fecha_venta >= '2026-01-01'\n    AND estado = 'completada'\n),\nresumen_cliente AS (\n  SELECT\n    cliente_id,\n    COUNT(*) AS num_compras,\n    SUM(monto_neto) AS ltv_periodo\n  FROM ventas_filtradas\n  GROUP BY cliente_id\n)\nSELECT\n  cliente_id,\n  num_compras,\n  ltv_periodo\nFROM resumen_cliente\nORDER BY ltv_periodo DESC;",
           "keyTakeaway": "Cada CTE debe tener una sola responsabilidad clara y reducir datos lo antes posible."
         },
         {
@@ -179,11 +179,19 @@
         },
         {
           "id": "cap01-sec-3",
-          "title": "3. Filtrar ventanas y comparar periodos con LAG / QUALIFY",
-          "body": "En SQL estándar, las Window Functions se evalúan después de `WHERE` y `GROUP BY`. Por eso no puedes escribir `WHERE ROW_NUMBER() OVER (...) = 1` directamente. La forma universal es calcular la ventana en una CTE y filtrarla en el `SELECT` siguiente (o usar `QUALIFY` en motores modernos como BigQuery, Snowflake o DuckDB).\n\nAdemás, `LAG(columna, 1)` permite traer el valor de la fila anterior sin necesidad de costosos auto-JOINs (`self-joins`), ideal para calcular variación mensual o tiempo entre compras.",
+          "title": "3. Filtrar ventanas y comparar periodos con LAG",
+          "body": "En SQL estándar, las Window Functions se evalúan después de `WHERE` y `GROUP BY`. Por eso no puedes escribir `WHERE ROW_NUMBER() OVER (...) = 1` directamente. La forma universal es calcular la ventana en una CTE y filtrarla en el `SELECT` siguiente (SQL Server no tiene `QUALIFY`; ese atajo solo existe en motores como BigQuery, Snowflake o DuckDB).\n\nAdemás, `LAG(columna, 1)` permite traer el valor de la fila anterior sin necesidad de costosos auto-JOINs (`self-joins`), ideal para calcular variación mensual o tiempo entre compras.",
           "codeLanguage": "sql",
-          "codeSnippet": "WITH ingresos_mensuales AS (\n  SELECT\n    DATE_TRUNC('month', fecha_venta)::date AS mes,\n    SUM(monto_neto) AS ingreso\n  FROM dwh.fact_ventas\n  WHERE estado = 'completada'\n  GROUP BY 1\n),\ncon_mes_anterior AS (\n  SELECT\n    mes,\n    ingreso,\n    LAG(ingreso, 1) OVER (ORDER BY mes) AS ingreso_mes_previo\n  FROM ingresos_mensuales\n)\nSELECT\n  mes,\n  ingreso,\n  ingreso_mes_previo,\n  ROUND(\n    (ingreso - ingreso_mes_previo) * 100.0 / NULLIF(ingreso_mes_previo, 0),\n    2\n  ) AS variacion_pct\nFROM con_mes_anterior\nORDER BY mes;",
+          "codeSnippet": "WITH ingresos_mensuales AS (\n  SELECT\n    CAST(DATETRUNC(month, fecha_venta) AS DATE) AS mes,\n    SUM(monto_neto) AS ingreso\n  FROM dwh.fact_ventas\n  WHERE estado = 'completada'\n  GROUP BY CAST(DATETRUNC(month, fecha_venta) AS DATE)\n),\ncon_mes_anterior AS (\n  SELECT\n    mes,\n    ingreso,\n    LAG(ingreso, 1) OVER (ORDER BY mes) AS ingreso_mes_previo\n  FROM ingresos_mensuales\n)\nSELECT\n  mes,\n  ingreso,\n  ingreso_mes_previo,\n  ROUND(\n    (ingreso - ingreso_mes_previo) * 100.0 / NULLIF(ingreso_mes_previo, 0),\n    2\n  ) AS variacion_pct\nFROM con_mes_anterior\nORDER BY mes;",
           "keyTakeaway": "Protege siempre los denominadores con `NULLIF(denominador, 0)` para evitar fallos por división entre cero."
+        },
+        {
+          "id": "cap01-sec-4",
+          "title": "4. El dialecto del curso: T-SQL (SQL Server)",
+          "body": "Todo el SQL de este curso está escrito en **T-SQL**, el dialecto de Microsoft SQL Server y Azure SQL. Si vienes de PostgreSQL, MySQL o DuckDB, estas son las diferencias que más vas a notar:\n\n- **Limitar filas:** `SELECT TOP (10) ...` o `ORDER BY ... OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY` en lugar de `LIMIT 10`.\n- **Conversión de tipos:** `CAST(x AS DATE)`, `CONVERT(DATE, x)` o `TRY_CAST(x AS INT)` en lugar de `x::date`.\n- **Fechas:** `GETDATE()` / `SYSUTCDATETIME()` en lugar de `NOW()`; `DATEADD(day, -7, fecha)` en lugar de `fecha - INTERVAL '7 days'`; `DATEDIFF(day, inicio, fin)` para diferencias; `DATETRUNC(month, fecha)` (2022+) o `DATEFROMPARTS(YEAR(fecha), MONTH(fecha), 1)` en lugar de `DATE_TRUNC('month', fecha)`.\n- **Booleanos:** no existe `BOOLEAN`; se usa `BIT` y se compara `activo = 1`.\n- **Texto:** `ISNULL` / `COALESCE`, `STRING_AGG(col, ', ') WITHIN GROUP (ORDER BY ...)` y concatenación con `+` o `CONCAT()`.\n- **JSON:** `JSON_VALUE`, `OPENJSON` y `OUTER APPLY` en lugar de `->>`, `jsonb` y `LATERAL`.\n\nLas ideas (CTEs, ventanas, granos, rangos semiabiertos) son las mismas en todos los motores; solo cambia la sintaxis.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- PostgreSQL\n-- SELECT DATE_TRUNC('month', fecha)::date AS mes, COUNT(*) AS pedidos\n-- FROM ventas.pedidos\n-- WHERE fecha >= NOW() - INTERVAL '90 days' AND activo = TRUE\n-- GROUP BY 1 ORDER BY pedidos DESC LIMIT 5;\n\n-- T-SQL (SQL Server)\nSELECT TOP (5)\n  DATEFROMPARTS(YEAR(fecha), MONTH(fecha), 1) AS mes,\n  COUNT(*) AS pedidos\nFROM ventas.pedidos\nWHERE fecha >= DATEADD(day, -90, GETDATE())\n  AND activo = 1\nGROUP BY DATEFROMPARTS(YEAR(fecha), MONTH(fecha), 1)\nORDER BY pedidos DESC;",
+          "keyTakeaway": "Mismo razonamiento, distinta sintaxis: `TOP` en vez de `LIMIT`, `CAST` en vez de `::`, `DATEADD` en vez de `INTERVAL` y `BIT` en vez de `BOOLEAN`."
         }
       ],
       "professionalStandard": {
@@ -197,7 +205,7 @@
           "Prefiere `CTE` secuenciales frente a subconsultas anidadas de más de un nivel."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "WITH eventos_ordenados AS (\n  SELECT\n    usuario_id,\n    evento_id,\n    fecha_evento,\n    canal_atribucion,\n    ROW_NUMBER() OVER (\n      PARTITION BY usuario_id\n      ORDER BY fecha_evento DESC, evento_id DESC\n    ) AS rn\n  FROM analytics.eventos_registro\n  WHERE fecha_evento >= CURRENT_DATE - INTERVAL '90 days'\n)\nSELECT\n  usuario_id,\n  evento_id AS ultimo_evento_id,\n  fecha_evento AS ultima_fecha,\n  canal_atribucion\nFROM eventos_ordenados\nWHERE rn = 1;"
+        "referenceCode": "WITH eventos_ordenados AS (\n  SELECT\n    usuario_id,\n    evento_id,\n    fecha_evento,\n    canal_atribucion,\n    ROW_NUMBER() OVER (\n      PARTITION BY usuario_id\n      ORDER BY fecha_evento DESC, evento_id DESC\n    ) AS rn\n  FROM analytics.eventos_registro\n  WHERE fecha_evento >= DATEADD(day, -90, CAST(GETDATE() AS DATE))\n)\nSELECT\n  usuario_id,\n  evento_id AS ultimo_evento_id,\n  fecha_evento AS ultima_fecha,\n  canal_atribucion\nFROM eventos_ordenados\nWHERE rn = 1;"
       },
       "comparison": {
         "scenario": "Obtener el último pedido completado de cada cliente junto con el porcentaje que representa sobre su gasto histórico total.",
@@ -254,21 +262,21 @@
           "id": "cap01-q1",
           "question": "¿Por qué falla la consulta `SELECT id, ROW_NUMBER() OVER (ORDER BY fecha) AS rn FROM eventos WHERE rn = 1` en SQL estándar?",
           "options": [
-            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`, así que la ventana es inválida antes de llegar al `WHERE`.",
             "Porque las funciones de ventana requieren obligatoriamente un `GROUP BY` sobre las demás columnas del `SELECT` para ejecutarse.",
+            "Porque en SQL estándar la comparación debe escribirse como `rn == 1`, y el operador `=` solo se admite dentro de un `SET`.",
             "Porque la cláusula `WHERE` se evalúa antes que las funciones de ventana, así que el alias `rn` aún no existe en esa etapa.",
-            "Porque en SQL estándar la comparación debe escribirse como `rn == 1`, y el operador `=` solo se admite dentro de un `SET`."
+            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`, así que la ventana es inválida antes de llegar al `WHERE`."
           ],
           "correctIndex": 2,
-          "explanation": "En el orden lógico de ejecución de SQL, `WHERE` se ejecuta antes que la lista `SELECT` (donde se evalúan las Window Functions). Por eso debes envolver el cálculo en una CTE (o usar `QUALIFY` donde esté soportado)."
+          "explanation": "En el orden lógico de ejecución de SQL, `WHERE` se ejecuta antes que la lista `SELECT` (donde se evalúan las Window Functions). Por eso debes envolver el cálculo en una CTE (en SQL Server no existe `QUALIFY`)."
         },
         {
           "id": "cap01-q2",
           "question": "Si dos filas tienen exactamente el mismo valor en el `ORDER BY` de una ventana, ¿qué función garantiza que nunca devolverá empates y asignará 1, 2, 3... consecutivos?",
           "options": [
             "ROW_NUMBER()",
-            "DENSE_RANK()",
             "RANK()",
+            "DENSE_RANK()",
             "NTILE(1)"
           ],
           "correctIndex": 0,
@@ -278,10 +286,10 @@
           "id": "cap01-q3",
           "question": "¿Qué ventaja ofrece `LAG(ventas, 1) OVER (ORDER BY mes)` frente a un auto-JOIN (`self-join`) por `mes - 1`?",
           "options": [
-            "Permite omitir el `ORDER BY` dentro de `OVER()` sin afectar el resultado, porque el motor deduce solo el orden cronológico de la columna `mes` y trae siempre el mes calendario anterior.",
-            "Lee la fila anterior en una sola pasada ordenada, sin cruzar la tabla consigo misma (aunque si falta un mes, trae el mes existente anterior, por eso conviene partir de un calendario continuo).",
             "Convierte automáticamente los valores NULL en ceros y rellena los meses faltantes de la serie, por lo que ya no hace falta partir de un calendario continuo ni preocuparse por los huecos.",
-            "Es la única forma de aprovechar índices B-Tree sobre la columna `mes`, mientras que el auto-JOIN siempre fuerza un escaneo completo de la tabla y por eso devuelve resultados distintos."
+            "Lee la fila anterior en una sola pasada ordenada, sin cruzar la tabla consigo misma (aunque si falta un mes, trae el mes existente anterior, por eso conviene partir de un calendario continuo).",
+            "Es la única forma de aprovechar índices B-Tree sobre la columna `mes`, mientras que el auto-JOIN siempre fuerza un escaneo completo de la tabla y por eso devuelve resultados distintos.",
+            "Permite omitir el `ORDER BY` dentro de `OVER()` sin afectar el resultado, porque el motor deduce solo el orden cronológico de la columna `mes` y trae siempre el mes calendario anterior."
           ],
           "correctIndex": 1,
           "explanation": "`LAG()` lee la fila inmediatamente anterior en una única pasada ordenada sobre la partición, evitando la complejidad y el costo de un self-join. Ojo: 'anterior' significa la fila previa, no el mes calendario previo; si la serie tiene huecos, rellénala antes con un calendario."
@@ -292,8 +300,8 @@
           "options": [
             "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
             "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW",
-            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING",
-            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING"
+            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING",
+            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING"
           ],
           "correctIndex": 1,
           "explanation": "6 filas anteriores más la fila actual suman exactamente 7 días (hoy y los 6 días previos)."
@@ -304,8 +312,8 @@
           "options": [
             "Para reemplazar por cero cualquier variación negativa, de modo que las caídas no aparezcan en el reporte como porcentajes menores a cero.",
             "Para convertir un 0 en `NULL`, logrando que la división devuelva `NULL` en lugar de abortar la consulta con error de división por cero.",
-            "Para que el motor use un índice sobre el denominador y acelere el ordenamiento del `ORDER BY` cuando hay muchas filas con ceros.",
-            "Para convertir un `NULL` en 0, logrando que la división siempre devuelva un número y el reporte no muestre celdas vacías en la variación."
+            "Para convertir un `NULL` en 0, logrando que la división siempre devuelva un número y el reporte no muestre celdas vacías en la variación.",
+            "Para que el motor use un índice sobre el denominador y acelere el ordenamiento del `ORDER BY` cuando hay muchas filas con ceros."
           ],
           "correctIndex": 1,
           "explanation": "`NULLIF(x, 0)` devuelve `NULL` cuando `x = 0`. En SQL, dividir cualquier número entre `NULL` da `NULL` en vez de lanzar un error fatal en tiempo de ejecución."
@@ -333,7 +341,7 @@
           "title": "1. Qué es el Fan-Out y por qué ocurre en silencio",
           "body": "El fan-out ocurre cuando cruzas una tabla de grano 1:1 (ej. `pedidos`) contra otra tabla donde la clave aparece múltiples veces (ej. `envios` o `cupones_aplicados`) sin haber agregado primero el lado derecho.\n\nEl motor SQL no arroja ningún error: simplemente multiplica cada pedido por la cantidad de coincidencias y duplica cualquier `SUM()` o `COUNT(*)` posterior. La regla de oro intermedia es auditar la unicidad de la clave derecha antes del JOIN o pre-agregar en una CTE.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Auditoría previa de cardinalidad en la tabla derecha\nSELECT\n  pedido_id,\n  COUNT(*) AS repeticiones\nFROM logistica.envios\nGROUP BY pedido_id\nHAVING COUNT(*) > 1\nLIMIT 20;",
+          "codeSnippet": "-- Auditoría previa de cardinalidad en la tabla derecha\nSELECT TOP (20)\n  pedido_id,\n  COUNT(*) AS repeticiones\nFROM logistica.envios\nGROUP BY pedido_id\nHAVING COUNT(*) > 1;",
           "keyTakeaway": "Si la consulta de auditoría devuelve filas, un JOIN directo por `pedido_id` provocará fan-out."
         },
         {
@@ -374,7 +382,7 @@
           "Al poner `WHERE t.anio = 2026`, convierte el `LEFT JOIN` en `INNER JOIN` y elimina clientes sin tickets."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "WITH pedidos_2026 AS (\n  SELECT\n    cliente_id,\n    SUM(monto_neto) AS ingreso_2026\n  FROM ventas.pedidos\n  WHERE fecha_pedido >= DATE '2026-01-01'\n    AND estado = 'completado'\n  GROUP BY cliente_id\n),\ntickets_2026 AS (\n  SELECT\n    cliente_id,\n    COUNT(*) AS total_tickets\n  FROM soporte.tickets\n  WHERE creado_en >= DATE '2026-01-01'\n  GROUP BY cliente_id\n)\nSELECT\n  c.cliente_id,\n  COALESCE(p.ingreso_2026, 0) AS ingreso_2026,\n  COALESCE(t.total_tickets, 0) AS total_tickets\nFROM crm.clientes AS c\nLEFT JOIN pedidos_2026 AS p ON c.cliente_id = p.cliente_id\nLEFT JOIN tickets_2026 AS t ON c.cliente_id = t.cliente_id;",
+        "intermediateCode": "WITH pedidos_2026 AS (\n  SELECT\n    cliente_id,\n    SUM(monto_neto) AS ingreso_2026\n  FROM ventas.pedidos\n  WHERE fecha_pedido >= '2026-01-01'\n    AND estado = 'completado'\n  GROUP BY cliente_id\n),\ntickets_2026 AS (\n  SELECT\n    cliente_id,\n    COUNT(*) AS total_tickets\n  FROM soporte.tickets\n  WHERE creado_en >= '2026-01-01'\n  GROUP BY cliente_id\n)\nSELECT\n  c.cliente_id,\n  COALESCE(p.ingreso_2026, 0) AS ingreso_2026,\n  COALESCE(t.total_tickets, 0) AS total_tickets\nFROM crm.clientes AS c\nLEFT JOIN pedidos_2026 AS p ON c.cliente_id = p.cliente_id\nLEFT JOIN tickets_2026 AS t ON c.cliente_id = t.cliente_id;",
         "intermediateBenefits": [
           "Reduce ambas tablas al grano único `cliente_id` antes de unir.",
           "Conserva el 100% de los clientes gracias a filtros tempranos en CTEs y `COALESCE(..., 0)`."
@@ -386,10 +394,10 @@
           "id": "cap02-ej-1",
           "title": "Práctica 1: Catálogo de Productos Sin Ventas en el Trimestre",
           "difficulty": "Básico",
-          "prompt": "Obtén los `producto_id` y `nombre` de `catalogo.productos` que estén activos (`activo = TRUE`) pero no aparezcan en ninguna venta completada durante el Q1 2026 (`2026-01-01` a `2026-03-31`).",
+          "prompt": "Obtén los `producto_id` y `nombre` de `catalogo.productos` que estén activos (`activo = 1`) pero no aparezcan en ninguna venta completada durante el Q1 2026 (`2026-01-01` a `2026-03-31`).",
           "hint": "Usa `NOT EXISTS` y recuerda filtrar tanto el estado de la venta como el rango de fechas dentro de la subconsulta.",
           "solutionExplanation": "`NOT EXISTS` evita fallos por valores `NULL` en `producto_id` y no requiere `DISTINCT` adicional sobre el catálogo.",
-          "solutionCode": "SELECT\n  pr.producto_id,\n  pr.nombre\nFROM catalogo.productos AS pr\nWHERE pr.activo = TRUE\n  AND NOT EXISTS (\n    SELECT 1\n    FROM ventas.items_pedido AS ip\n    INNER JOIN ventas.pedidos AS p\n      ON ip.pedido_id = p.pedido_id\n    WHERE ip.producto_id = pr.producto_id\n      AND p.estado = 'completado'\n      AND p.fecha_pedido >= DATE '2026-01-01'\n      AND p.fecha_pedido < DATE '2026-04-01'\n  );",
+          "solutionCode": "SELECT\n  pr.producto_id,\n  pr.nombre\nFROM catalogo.productos AS pr\nWHERE pr.activo = 1\n  AND NOT EXISTS (\n    SELECT 1\n    FROM ventas.items_pedido AS ip\n    INNER JOIN ventas.pedidos AS p\n      ON ip.pedido_id = p.pedido_id\n    WHERE ip.producto_id = pr.producto_id\n      AND p.estado = 'completado'\n      AND p.fecha_pedido >= '2026-01-01'\n      AND p.fecha_pedido < '2026-04-01'\n  );",
           "codeLanguage": "sql"
         },
         {
@@ -409,9 +417,9 @@
           "question": "¿Qué ocurre si ejecutas `WHERE cliente_id NOT IN (SELECT cliente_id FROM bajas)` y la tabla `bajas` contiene una sola fila con `cliente_id IS NULL`?",
           "options": [
             "Devuelve todos los clientes excepto los que tienen baja; el NULL simplemente no coincide con nadie.",
-            "Lanza un error porque `NOT IN` no admite subconsultas que puedan devolver valores nulos.",
+            "Devuelve solo los clientes con `cliente_id` nulo, ya que son los únicos que coinciden con esa fila.",
             "Toda la consulta devuelve 0 filas porque comparar contra NULL produce UNKNOWN.",
-            "Devuelve solo los clientes con `cliente_id` nulo, ya que son los únicos que coinciden con esa fila."
+            "Lanza un error porque `NOT IN` no admite subconsultas que puedan devolver valores nulos."
           ],
           "correctIndex": 2,
           "explanation": "En lógica trivaluada SQL, `x NOT IN (1, 2, NULL)` equivale a `x != 1 AND x != 2 AND x != NULL`, cuya tercera parte es `UNKNOWN`, haciendo que ninguna fila pase el `WHERE`."
@@ -420,10 +428,10 @@
           "id": "cap02-q2",
           "question": "Si agregas `AND tabla_derecha.estado = 'activo'` en la cláusula `WHERE` tras un `LEFT JOIN`, ¿qué sucede?",
           "options": [
-            "Se mantienen las filas de la izquierda sin coincidencia con NULL, y solo se descartan las filas derechas inactivas.",
             "Se acelera el LEFT JOIN porque el filtro se aplica antes de la unión, sin alterar las filas que devuelve la consulta.",
+            "Se duplican las filas de la izquierda que tienen más de una coincidencia activa en la tabla derecha del LEFT JOIN.",
             "Se eliminan las filas de la izquierda sin coincidencia, convirtiendo el LEFT JOIN en un INNER JOIN efectivo.",
-            "Se duplican las filas de la izquierda que tienen más de una coincidencia activa en la tabla derecha del LEFT JOIN."
+            "Se mantienen las filas de la izquierda sin coincidencia con NULL, y solo se descartan las filas derechas inactivas."
           ],
           "correctIndex": 2,
           "explanation": "Las filas sin coincidencia tienen `NULL` en `tabla_derecha.estado`; al evaluar `NULL = 'activo'` en `WHERE`, quedan descartadas."
@@ -432,10 +440,10 @@
           "id": "cap02-q3",
           "question": "¿Cuál es la forma correcta de combinar dos tablas de métricas 1:N (`pagos` y `reembolsos`) hacia una tabla padre `pedidos`?",
           "options": [
-            "Unir ambas tablas directamente a `pedidos` y usar `SUM(DISTINCT monto)` para que los montos repetidos no se dupliquen.",
+            "Hacer `INNER JOIN` de `pedidos` con `pagos` y con `reembolsos`, y luego sumar los montos en un solo `GROUP BY`.",
             "Pre-agregar `pagos` por `pedido_id` y `reembolsos` por `pedido_id` en CTEs separadas antes del `LEFT JOIN`.",
-            "Usar `CROSS JOIN` entre `pagos` y `reembolsos` y después un `GROUP BY pedido_id` para reunir ambas métricas en una fila.",
-            "Hacer `INNER JOIN` de `pedidos` con `pagos` y con `reembolsos`, y luego sumar los montos en un solo `GROUP BY`."
+            "Unir ambas tablas directamente a `pedidos` y usar `SUM(DISTINCT monto)` para que los montos repetidos no se dupliquen.",
+            "Usar `CROSS JOIN` entre `pagos` y `reembolsos` y después un `GROUP BY pedido_id` para reunir ambas métricas en una fila."
           ],
           "correctIndex": 1,
           "explanation": "Pre-agregar cada tabla hija a la clave `pedido_id` garantiza relaciones 1:1 antes de cruzarlas con `pedidos`."
@@ -449,7 +457,7 @@
       "code": "Cap. 03",
       "module": "Módulo 1: SQL Analítico y Arquitectura de Consultas",
       "title": "Manejo Riguroso de Fechas, Zonas Horarias y Cohortes",
-      "subtitle": "Generación de calendarios continuos (`generate_series`), conversión UTC a local y construcción de matrices de retención.",
+      "subtitle": "Generación de calendarios continuos (`GENERATE_SERIES` o tabla calendario), conversión UTC a local y construcción de matrices de retención.",
       "estimatedMinutes": 40,
       "status": "published",
       "objectives": [
@@ -460,18 +468,18 @@
       "theorySections": [
         {
           "id": "cap03-sec-1",
-          "title": "1. Series continuas con tabla calendario (generate_series)",
-          "body": "Si agrupas ventas directamente por `fecha_dia` y un martes no hubo ventas en una sucursal, ese día desaparece del resultado. Al calcular un promedio semanal sobre las filas resultantes, dividirás entre 6 días en vez de 7 y sobreestimarás el promedio diario.\n\nUn analista intermedio parte siempre de una espina dorsal calendario (`dim_fecha` o `generate_series`) y hace `LEFT JOIN` hacia los hechos agregados.",
+          "title": "1. Series continuas con tabla calendario (GENERATE_SERIES)",
+          "body": "Si agrupas ventas directamente por `fecha_dia` y un martes no hubo ventas en una sucursal, ese día desaparece del resultado. Al calcular un promedio semanal sobre las filas resultantes, dividirás entre 6 días en vez de 7 y sobreestimarás el promedio diario.\n\nUn analista intermedio parte siempre de una espina dorsal calendario (`dim_fecha` o `GENERATE_SERIES` en SQL Server 2022+) y hace `LEFT JOIN` hacia los hechos agregados.",
           "codeLanguage": "sql",
-          "codeSnippet": "WITH calendario AS (\n  SELECT gs::date AS fecha_dia\n  FROM generate_series(DATE '2026-01-01', DATE '2026-01-31', INTERVAL '1 day') AS gs\n),\nventas_diarias AS (\n  SELECT\n    fecha_local::date AS fecha_dia,\n    SUM(monto_neto) AS ingreso\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n  GROUP BY 1\n)\nSELECT\n  c.fecha_dia,\n  COALESCE(v.ingreso, 0) AS ingreso_dia\nFROM calendario AS c\nLEFT JOIN ventas_diarias AS v\n  ON c.fecha_dia = v.fecha_dia\nORDER BY c.fecha_dia;",
+          "codeSnippet": "WITH calendario AS (\n  SELECT DATEADD(day, gs.value, CAST('2026-01-01' AS DATE)) AS fecha_dia\n  FROM GENERATE_SERIES(0, 30) AS gs  -- SQL Server 2022+: los 31 días de enero\n),\nventas_diarias AS (\n  SELECT\n    CAST(fecha_local AS DATE) AS fecha_dia,\n    SUM(monto_neto) AS ingreso\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n  GROUP BY CAST(fecha_local AS DATE)\n)\nSELECT\n  c.fecha_dia,\n  COALESCE(v.ingreso, 0) AS ingreso_dia\nFROM calendario AS c\nLEFT JOIN ventas_diarias AS v\n  ON c.fecha_dia = v.fecha_dia\nORDER BY c.fecha_dia;",
           "keyTakeaway": "Las ausencias de actividad también son datos; rellénalas con 0 desde un calendario continuo."
         },
         {
           "id": "cap03-sec-2",
           "title": "2. Zonas horarias y cortes de día en negocio",
-          "body": "Las bases transaccionales suelen almacenar timestamps en `UTC` (`TIMESTAMPTZ`). Una compra a las 22:00 en Ciudad de México (`America/Mexico_City`, UTC-6) se registra a las 04:00 UTC del día siguiente.\n\nAntes de aplicar `DATE_TRUNC('day', ...)`, convierte el timestamp a la zona horaria oficial del reporte con `AT TIME ZONE`. Además, usa rangos semiabiertos `>= inicio AND < fin_siguiente` en lugar de `BETWEEN` con fechas truncadas.",
+          "body": "Las bases transaccionales suelen almacenar timestamps en `UTC` (`DATETIME2` o `DATETIMEOFFSET`). Una compra a las 22:00 en Ciudad de México (`'Central Standard Time (Mexico)'`, UTC-6) se registra a las 04:00 UTC del día siguiente.\n\nAntes de cortar por día con `CAST(... AS DATE)`, convierte el timestamp a la zona horaria oficial del reporte con `AT TIME ZONE 'UTC' AT TIME ZONE 'Central Standard Time (Mexico)'` (SQL Server usa nombres de zona de Windows). Además, usa rangos semiabiertos `>= inicio AND < fin_siguiente` en lugar de `BETWEEN` con fechas truncadas.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Rango semiabierto en zona horaria de negocio (nunca pierde el último segundo del día)\nSELECT\n  pedido_id,\n  (creado_utc AT TIME ZONE 'America/Mexico_City')::date AS fecha_operativa_mx\nFROM ventas.pedidos\nWHERE creado_utc >= TIMESTAMPTZ '2026-01-01 00:00:00 America/Mexico_City'\n  AND creado_utc <  TIMESTAMPTZ '2026-02-01 00:00:00 America/Mexico_City';",
+          "codeSnippet": "-- Rango semiabierto en zona horaria de negocio (nunca pierde el último segundo del día)\n-- creado_utc es DATETIME2 en UTC. AT TIME ZONE usa los nombres de zona de Windows.\nSELECT\n  pedido_id,\n  CAST(creado_utc AT TIME ZONE 'UTC' AT TIME ZONE 'Central Standard Time (Mexico)' AS DATE) AS fecha_operativa_mx\nFROM ventas.pedidos\nWHERE creado_utc >= '2026-01-01 06:00:00'   -- 00:00 de Ciudad de México (UTC-6)\n  AND creado_utc <  '2026-02-01 06:00:00';",
           "keyTakeaway": "Usa siempre intervalos semiabiertos `[inicio, fin)` para incluir el 100% de las milésimas del último día."
         },
         {
@@ -479,7 +487,7 @@
           "title": "3. Matrices de retención por cohorte en SQL",
           "body": "Una cohorte agrupa clientes por su mes de primera compra (`cohorte_mes`). Luego se mide qué porcentaje vuelve a comprar en el mes `M+1`, `M+2`, etc., calculando la diferencia entera de meses entre `mes_actividad` y `cohorte_mes`.",
           "codeLanguage": "sql",
-          "codeSnippet": "WITH primera_compra AS (\n  SELECT\n    cliente_id,\n    DATE_TRUNC('month', MIN(fecha_local))::date AS cohorte_mes\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n  GROUP BY cliente_id\n),\nactividad_mensual AS (\n  SELECT DISTINCT\n    p.cliente_id,\n    pc.cohorte_mes,\n    DATE_TRUNC('month', p.fecha_local)::date AS mes_actividad\n  FROM ventas.pedidos AS p\n  INNER JOIN primera_compra AS pc\n    ON p.cliente_id = pc.cliente_id\n  WHERE p.estado = 'completado'\n)\nSELECT\n  cohorte_mes,\n  (EXTRACT(YEAR FROM AGE(mes_actividad, cohorte_mes)) * 12\n   + EXTRACT(MONTH FROM AGE(mes_actividad, cohorte_mes)))::int AS mes_relativo,\n  COUNT(DISTINCT cliente_id) AS clientes_activos\nFROM actividad_mensual\nGROUP BY 1, 2\nORDER BY 1, 2;",
+          "codeSnippet": "WITH primera_compra AS (\n  SELECT\n    cliente_id,\n    CAST(DATETRUNC(month, MIN(fecha_local)) AS DATE) AS cohorte_mes\n  FROM ventas.pedidos\n  WHERE estado = 'completado'\n  GROUP BY cliente_id\n),\nactividad_mensual AS (\n  SELECT DISTINCT\n    p.cliente_id,\n    pc.cohorte_mes,\n    CAST(DATETRUNC(month, p.fecha_local) AS DATE) AS mes_actividad\n  FROM ventas.pedidos AS p\n  INNER JOIN primera_compra AS pc\n    ON p.cliente_id = pc.cliente_id\n  WHERE p.estado = 'completado'\n)\nSELECT\n  cohorte_mes,\n  DATEDIFF(month, cohorte_mes, mes_actividad) AS mes_relativo,\n  COUNT(DISTINCT cliente_id) AS clientes_activos\nFROM actividad_mensual\nGROUP BY cohorte_mes, DATEDIFF(month, cohorte_mes, mes_actividad)\nORDER BY 1, 2;",
           "keyTakeaway": "El tamaño base `M+0` de cada cohorte es el denominador fijo para calcular la tasa de retención."
         }
       ],
@@ -489,10 +497,10 @@
         "rules": [
           "Almacena fechas en UTC en tablas base y convierte explícitamente con `AT TIME ZONE` al definir la fecha operativa.",
           "Reemplaza `BETWEEN '2026-01-01' AND '2026-01-31'` sobre timestamps por `>= '2026-01-01' AND < '2026-02-01'`.",
-          "Usa una tabla de calendario o `generate_series` antes de calcular promedios móviles o días sin ventas."
+          "Usa una tabla de calendario o `GENERATE_SERIES` antes de calcular promedios móviles o días sin ventas."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Filtro temporal seguro sobre TIMESTAMP\nSELECT COUNT(*) AS pedidos_enero\nFROM ventas.pedidos\nWHERE creado_utc >= TIMESTAMPTZ '2026-01-01 00:00:00 UTC'\n  AND creado_utc <  TIMESTAMPTZ '2026-02-01 00:00:00 UTC';"
+        "referenceCode": "-- Filtro temporal seguro sobre TIMESTAMP\nSELECT COUNT(*) AS pedidos_enero\nFROM ventas.pedidos\nWHERE creado_utc >= '2026-01-01 00:00:00 UTC'\n  AND creado_utc <  '2026-02-01 00:00:00 UTC';"
       },
       "comparison": {
         "scenario": "Filtrar todas las ventas de enero de 2026 sobre una columna `creado_en` de tipo `TIMESTAMP`.",
@@ -503,7 +511,7 @@
           "Ignora la zona horaria del negocio."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "SELECT\n  COUNT(*) AS pedidos,\n  SUM(monto_neto) AS ingreso_neto\nFROM ventas.pedidos\nWHERE estado = 'completado'\n  AND creado_utc >= TIMESTAMPTZ '2026-01-01 00:00:00 America/Bogota'\n  AND creado_utc <  TIMESTAMPTZ '2026-02-01 00:00:00 America/Bogota';",
+        "intermediateCode": "SELECT\n  COUNT(*) AS pedidos,\n  SUM(monto_neto) AS ingreso_neto\nFROM ventas.pedidos\nWHERE estado = 'completado'\n  AND creado_utc >= '2026-01-01 00:00:00 America/Bogota'\n  AND creado_utc <  '2026-02-01 00:00:00 America/Bogota';",
         "intermediateBenefits": [
           "Captura el 100% del último día hasta el último microsegundo.",
           "Permite usar índices o particiones por `creado_utc` sin envolver la columna en funciones."
@@ -516,9 +524,9 @@
           "title": "Práctica 1: Promedio Real en Sucursales con Días Cerrados",
           "difficulty": "Intermedio",
           "prompt": "Calcula el promedio diario de ventas de enero 2026 para la sucursal `SUC-04`, asegurando que los días sin ninguna venta cuenten como `0` dentro del denominador de 31 días.",
-          "hint": "Construye `calendario` con `generate_series`, haz `LEFT JOIN` a las ventas de `SUC-04` agregadas por día y usa `AVG(COALESCE(ingreso, 0))`.",
+          "hint": "Construye `calendario` con `GENERATE_SERIES(0, 30)` y `DATEADD`, haz `LEFT JOIN` a las ventas de `SUC-04` agregadas por día y usa `AVG(COALESCE(ingreso, 0))`.",
           "solutionExplanation": "Sin calendario continuo, `AVG()` solo promediaría los días con ventas, inflando artificialmente el desempeño diario.",
-          "solutionCode": "WITH calendario AS (\n  SELECT gs::date AS dia\n  FROM generate_series(DATE '2026-01-01', DATE '2026-01-31', INTERVAL '1 day') AS gs\n),\nsucursal_dia AS (\n  SELECT\n    fecha_local::date AS dia,\n    SUM(monto_neto) AS ingreso\n  FROM ventas.pedidos\n  WHERE sucursal_id = 'SUC-04'\n    AND estado = 'completado'\n    AND fecha_local >= DATE '2026-01-01'\n    AND fecha_local <  DATE '2026-02-01'\n  GROUP BY 1\n)\nSELECT\n  ROUND(AVG(COALESCE(s.ingreso, 0)), 2) AS promedio_diario_real\nFROM calendario AS c\nLEFT JOIN sucursal_dia AS s\n  ON c.dia = s.dia;",
+          "solutionCode": "WITH calendario AS (\n  SELECT DATEADD(day, gs.value, CAST('2026-01-01' AS DATE)) AS dia\n  FROM GENERATE_SERIES(0, 30) AS gs  -- SQL Server 2022+: los 31 días de enero\n),\nsucursal_dia AS (\n  SELECT\n    CAST(fecha_local AS DATE) AS dia,\n    SUM(monto_neto) AS ingreso\n  FROM ventas.pedidos\n  WHERE sucursal_id = 'SUC-04'\n    AND estado = 'completado'\n    AND fecha_local >= '2026-01-01'\n    AND fecha_local <  '2026-02-01'\n  GROUP BY CAST(fecha_local AS DATE)\n)\nSELECT\n  ROUND(AVG(COALESCE(s.ingreso, 0)), 2) AS promedio_diario_real\nFROM calendario AS c\nLEFT JOIN sucursal_dia AS s\n  ON c.dia = s.dia;",
           "codeLanguage": "sql"
         },
         {
@@ -538,8 +546,8 @@
           "question": "¿Por qué es riesgoso usar `WHERE timestamp_col BETWEEN '2026-03-01' AND '2026-03-31'`?",
           "options": [
             "Porque excluye casi todo el día 31 de marzo al interpretarse como `2026-03-31 00:00:00`.",
-            "Porque `BETWEEN` no funciona con columnas de tipo timestamp y compara las fechas como texto.",
             "Porque incluye todo el 1 de abril, ya que `BETWEEN` redondea el límite superior al día siguiente.",
+            "Porque `BETWEEN` no funciona con columnas de tipo timestamp y compara las fechas como texto.",
             "Porque `BETWEEN` excluye ambos extremos y deja fuera completos el día 1 y el día 31 de marzo."
           ],
           "correctIndex": 0,
@@ -547,12 +555,12 @@
         },
         {
           "id": "cap03-q2",
-          "question": "¿Para qué sirve cruzar una tabla de ventas contra `generate_series` mediante `LEFT JOIN`?",
+          "question": "¿Para qué sirve cruzar una tabla de ventas contra una tabla calendario (`GENERATE_SERIES`) mediante `LEFT JOIN`?",
           "options": [
             "Para garantizar una fila por cada fecha del periodo aunque no haya habido transacciones (asignando 0).",
-            "Para eliminar del resultado los días sin ventas, de modo que la serie solo muestre fechas con transacciones.",
+            "Para obtener un JOIN cartesiano más rápido que el `GROUP BY` cuando la tabla de ventas es muy grande.",
             "Para convertir todas las fechas de la tabla de ventas a UTC y alinear las zonas horarias del periodo.",
-            "Para obtener un JOIN cartesiano más rápido que el `GROUP BY` cuando la tabla de ventas es muy grande."
+            "Para eliminar del resultado los días sin ventas, de modo que la serie solo muestre fechas con transacciones."
           ],
           "correctIndex": 0,
           "explanation": "Preserva los días sin actividad como 0, evitando distorsionar promedios móviles y tasas diarias."
@@ -562,8 +570,8 @@
           "question": "En una matriz de retención por cohorte, ¿qué representa `mes_relativo = 0`?",
           "options": [
             "Los clientes de la cohorte que abandonaron durante el primer mes.",
-            "El promedio de retención de todos los meses posteriores de la cohorte.",
             "El mes previo a la adquisición, usado como línea base de la cohorte.",
+            "El promedio de retención de todos los meses posteriores de la cohorte.",
             "El mes de adquisición inicial de esa cohorte (100% de base)."
           ],
           "correctIndex": 3,
@@ -578,7 +586,7 @@
       "code": "Cap. 04",
       "module": "Módulo 1: SQL Analítico y Arquitectura de Consultas",
       "title": "JSON, Arrays y Datos Semiestructurados en SQL",
-      "subtitle": "Extracción, desanidamiento (`UNNEST` / `LATERAL FLATTEN`) y tipado seguro de eventos de telemetría y webhooks.",
+      "subtitle": "Extracción (`JSON_VALUE`), desanidamiento (`OPENJSON` + `OUTER APPLY`) y tipado seguro de eventos de telemetría y webhooks.",
       "estimatedMinutes": 30,
       "status": "published",
       "objectives": [
@@ -589,17 +597,17 @@
         {
           "id": "cap04-sec-1",
           "title": "1. Extracción tipada y segura desde payloads JSON",
-          "body": "Webhooks de pago, eventos de producto y logs de aplicaciones suelen llegar en columnas `JSON` o `JSONB`. Un error frecuente es extraer texto con `->>` y operar aritméticamente confiando en conversiones implícitas.\n\nEn SQL profesional, extraes la ruta, aplicas `NULLIF(..., '')` si puede venir cadena vacía y haces un casteo explícito o tolerante (`TRY_CAST` en DuckDB/Snowflake/BigQuery o validación regex en PostgreSQL).",
+          "body": "Webhooks de pago, eventos de producto y logs de aplicaciones suelen llegar como texto JSON en columnas `NVARCHAR(MAX)`. Un error frecuente es extraer un valor con `JSON_VALUE` y operar aritméticamente confiando en conversiones implícitas.\n\nEn SQL profesional, extraes la ruta (`JSON_VALUE(payload, '$.monto')`), aplicas `NULLIF(..., '')` si puede venir cadena vacía y haces un casteo tolerante con `TRY_CAST(... AS DECIMAL(12,2))`, que devuelve `NULL` en lugar de romper la consulta.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- PostgreSQL / DuckDB: extracción segura y tipada desde JSONB\nSELECT\n  evento_id,\n  payload ->> 'tipo_evento' AS tipo_evento,\n  NULLIF(payload #>> '{usuario,pais}', '') AS pais,\n  COALESCE(NULLIF(payload #>> '{carrito,total}', '')::numeric, 0) AS total_carrito\nFROM raw.eventos_web\nWHERE payload ? 'carrito';",
+          "codeSnippet": "-- SQL Server: extracción segura y tipada desde JSON (columna NVARCHAR(MAX))\nSELECT\n  evento_id,\n  JSON_VALUE(payload, '$.tipo_evento') AS tipo_evento,\n  NULLIF(JSON_VALUE(payload, '$.usuario.pais'), '') AS pais,\n  COALESCE(TRY_CAST(NULLIF(JSON_VALUE(payload, '$.carrito.total'), '') AS DECIMAL(18,4)), 0) AS total_carrito\nFROM raw.eventos_web\nWHERE JSON_QUERY(payload, '$.carrito') IS NOT NULL;",
           "keyTakeaway": "Documenta qué rutas JSON esperas y normaliza cadenas vacías a NULL desde la capa staging."
         },
         {
           "id": "cap04-sec-2",
-          "title": "2. Desanidamiento (UNNEST / LATERAL) sin perder el grano",
-          "body": "Cuando un pedido o evento contiene un arreglo `items`, desanidarlo multiplica el número de filas: el grano pasa de **1 fila por pedido** a **1 fila por ítem**.\n\nUsa `LEFT JOIN LATERAL jsonb_array_elements(...)` (o `CROSS JOIN UNNEST(...)` en BigQuery/DuckDB cuando siempre hay elementos, o `LEFT JOIN` cuando el arreglo puede estar vacío) para no perder pedidos sin ítems.",
+          "title": "2. Desanidamiento (OPENJSON / OUTER APPLY) sin perder el grano",
+          "body": "Cuando un pedido o evento contiene un arreglo `items`, desanidarlo multiplica el número de filas: el grano pasa de **1 fila por pedido** a **1 fila por ítem**.\n\nUsa `OUTER APPLY OPENJSON(payload, '$.items')` para no perder pedidos sin ítems (equivale a un `LEFT JOIN`). `CROSS APPLY` solo conserva los pedidos que sí tienen elementos, igual que un `INNER JOIN`.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Desanidando un array JSON en PostgreSQL conservando pedidos vacíos\nSELECT\n  e.evento_id,\n  e.creado_en,\n  item ->> 'sku' AS sku,\n  (item ->> 'cantidad')::int AS cantidad,\n  (item ->> 'precio')::numeric AS precio_unitario\nFROM raw.eventos_checkout AS e\nLEFT JOIN LATERAL jsonb_array_elements(e.payload -> 'items') AS item ON TRUE;",
+          "codeSnippet": "-- Desanidando un arreglo JSON en SQL Server conservando pedidos vacíos\nSELECT\n  e.evento_id,\n  e.creado_en,\n  i.sku,\n  i.cantidad,\n  i.precio AS precio_unitario\nFROM raw.eventos_checkout AS e\nOUTER APPLY OPENJSON(e.payload, '$.items')\n  WITH (\n    sku      NVARCHAR(50)  '$.sku',\n    cantidad INT           '$.cantidad',\n    precio   DECIMAL(18,4) '$.precio'\n  ) AS i;",
           "keyTakeaway": "Nunca mantengas métricas de cabecera sin advertir que el grano cambió tras hacer `UNNEST` o `FLATTEN`."
         }
       ],
@@ -608,8 +616,8 @@
         "summary": "Reglas para parsear datos semiestructurados sin fragilidad.",
         "rules": [
           "Extrae y tipa los campos JSON una sola vez en una tabla/CTE staging; no repitas rutas JSON en consultas de negocio.",
-          "Maneja arreglos nulos o vacíos (`COALESCE(arr, '[]'::jsonb)`) para evitar errores o pérdida silenciosa de filas.",
-          "Cambia explícitamente el nombre o comentario de grano después de usar `UNNEST` / `LATERAL`."
+          "Maneja arreglos nulos o vacíos (`COALESCE(JSON_QUERY(payload, '$.items'), '[]')`) para evitar errores o pérdida silenciosa de filas.",
+          "Cambia explícitamente el nombre o comentario de grano después de usar `OPENJSON` con `CROSS APPLY` / `OUTER APPLY`."
         ],
         "codeLanguage": "sql",
         "referenceCode": "-- DuckDB: extracción limpia con TRY_CAST\nSELECT\n  evento_id,\n  json_extract_string(payload, '$.user_id') AS usuario_id,\n  TRY_CAST(json_extract_string(payload, '$.amount') AS DOUBLE) AS monto\nFROM raw.webhooks\nWHERE json_valid(payload);"
@@ -617,13 +625,13 @@
       "comparison": {
         "scenario": "Extraer todos los SKUs comprados por evento desde `payload->'items'` evitando perder eventos con lista vacía o textos corruptos.",
         "juniorLabel": "Error de Junior",
-        "juniorCode": "SELECT\n  evento_id,\n  payload->'items'->0->>'sku' AS sku_1,\n  payload->'items'->1->>'sku' AS sku_2\nFROM eventos_web;",
+        "juniorCode": "SELECT\n  evento_id,\n  JSON_VALUE(payload, '$.items[0].sku') AS sku_1,\n  JSON_VALUE(payload, '$.items[1].sku') AS sku_2\nFROM eventos_web;",
         "juniorFlaws": [
           "Hardcodea índices `[0]` y `[1]`: si un usuario compra 5 productos, los 3 últimos se pierden.",
           "Impide hacer `GROUP BY sku` fácilmente porque los SKUs están dispersos en múltiples columnas."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "SELECT\n  e.evento_id,\n  (item.value ->> 'sku') AS sku,\n  COALESCE(NULLIF(item.value ->> 'qty', '')::int, 1) AS cantidad\nFROM raw.eventos_web AS e\nLEFT JOIN LATERAL jsonb_array_elements(\n  COALESCE(e.payload -> 'items', '[]'::jsonb)\n) AS item(value) ON TRUE;",
+        "intermediateCode": "SELECT\n  e.evento_id,\n  i.sku,\n  COALESCE(TRY_CAST(NULLIF(i.qty, '') AS INT), 1) AS cantidad\nFROM raw.eventos_web AS e\nOUTER APPLY OPENJSON(COALESCE(JSON_QUERY(e.payload, '$.items'), '[]'))\n  WITH (\n    sku NVARCHAR(50) '$.sku',\n    qty NVARCHAR(20) '$.qty'\n  ) AS i;",
         "intermediateBenefits": [
           "Escala a cualquier longitud de carrito (0, 1 o 100 SKUs).",
           "Normaliza a 1 fila por `(evento_id, sku)` listo para agregaciones limpias."
@@ -646,9 +654,9 @@
           "title": "Práctica 2: Recálculo Seguro desde JSON",
           "difficulty": "Intermedio",
           "prompt": "Dado un evento con `payload -> 'items'` donde cada elemento tiene `precio` y `cantidad`, calcula el `subtotal_calculado` por `evento_id` sin perder eventos cuyo arreglo `items` sea `[]`.",
-          "hint": "Haz `LEFT JOIN LATERAL` y luego agrupa por `evento_id` usando `COALESCE(SUM(...), 0)`.",
+          "hint": "Haz `OUTER APPLY OPENJSON(...)` y luego agrupa por `evento_id` usando `COALESCE(SUM(...), 0)`.",
           "solutionExplanation": "Re-agregar tras desanidar devuelve la consulta al grano 1:1 por `evento_id` con total exacto.",
-          "solutionCode": "SELECT\n  e.evento_id,\n  COALESCE(\n    SUM((it.value ->> 'precio')::numeric * (it.value ->> 'cantidad')::int),\n    0\n  ) AS subtotal_calculado\nFROM raw.eventos_checkout AS e\nLEFT JOIN LATERAL jsonb_array_elements(\n  COALESCE(e.payload -> 'items', '[]'::jsonb)\n) AS it(value) ON TRUE\nGROUP BY e.evento_id;",
+          "solutionCode": "SELECT\n  e.evento_id,\n  COALESCE(SUM(it.precio * it.cantidad), 0) AS subtotal_calculado\nFROM raw.eventos_checkout AS e\nOUTER APPLY OPENJSON(COALESCE(JSON_QUERY(e.payload, '$.items'), '[]'))\n  WITH (\n    precio   DECIMAL(18,4) '$.precio',\n    cantidad INT           '$.cantidad'\n  ) AS it\nGROUP BY e.evento_id;",
           "codeLanguage": "sql"
         }
       ],
@@ -698,7 +706,7 @@
       "code": "Cap. 05",
       "module": "Módulo 1: SQL Analítico y Arquitectura de Consultas",
       "title": "Optimización de Consultas, Planes de Ejecución y Particionado",
-      "subtitle": "Lectura de `EXPLAIN ANALYZE`, poda de particiones, clustering y reducción de costos en almacenes en la nube.",
+      "subtitle": "Lectura del plan de ejecución real (`SET STATISTICS IO, TIME`), poda de particiones, clustering y reducción de costos en almacenes en la nube.",
       "estimatedMinutes": 40,
       "status": "published",
       "objectives": [
@@ -709,17 +717,17 @@
         {
           "id": "cap05-sec-1",
           "title": "1. Predicados SARGables y Poda de Particiones",
-          "body": "Un predicado es **SARGable** (*Search ARGument-able*) cuando el motor puede usar directamente un índice o los metadatos de partición sin transformar fila por fila la columna.\n\nSi escribes `WHERE YEAR(fecha_pedido) = 2026` o `WHERE DATE(creado_utc) = '2026-01-15'`, obligas al motor a aplicar la función sobre **toda la tabla**, desactivando la poda de particiones en BigQuery/Snowflake o los índices B-Tree en PostgreSQL.",
+          "body": "Un predicado es **SARGable** (*Search ARGument-able*) cuando el motor puede usar directamente un índice o los metadatos de partición sin transformar fila por fila la columna.\n\nSi escribes `WHERE YEAR(fecha_pedido) = 2026` o `WHERE DATE(creado_utc) = '2026-01-15'`, obligas al motor a aplicar la función sobre **toda la tabla**, desactivando la poda de particiones en BigQuery/Snowflake o los índices B-Tree en SQL Server.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Malo (no SARGable): escanea toda la tabla\nSELECT COUNT(*) FROM ventas.pedidos WHERE EXTRACT(YEAR FROM fecha_pedido) = 2026;\n\n-- Bueno (SARGable): habilita partition pruning e índices\nSELECT COUNT(*)\nFROM ventas.pedidos\nWHERE fecha_pedido >= DATE '2026-01-01'\n  AND fecha_pedido <  DATE '2027-01-01';",
+          "codeSnippet": "-- Malo (no SARGable): escanea toda la tabla\nSELECT COUNT(*) FROM ventas.pedidos WHERE YEAR(fecha_pedido) = 2026;\n\n-- Bueno (SARGable): habilita partition pruning e índices\nSELECT COUNT(*)\nFROM ventas.pedidos\nWHERE fecha_pedido >= '2026-01-01'\n  AND fecha_pedido <  '2027-01-01';",
           "keyTakeaway": "Mantén la columna indexada o particionada \"desnuda\" a la izquierda del operador de comparación."
         },
         {
           "id": "cap05-sec-2",
-          "title": "2. Cómo leer lo esencial de EXPLAIN ANALYZE",
-          "body": "Al analizar un plan de ejecución (`EXPLAIN ANALYZE`), no intentes leer todo a la vez; busca tres señales:\n1) **Seq Scan en tablas masivas** donde esperabas un `Index Scan` o `Partition Pruning`.\n2) **Estimación vs. realidad**: si `rows=10` estimado vs. `actual rows=5,000,000`, las estadísticas están desactualizadas (`ANALYZE`).\n3) **External Merge / Disk Spill**: ordenamientos o `Hash Join` que desbordan la memoria RAM (`work_mem`) hacia disco.",
+          "title": "2. Cómo leer lo esencial del plan de ejecución",
+          "body": "Al analizar el plan de ejecución real (en SSMS, *Include Actual Execution Plan*, junto con `SET STATISTICS IO, TIME ON`), no intentes leer todo a la vez; busca tres señales:\n1) **Table Scan o Clustered Index Scan en tablas masivas** donde esperabas un `Index Seek` o eliminación de particiones.\n2) **Estimación vs. realidad**: si las filas estimadas son 10 y las reales 5,000,000, las estadísticas están desactualizadas (`UPDATE STATISTICS`).\n3) **Spill a tempdb**: advertencias en `Sort` o `Hash Match` que indican que la memoria concedida no alcanzó y el motor escribió a disco.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Inspeccionar costo real, buffers y filas reales en PostgreSQL / DuckDB\nEXPLAIN ANALYZE\nSELECT\n  cliente_id,\n  SUM(monto_neto)\nFROM ventas.pedidos\nWHERE fecha_pedido >= DATE '2026-01-01'\nGROUP BY cliente_id;",
+          "codeSnippet": "-- Inspeccionar lecturas, tiempo y plan real en SQL Server\n-- (en SSMS activa también \"Incluir plan de ejecución real\" con Ctrl + M)\nSET STATISTICS IO, TIME ON;\n\nSELECT\n  cliente_id,\n  SUM(monto_neto) AS ingreso\nFROM ventas.pedidos\nWHERE fecha_pedido >= '2026-01-01'\nGROUP BY cliente_id;\n\nSET STATISTICS IO, TIME OFF;",
           "keyTakeaway": "En almacenes columnares (BigQuery, Snowflake, Redshift), evita `SELECT *` porque cada columna extra leída cuesta dinero y ancho de banda."
         }
       ],
@@ -733,18 +741,18 @@
           "Filtra temprano antes de ejecutar `JOIN` o `ORDER BY`."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Uso de UNION ALL + filtros SARGables tempranos\nSELECT pedido_id, 'web' AS canal, monto_neto\nFROM ventas.pedidos_web\nWHERE fecha_pedido >= DATE '2026-01-01'\nUNION ALL\nSELECT pedido_id, 'app' AS canal, monto_neto\nFROM ventas.pedidos_app\nWHERE fecha_pedido >= DATE '2026-01-01';"
+        "referenceCode": "-- Uso de UNION ALL + filtros SARGables tempranos\nSELECT pedido_id, 'web' AS canal, monto_neto\nFROM ventas.pedidos_web\nWHERE fecha_pedido >= '2026-01-01'\nUNION ALL\nSELECT pedido_id, 'app' AS canal, monto_neto\nFROM ventas.pedidos_app\nWHERE fecha_pedido >= '2026-01-01';"
       },
       "comparison": {
         "scenario": "Consultar los ingresos por país de octubre 2026 en una tabla particionada por `fecha_evento` (5 TB totales).",
         "juniorLabel": "Error de Junior",
-        "juniorCode": "WITH todo AS (\n  SELECT *\n  FROM analytics.eventos_facturados\n)\nSELECT pais, SUM(monto)\nFROM todo\nWHERE TO_CHAR(fecha_evento, 'YYYY-MM') = '2026-10'\nGROUP BY pais;",
+        "juniorCode": "WITH todo AS (\n  SELECT *\n  FROM analytics.eventos_facturados\n)\nSELECT pais, SUM(monto)\nFROM todo\nWHERE FORMAT(fecha_evento, 'yyyy-MM') = '2026-10'\nGROUP BY pais;",
         "juniorFlaws": [
           "`SELECT *` lee decenas de columnas pesadas innecesarias en almacenamiento columnar.",
-          "`TO_CHAR(fecha_evento, ...)` anula la poda de particiones y fuerza a escanear los 5 TB completos."
+          "`FORMAT(fecha_evento, ...)` anula la poda de particiones y fuerza a escanear los 5 TB completos."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "SELECT\n  pais,\n  SUM(monto_neto) AS ingreso_neto\nFROM analytics.eventos_facturados\nWHERE fecha_evento >= DATE '2026-10-01'\n  AND fecha_evento <  DATE '2026-11-01'\nGROUP BY pais;",
+        "intermediateCode": "SELECT\n  pais,\n  SUM(monto_neto) AS ingreso_neto\nFROM analytics.eventos_facturados\nWHERE fecha_evento >= '2026-10-01'\n  AND fecha_evento <  '2026-11-01'\nGROUP BY pais;",
         "intermediateBenefits": [
           "Lee únicamente 3 columnas (`pais`, `monto_neto`, `fecha_evento`).",
           "Poda automáticamente las particiones fuera de octubre 2026, reduciendo el escaneo y costo en >95%."
@@ -756,10 +764,10 @@
           "id": "cap05-ej-1",
           "title": "Práctica 1: Reescribir Filtros a Formato SARGable",
           "difficulty": "Básico",
-          "prompt": "Convierte esta condición lenta en un filtro SARGable equivalente: `WHERE DATE_TRUNC('month', fecha_registro) = DATE '2026-02-01' AND LOWER(pais) = 'mx'` (asumiendo que `pais` ya está estandarizado en mayúsculas `'MX'`).",
-          "hint": "Reemplaza `DATE_TRUNC` por un rango `>=` y `<` sobre `fecha_registro`, y compara directamente `pais = 'MX'`.",
+          "prompt": "Convierte esta condición lenta en un filtro SARGable equivalente: `WHERE DATETRUNC(month, fecha_registro) = '2026-02-01' AND LOWER(pais) = 'mx'` (asumiendo que `pais` ya está estandarizado en mayúsculas `'MX'`).",
+          "hint": "Reemplaza `DATETRUNC` por un rango `>=` y `<` sobre `fecha_registro`, y compara directamente `pais = 'MX'`.",
           "solutionExplanation": "Dejar `fecha_registro` y `pais` sin funciones habilita el uso inmediato de índices y particiones.",
-          "solutionCode": "SELECT usuario_id\nFROM crm.usuarios\nWHERE fecha_registro >= DATE '2026-02-01'\n  AND fecha_registro <  DATE '2026-03-01'\n  AND pais = 'MX';",
+          "solutionCode": "SELECT usuario_id\nFROM crm.usuarios\nWHERE fecha_registro >= '2026-02-01'\n  AND fecha_registro <  '2026-03-01'\n  AND pais = 'MX';",
           "codeLanguage": "sql"
         },
         {
@@ -778,10 +786,10 @@
           "id": "cap05-q1",
           "question": "¿Qué hace que la condición `WHERE YEAR(fecha_venta) = 2026` sea ineficiente en tablas grandes?",
           "options": [
-            "Convierte `fecha_venta` a texto en cada fila y por eso las comparaciones numéricas dejan de funcionar.",
-            "Aplica la función a cada fila e impide usar índices o partition pruning sobre `fecha_venta`.",
             "Devuelve también fechas de 2025, porque `YEAR()` redondea las fechas cercanas al cambio de año.",
-            "Obliga al motor a agrupar la tabla con un `GROUP BY` implícito antes de poder aplicar el filtro."
+            "Aplica la función a cada fila e impide usar índices o partition pruning sobre `fecha_venta`.",
+            "Obliga al motor a agrupar la tabla con un `GROUP BY` implícito antes de poder aplicar el filtro.",
+            "Convierte `fecha_venta` a texto en cada fila y por eso las comparaciones numéricas dejan de funcionar."
           ],
           "correctIndex": 1,
           "explanation": "Aplicar una función sobre la columna filtrada vuelve el predicado no-SARGable, forzando un escaneo completo."
@@ -802,10 +810,10 @@
           "id": "cap05-q3",
           "question": "En motores columnares en la nube (BigQuery, Snowflake, Parquet), ¿por qué evitar `SELECT *` reduce costos y tiempo?",
           "options": [
+            "Porque `SELECT *` limita la lectura a las primeras particiones de la tabla, y el motor debe repetir el escaneo para obtener el resto.",
             "Porque `SELECT *` desactiva la caché de resultados y los CTEs, obligando al motor a recalcular cada subconsulta en cada ejecución.",
-            "Porque `SELECT *` convierte todas las columnas a texto antes de enviarlas, y esa conversión es lo que más tiempo y dinero consume.",
             "Porque los datos columnares almacenan cada columna por separado y `SELECT *` lee todas las columnas del disco aunque no las uses.",
-            "Porque `SELECT *` limita la lectura a las primeras particiones de la tabla, y el motor debe repetir el escaneo para obtener el resto."
+            "Porque `SELECT *` convierte todas las columnas a texto antes de enviarlas, y esa conversión es lo que más tiempo y dinero consume."
           ],
           "correctIndex": 2,
           "explanation": "Al leer solo las columnas proyectadas, el motor omite bloques completos de columnas no solicitadas."
@@ -832,7 +840,7 @@
           "title": "1. Esquema Estrella: Hechos (Facts) vs. Dimensiones (Dimensions)",
           "body": "El modelado dimensional propuesto por Ralph Kimball separa las tablas analíticas en dos roles claros:\n- **Tablas de Hechos (`fct_*`)**: registran eventos medibles o procesos de negocio (ventas, sesiones, envíos) con claves foráneas y métricas numéricas aditivas (`monto`, `cantidad`, `duracion_seg`).\n- **Dimensiones (`dim_*`)**: describen el \"quién, qué, dónde, cuándo\" (clientes, productos, tiendas, fechas) y sirven para filtrar y agrupar.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Consulta limpia sobre un Esquema Estrella\nSELECT\n  d_prod.categoria,\n  d_fecha.anio_mes,\n  SUM(f.monto_neto) AS ingreso_neto,\n  SUM(f.unidades) AS unidades_vendidas\nFROM dw.fct_ventas_items AS f\nINNER JOIN dw.dim_producto AS d_prod ON f.producto_sk = d_prod.producto_sk\nINNER JOIN dw.dim_fecha AS d_fecha ON f.fecha_sk = d_fecha.fecha_sk\nGROUP BY 1, 2;",
+          "codeSnippet": "-- Consulta limpia sobre un Esquema Estrella\nSELECT\n  d_prod.categoria,\n  d_fecha.anio_mes,\n  SUM(f.monto_neto) AS ingreso_neto,\n  SUM(f.unidades) AS unidades_vendidas\nFROM dw.fct_ventas_items AS f\nINNER JOIN dw.dim_producto AS d_prod ON f.producto_sk = d_prod.producto_sk\nINNER JOIN dw.dim_fecha AS d_fecha ON f.fecha_sk = d_fecha.fecha_sk\nGROUP BY d_prod.categoria, d_fecha.anio_mes;",
           "keyTakeaway": "El grano de una tabla de hechos debe ser lo más atómico posible (ej. 1 fila por ítem de pedido) para soportar cualquier corte futuro."
         },
         {
@@ -851,7 +859,7 @@
           "No mezcles hechos de distinta granularidad (ej. cabecera de pedido + ítems) en la misma tabla de hechos."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Grano: 1 fila por línea de pedido vendida (fct_ventas_items)\nCREATE TABLE IF NOT EXISTS dw.fct_ventas_items (\n  venta_item_id BIGINT PRIMARY KEY,\n  pedido_id BIGINT NOT NULL,\n  fecha_sk INT NOT NULL,\n  cliente_sk INT NOT NULL,\n  producto_sk INT NOT NULL,\n  unidades INT NOT NULL,\n  monto_neto NUMERIC(12,2) NOT NULL,\n  costo_unitario NUMERIC(12,2) NOT NULL\n);"
+        "referenceCode": "-- Grano: 1 fila por línea de pedido vendida (fct_ventas_items)\nIF OBJECT_ID('dw.fct_ventas_items', 'U') IS NULL\nCREATE TABLE dw.fct_ventas_items (\n  venta_item_id BIGINT PRIMARY KEY,\n  pedido_id BIGINT NOT NULL,\n  fecha_sk INT NOT NULL,\n  cliente_sk INT NOT NULL,\n  producto_sk INT NOT NULL,\n  unidades INT NOT NULL,\n  monto_neto DECIMAL(12,2) NOT NULL,\n  costo_unitario DECIMAL(12,2) NOT NULL\n);"
       },
       "comparison": {
         "scenario": "Calcular la tasa de margen bruto mensual por categoría usando datos de ventas.",
@@ -877,7 +885,7 @@
           "prompt": "Tienes una tabla `fct_inventario_diario (fecha, almacen_id, sku, unidades_en_stock)`. Si dirección pide el stock disponible de enero 2026 por almacén, ¿por qué `SUM(unidades_en_stock)` es incorrecto y qué debes mostrar en su lugar?",
           "hint": "El stock es una métrica semi-aditiva respecto al tiempo.",
           "solutionExplanation": "Sumar el stock de los 31 días multiplica por ~31 el inventario real. Se debe reportar el stock del último corte del periodo (31 de enero) o el inventario promedio diario.",
-          "solutionCode": "WITH ultimo_dia AS (\n  SELECT MAX(fecha) AS fecha_corte\n  FROM dw.fct_inventario_diario\n  WHERE fecha >= DATE '2026-01-01' AND fecha < DATE '2026-02-01'\n)\nSELECT\n  f.almacen_id,\n  SUM(f.unidades_en_stock) AS stock_cierre_enero\nFROM dw.fct_inventario_diario AS f\nINNER JOIN ultimo_dia AS u\n  ON f.fecha = u.fecha_corte\nGROUP BY f.almacen_id;",
+          "solutionCode": "WITH ultimo_dia AS (\n  SELECT MAX(fecha) AS fecha_corte\n  FROM dw.fct_inventario_diario\n  WHERE fecha >= '2026-01-01' AND fecha < '2026-02-01'\n)\nSELECT\n  f.almacen_id,\n  SUM(f.unidades_en_stock) AS stock_cierre_enero\nFROM dw.fct_inventario_diario AS f\nINNER JOIN ultimo_dia AS u\n  ON f.fecha = u.fecha_corte\nGROUP BY f.almacen_id;",
           "codeLanguage": "sql"
         },
         {
@@ -897,8 +905,8 @@
           "question": "¿Qué tipo de métrica es el saldo bancario o el inventario en bodega?",
           "options": [
             "Semi-aditiva: se puede sumar entre cuentas/almacenes en un mismo instante, pero NO a lo largo del tiempo.",
-            "No aditiva: no se puede sumar ni entre cuentas o almacenes ni a lo largo del tiempo, solo promediar.",
             "Totalmente aditiva: se puede sumar entre cuentas o almacenes y también a lo largo del tiempo sin distorsión.",
+            "No aditiva: no se puede sumar ni entre cuentas o almacenes ni a lo largo del tiempo, solo promediar.",
             "Categórica: describe un estado de la cuenta o del almacén, así que solo se puede contar, nunca sumar."
           ],
           "correctIndex": 0,
@@ -908,9 +916,9 @@
           "id": "cap06-q2",
           "question": "¿Cómo se debe agregar una razón como el porcentaje de conversión o margen en SQL?",
           "options": [
-            "Sumando el porcentaje calculado en cada fila y dividiendo luego entre 100 para devolverlo a la escala original.",
-            "Almacenando numerador y denominador por separado y calculando `SUM(numerador) / NULLIF(SUM(denominador), 0)`.",
             "Aplicando `AVG(porcentaje)` directamente sobre la columna ya calculada para obtener la tasa de toda la tabla.",
+            "Almacenando numerador y denominador por separado y calculando `SUM(numerador) / NULLIF(SUM(denominador), 0)`.",
+            "Sumando el porcentaje calculado en cada fila y dividiendo luego entre 100 para devolverlo a la escala original.",
             "Tomando la mediana de los porcentajes de cada fila, porque es más robusta a los valores extremos que la media."
           ],
           "correctIndex": 1,
@@ -921,8 +929,8 @@
           "question": "¿Cuál es el grano ideal para una tabla de hechos transaccional?",
           "options": [
             "El resumen diario por tienda, para ahorrar espacio y acelerar los tableros.",
-            "Un mix de resumen diario y detalle por ítem, según lo que pida cada reporte.",
             "Una fila por cliente con sus totales acumulados, actualizada en cada carga.",
+            "Un mix de resumen diario y detalle por ítem, según lo que pida cada reporte.",
             "El nivel más atómico del evento (ej. 1 línea de ticket o 1 transacción)."
           ],
           "correctIndex": 3,
@@ -950,7 +958,7 @@
           "title": "1. El problema del tiempo en las dimensiones",
           "body": "Si en enero un vendedor pertenecía a la región `Norte` y en julio se reasignó a `Centro`, ¿a qué región deben asignarse sus ventas de marzo? Si simplemente sobrescribes la tabla de vendedores (**SCD Tipo 1**), reescribirás el pasado y las ventas históricas de `Norte` desaparecerán.\n\n**SCD Tipo 2** resuelve esto agregando una nueva fila versionada cada vez que cambia un atributo rastreado, con columnas `valid_from`, `valid_to`, `is_current` y una clave subrogada única (`vendedor_sk`).",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Estructura típica de una dimensión SCD Tipo 2\n-- vendedor_sk | vendedor_id | region | valid_from | valid_to   | is_current\n-- 101         | V-09        | Norte  | 2025-01-01 | 2026-06-30 | FALSE\n-- 154         | V-09        | Centro | 2026-07-01 | 9999-12-31 | TRUE",
+          "codeSnippet": "-- Estructura típica de una dimensión SCD Tipo 2\n-- vendedor_sk | vendedor_id | region | valid_from | valid_to   | is_current\n-- 101         | V-09        | Norte  | 2025-01-01 | 2026-06-30 | 0\n-- 154         | V-09        | Centro | 2026-07-01 | 9999-12-31 | 1",
           "keyTakeaway": "Usa Tipo 1 para corregir errores tipográficos; usa Tipo 2 cuando el cambio histórico altera métricas de negocio."
         },
         {
@@ -967,8 +975,8 @@
         "summary": "Garantías de integridad en dimensiones versionadas SCD Tipo 2.",
         "rules": [
           "Asigna una clave subrogada única (`*_sk`) por cada versión de fila, nunca uses el ID natural como PK en SCD2.",
-          "Usa rangos semiabiertos `[valid_from, valid_to)` donde el registro vigente tenga `valid_to = '9999-12-31'` y `is_current = TRUE`.",
-          "Audita que cada entidad tenga exactamente 1 fila con `is_current = TRUE` y cero solapamientos de fechas."
+          "Usa rangos semiabiertos `[valid_from, valid_to)` donde el registro vigente tenga `valid_to = '9999-12-31'` y `is_current = 1`.",
+          "Audita que cada entidad tenga exactamente 1 fila con `is_current = 1` y cero solapamientos de fechas."
         ],
         "codeLanguage": "sql",
         "referenceCode": "-- Auditoría de solapamiento en SCD Tipo 2 (debe devolver 0 filas)\nWITH ordenado AS (\n  SELECT\n    vendedor_id,\n    valid_from,\n    valid_to,\n    LEAD(valid_from) OVER (PARTITION BY vendedor_id ORDER BY valid_from) AS siguiente_inicio\n  FROM dw.dim_vendedor_scd2\n)\nSELECT *\nFROM ordenado\nWHERE siguiente_inicio IS NOT NULL\n  AND valid_to > siguiente_inicio;"
@@ -985,7 +993,7 @@
         "intermediateCode": "SELECT\n  v.region AS region_vigente_en_venta,\n  SUM(p.monto_neto) AS ventas\nFROM ventas.pedidos AS p\nINNER JOIN dw.dim_vendedor_scd2 AS v\n  ON p.vendedor_id = v.vendedor_id\n AND p.fecha_pedido >= v.valid_from\n AND p.fecha_pedido <  v.valid_to\nGROUP BY v.region;",
         "intermediateBenefits": [
           "Mantiene inmutables las cifras históricas de cierre de cada región.",
-          "Permite comparar el desempeño pasado con la estructura vigente mediante `is_current = TRUE` cuando haga falta."
+          "Permite comparar el desempeño pasado con la estructura vigente mediante `is_current = 1` cuando haga falta."
         ],
         "codeLanguage": "sql"
       },
@@ -997,14 +1005,14 @@
           "prompt": "Tienes una tabla de cambios `productos_historial (producto_id, categoria, fecha_cambio)`. Usa `LEAD()` para generar las columnas `valid_from` y `valid_to` (usando `DATE '9999-12-31'` para la versión vigente).",
           "hint": "`COALESCE(LEAD(fecha_cambio) OVER (PARTITION BY producto_id ORDER BY fecha_cambio), DATE '9999-12-31')`.",
           "solutionExplanation": "En un modelo semiabierto `[valid_from, valid_to)`, la fecha de fin de una versión coincide exactamente con el `valid_from` de la siguiente versión.",
-          "solutionCode": "SELECT\n  producto_id,\n  categoria,\n  fecha_cambio AS valid_from,\n  COALESCE(\n    LEAD(fecha_cambio) OVER (PARTITION BY producto_id ORDER BY fecha_cambio),\n    DATE '9999-12-31'\n  ) AS valid_to,\n  LEAD(fecha_cambio) OVER (PARTITION BY producto_id ORDER BY fecha_cambio) IS NULL AS is_current\nFROM staging.productos_historial;",
+          "solutionCode": "SELECT\n  producto_id,\n  categoria,\n  fecha_cambio AS valid_from,\n  COALESCE(\n    LEAD(fecha_cambio) OVER (PARTITION BY producto_id ORDER BY fecha_cambio),\n    '9999-12-31'\n  ) AS valid_to,\n  LEAD(fecha_cambio) OVER (PARTITION BY producto_id ORDER BY fecha_cambio) IS NULL AS is_current\nFROM staging.productos_historial;",
           "codeLanguage": "sql"
         },
         {
           "id": "cap07-ej-2",
           "title": "Práctica 2: Auditoría de Vigencia Única",
           "difficulty": "Básico",
-          "prompt": "Escribe una consulta que detecte si algún `cliente_id` en `dw.dim_cliente_scd2` tiene 0 o más de 1 filas marcadas con `is_current = TRUE`.",
+          "prompt": "Escribe una consulta que detecte si algún `cliente_id` en `dw.dim_cliente_scd2` tiene 0 o más de 1 filas marcadas con `is_current = 1`.",
           "hint": "Agrupa por `cliente_id` contando `CASE WHEN is_current THEN 1 ELSE 0 END` y filtra `HAVING ... <> 1`.",
           "solutionExplanation": "Cualquier resultado distinto de 1 indica un error de carga incremental en la dimensión.",
           "solutionCode": "SELECT\n  cliente_id,\n  SUM(CASE WHEN is_current THEN 1 ELSE 0 END) AS filas_vigentes\nFROM dw.dim_cliente_scd2\nGROUP BY cliente_id\nHAVING SUM(CASE WHEN is_current THEN 1 ELSE 0 END) <> 1;",
@@ -1016,10 +1024,10 @@
           "id": "cap07-q1",
           "question": "¿Qué diferencia a una dimensión SCD Tipo 2 de una Tipo 1?",
           "options": [
-            "La Tipo 2 sobrescribe el valor anterior en la misma fila y guarda la fecha del último cambio en una columna aparte.",
+            "La Tipo 2 borra las filas antiguas para ahorrar disco y solo conserva la versión vigente marcada con `is_current`.",
             "La Tipo 2 conserva el historial completo creando una nueva fila con rango de fechas de vigencia por cada cambio.",
             "La Tipo 2 guarda el historial en una tabla de auditoría separada, mientras la dimensión mantiene una sola fila.",
-            "La Tipo 2 borra las filas antiguas para ahorrar disco y solo conserva la versión vigente marcada con `is_current`."
+            "La Tipo 2 sobrescribe el valor anterior en la misma fila y guarda la fecha del último cambio en una columna aparte."
           ],
           "correctIndex": 1,
           "explanation": "SCD Tipo 2 mantiene versiones históricas con `valid_from` y `valid_to`, permitiendo analizar hechos con los atributos vigentes en su momento."
@@ -1029,9 +1037,9 @@
           "question": "¿Por qué es preferible `fecha >= valid_from AND fecha < valid_to` frente a `BETWEEN` en joins SCD2?",
           "options": [
             "Porque `BETWEEN` no acepta columnas de fecha en la condición de un JOIN y obliga a convertirlas a texto.",
-            "Porque `BETWEEN` excluye ambos extremos y el evento del primer día de vigencia no encuentra ninguna versión.",
+            "Porque descarta automáticamente las versiones con `is_current = 1` y deja solo el historial ya cerrado.",
             "Porque evita que un evento ocurrido en el límite de transición haga match con dos versiones a la vez.",
-            "Porque descarta automáticamente las versiones con `is_current = TRUE` y deja solo el historial ya cerrado."
+            "Porque `BETWEEN` excluye ambos extremos y el evento del primer día de vigencia no encuentra ninguna versión."
           ],
           "correctIndex": 2,
           "explanation": "Los intervalos semiabiertos aseguran partición exacta del tiempo sin solapamientos en la frontera."
@@ -1042,8 +1050,8 @@
           "options": [
             "Para los precios históricos de productos, de modo que las facturas pasadas se recalculen siempre con el precio actual.",
             "Para corregir errores tipográficos (ej. corregir \"Mèxico\" a \"México\") donde no interesa preservar el error histórico.",
-            "Nunca: toda dimensión debe ser Tipo 2, porque cualquier sobrescritura destruye información útil para el negocio.",
-            "Para los cambios de plan de suscripción del cliente, ya que solo interesa el plan vigente al momento del análisis."
+            "Para los cambios de plan de suscripción del cliente, ya que solo interesa el plan vigente al momento del análisis.",
+            "Nunca: toda dimensión debe ser Tipo 2, porque cualquier sobrescritura destruye información útil para el negocio."
           ],
           "correctIndex": 1,
           "explanation": "Cuando el cambio es una corrección de calidad y no un evento histórico de negocio, Tipo 1 es más simple y apropiado."
@@ -1076,7 +1084,7 @@
           "title": "2. Idempotencia en cargas incrementales",
           "body": "Un pipeline es **idempotente** cuando ejecutarlo 1 vez o 5 veces seguidas para el mismo día o rango de fechas produce **exactamente el mismo resultado**, sin duplicar filas.\n\nUn simple `INSERT INTO destino SELECT ... WHERE fecha = ayer` falla si alguien re-ejecuta el job tras una caída: insertará las filas de ayer por duplicado. El patrón idempotente usa `DELETE + INSERT` dentro de una transacción para la partición procesada, o `MERGE INTO` por clave única.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Patrón idempotente DELETE + INSERT para reprocesar un día completo\nBEGIN;\n\nDELETE FROM silver.pedidos_limpios\nWHERE fecha_operativa = DATE '2026-11-10';\n\nINSERT INTO silver.pedidos_limpios (pedido_id, cliente_id, fecha_operativa, monto_neto)\nSELECT DISTINCT ON (pedido_id)\n  pedido_id,\n  cliente_id,\n  fecha_operativa,\n  monto_neto\nFROM bronze.pedidos_raw\nWHERE fecha_operativa = DATE '2026-11-10'\nORDER BY pedido_id, ingested_at DESC;\n\nCOMMIT;",
+          "codeSnippet": "-- Patrón idempotente DELETE + INSERT para reprocesar un día completo\nBEGIN TRANSACTION;\n\nDELETE FROM silver.pedidos_limpios\nWHERE fecha_operativa = '2026-11-10';\n\nWITH ultima_version AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    fecha_operativa,\n    monto_neto,\n    ROW_NUMBER() OVER (PARTITION BY pedido_id ORDER BY ingested_at DESC) AS rn\n  FROM bronze.pedidos_raw\n  WHERE fecha_operativa = '2026-11-10'\n)\nINSERT INTO silver.pedidos_limpios (pedido_id, cliente_id, fecha_operativa, monto_neto)\nSELECT pedido_id, cliente_id, fecha_operativa, monto_neto\nFROM ultima_version\nWHERE rn = 1;\n\nCOMMIT TRANSACTION;",
           "keyTakeaway": "Diseña cada carga asumiendo que inevitablemente tendrá que re-ejecutarse por fallos o correcciones."
         }
       ],
@@ -1094,13 +1102,13 @@
       "comparison": {
         "scenario": "Job nocturno que carga los pedidos del día anterior en la tabla Silver.",
         "juniorLabel": "Error de Junior",
-        "juniorCode": "INSERT INTO silver_pedidos\nSELECT pedido_id, cliente_id, monto\nFROM bronze_pedidos\nWHERE fecha = CURRENT_DATE - 1;",
+        "juniorCode": "INSERT INTO silver_pedidos\nSELECT pedido_id, cliente_id, monto\nFROM bronze_pedidos\nWHERE fecha = CAST(GETDATE() - 1 AS DATE);",
         "juniorFlaws": [
           "No es idempotente: si el job se reintenta por un timeout, duplica todas las ventas del día.",
           "No deduplica registros repetidos que hayan llegado en Bronze."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "BEGIN;\nDELETE FROM silver.pedidos\nWHERE fecha_pedido = CURRENT_DATE - INTERVAL '1 day';\n\nINSERT INTO silver.pedidos\nWITH dedup AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    fecha_pedido,\n    monto_neto,\n    ROW_NUMBER() OVER (PARTITION BY pedido_id ORDER BY ingested_at DESC) AS rn\n  FROM bronze.pedidos\n  WHERE fecha_pedido = CURRENT_DATE - INTERVAL '1 day'\n)\nSELECT pedido_id, cliente_id, fecha_pedido, monto_neto\nFROM dedup\nWHERE rn = 1;\nCOMMIT;",
+        "intermediateCode": "BEGIN TRANSACTION;\n\nDELETE FROM silver.pedidos\nWHERE fecha_pedido = DATEADD(day, -1, CAST(GETDATE() AS DATE));\n\nWITH dedup AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    fecha_pedido,\n    monto_neto,\n    ROW_NUMBER() OVER (PARTITION BY pedido_id ORDER BY ingested_at DESC) AS rn\n  FROM bronze.pedidos\n  WHERE fecha_pedido = DATEADD(day, -1, CAST(GETDATE() AS DATE))\n)\nINSERT INTO silver.pedidos (pedido_id, cliente_id, fecha_pedido, monto_neto)\nSELECT pedido_id, cliente_id, fecha_pedido, monto_neto\nFROM dedup\nWHERE rn = 1;\n\nCOMMIT TRANSACTION;",
         "intermediateBenefits": [
           "Soporta re-ejecuciones ilimitadas sin duplicar ni un solo registro.",
           "Envuelve borrado e inserción en una transacción atómica."
@@ -1112,10 +1120,10 @@
           "id": "cap08-ej-1",
           "title": "Práctica 1: Diseño de Ventana Lookback ante Eventos Tardíos",
           "difficulty": "Intermedio",
-          "prompt": "Los pagos móviles a veces tardan hasta 48 horas en confirmarse en Bronze. Si tu pipeline incremental diario solo reprocesa `CURRENT_DATE - 1`, perderás actualizaciones tardías. ¿Cómo modificas la ventana del patrón `DELETE + INSERT`?",
-          "hint": "En lugar de reprocesar solo 1 día, reprocesa una ventana deslizante de los últimos 3 días (`CURRENT_DATE - INTERVAL '3 days'`).",
+          "prompt": "Los pagos móviles a veces tardan hasta 48 horas en confirmarse en Bronze. Si tu pipeline incremental diario solo reprocesa el día de ayer (`DATEADD(day, -1, CAST(GETDATE() AS DATE))`), perderás actualizaciones tardías. ¿Cómo modificas la ventana del patrón `DELETE + INSERT`?",
+          "hint": "En lugar de reprocesar solo 1 día, reprocesa una ventana deslizante de los últimos 3 días (`DATEADD(day, -3, CAST(GETDATE() AS DATE))`).",
           "solutionExplanation": "Reprocesar los últimos 3 días de forma idempotente absorbe confirmaciones tardías automáticamente sin duplicar datos.",
-          "solutionCode": "BEGIN;\nDELETE FROM silver.pagos\nWHERE fecha_pago >= CURRENT_DATE - INTERVAL '3 days';\n\nINSERT INTO silver.pagos\nSELECT DISTINCT ON (pago_id)\n  pago_id, fecha_pago, estado, monto\nFROM bronze.pagos\nWHERE fecha_pago >= CURRENT_DATE - INTERVAL '3 days'\nORDER BY pago_id, ingested_at DESC;\nCOMMIT;",
+          "solutionCode": "BEGIN TRANSACTION;\n\nDELETE FROM silver.pagos\nWHERE fecha_pago >= DATEADD(day, -3, CAST(GETDATE() AS DATE));\n\nWITH ultima_version AS (\n  SELECT\n    pago_id, fecha_pago, estado, monto,\n    ROW_NUMBER() OVER (PARTITION BY pago_id ORDER BY ingested_at DESC) AS rn\n  FROM bronze.pagos\n  WHERE fecha_pago >= DATEADD(day, -3, CAST(GETDATE() AS DATE))\n)\nINSERT INTO silver.pagos (pago_id, fecha_pago, estado, monto)\nSELECT pago_id, fecha_pago, estado, monto\nFROM ultima_version\nWHERE rn = 1;\n\nCOMMIT TRANSACTION;",
           "codeLanguage": "sql"
         },
         {
@@ -1136,8 +1144,8 @@
           "options": [
             "Que solo puede ejecutarse una vez por periodo, y una segunda ejecución sobre el mismo día lanza un error de bloqueo.",
             "Que re-ejecutarlo múltiples veces sobre el mismo periodo produce exactamente el mismo estado sin duplicados.",
-            "Que borra por completo la base de datos antes de iniciar y vuelve a cargar todo el historial desde la fuente.",
-            "Que cada ejecución agrega las filas nuevas al final de la tabla, conservando las cargas previas como respaldo."
+            "Que cada ejecución agrega las filas nuevas al final de la tabla, conservando las cargas previas como respaldo.",
+            "Que borra por completo la base de datos antes de iniciar y vuelve a cargar todo el historial desde la fuente."
           ],
           "correctIndex": 1,
           "explanation": "La idempotencia permite reintentos seguros tras caídas de red o errores sin corromper ni duplicar métricas."
@@ -1188,7 +1196,7 @@
           "title": "1. Las 5 dimensiones clave de calidad de datos",
           "body": "No basta con revisar que una tabla no esté vacía. Las pruebas automáticas en analítica verifican cinco pilares:\n1) **Unicidad**: la clave primaria no se repite.\n2) **Completitud (Not Null)**: claves foráneas y métricas críticas no tienen nulos.\n3) **Validez de dominio**: estados esperados, montos `>= 0`, fechas coherentes.\n4) **Integridad referencial**: todo `cliente_sk` en hechos existe en `dim_cliente`.\n5) **Frescura y volumen**: la tabla recibió datos recientes dentro del rango histórico normal.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Suite compacta de checks que deben devolver 0 violaciones\nSELECT 'duplicados_pk' AS check_name, COUNT(*) AS errores\nFROM (SELECT pedido_id FROM dw.fct_pedidos GROUP BY 1 HAVING COUNT(*) > 1) t\nUNION ALL\nSELECT 'montos_negativos', COUNT(*) FROM dw.fct_pedidos WHERE monto_neto < 0\nUNION ALL\nSELECT 'huerfanos_cliente', COUNT(*)\nFROM dw.fct_pedidos f\nLEFT JOIN dw.dim_cliente c ON f.cliente_sk = c.cliente_sk\nWHERE c.cliente_sk IS NULL;",
+          "codeSnippet": "-- Suite compacta de checks que deben devolver 0 violaciones\nSELECT 'duplicados_pk' AS check_name, COUNT(*) AS errores\nFROM (SELECT pedido_id FROM dw.fct_pedidos GROUP BY pedido_id HAVING COUNT(*) > 1) t\nUNION ALL\nSELECT 'montos_negativos', COUNT(*) FROM dw.fct_pedidos WHERE monto_neto < 0\nUNION ALL\nSELECT 'huerfanos_cliente', COUNT(*)\nFROM dw.fct_pedidos f\nLEFT JOIN dw.dim_cliente c ON f.cliente_sk = c.cliente_sk\nWHERE c.cliente_sk IS NULL;",
           "keyTakeaway": "Si una prueba de unicidad o integridad falla, detén la actualización hacia Gold para no contaminar reportes ejecutivos."
         },
         {
@@ -1207,18 +1215,18 @@
           "Aplica pruebas de reconciliación financiera (`SUM(Gold)` vs. `SUM(Silver)`) tras cada transformación mayor."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Check de frescura (SLA máximo de 26 horas desde la última carga)\nSELECT\n  MAX(actualizado_en) AS ultima_actualizacion,\n  CASE\n    WHEN MAX(actualizado_en) < CURRENT_TIMESTAMP - INTERVAL '26 hours'\n    THEN 'ALERTA_SLA_VENCIDO'\n    ELSE 'OK'\n  END AS estado_frescura\nFROM dw.fct_pedidos;"
+        "referenceCode": "-- Check de frescura (SLA máximo de 26 horas desde la última carga)\nSELECT\n  MAX(actualizado_en) AS ultima_actualizacion,\n  CASE\n    WHEN MAX(actualizado_en) < DATEADD(hour, -26, CURRENT_TIMESTAMP)\n    THEN 'ALERTA_SLA_VENCIDO'\n    ELSE 'OK'\n  END AS estado_frescura\nFROM dw.fct_pedidos;"
       },
       "comparison": {
         "scenario": "Publicar la tabla mensual de ingresos sin descubrir hasta 5 días después que un cambio de backend dejó los montos en NULL.",
         "juniorLabel": "Error de Junior",
-        "juniorCode": "-- Solo confía en que la consulta terminó con éxito (exit code 0)\nCREATE OR REPLACE TABLE gold.ingresos_mensuales AS\nSELECT DATE_TRUNC('month', fecha) AS mes, SUM(monto) AS total\nFROM silver.pedidos\nGROUP BY 1;",
+        "juniorCode": "-- Solo confía en que la consulta terminó con éxito (sin error)\nDROP TABLE IF EXISTS gold.ingresos_mensuales;\n\nSELECT DATETRUNC(month, fecha) AS mes, SUM(monto) AS total\nINTO gold.ingresos_mensuales\nFROM silver.pedidos\nGROUP BY DATETRUNC(month, fecha);",
         "juniorFlaws": [
           "Un `SUM(monto)` donde todas las filas son `NULL` devuelve `NULL` sin lanzar error SQL.",
           "No verifica frescura, unicidad ni umbrales de caída abrupta frente al día previo."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "-- Validación previa antes de promover o alertar en tablero\nWITH auditoria AS (\n  SELECT\n    COUNT(*) AS total_filas,\n    COUNT(*) FILTER (WHERE monto IS NULL) AS montos_nulos,\n    COUNT(DISTINCT pedido_id) AS pedidos_unicos\n  FROM silver.pedidos\n  WHERE fecha >= CURRENT_DATE - INTERVAL '1 day'\n)\nSELECT\n  total_filas,\n  montos_nulos,\n  (total_filas = pedidos_unicos) AS pk_unica,\n  (total_filas > 0 AND montos_nulos = 0) AS apto_para_gold\nFROM auditoria;",
+        "intermediateCode": "-- Validación previa antes de promover o alertar en tablero\nWITH auditoria AS (\n  SELECT\n    COUNT(*) AS total_filas,\n    COUNT(CASE WHEN monto IS NULL THEN 1 END) AS montos_nulos,\n    COUNT(DISTINCT pedido_id) AS pedidos_unicos\n  FROM silver.pedidos\n  WHERE fecha >= DATEADD(day, -1, CAST(GETDATE() AS DATE))\n)\nSELECT\n  total_filas,\n  montos_nulos,\n  (total_filas = pedidos_unicos) AS pk_unica,\n  (total_filas > 0 AND montos_nulos = 0) AS apto_para_gold\nFROM auditoria;",
         "intermediateBenefits": [
           "Detecta inmediatamente nulos masivos, caídas a 0 filas o duplicados antes de que los directivos abran el tablero.",
           "Documenta métricas de salud del pipeline en cada corrida."
@@ -1233,7 +1241,7 @@
           "prompt": "Escribe una consulta SQL sobre `silver.pedidos (fecha_dia, pedido_id)` que compare el conteo de ayer con el promedio de los últimos 7 días previos y devuelva `'ALERTA'` si cayó más de 50%.",
           "hint": "Calcula dos CTEs o agregaciones condicionales: `conteo_ayer` y `promedio_7d_previos`.",
           "solutionExplanation": "Comparar el volumen contra una media móvil evita falsos positivos y detecta roturas silenciosas en ingesta.",
-          "solutionCode": "WITH conteos AS (\n  SELECT\n    COUNT(*) FILTER (WHERE fecha_dia = CURRENT_DATE - 1) AS ayer,\n    COUNT(*) FILTER (\n      WHERE fecha_dia BETWEEN CURRENT_DATE - 8 AND CURRENT_DATE - 2\n    ) / 7.0 AS promedio_7d\n  FROM silver.pedidos\n)\nSELECT\n  ayer,\n  ROUND(promedio_7d, 1) AS promedio_7d,\n  CASE\n    WHEN ayer < promedio_7d * 0.5 THEN 'ALERTA_CAIDA_VOLUMEN'\n    ELSE 'OK'\n  END AS estado\nFROM conteos;",
+          "solutionCode": "WITH conteos AS (\n  SELECT\n    COUNT(CASE WHEN fecha_dia = CAST(GETDATE() AS DATE) - 1 THEN 1 END) AS ayer,\n    COUNT(CASE WHEN fecha_dia BETWEEN CAST(GETDATE() AS DATE) - 8 AND CAST(GETDATE() AS DATE) - 2 THEN 1 END) / 7.0 AS promedio_7d\n  FROM silver.pedidos\n)\nSELECT\n  ayer,\n  ROUND(promedio_7d, 1) AS promedio_7d,\n  CASE\n    WHEN ayer < promedio_7d * 0.5 THEN 'ALERTA_CAIDA_VOLUMEN'\n    ELSE 'OK'\n  END AS estado\nFROM conteos;",
           "codeLanguage": "sql"
         },
         {
@@ -1264,10 +1272,10 @@
           "id": "cap09-q2",
           "question": "Si una consulta termina sin errores SQL (`exit 0`), ¿garantiza que la calidad del dato sea correcta?",
           "options": [
+            "Sí, siempre que la tabla destino tenga claves primarias, porque bloquean cualquier dato erróneo.",
             "Sí: si la consulta termina sin errores, el motor ya validó tipos, claves y volumen esperado.",
-            "Solo si se usan `INNER JOIN`, porque así se descartan automáticamente las filas inconsistentes.",
             "No: pueden haberse introducido duplicados, nulos masivos o caídas silenciosas de volumen.",
-            "Sí, siempre que la tabla destino tenga claves primarias, porque bloquean cualquier dato erróneo."
+            "Solo si se usan `INNER JOIN`, porque así se descartan automáticamente las filas inconsistentes."
           ],
           "correctIndex": 2,
           "explanation": "Un pipeline puede ejecutarse sin errores técnicos y aún así entregar cifras vacías o duplicadas si no hay checks de calidad."
@@ -1276,8 +1284,8 @@
           "id": "cap09-q3",
           "question": "¿Qué es un Data Contract?",
           "options": [
-            "Una copia congelada del dashboard que se envía a negocio como referencia oficial de las cifras.",
             "Un documento legal con el proveedor del data warehouse que fija el precio y el almacenamiento.",
+            "Una copia congelada del dashboard que se envía a negocio como referencia oficial de las cifras.",
             "Un acuerdo formal de esquema, tipos, semántica y SLA entre productores de datos y analítica.",
             "Un índice o restricción de base de datos que impide insertar filas que no cumplan el esquema."
           ],
@@ -1375,8 +1383,8 @@
           "options": [
             "Porque es columnar, conserva tipos de datos exactos, comprime mejor y permite leer solo las columnas solicitadas.",
             "Porque Parquet es un formato de texto plano que se puede abrir y editar en cualquier editor sin herramientas extra.",
-            "Porque Parquet elimina automáticamente los valores nulos y duplicados al escribir, dejando el dataset ya limpio.",
-            "Porque CSV no admite números decimales ni fechas, así que hay que guardarlos como texto y convertirlos al leer."
+            "Porque CSV no admite números decimales ni fechas, así que hay que guardarlos como texto y convertirlos al leer.",
+            "Porque Parquet elimina automáticamente los valores nulos y duplicados al escribir, dejando el dataset ya limpio."
           ],
           "correctIndex": 0,
           "explanation": "Parquet evita inferencias lentas/erróneas de tipos y permite proyección columnar con compresión eficiente."
@@ -1385,10 +1393,10 @@
           "id": "cap10-q2",
           "question": "¿Qué ventaja clave aporta `category` en Pandas para columnas de texto con pocos valores distintos (ej. `pais`, `estado`)?",
           "options": [
+            "Ordena alfabéticamente la columna de forma permanente, lo que acelera los filtros booleanos sobre esos valores.",
             "Convierte el texto a mayúsculas y elimina espacios, de modo que valores como 'chile' y 'Chile ' queden unificados.",
-            "Comprime cada valor de texto por separado en disco, reduciendo el tamaño del CSV exportado pero no la RAM usada.",
             "Almacena internamente enteros pequeños apuntando a un diccionario único, reduciendo mucho la RAM y acelerando `groupby`.",
-            "Ordena alfabéticamente la columna de forma permanente, lo que acelera los filtros booleanos sobre esos valores."
+            "Comprime cada valor de texto por separado en disco, reduciendo el tamaño del CSV exportado pero no la RAM usada."
           ],
           "correctIndex": 2,
           "explanation": "Los tipos categóricos sustituyen millones de strings repetidos por códigos numéricos compactos."
@@ -1397,9 +1405,9 @@
           "id": "cap10-q3",
           "question": "¿Por qué evitar rutas absolutas como `C:\\Users\\MiNombre\\archivo.csv` en scripts analíticos?",
           "options": [
-            "Porque las rutas absolutas cambian la codificación del archivo leído de UTF-8 a la del sistema operativo.",
-            "Porque hacen que los archivos generados ocupen más espacio en disco al guardar la ruta completa en ellos.",
             "Porque Python no puede abrir rutas que empiecen con una letra de unidad como C: sin permisos de administrador.",
+            "Porque hacen que los archivos generados ocupen más espacio en disco al guardar la ruta completa en ellos.",
+            "Porque las rutas absolutas cambian la codificación del archivo leído de UTF-8 a la del sistema operativo.",
             "Porque rompe la reproducibilidad en cualquier otra computadora, repositorio Git o flujo automatizado."
           ],
           "correctIndex": 3,
@@ -1504,9 +1512,9 @@
           "question": "Si los clientes que más gastan omiten responder su edad en una encuesta, ¿qué tipo de dato faltante es y qué pasa si los borras?",
           "options": [
             "MNAR/MAR; al borrarlos subestimarás el gasto promedio de la población.",
+            "Son outliers positivos; al borrarlos el gasto promedio queda más exacto.",
             "MCAR; borrarlos no sesga el promedio porque los nulos son aleatorios.",
-            "MCAR; al borrarlos sobrestimarás el gasto promedio de la población.",
-            "Son outliers positivos; al borrarlos el gasto promedio queda más exacto."
+            "MCAR; al borrarlos sobrestimarás el gasto promedio de la población."
           ],
           "correctIndex": 0,
           "explanation": "Cuando la ausencia depende de variables del usuario o del valor mismo, borrar las filas sesga gravemente las estimaciones."
@@ -1515,9 +1523,9 @@
           "id": "cap11-q3",
           "question": "¿Qué parámetro de `pd.to_numeric()` evita que un texto corrupto aborte el script y lo transforma en `NaN` auditable?",
           "options": [
-            "errors=\"ignore\"",
             "inplace=True",
             "downcast=\"signed\"",
+            "errors=\"ignore\"",
             "errors=\"coerce\""
           ],
           "correctIndex": 3,
@@ -1613,8 +1621,8 @@
           "options": [
             "check_keys=True",
             "validate=\"many_to_one\"",
-            "drop_duplicates=True",
-            "how=\"one_to_one\""
+            "how=\"one_to_one\"",
+            "drop_duplicates=True"
           ],
           "correctIndex": 1,
           "explanation": "`validate=\"many_to_one\"` (o `\"one_to_one\"`) verifica la cardinalidad antes de retornar el resultado y falla ruidosamente si hay fan-out."
@@ -1623,10 +1631,10 @@
           "id": "cap12-q2",
           "question": "¿Por qué debe evitarse `df.iterrows()` para transformar columnas en DataFrames grandes?",
           "options": [
-            "Porque convierte los tipos de cada columna a `object` de forma permanente y luego hay que volver a tiparlas a mano.",
+            "Porque reinicia el índice del DataFrame en cada iteración, de modo que las filas modificadas quedan desalineadas.",
             "Porque no funciona en Python 3 ni en las versiones recientes de Pandas, que ya eliminaron ese método por completo.",
             "Porque ejecuta un bucle de Python fila por fila en lugar de operaciones vectorizadas en C/NumPy, siendo mucho más lento.",
-            "Porque reinicia el índice del DataFrame en cada iteración, de modo que las filas modificadas quedan desalineadas."
+            "Porque convierte los tipos de cada columna a `object` de forma permanente y luego hay que volver a tiparlas a mano."
           ],
           "correctIndex": 2,
           "explanation": "La vectorización (`np.where`, `np.select`, operaciones de Series) procesa bloques enteros en memoria nativa."
@@ -1636,8 +1644,8 @@
           "question": "¿Qué método transforma múltiples columnas de meses (`ene`, `feb`, `mar`) en dos columnas (`mes`, `valor`)?",
           "options": [
             "df.melt()",
-            "df.dropna()",
             "df.pivot()",
+            "df.dropna()",
             "df.describe()"
           ],
           "correctIndex": 0,
@@ -1731,10 +1739,10 @@
           "id": "cap13-q1",
           "question": "¿Qué código HTTP indica que estás enviando demasiadas peticiones por segundo a una API (rate limit)?",
           "options": [
-            "503 Service Unavailable",
-            "429 Too Many Requests",
             "404 Not Found",
-            "301 Moved Permanently"
+            "429 Too Many Requests",
+            "301 Moved Permanently",
+            "503 Service Unavailable"
           ],
           "correctIndex": 1,
           "explanation": "El código 429 indica límite de tasa excedido; la respuesta profesional es aplicar backoff exponencial o respetar la cabecera `Retry-After`."
@@ -1744,9 +1752,9 @@
           "question": "¿Por qué es obligatorio especificar `timeout=` en `requests.get()` dentro de pipelines automáticos?",
           "options": [
             "Para evitar que el script quede colgado indefinidamente si el servidor remoto no cierra la conexión.",
-            "Para que `requests` pagine automáticamente la respuesta cuando el servidor devuelve muchos registros.",
+            "Para que el servidor comprima la respuesta JSON y la descarga termine en menos tiempo de red.",
             "Para limitar la memoria RAM que puede usar la respuesta y evitar que el script se quede sin recursos.",
-            "Para que el servidor comprima la respuesta JSON y la descarga termine en menos tiempo de red."
+            "Para que `requests` pagine automáticamente la respuesta cuando el servidor devuelve muchos registros."
           ],
           "correctIndex": 0,
           "explanation": "Sin `timeout`, una caída silenciosa de red puede bloquear el proceso por horas."
@@ -1755,10 +1763,10 @@
           "id": "cap13-q3",
           "question": "¿Dónde deben almacenarse los tokens y llaves de API en un proyecto analítico?",
           "options": [
-            "En un archivo `config.py` del repositorio, fuera del notebook.",
+            "Pegados como string en la primera celda del notebook.",
             "En variables de entorno / archivo `.env` fuera de Git.",
             "En el README del proyecto, para que el equipo los encuentre.",
-            "Pegados como string en la primera celda del notebook."
+            "En un archivo `config.py` del repositorio, fuera del notebook."
           ],
           "correctIndex": 1,
           "explanation": "Subir credenciales a un repositorio es un incidente crítico de seguridad."
@@ -1852,10 +1860,10 @@
           "id": "cap14-q1",
           "question": "¿Cuál es el beneficio principal de mover fórmulas de KPIs desde un notebook a un módulo `.py`?",
           "options": [
+            "Permite dejar de usar Git para los notebooks, porque los módulos `.py` guardan solo la versión final de cada fórmula de KPI.",
             "Reduce la memoria RAM que usa el navegador al abrir el notebook, ya que las fórmulas dejan de cargarse en cada celda.",
-            "Permite que el motor de base de datos ejecute las fórmulas directamente, porque los módulos `.py` se traducen solos a SQL.",
             "Permite reutilizar una única fuente de verdad en múltiples reportes y validar su exactitud con pruebas unitarias automatizadas.",
-            "Permite dejar de usar Git para los notebooks, porque los módulos `.py` guardan solo la versión final de cada fórmula de KPI."
+            "Permite que el motor de base de datos ejecute las fórmulas directamente, porque los módulos `.py` se traducen solos a SQL."
           ],
           "correctIndex": 2,
           "explanation": "Centralizar la lógica elimina discrepancias entre equipos y permite ejecutar `pytest` en cada cambio."
@@ -1864,9 +1872,9 @@
           "id": "cap14-q2",
           "question": "¿Qué casos borde deberías probar siempre en métricas analíticas?",
           "options": [
+            "Solo los formatos y colores de los gráficos que consumen la métrica en el tablero.",
             "Solo datos positivos, completos y sin duplicados, que son los que llegan en producción.",
             "Únicamente un DataFrame de una fila con valores típicos, para que el test sea rápido.",
-            "Solo los formatos y colores de los gráficos que consumen la métrica en el tablero.",
             "Denominadores en cero, DataFrames vacíos, valores nulos y duplicados en el grano."
           ],
           "correctIndex": 3,
@@ -1876,10 +1884,10 @@
           "id": "cap14-q3",
           "question": "¿Qué decorador de Pytest permite compartir datos de prueba limpios entre múltiples funciones test?",
           "options": [
-            "@pytest.mock_all",
+            "@pytest.metric",
             "@pytest.fixture",
             "@pytest.pandas",
-            "@pytest.metric"
+            "@pytest.mock_all"
           ],
           "correctIndex": 1,
           "explanation": "`@pytest.fixture` inyecta datos de prueba frescos y reutilizables en cada test."
@@ -1925,7 +1933,7 @@
           "En SQL analítico, utiliza `PERCENTILE_CONT(0.5)` / `QUANTILE_CONT` en lugar de depender solo de `AVG()`."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "SELECT\n  canal,\n  COUNT(*) AS sesiones,\n  ROUND(AVG(tiempo_carga_ms), 1) AS media_ms,\n  PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY tiempo_carga_ms) AS p50_ms,\n  PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY tiempo_carga_ms) AS p95_ms\nFROM telemetry.web_vitals\nGROUP BY canal;"
+        "referenceCode": "-- En SQL Server PERCENTILE_CONT es una función de ventana: se calcula con OVER (PARTITION BY …)\n-- y DISTINCT deja una fila por canal.\nSELECT DISTINCT\n  canal,\n  COUNT(*) OVER (PARTITION BY canal) AS sesiones,\n  ROUND(AVG(tiempo_carga_ms * 1.0) OVER (PARTITION BY canal), 1) AS media_ms,\n  PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY tiempo_carga_ms) OVER (PARTITION BY canal) AS p50_ms,\n  PERCENTILE_CONT(0.95) WITHIN GROUP (ORDER BY tiempo_carga_ms) OVER (PARTITION BY canal) AS p95_ms\nFROM telemetry.web_vitals;"
       },
       "comparison": {
         "scenario": "Evaluar el tiempo de entrega de pedidos tras un cambio de paquetería.",
@@ -1936,7 +1944,7 @@
           "Oculta el volumen (`n`) y la dispersión (p90/p95)."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "SELECT\n  paqueteria,\n  COUNT(*) AS total_envios,\n  PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY horas_entrega) AS p50_horas,\n  PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY horas_entrega) AS p90_horas,\n  ROUND(AVG(horas_entrega), 1) AS media_horas\nFROM logistica.entregas\nGROUP BY paqueteria\nORDER BY p90_horas ASC;",
+        "intermediateCode": "SELECT DISTINCT\n  paqueteria,\n  COUNT(*) OVER (PARTITION BY paqueteria) AS total_envios,\n  PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY horas_entrega) OVER (PARTITION BY paqueteria) AS p50_horas,\n  PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY horas_entrega) OVER (PARTITION BY paqueteria) AS p90_horas,\n  ROUND(AVG(horas_entrega * 1.0) OVER (PARTITION BY paqueteria), 1) AS media_horas\nFROM logistica.entregas\nORDER BY p90_horas ASC;",
         "intermediateBenefits": [
           "Permite comparar tanto la experiencia típica (p50) como los casos tardíos críticos (p90).",
           "Incluye `total_envios` para ponderar si una paquetería tiene muestra suficiente."
@@ -1970,8 +1978,8 @@
           "id": "cap15-q1",
           "question": "¿Qué estadístico es menos sensible a unos pocos valores extremos gigantes (outliers)?",
           "options": [
-            "La varianza muestral",
             "La media aritmética",
+            "La varianza muestral",
             "La mediana (percentil 50)",
             "El rango (máximo - mínimo)"
           ],
@@ -1983,9 +1991,9 @@
           "question": "¿Cómo se manifiesta la Paradoja de Simpson en analítica de negocio?",
           "options": [
             "Cuando una tendencia observada dentro de cada subgrupo desaparece o se invierte al combinar todos los grupos.",
+            "Cuando la mediana y la media coinciden en cada subgrupo, pero difieren al calcularlas sobre todos los datos juntos.",
             "Cuando dos variables están muy correlacionadas en el total, lo que prueba que una de ellas causa a la otra.",
-            "Cuando una muestra pequeña muestra una tendencia que desaparece por completo al aumentar el tamaño de muestra.",
-            "Cuando la mediana y la media coinciden en cada subgrupo, pero difieren al calcularlas sobre todos los datos juntos."
+            "Cuando una muestra pequeña muestra una tendencia que desaparece por completo al aumentar el tamaño de muestra."
           ],
           "correctIndex": 0,
           "explanation": "Cambios en los pesos de los subgrupos (variables confusoras) pueden invertir la tendencia agregada."
@@ -1995,9 +2003,9 @@
           "question": "Si analizas únicamente las encuestas de clientes que siguen activos tras 12 meses para concluir qué tan satisfechos estaban los nuevos usuarios, ¿qué sesgo cometes?",
           "options": [
             "Sesgo de supervivencia",
+            "Sesgo de confirmación",
             "Sesgo de redondeo",
-            "Sesgo de anclaje",
-            "Sesgo de confirmación"
+            "Sesgo de anclaje"
           ],
           "correctIndex": 0,
           "explanation": "Ignorar a los clientes que abandonaron antes del corte sobreestima artificialmente la satisfacción y retención."
@@ -2090,9 +2098,9 @@
           "id": "cap16-q1",
           "question": "¿Para qué sirve principalmente el remuestreo Bootstrap en analítica?",
           "options": [
-            "Para acelerar los `JOIN` sobre tablas grandes, dividiéndolas en muestras más pequeñas que el motor procesa en paralelo.",
-            "Para rellenar los valores nulos de un dataset con valores tomados al azar de la misma columna, sin alterar la distribución.",
             "Para aumentar el tamaño real de la muestra duplicando filas, de modo que los p-values del análisis resulten más pequeños.",
+            "Para rellenar los valores nulos de un dataset con valores tomados al azar de la misma columna, sin alterar la distribución.",
+            "Para acelerar los `JOIN` sobre tablas grandes, dividiéndolas en muestras más pequeñas que el motor procesa en paralelo.",
             "Para estimar intervalos de confianza y errores estándar de estadísticos complejos (medianas, razones) sin asumir distribución normal."
           ],
           "correctIndex": 3,
@@ -2114,10 +2122,10 @@
           "id": "cap16-q3",
           "question": "¿Qué debemos hacer al usar generadores aleatorios en simulaciones Bootstrap?",
           "options": [
-            "Dejar la semilla sin fijar, para que cada ejecución explore remuestreos distintos y los límites sean más robustos.",
+            "Descartar la mitad de los datos en cada iteración, para que las muestras simuladas sean independientes entre sí.",
             "Fijar una semilla (`seed`) para que cualquier colega pueda reproducir exactamente los mismos límites.",
-            "Usar `replace=False` al remuestrear, para que ninguna observación aparezca repetida dentro de una misma muestra.",
-            "Descartar la mitad de los datos en cada iteración, para que las muestras simuladas sean independientes entre sí."
+            "Dejar la semilla sin fijar, para que cada ejecución explore remuestreos distintos y los límites sean más robustos.",
+            "Usar `replace=False` al remuestrear, para que ninguna observación aparezca repetida dentro de una misma muestra."
           ],
           "correctIndex": 1,
           "explanation": "Fijar `seed` asegura resultados deterministas al re-ejecutar el análisis."
@@ -2210,10 +2218,10 @@
           "id": "cap17-q1",
           "question": "¿Qué indica un Sample Ratio Mismatch (SRM) con `p < 0.001` en una prueba A/B?",
           "options": [
-            "Que la variante B ganó con una diferencia tan grande en la métrica principal que ya se puede detener la prueba y lanzarla a todos.",
             "Que la conversión de ambos grupos es prácticamente idéntica, por lo que la prueba no encontró ninguna diferencia significativa.",
+            "Que la prueba aún no tiene suficientes usuarios ni clics en cada grupo, así que solo hay que esperar más días antes de leerla.",
             "Que la proporción real de usuarios asignados a cada grupo difiere significativamente de la configurada, señalando un sesgo o bug técnico.",
-            "Que la prueba aún no tiene suficientes usuarios ni clics en cada grupo, así que solo hay que esperar más días antes de leerla."
+            "Que la variante B ganó con una diferencia tan grande en la métrica principal que ya se puede detener la prueba y lanzarla a todos."
           ],
           "correctIndex": 2,
           "explanation": "Un SRM invalida la equivalencia aleatoria entre grupos, por lo que no se debe confiar en la diferencia de métricas."
@@ -2223,9 +2231,9 @@
           "question": "¿Por qué es un error detener un A/B test en el momento en que ves `p < 0.05` al día 2 (peeking)?",
           "options": [
             "Porque dispara la probabilidad real de aceptar falsos positivos muy por encima del 5% nominal.",
-            "Porque el efecto observado al día 2 siempre se reduce a la mitad al terminar la prueba.",
             "Porque los datos de los primeros días se descartan y el test debe reiniciarse desde cero.",
-            "Porque antes del día 7 el p-value se reporta como porcentaje y no se puede comparar con 0.05."
+            "Porque antes del día 7 el p-value se reporta como porcentaje y no se puede comparar con 0.05.",
+            "Porque el efecto observado al día 2 siempre se reduce a la mitad al terminar la prueba."
           ],
           "correctIndex": 0,
           "explanation": "Hacer múltiples pruebas secuenciales sin corrección infla drásticamente el error Tipo I (falsos descubrimientos)."
@@ -2234,8 +2242,8 @@
           "id": "cap17-q3",
           "question": "Si una diferencia tiene `p = 0.001` con millones de usuarios pero el lift es +0.01%, ¿qué demuestra?",
           "options": [
-            "Que hay un Sample Ratio Mismatch, porque con millones de usuarios cualquier diferencia mínima es sospechosa.",
             "Que hay que lanzarla de inmediato, porque un p-value tan bajo garantiza un impacto grande en el negocio.",
+            "Que hay un Sample Ratio Mismatch, porque con millones de usuarios cualquier diferencia mínima es sospechosa.",
             "Que el p-value está mal calculado, porque un lift tan pequeño nunca puede ser estadísticamente significativo.",
             "Que hay significancia estadística, pero puede carecer de relevancia práctica si no supera el MDE de negocio."
           ],
@@ -2330,10 +2338,10 @@
           "id": "cap18-q1",
           "question": "¿Qué demuestra una correlación de Pearson `r = 0.0` entre dos variables?",
           "options": [
-            "Que la relación es negativa y perfecta: cuando una sube, la otra baja en la misma proporción.",
+            "Que no existe ningún tipo de relación entre ellas, ni lineal ni curva, y son independientes.",
             "Que las variables son idénticas y por eso la covarianza entre ellas se anula por completo.",
             "Que no existe relación LINEAL; podría haber una relación curva fuerte (ej. U o parábola).",
-            "Que no existe ningún tipo de relación entre ellas, ni lineal ni curva, y son independientes."
+            "Que la relación es negativa y perfecta: cuando una sube, la otra baja en la misma proporción."
           ],
           "correctIndex": 2,
           "explanation": "Pearson solo mide asociación lineal; una relación cuadrática simétrica produce `r ≈ 0` aunque sea determinista."
@@ -2342,8 +2350,8 @@
           "id": "cap18-q2",
           "question": "¿Para qué sirve incluir variables de control en una regresión múltiple explicativa?",
           "options": [
-            "Para reducir el número de observaciones necesarias, ya que cada control aporta información adicional.",
             "Para reemplazar los valores faltantes de la variable principal con estimaciones de las otras variables.",
+            "Para reducir el número de observaciones necesarias, ya que cada control aporta información adicional.",
             "Para aumentar el R² del modelo y demostrar que la relación encontrada entre las variables es causal.",
             "Para aislar la asociación de una variable manteniendo constantes otros factores confusores medidos."
           ],
@@ -2355,9 +2363,9 @@
           "question": "¿Por qué es mala idea incluir a la vez `precio_sin_iva`, `iva` y `precio_total` como predictores en una regresión lineal?",
           "options": [
             "Porque las librerías de regresión no permiten más de dos predictores numéricos expresados en la misma unidad monetaria.",
-            "Porque el modelo tendría demasiadas columnas y el tiempo de entrenamiento aumentaría hasta volverse impracticable.",
+            "Porque `iva` tiene una varianza mucho menor que los precios y el modelo la ignora al estimar los coeficientes.",
             "Por multicolinealidad perfecta (`precio_total = precio_sin_iva + iva`), lo que vuelve inestables los coeficientes.",
-            "Porque `iva` tiene una varianza mucho menor que los precios y el modelo la ignora al estimar los coeficientes."
+            "Porque el modelo tendría demasiadas columnas y el tiempo de entrenamiento aumentaría hasta volverse impracticable."
           ],
           "correctIndex": 2,
           "explanation": "Predictores linealmente dependientes impiden estimar de forma única el efecto separado de cada uno."
@@ -2450,8 +2458,8 @@
           "id": "cap19-q1",
           "question": "¿Por qué es inválido usar `train_test_split(..., shuffle=True)` en problemas de pronóstico de series temporales?",
           "options": [
-            "Porque `shuffle=True` solo funciona con columnas de texto y convierte las fechas en cadenas antes de dividir los datos.",
             "Porque elimina las columnas de fecha del DataFrame y el modelo pierde la información temporal que necesita para pronosticar.",
+            "Porque `shuffle=True` solo funciona con columnas de texto y convierte las fechas en cadenas antes de dividir los datos.",
             "Porque mezcla observaciones futuras en el conjunto de entrenamiento (data leakage), inflando falsamente la precisión.",
             "Porque reduce el conjunto de entrenamiento a la mitad de las filas, dejando muy pocos datos para estimar la tendencia."
           ],
@@ -2463,8 +2471,8 @@
           "question": "¿Por qué `LAG(ventas, 7)` suele ser mejor referencia diaria que `LAG(ventas, 1)` en retail o apps de consumo?",
           "options": [
             "Porque `LAG(ventas, 7)` se calcula más rápido en Python al trabajar con bloques semanales de datos.",
-            "Porque `LAG(ventas, 7)` divide automáticamente entre 7 y entrega así el promedio semanal de ventas.",
             "Porque `LAG(ventas, 7)` excluye los feriados y fines de semana de la comparación entre días.",
+            "Porque `LAG(ventas, 7)` divide automáticamente entre 7 y entrega así el promedio semanal de ventas.",
             "Porque compara lunes contra lunes y sábado contra sábado, controlando la estacionalidad semanal."
           ],
           "correctIndex": 3,
@@ -2474,9 +2482,9 @@
           "id": "cap19-q3",
           "question": "¿Qué métrica de error es preferible frente a `MAPE` cuando existen días o productos con ventas reales iguales a 0?",
           "options": [
+            "Moda de los errores porcentuales absolutos",
             "R² ajustado, porque no depende de la escala",
             "Desviación estándar de los errores de pronóstico",
-            "Moda de los errores porcentuales absolutos",
             "WAPE (Weighted Absolute Percentage Error) o MAE"
           ],
           "correctIndex": 3,
@@ -2510,7 +2518,7 @@
           "title": "2. Árboles de Métricas (Driver Trees)",
           "body": "Descomponer una métrica maestra en sus factores matemáticos revela qué equipo mueve cada palanca. Por ejemplo: `Ingreso Mensual = Usuarios Activos * % Conversión * Frecuencia de Compra * Ticket Promedio`. Si el ingreso cae 10%, el árbol señala en segundos cuál componente falló.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Descomposición mensual de drivers de ingreso en una consulta única\nSELECT\n  DATE_TRUNC('month', fecha_local)::date AS mes,\n  COUNT(DISTINCT cliente_id) AS compradores_unicos,\n  COUNT(DISTINCT pedido_id) * 1.0 / NULLIF(COUNT(DISTINCT cliente_id), 0) AS frecuencia,\n  SUM(monto_neto) / NULLIF(COUNT(DISTINCT pedido_id), 0) AS ticket_promedio,\n  SUM(monto_neto) AS ingreso_neto\nFROM ventas.pedidos\nWHERE estado = 'completado'\nGROUP BY 1\nORDER BY 1;",
+          "codeSnippet": "-- Descomposición mensual de drivers de ingreso en una consulta única\nSELECT\n  CAST(DATETRUNC(month, fecha_local) AS DATE) AS mes,\n  COUNT(DISTINCT cliente_id) AS compradores_unicos,\n  COUNT(DISTINCT pedido_id) * 1.0 / NULLIF(COUNT(DISTINCT cliente_id), 0) AS frecuencia,\n  SUM(monto_neto) / NULLIF(COUNT(DISTINCT pedido_id), 0) AS ticket_promedio,\n  SUM(monto_neto) AS ingreso_neto\nFROM ventas.pedidos\nWHERE estado = 'completado'\nGROUP BY CAST(DATETRUNC(month, fecha_local) AS DATE)\nORDER BY 1;",
           "keyTakeaway": "Los árboles de métricas conectan el resultado financiero de dirección con el trabajo diario de producto, marketing y operaciones."
         }
       ],
@@ -2569,9 +2577,9 @@
           "question": "¿Qué es una métrica guardarraíl (guardrail metric)?",
           "options": [
             "Un indicador secundario que vigila que optimizar la métrica principal no dañe la calidad, experiencia o rentabilidad.",
-            "Un permiso de administrador que impide a los analistas modificar la métrica principal sin aprobación del equipo de datos.",
+            "Una métrica de vanidad que siempre crece y se muestra en el tablero para dar contexto positivo a los resultados.",
             "El valor histórico máximo de la métrica principal, usado como límite superior para detectar errores en los datos.",
-            "Una métrica de vanidad que siempre crece y se muestra en el tablero para dar contexto positivo a los resultados."
+            "Un permiso de administrador que impide a los analistas modificar la métrica principal sin aprobación del equipo de datos."
           ],
           "correctIndex": 0,
           "explanation": "Las métricas guardarraíl previenen efectos secundarios perversos (ej. aumentar velocidad a costa de calidad o margen)."
@@ -2580,10 +2588,10 @@
           "id": "cap20-q2",
           "question": "¿Por qué \"usuarios registrados históricos acumulados\" suele ser una métrica de vanidad?",
           "options": [
-            "Porque su cálculo requiere un `JOIN` costoso entre usuarios y eventos que vuelve lento el tablero ejecutivo.",
-            "Porque nunca puede disminuir aunque el producto esté muriendo hoy, ocultando caídas en retención o actividad.",
             "Porque puede dar números negativos cuando hay más bajas que altas, lo que confunde a los equipos de negocio.",
-            "Porque solo tiene sentido en empresas B2B, donde el número de cuentas registradas es pequeño y estable."
+            "Porque nunca puede disminuir aunque el producto esté muriendo hoy, ocultando caídas en retención o actividad.",
+            "Porque solo tiene sentido en empresas B2B, donde el número de cuentas registradas es pequeño y estable.",
+            "Porque su cálculo requiere un `JOIN` costoso entre usuarios y eventos que vuelve lento el tablero ejecutivo."
           ],
           "correctIndex": 1,
           "explanation": "Las métricas acumuladas históricas siempre crecen o se estancan, sin reflejar la salud actual del negocio."
@@ -2592,9 +2600,9 @@
           "id": "cap20-q3",
           "question": "¿Para qué sirve un árbol de métricas (driver tree)?",
           "options": [
-            "Para calcular el p-value de cada KPI y decidir qué variaciones del periodo son estadísticamente significativas.",
-            "Para descomponer un KPI global en factores multiplicativos o aditivos que explican qué palanca específica cambió.",
             "Para documentar la jerarquía de tablas del data warehouse y el orden en que se cargan en cada ejecución diaria.",
+            "Para descomponer un KPI global en factores multiplicativos o aditivos que explican qué palanca específica cambió.",
+            "Para calcular el p-value de cada KPI y decidir qué variaciones del periodo son estadísticamente significativas.",
             "Para clasificar las métricas del tablero por importancia y ocultar las que el equipo directivo no necesita ver."
           ],
           "correctIndex": 1,
@@ -2622,7 +2630,7 @@
           "title": "1. Embudo abierto vs. Embudo estricto secuencial",
           "body": "Contar simplemente `COUNT(DISTINCT usuario_id)` por cada tipo de evento (`ver_producto`, `agregar_carrito`, `comprar`) crea un **embudo abierto**: alguien pudo comprar directo desde un link de email sin pasar por `ver_producto` y dar tasas >100%.\n\nUn **embudo estricto** exige orden cronológico (`t_paso1 < t_paso2 < t_paso3`) dentro de una ventana de tiempo definida (ej. 24 horas o la misma sesión).",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Embudo estricto en SQL usando marcas temporales mínimas por usuario\nWITH pasos AS (\n  SELECT\n    usuario_id,\n    MIN(CASE WHEN evento = 'visita_producto' THEN creado_utc END) AS t_visita,\n    MIN(CASE WHEN evento = 'agregar_carrito' THEN creado_utc END) AS t_carrito,\n    MIN(CASE WHEN evento = 'compra_exitosa' THEN creado_utc END) AS t_compra\n  FROM telemetry.eventos\n  WHERE creado_utc >= CURRENT_DATE - INTERVAL '30 days'\n  GROUP BY usuario_id\n)\nSELECT\n  COUNT(t_visita) AS paso_1_visita,\n  COUNT(CASE WHEN t_carrito > t_visita THEN 1 END) AS paso_2_carrito,\n  COUNT(CASE WHEN t_compra > t_carrito AND t_carrito > t_visita THEN 1 END) AS paso_3_compra\nFROM pasos;",
+          "codeSnippet": "-- Embudo estricto en SQL usando marcas temporales mínimas por usuario\nWITH pasos AS (\n  SELECT\n    usuario_id,\n    MIN(CASE WHEN evento = 'visita_producto' THEN creado_utc END) AS t_visita,\n    MIN(CASE WHEN evento = 'agregar_carrito' THEN creado_utc END) AS t_carrito,\n    MIN(CASE WHEN evento = 'compra_exitosa' THEN creado_utc END) AS t_compra\n  FROM telemetry.eventos\n  WHERE creado_utc >= DATEADD(day, -30, CAST(GETDATE() AS DATE))\n  GROUP BY usuario_id\n)\nSELECT\n  COUNT(t_visita) AS paso_1_visita,\n  COUNT(CASE WHEN t_carrito > t_visita THEN 1 END) AS paso_2_carrito,\n  COUNT(CASE WHEN t_compra > t_carrito AND t_carrito > t_visita THEN 1 END) AS paso_3_compra\nFROM pasos;",
           "keyTakeaway": "Especifica siempre la unidad de análisis del embudo (usuario único vs. sesión) y la ventana temporal máxima entre pasos."
         },
         {
@@ -2652,7 +2660,7 @@
           "No verifica que el paso 2 ocurrió después del paso 1."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "WITH tiempos AS (\n  SELECT\n    usuario_id,\n    MIN(CASE WHEN evento = 'inicio' THEN ts_utc END) AS t1,\n    MIN(CASE WHEN evento = 'verifico_email' THEN ts_utc END) AS t2,\n    MIN(CASE WHEN evento = 'primer_uso' THEN ts_utc END) AS t3\n  FROM analytics.eventos_onboarding\n  WHERE ts_utc >= CURRENT_TIMESTAMP - INTERVAL '30 days'\n  GROUP BY usuario_id\n)\nSELECT\n  COUNT(t1) AS usuarios_inicio,\n  COUNT(CASE WHEN t2 >= t1 THEN 1 END) AS usuarios_verificados,\n  COUNT(CASE WHEN t3 >= t2 AND t2 >= t1 THEN 1 END) AS usuarios_activados\nFROM tiempos;",
+        "intermediateCode": "WITH tiempos AS (\n  SELECT\n    usuario_id,\n    MIN(CASE WHEN evento = 'inicio' THEN ts_utc END) AS t1,\n    MIN(CASE WHEN evento = 'verifico_email' THEN ts_utc END) AS t2,\n    MIN(CASE WHEN evento = 'primer_uso' THEN ts_utc END) AS t3\n  FROM analytics.eventos_onboarding\n  WHERE ts_utc >= DATEADD(day, -30, CURRENT_TIMESTAMP)\n  GROUP BY usuario_id\n)\nSELECT\n  COUNT(t1) AS usuarios_inicio,\n  COUNT(CASE WHEN t2 >= t1 THEN 1 END) AS usuarios_verificados,\n  COUNT(CASE WHEN t3 >= t2 AND t2 >= t1 THEN 1 END) AS usuarios_activados\nFROM tiempos;",
         "intermediateBenefits": [
           "Garantiza tasas monótonas decrecientes (100% -> X% -> Y%) por usuario único.",
           "Identifica el punto exacto donde se atora el onboarding."
@@ -2665,9 +2673,9 @@
           "title": "Práctica 1: Embudo con Ventana de 24 Horas",
           "difficulty": "Intermedio",
           "prompt": "Adapta la consulta de embudo estricto para exigir además que la `t_compra` ocurra dentro de las **24 horas** siguientes a `t_visita`.",
-          "hint": "Agrega `AND t_compra <= t_visita + INTERVAL '24 hours'` dentro del `CASE`.",
+          "hint": "Agrega `AND t_compra <= DATEADD(hour, 24, t_visita)` dentro del `CASE`.",
           "solutionExplanation": "Acotar la ventana evita mezclar visitas de hace semanas con compras de una campaña totalmente distinta.",
-          "solutionCode": "SELECT\n  COUNT(t_visita) AS paso_1,\n  COUNT(CASE WHEN t_carrito > t_visita THEN 1 END) AS paso_2,\n  COUNT(\n    CASE\n      WHEN t_compra > t_carrito\n       AND t_carrito > t_visita\n       AND t_compra <= t_visita + INTERVAL '24 hours'\n      THEN 1\n    END\n  ) AS paso_3_24h\nFROM pasos;",
+          "solutionCode": "SELECT\n  COUNT(t_visita) AS paso_1,\n  COUNT(CASE WHEN t_carrito > t_visita THEN 1 END) AS paso_2,\n  COUNT(\n    CASE\n      WHEN t_compra > t_carrito\n       AND t_carrito > t_visita\n       AND t_compra <= DATEADD(hour, 24, t_visita)\n      THEN 1\n    END\n  ) AS paso_3_24h\nFROM pasos;",
           "codeLanguage": "sql"
         },
         {
@@ -2687,9 +2695,9 @@
           "question": "¿Por qué un embudo calculado con `COUNT(*)` por nombre de evento puede mostrar un paso posterior mayor al 100%?",
           "options": [
             "Porque SQL redondea hacia arriba los conteos al dividir entre pasos, y con volúmenes pequeños el porcentaje termina superando el 100%.",
-            "Porque falta un `ORDER BY` por fecha en la consulta, y sin él los eventos se cuentan en el paso equivocado del embudo de conversión.",
+            "Porque `GROUP BY` duplica las filas de los usuarios con más de una sesión, aunque cada evento se haya registrado una sola vez.",
             "Porque un usuario puede disparar múltiples veces el mismo evento (reintentos/recargas) o llegar directo al paso sin pasar por el primero.",
-            "Porque `GROUP BY` duplica las filas de los usuarios con más de una sesión, aunque cada evento se haya registrado una sola vez."
+            "Porque falta un `ORDER BY` por fecha en la consulta, y sin él los eventos se cuentan en el paso equivocado del embudo de conversión."
           ],
           "correctIndex": 2,
           "explanation": "Un embudo riguroso cuenta usuarios/sesiones únicos y valida orden cronológico secuencial."
@@ -2698,9 +2706,9 @@
           "id": "cap21-q2",
           "question": "¿Qué diferencia a un embudo estricto de un embudo abierto?",
           "options": [
+            "El embudo estricto solo cuenta usuarios que completaron todos los pasos, mientras el abierto cuenta a todos los visitantes.",
             "El embudo abierto se calcula por sesión y el estricto por usuario, pero ambos ignoran el orden en que ocurren los pasos.",
             "El embudo estricto excluye las fechas y cuenta eventos totales, mientras el abierto agrupa los pasos por día calendario.",
-            "El embudo estricto solo cuenta usuarios que completaron todos los pasos, mientras el abierto cuenta a todos los visitantes.",
             "El embudo estricto exige que cada paso ocurra cronológicamente después del anterior para el mismo usuario/sesión."
           ],
           "correctIndex": 3,
@@ -2711,8 +2719,8 @@
           "question": "¿Por qué conviene incluir una ventana temporal máxima (ej. 24h o 7 días) entre el primer y último paso?",
           "options": [
             "Para reducir el volumen de eventos que lee la consulta y así bajar el costo, sin afectar la tasa de conversión.",
-            "Para que los timestamps de distintas zonas horarias se conviertan a texto y se puedan comparar entre sí.",
             "Para descartar a los usuarios que entraron directo al último paso sin haber pasado por el paso inicial.",
+            "Para que los timestamps de distintas zonas horarias se conviertan a texto y se puedan comparar entre sí.",
             "Para asegurar que la conversión pertenezca al mismo intento de compra o cohorte comparable en el tiempo."
           ],
           "correctIndex": 3,
@@ -2804,10 +2812,10 @@
           "id": "cap22-q1",
           "question": "¿Por qué debe calcularse el LTV utilizando el margen bruto/de contribución en lugar de las ventas brutas?",
           "options": [
-            "Porque los impuestos y descuentos no afectan al LTV, y usar el margen evita tener que excluirlos manualmente del cálculo.",
-            "Porque el dinero disponible para pagar el CAC y generar utilidad es únicamente el margen después de costos directos.",
             "Porque las ventas brutas siempre son menores que el margen de contribución, y el LTV quedaría subestimado frente al CAC.",
-            "Porque el margen es más estable mes a mes que las ventas, y así el LTV varía menos entre cohortes sin cambiar su nivel."
+            "Porque el dinero disponible para pagar el CAC y generar utilidad es únicamente el margen después de costos directos.",
+            "Porque el margen es más estable mes a mes que las ventas, y así el LTV varía menos entre cohortes sin cambiar su nivel.",
+            "Porque los impuestos y descuentos no afectan al LTV, y usar el margen evita tener que excluirlos manualmente del cálculo."
           ],
           "correctIndex": 1,
           "explanation": "Confundir ingresos totales con margen disponible lleva a sobrestimar el LTV y sobreinvertir en adquisición."
@@ -2816,8 +2824,8 @@
           "id": "cap22-q2",
           "question": "¿Qué mide el CAC Payback Period?",
           "options": [
-            "La proporción del presupuesto de marketing que se recupera en el primer mes a partir de los ingresos brutos generados.",
             "El tiempo promedio que tarda un cliente nuevo en realizar su primera compra desde que ve el anuncio de adquisición.",
+            "La proporción del presupuesto de marketing que se recupera en el primer mes a partir de los ingresos brutos generados.",
             "El número de meses que un cliente permanece activo antes de cancelar, usado para estimar su valor de vida total.",
             "El número de meses necesarios para recuperar la inversión de adquirir un cliente a partir de su margen mensual."
           ],
@@ -2828,9 +2836,9 @@
           "id": "cap22-q3",
           "question": "Si una cohorte SaaS tiene un NDR (Net Dollar Retention) de 112% a 12 meses, ¿qué significa?",
           "options": [
-            "Que la empresa adquirió un 12% más de clientes nuevos en los últimos 12 meses, sumándolos a la cohorte original medida.",
-            "Que el número de clientes activos de la cohorte creció un 12%, aunque el ingreso promedio por cliente se mantuvo igual.",
             "Que el 12% de los clientes de la cohorte canceló durante el año, y el 88% restante se mantiene con el mismo gasto inicial.",
+            "Que el número de clientes activos de la cohorte creció un 12%, aunque el ingreso promedio por cliente se mantuvo igual.",
+            "Que la empresa adquirió un 12% más de clientes nuevos en los últimos 12 meses, sumándolos a la cohorte original medida.",
             "Que los ingresos actuales de esa misma cohorte son un 12% mayores que cuando empezó, gracias a upsells que superaron al churn."
           ],
           "correctIndex": 3,
@@ -2875,7 +2883,7 @@
           "Muestra siempre la fecha de última actualización visible en la cabecera del tablero."
         ],
         "codeLanguage": "sql",
-        "referenceCode": "-- Vista Gold optimizada para alimentar un tablero ejecutivo diario (1 fila por día y país)\nCREATE OR REPLACE VIEW gold.vw_kpi_diario_pais AS\nSELECT\n  fecha_operativa,\n  pais,\n  COUNT(DISTINCT pedido_id) AS pedidos,\n  COUNT(DISTINCT cliente_id) AS compradores_unicos,\n  SUM(monto_neto) AS ingreso_neto,\n  SUM(margen_contribucion) AS margen_contribucion\nFROM gold.fct_pedidos\nGROUP BY 1, 2;"
+        "referenceCode": "-- Vista Gold optimizada para alimentar un tablero ejecutivo diario (1 fila por día y país)\nCREATE OR ALTER VIEW gold.vw_kpi_diario_pais AS\nSELECT\n  fecha_operativa,\n  pais,\n  COUNT(DISTINCT pedido_id) AS pedidos,\n  COUNT(DISTINCT cliente_id) AS compradores_unicos,\n  SUM(monto_neto) AS ingreso_neto,\n  SUM(margen_contribucion) AS margen_contribucion\nFROM gold.fct_pedidos\nGROUP BY fecha_operativa, pais;"
       },
       "comparison": {
         "scenario": "Construir el dashboard comercial semanal para gerencia en Power BI / Looker.",
@@ -2901,7 +2909,7 @@
           "prompt": "Un tablero conecta a `raw.eventos_clicks` (400M filas) en modo DirectQuery solo para mostrar 4 gráficos diarios por país y dispositivo. ¿Qué capa y grano debes crear en SQL para acelerarlo 100x?",
           "hint": "Pre-agrega al grano mínimo necesario para esos 4 gráficos.",
           "solutionExplanation": "Crear una tabla materializada diaria `gold.agg_trafico_diario` con grano `(fecha, pais, dispositivo)` reduce 400M filas a ~100K filas manteniendo exactitud del 100%.",
-          "solutionCode": "CREATE TABLE gold.agg_trafico_diario AS\nSELECT\n  fecha_utc::date AS fecha,\n  pais,\n  dispositivo,\n  COUNT(*) AS eventos,\n  COUNT(DISTINCT usuario_id) AS usuarios_unicos\nFROM silver.eventos_clicks\nGROUP BY 1, 2, 3;",
+          "solutionCode": "SELECT\n  CAST(fecha_utc AS DATE) AS fecha,\n  pais,\n  dispositivo,\n  COUNT(*) AS eventos,\n  COUNT(DISTINCT usuario_id) AS usuarios_unicos\nINTO gold.agg_trafico_diario\nFROM silver.eventos_clicks\nGROUP BY CAST(fecha_utc AS DATE), pais, dispositivo;",
           "codeLanguage": "sql"
         },
         {
@@ -2920,10 +2928,10 @@
           "id": "cap23-q1",
           "question": "¿Dónde conviene ejecutar limpiezas pesadas y uniones complejas que alimentan un tablero?",
           "options": [
+            "En el propio tablero BI, con filtros y medidas definidos en cada visual.",
             "En columnas calculadas que el navegador evalúa al renderizar cada gráfico.",
-            "Manualmente en Excel cada lunes, antes de cargar el archivo al tablero.",
             "Aguas arriba en las capas Silver/Gold del Data Warehouse antes de llegar al BI.",
-            "En el propio tablero BI, con filtros y medidas definidos en cada visual."
+            "Manualmente en Excel cada lunes, antes de cargar el archivo al tablero."
           ],
           "correctIndex": 2,
           "explanation": "Preparar modelos Gold pre-limpiados y dimensionados vuelve los tableros rápidos, reutilizables y consistentes."
@@ -2933,9 +2941,9 @@
           "question": "¿Qué busca resolver la \"capa semántica única\"?",
           "options": [
             "Unificar la paleta de colores y el formato visual de todos los tableros de la empresa.",
-            "Concentrar todas las tablas del data warehouse en un único esquema para simplificar permisos.",
+            "Traducir automáticamente las consultas SQL entre distintos motores de base de datos.",
             "Evitar que distintos departamentos calculen fórmulas diferentes para la misma métrica oficial.",
-            "Traducir automáticamente las consultas SQL entre distintos motores de base de datos."
+            "Concentrar todas las tablas del data warehouse en un único esquema para simplificar permisos."
           ],
           "correctIndex": 2,
           "explanation": "Garantiza una única definición verificada para KPIs compartidos en toda la organización."
@@ -2944,9 +2952,9 @@
           "id": "cap23-q3",
           "question": "¿Cuál es el orden lógico de lectura en un tablero ejecutivo bien diseñado?",
           "options": [
-            "Tabla de detalle completa arriba -> Gráficos de tendencia -> KPIs resumidos al final.",
             "Filtros y segmentaciones -> Detalle por fila -> Conclusión ejecutiva en una nota final.",
             "Gráficos de tendencia -> Tabla de detalle -> KPIs, en orden alfabético de métricas.",
+            "Tabla de detalle completa arriba -> Gráficos de tendencia -> KPIs resumidos al final.",
             "Resumen de KPIs clave -> Diagnóstico por tendencia/drivers -> Detalle accionable."
           ],
           "correctIndex": 3,
@@ -3039,9 +3047,9 @@
           "question": "¿Por qué debe empezar en 0 el eje de magnitud de un gráfico de barras?",
           "options": [
             "Porque el cerebro interpreta la longitud total de cada barra como proporcional al valor; truncar el eje exagera visualmente diferencias pequeñas.",
-            "Porque Matplotlib y la mayoría de librerías fallan o lanzan un error si el eje de un gráfico de barras empieza en un número distinto de cero.",
             "Porque así se ocultan las categorías con valores pequeños, que solo agregan ruido visual y distraen de las barras realmente importantes del gráfico.",
-            "Porque un eje que parte en 0 permite usar escala logarítmica, que es la única forma correcta de comparar magnitudes muy distintas entre barras."
+            "Porque un eje que parte en 0 permite usar escala logarítmica, que es la única forma correcta de comparar magnitudes muy distintas entre barras.",
+            "Porque Matplotlib y la mayoría de librerías fallan o lanzan un error si el eje de un gráfico de barras empieza en un número distinto de cero."
           ],
           "correctIndex": 0,
           "explanation": "Recortar el eje en gráficos de barras distorsiona la relación de proporciones entre las barras."
@@ -3062,9 +3070,9 @@
           "id": "cap24-q3",
           "question": "¿Qué caracteriza a un título efectivo en storytelling con datos?",
           "options": [
-            "Incluye la consulta SQL o el filtro exacto usado, para que cualquiera reproduzca el gráfico.",
-            "Describe con precisión las variables de los ejes y la fuente, sin adelantar conclusiones.",
             "Usa las siglas internas del equipo para que el título sea corto y entre en una sola línea.",
+            "Describe con precisión las variables de los ejes y la fuente, sin adelantar conclusiones.",
+            "Incluye la consulta SQL o el filtro exacto usado, para que cualquiera reproduzca el gráfico.",
             "Sintetiza la conclusión o hallazgo principal del gráfico en lugar de solo nombrar los ejes."
           ],
           "correctIndex": 3,
@@ -3156,9 +3164,9 @@
           "id": "cap25-q1",
           "question": "¿Qué archivos NUNCA deben subirse a un repositorio Git de analítica?",
           "options": [
-            "El archivo `README.md` y la documentación del proyecto, porque pueden revelar la estructura interna de los datos.",
-            "Archivos `.env` con contraseñas/API keys y extractos crudos con datos personales de clientes (`.csv`, `.parquet`).",
             "Las consultas `.sql` y las pruebas `.py`, porque contienen la lógica de negocio y deben quedar solo en local.",
+            "Archivos `.env` con contraseñas/API keys y extractos crudos con datos personales de clientes (`.csv`, `.parquet`).",
+            "El archivo `README.md` y la documentación del proyecto, porque pueden revelar la estructura interna de los datos.",
             "Las plantillas YAML del diccionario de métricas, porque cambian seguido y generan conflictos de merge constantes."
           ],
           "correctIndex": 1,
@@ -3169,9 +3177,9 @@
           "question": "¿Qué información es más valiosa en la descripción de un Pull Request que modifica un modelo Gold?",
           "options": [
             "Una lista de los archivos modificados y la hora de cada commit, ya que el código por sí solo explica la nueva lógica.",
-            "El historial completo de la conversación con el solicitante, para dejar constancia de quién pidió cada uno de los cambios.",
+            "Capturas de pantalla del editor con el código modificado, para que el revisor vea los cambios sin abrir los archivos.",
             "Explicación del cambio de lógica, comparación numérica de totales antes vs. después y resultado de las pruebas de calidad.",
-            "Capturas de pantalla del editor con el código modificado, para que el revisor vea los cambios sin abrir los archivos."
+            "El historial completo de la conversación con el solicitante, para dejar constancia de quién pidió cada uno de los cambios."
           ],
           "correctIndex": 2,
           "explanation": "La reconciliación antes/después permite validar el impacto real en negocio antes de aprobar el cambio."
@@ -3180,10 +3188,10 @@
           "id": "cap25-q3",
           "question": "¿Para qué sirve trabajar en una rama dedicada (`feat/...` o `fix/...`) en lugar de editar directo sobre `main`?",
           "options": [
-            "Para tener una copia completa de la base de datos asociada a cada rama y no afectar la tabla original.",
+            "Para que los cambios se apliquen directamente en producción sin pasar por la revisión de otro analista.",
             "Para probar cambios de forma aislada y permitir revisión por pares (Code Review) sin romper producción.",
-            "Para poder omitir el `.gitignore` en la rama y subir archivos de datos que no deben llegar a `main`.",
-            "Para que los cambios se apliquen directamente en producción sin pasar por la revisión de otro analista."
+            "Para tener una copia completa de la base de datos asociada a cada rama y no afectar la tabla original.",
+            "Para poder omitir el `.gitignore` en la rama y subir archivos de datos que no deben llegar a `main`."
           ],
           "correctIndex": 1,
           "explanation": "Mantiene `main` estable y auditable mientras los cambios se validan y revisan en ramas separadas."
@@ -3210,7 +3218,7 @@
           "title": "1. Qué aporta dbt (Data Build Tool) al Analista Intermedio",
           "body": "En lugar de programar 20 scripts SQL sueltos y esperar recordar en qué orden correrlos, **dbt** permite escribir cada modelo como una consulta `SELECT` limpia y declarar sus dependencias con `{{ ref('nombre_modelo') }}`.\n\nCon esa referencia, dbt construye automáticamente el **DAG (Grafo Acíclico Dirigido)**, ejecuta en orden exacto, materializa vistas/tablas, corre tests (`unique`, `not_null`, `accepted_values`) y genera un diagrama de linaje vivo.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- models/marts/fct_ventas_diarias.sql\nWITH pedidos AS (\n  SELECT * FROM {{ ref('stg_pedidos') }}\n  WHERE estado = 'completado'\n),\nclientes AS (\n  SELECT * FROM {{ ref('dim_clientes') }}\n)\nSELECT\n  p.fecha_operativa,\n  c.segmento,\n  COUNT(DISTINCT p.pedido_id) AS pedidos,\n  SUM(p.monto_neto) AS ingreso_neto\nFROM pedidos AS p\nLEFT JOIN clientes AS c\n  ON p.cliente_id = c.cliente_id\nGROUP BY 1, 2",
+          "codeSnippet": "-- models/marts/fct_ventas_diarias.sql\nWITH pedidos AS (\n  SELECT * FROM {{ ref('stg_pedidos') }}\n  WHERE estado = 'completado'\n),\nclientes AS (\n  SELECT * FROM {{ ref('dim_clientes') }}\n)\nSELECT\n  p.fecha_operativa,\n  c.segmento,\n  COUNT(DISTINCT p.pedido_id) AS pedidos,\n  SUM(p.monto_neto) AS ingreso_neto\nFROM pedidos AS p\nLEFT JOIN clientes AS c\n  ON p.cliente_id = c.cliente_id\nGROUP BY p.fecha_operativa, c.segmento",
           "keyTakeaway": "Usar `{{ ref(...) }}` desacopla entornos (`dev` vs `prod`) y construye el linaje automático de cada métrica."
         },
         {
@@ -3236,7 +3244,7 @@
       "comparison": {
         "scenario": "Mantener un pipeline de 10 tablas SQL dependientes entre sí en producción.",
         "juniorLabel": "Error de Junior",
-        "juniorCode": "-- Scripts numerados manualmente con nombres de esquema fijos:\n-- 01_limpiar.sql -> CREATE TABLE prod_dw.tmp_pedidos AS SELECT * FROM prod_raw.pedidos;\n-- 02_unir.sql    -> CREATE TABLE prod_dw.mart_ventas AS SELECT ... FROM prod_dw.tmp_pedidos;",
+        "juniorCode": "-- Scripts numerados manualmente con nombres de esquema fijos:\n-- 01_limpiar.sql -> SELECT * INTO prod_dw.tmp_pedidos FROM prod_raw.pedidos;\n-- 02_unir.sql    -> SELECT ... INTO prod_dw.mart_ventas FROM prod_dw.tmp_pedidos;",
         "juniorFlaws": [
           "Hardcodea `prod_dw`: probar cambios en desarrollo corre el riesgo de sobrescribir producción.",
           "Sin DAG ni tests integrados: si `01` falla o duplica filas, `02` sigue corriendo con datos corruptos."
@@ -3277,9 +3285,9 @@
           "question": "¿Qué función cumple `{{ ref('stg_clientes') }}` dentro de un modelo dbt?",
           "options": [
             "Declara una dependencia en el DAG para ejecutar `stg_clientes` primero y resuelve automáticamente el esquema según el entorno (dev/prod).",
-            "Borra y recrea la tabla `stg_clientes` antes de cada ejecución del modelo, para garantizar que siempre parta de datos frescos de producción.",
             "Exporta la tabla `stg_clientes` a un archivo CSV en el entorno actual, para que el modelo la lea como fuente externa en cada ejecución.",
-            "Copia el SQL de `stg_clientes` dentro del modelo como subconsulta, sin registrar la dependencia en el DAG ni cambiar el esquema según entorno."
+            "Copia el SQL de `stg_clientes` dentro del modelo como subconsulta, sin registrar la dependencia en el DAG ni cambiar el esquema según entorno.",
+            "Borra y recrea la tabla `stg_clientes` antes de cada ejecución del modelo, para garantizar que siempre parta de datos frescos de producción."
           ],
           "correctIndex": 0,
           "explanation": "`ref()` construye el grafo de ejecución ordenado, genera linaje y aísla entornos de desarrollo y producción."
@@ -3288,8 +3296,8 @@
           "id": "cap26-q2",
           "question": "¿Cuál es la diferencia entre `dbt run` y `dbt build`?",
           "options": [
-            "`dbt build` solo compila el SQL de los modelos sin ejecutarlos; `dbt run` materializa los modelos y además corre todos los tests definidos en el proyecto.",
             "Son equivalentes: ambos materializan modelos, ejecutan tests, snapshots y seeds; `dbt build` es solo el nombre nuevo del comando en versiones recientes.",
+            "`dbt build` solo compila el SQL de los modelos sin ejecutarlos; `dbt run` materializa los modelos y además corre todos los tests definidos en el proyecto.",
             "`dbt run` solo materializa modelos; `dbt build` ejecuta modelos, tests, snapshots y seeds en orden DAG deteniéndose si falla un test aguas arriba.",
             "`dbt run` ejecuta los modelos en paralelo sin respetar el DAG, mientras `dbt build` los ejecuta uno por uno en orden alfabético sin correr ningún test."
           ],
@@ -3336,7 +3344,7 @@
           "title": "2. Arquitectura del Entregable Final",
           "body": "Tu entrega profesional combina:\n- **Capa SQL (Silver -> Gold)**: consulta auditable sin fan-out y con pruebas de calidad (`pk_unica`, `monto >= 0`).\n- **Capa Python**: script reproducible con `DuckDB` + `scipy/statsmodels` para validar el A/B test del checkout y calcular IC 95%.\n- **Resumen Ejecutivo (1 página)**: Titular con conclusión -> Evidencia numérica con 2 gráficos limpios -> Plan de acción con guardarraíles.",
           "codeLanguage": "sql",
-          "codeSnippet": "-- Paso 1 de auditoría integral: reconciliar grano pedido vs. cupones y margen por canal\nWITH cupones_ped AS (\n  SELECT pedido_id, SUM(descuento) AS descuento_total\n  FROM silver.cupones\n  GROUP BY pedido_id\n),\npedidos_auditoria AS (\n  SELECT\n    p.pedido_id,\n    p.canal,\n    DATE_TRUNC('month', p.fecha_operativa)::date AS mes,\n    p.ingreso_neto - COALESCE(c.descuento_total, 0) - p.costo_directo AS margen_contribucion,\n    p.ingreso_neto\n  FROM silver.pedidos AS p\n  LEFT JOIN cupones_ped AS c ON p.pedido_id = c.pedido_id\n  WHERE p.estado = 'completado' AND p.es_prueba = FALSE\n)\nSELECT\n  mes,\n  canal,\n  COUNT(*) AS pedidos,\n  ROUND(SUM(margen_contribucion) * 100.0 / NULLIF(SUM(ingreso_neto), 0), 2) AS margen_pct\nFROM pedidos_auditoria\nGROUP BY 1, 2\nORDER BY 1, 2;",
+          "codeSnippet": "-- Paso 1 de auditoría integral: reconciliar grano pedido vs. cupones y margen por canal\nWITH cupones_ped AS (\n  SELECT pedido_id, SUM(descuento) AS descuento_total\n  FROM silver.cupones\n  GROUP BY pedido_id\n),\npedidos_auditoria AS (\n  SELECT\n    p.pedido_id,\n    p.canal,\n    CAST(DATETRUNC(month, p.fecha_operativa) AS DATE) AS mes,\n    p.ingreso_neto - COALESCE(c.descuento_total, 0) - p.costo_directo AS margen_contribucion,\n    p.ingreso_neto\n  FROM silver.pedidos AS p\n  LEFT JOIN cupones_ped AS c ON p.pedido_id = c.pedido_id\n  WHERE p.estado = 'completado' AND p.es_prueba = 0\n)\nSELECT\n  mes,\n  canal,\n  COUNT(*) AS pedidos,\n  ROUND(SUM(margen_contribucion) * 100.0 / NULLIF(SUM(ingreso_neto), 0), 2) AS margen_pct\nFROM pedidos_auditoria\nGROUP BY mes, canal\nORDER BY 1, 2;",
           "keyTakeaway": "Tu valor diferencial como Analista Intermedio es conectar el código impecable con una decisión de negocio defendible con evidencia."
         }
       ],
@@ -3394,9 +3402,9 @@
           "id": "cap27-q1",
           "question": "Ante un reporte ejecutivo de caída abrupta de una métrica global, ¿cuál es el primer paso de un analista intermedio?",
           "options": [
+            "Rehacer el tablero con nuevos colores y alertas visuales, para que la dirección identifique con más claridad dónde se concentra la caída.",
             "Proponer de inmediato un cambio de precio o una campaña de recuperación, ya que cada día de espera multiplica el impacto de la caída.",
             "Borrar los datos antiguos y recargar el histórico completo desde la fuente, ya que una caída abrupta casi siempre indica una tabla corrupta.",
-            "Rehacer el tablero con nuevos colores y alertas visuales, para que la dirección identifique con más claridad dónde se concentra la caída.",
             "Auditar integridad de datos (fan-out, nulos, frescura, zonas horarias) y desagregar por segmentos clave para descartar errores o mix shift."
           ],
           "correctIndex": 3,
@@ -3407,9 +3415,9 @@
           "question": "¿Qué combinación garantiza que una solución analítica sea sostenible en equipo?",
           "options": [
             "Grano explícito, pruebas automatizadas, control de versiones en Git, capa semántica única y comunicación clara con incertidumbre.",
-            "Un analista experto que mantiene todas las fórmulas en su computadora y responde personalmente cualquier duda del equipo sobre los datos.",
             "Consultas largas con `SELECT *` en notebooks locales, para que cada analista pueda adaptar la lógica de las métricas a su propio reporte.",
-            "Tableros con muchos indicadores, sin intervalos de confianza ni supuestos, para que los mensajes a negocio sean simples y sin ambigüedad."
+            "Tableros con muchos indicadores, sin intervalos de confianza ni supuestos, para que los mensajes a negocio sean simples y sin ambigüedad.",
+            "Un analista experto que mantiene todas las fórmulas en su computadora y responde personalmente cualquier duda del equipo sobre los datos."
           ],
           "correctIndex": 0,
           "explanation": "La unión de rigor técnico, reproducibilidad y criterio de negocio define el estándar intermedio completo."
@@ -3418,10 +3426,10 @@
           "id": "cap27-q3",
           "question": "Si ambos segmentos (Orgánico y Pagado) mantienen exactamente su mismo margen individual pero el margen total cae, ¿qué ocurrió?",
           "options": [
-            "Una división por cero en el cálculo del margen total, que deja fuera a uno de los dos segmentos.",
+            "Un error en la consulta SQL que suma los márgenes de cada segmento en lugar de promediarlos.",
             "Un Sample Ratio Mismatch entre los segmentos, que invalida la comparación del margen total.",
             "Un cambio de composición (mix shift / Paradoja de Simpson) hacia el segmento de menor margen.",
-            "Un error en la consulta SQL que suma los márgenes de cada segmento en lugar de promediarlos."
+            "Una división por cero en el cálculo del margen total, que deja fuera a uno de los dos segmentos."
           ],
           "correctIndex": 2,
           "explanation": "Cuando cambia el peso relativo de los segmentos, el promedio ponderado global cambia aunque el desempeño interno de cada segmento siga intacto."
@@ -3496,10 +3504,10 @@
           "id": "apa-q1",
           "question": "¿Qué término describe la propiedad de que re-ejecutar un pipeline diario varias veces no duplica datos?",
           "options": [
-            "Peeking",
+            "Fan-Out",
             "Idempotencia",
             "Atomicidad",
-            "Fan-Out"
+            "Peeking"
           ],
           "correctIndex": 1,
           "explanation": "La idempotencia garantiza resultados idénticos ante re-ejecuciones."
@@ -3509,8 +3517,8 @@
           "question": "¿Qué concepto explica la multiplicación silenciosa de métricas tras un JOIN 1:N?",
           "options": [
             "Bootstrap",
-            "Data skew",
             "SARGable",
+            "Data skew",
             "Fan-Out"
           ],
           "correctIndex": 3,
@@ -3535,9 +3543,9 @@
         {
           "id": "apb-sec-1",
           "title": "1. Snippets Esenciales de SQL Analítico",
-          "body": "Ten a mano estos tres patrones diarios: deduplicación determinista con `ROW_NUMBER()`, variación segura con `LAG()` + `NULLIF()`, y calendario continuo con `generate_series`.",
+          "body": "Ten a mano estos tres patrones diarios: deduplicación determinista con `ROW_NUMBER()`, variación segura con `LAG()` + `NULLIF()`, y calendario continuo con `GENERATE_SERIES` (o una tabla calendario).",
           "codeLanguage": "sql",
-          "codeSnippet": "-- 1) Deduplicar conservando el más reciente\nWITH r AS (\n  -- registro_id: columna única de desempate (no puede ser la misma clave de PARTITION BY)\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated_at DESC, registro_id DESC) AS rn\n  FROM origen\n)\nSELECT * FROM r WHERE rn = 1;\n\n-- 2) Variación segura vs. periodo anterior\nSELECT mes, val,\n  ROUND((val - LAG(val) OVER (ORDER BY mes)) * 100.0 / NULLIF(LAG(val) OVER (ORDER BY mes), 0), 2) AS var_pct\nFROM serie;\n\n-- 3) Calendario continuo (días sin ventas = 0)\nSELECT c.dia::date AS dia, COALESCE(v.total, 0) AS total\nFROM generate_series(DATE '2026-01-01', DATE '2026-01-31', INTERVAL '1 day') AS c(dia)\nLEFT JOIN ventas_diarias AS v ON v.dia = c.dia::date;",
+          "codeSnippet": "-- 1) Deduplicar conservando el más reciente\nWITH r AS (\n  -- registro_id: columna única de desempate (no puede ser la misma clave de PARTITION BY)\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY updated_at DESC, registro_id DESC) AS rn\n  FROM origen\n)\nSELECT * FROM r WHERE rn = 1;\n\n-- 2) Variación segura vs. periodo anterior\nSELECT mes, val,\n  ROUND((val - LAG(val) OVER (ORDER BY mes)) * 100.0 / NULLIF(LAG(val) OVER (ORDER BY mes), 0), 2) AS var_pct\nFROM serie;\n\n-- 3) Calendario continuo (días sin ventas = 0)\nWITH calendario AS (\n  SELECT DATEADD(day, value, CAST('2026-01-01' AS DATE)) AS dia\n  FROM GENERATE_SERIES(0, 30)   -- SQL Server 2022+\n)\nSELECT c.dia, COALESCE(v.total, 0) AS total\nFROM calendario AS c\nLEFT JOIN ventas_diarias AS v ON v.dia = c.dia;",
           "keyTakeaway": "Usa estos bloques como base estándar para evitar reescribir lógica frágil desde cero."
         },
         {
@@ -3567,7 +3575,7 @@
           "Sin proyección explícita, sin filtro temporal y sin validar cardinalidad."
         ],
         "intermediateLabel": "Solución de Intermedio",
-        "intermediateCode": "WITH base AS (SELECT id, fecha, monto FROM tabla WHERE fecha >= DATE '2026-01-01')\nSELECT b.id, b.monto, o.categoria\nFROM base AS b\nLEFT JOIN otra AS o ON b.id = o.id;",
+        "intermediateCode": "WITH base AS (SELECT id, fecha, monto FROM tabla WHERE fecha >= '2026-01-01')\nSELECT b.id, b.monto, o.categoria\nFROM base AS b\nLEFT JOIN otra AS o ON b.id = o.id;",
         "intermediateBenefits": [
           "Limpio, legible, SARGable y listo para escalar."
         ],
@@ -3591,9 +3599,9 @@
           "question": "¿Qué parámetro de `pd.merge` previene duplicados silenciosos en Pandas?",
           "options": [
             "validate=\"many_to_one\"",
-            "suffixes=(\"_a\", \"_b\")",
+            "drop_duplicates=True",
             "indicator=True",
-            "drop_duplicates=True"
+            "suffixes=(\"_a\", \"_b\")"
           ],
           "correctIndex": 0,
           "explanation": "`validate` valida la cardinalidad esperada y falla si hay claves repetidas."
@@ -3603,9 +3611,9 @@
           "question": "¿Qué función SQL previene errores de división por cero en tasas?",
           "options": [
             "NULLIF(denominador, 0)",
-            "GREATEST(denominador, 0)",
             "ROUND(denominador, 2)",
-            "COALESCE(numerador, 0)"
+            "COALESCE(numerador, 0)",
+            "GREATEST(denominador, 0)"
           ],
           "correctIndex": 0,
           "explanation": "`NULLIF(denominador, 0)` devuelve `NULL` si el denominador es 0, evitando abortar la consulta."
@@ -3683,8 +3691,8 @@
           "question": "¿Qué estructura sigue el principio piramidal en un reporte ejecutivo?",
           "options": [
             "Presentar primero la conclusión y recomendación clave (TL;DR), seguida de la evidencia y el detalle técnico al final.",
-            "Presentar primero todo el código SQL y Python usado, para que el lector valide la lógica antes de leer cualquier resultado.",
             "Empezar por la limpieza y preparación de los datos, seguir con el análisis y dejar la conclusión para el último párrafo.",
+            "Presentar primero todo el código SQL y Python usado, para que el lector valide la lógica antes de leer cualquier resultado.",
             "Ordenar las secciones por fecha de análisis, mostrando cada hallazgo en el orden cronológico en que se fue descubriendo."
           ],
           "correctIndex": 0,
@@ -3694,10 +3702,10 @@
           "id": "apc-q2",
           "question": "¿Cuál es el objetivo principal de redactar un Brief corto antes de iniciar un análisis largo?",
           "options": [
-            "Reemplazar el reporte final, de modo que el análisis completo solo se entregue si alguien lo solicita de forma explícita.",
             "Retrasar el inicio del análisis hasta que la dirección apruebe por escrito el presupuesto y el equipo asignado al proyecto.",
+            "Sustituir las pruebas unitarias y la revisión de código, ya que el brief deja documentada de antemano la lógica a usar.",
             "Alinear la decisión buscada, definiciones exactas de métricas y exclusiones antes de invertir horas en código.",
-            "Sustituir las pruebas unitarias y la revisión de código, ya que el brief deja documentada de antemano la lógica a usar."
+            "Reemplazar el reporte final, de modo que el análisis completo solo se entregue si alguien lo solicita de forma explícita."
           ],
           "correctIndex": 2,
           "explanation": "Clarificar definiciones al principio evita tener que rehacer todo el análisis por ambigüedades."
