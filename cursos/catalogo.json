@@ -90,6 +90,25 @@
       "publicado": true
     },
     {
+      "id": "nube-devops",
+      "archivo": "nube-devops.json",
+      "tema": "web",
+      "separador": "Nube y DevOps",
+      "cuaderno": "Cuaderno de operaciones",
+      "categoria": "DevOps",
+      "etiquetas": [
+        "Git",
+        "Linux",
+        "Bash",
+        "Docker",
+        "CI/CD",
+        "GitHub Actions",
+        "Google Cloud"
+      ],
+      "color": "#0E9F8E",
+      "publicado": true
+    },
+    {
       "id": "inteligencia-artificial",
       "archivo": "inteligencia-artificial.json",
       "tema": "ia",

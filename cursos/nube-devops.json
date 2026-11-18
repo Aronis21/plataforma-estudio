@@ -1,0 +1,1835 @@
+{
+  "id": "nube-devops",
+  "title": "Nube y DevOps",
+  "subtitle": "Git avanzado, Linux, Docker, CI/CD y despliegue en Google Cloud Run: del código en tu rama a un servicio en producción.",
+  "level": "Intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "nd-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1 · Git avanzado",
+      "title": "Ramas y flujos de trabajo en equipo",
+      "subtitle": "Cómo trabajar varias personas sobre el mismo código sin pisarse.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Elegir un flujo de ramas (trunk-based o GitFlow) según el equipo y el ritmo de entregas.",
+        "Distinguir merge, rebase y squash y saber qué historia deja cada uno.",
+        "Proteger la rama main con revisiones y comprobaciones obligatorias."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-01-sec-1",
+          "title": "1. Por qué hacen falta reglas para las ramas",
+          "body": "En el curso Web aprendiste a crear ramas y a fusionarlas. Cuando trabajan tres o diez personas aparece otro problema: **cada quien integra a su manera** y la historia de `main` se vuelve imposible de leer, o peor, `main` deja de funcionar.\n\nUn **flujo de trabajo** es el acuerdo del equipo sobre tres preguntas:\n- ¿De dónde salen las ramas y cuánto viven?\n- ¿Cómo vuelven a `main` (merge, rebase o squash)?\n- ¿Qué tiene que pasar antes de integrar (revisión, pruebas)?\n\nNo hay un flujo correcto para todos, pero sí hay uno que el equipo entero debe seguir igual.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Ver la historia como un grafo, una línea por commit\ngit log --oneline --graph --decorate --all\n\n# Ramas que ya se integraron en main (se pueden borrar)\ngit branch --merged main\n\n# Ramas que todavía no\ngit branch --no-merged main",
+          "keyTakeaway": "Un flujo de ramas es un acuerdo de equipo: de dónde salen, cómo vuelven y qué se exige antes."
+        },
+        {
+          "id": "nd-01-sec-2",
+          "title": "2. Trunk-based contra GitFlow",
+          "body": "**Trunk-based development**: todos trabajan en ramas muy cortas (horas o uno o dos días) que salen de `main` y vuelven pronto. `main` siempre está lista para desplegar. Lo que no está terminado se esconde con un *feature flag* (un interruptor en la configuración). Es lo que usan los equipos que despliegan varias veces al día.\n\n**GitFlow**: hay una rama `develop` donde se junta el trabajo, ramas `release/x.y` para preparar versiones y `hotfix/` para urgencias. Tiene sentido cuando publicas versiones con fecha (una app móvil, un programa instalable) y necesitas mantener varias a la vez.\n\nPara una aplicación web que se despliega sola con CI/CD, **trunk-based es la opción por defecto**: menos ramas, menos conflictos y menos tiempo entre escribir el código y verlo en producción.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Trunk-based                      GitFlow\n───────────                      ───────\nmain  ●──●──●──●──●──●           main     ●────────────●\n       \\  /  \\  /                develop   ●──●──●──●──●\nfeat/   ●     ●   (horas)                   \\    /\n                                 feature/    ●──●   (semanas)\n\nDespliegas desde main           Despliegas desde release/ o main",
+          "keyTakeaway": "Si despliegas a menudo, ramas cortas sobre main; GitFlow solo si mantienes versiones con fecha."
+        },
+        {
+          "id": "nd-01-sec-3",
+          "title": "3. Tres formas de integrar una rama",
+          "body": "Cuando la rama termina, hay tres maneras de llevarla a `main`, y cada una deja una historia distinta:\n- **merge** (`git merge --no-ff`): crea un commit de unión. Respeta lo que pasó, pero con muchas ramas la historia parece una vía de tren.\n- **rebase** (`git rebase main` y luego avance rápido): reescribe tus commits encima de lo último de `main`. La historia queda en una sola línea, pero los commits cambian de hash.\n- **squash** (`git merge --squash` o el botón de GitHub): junta toda la rama en un solo commit. Ideal cuando la rama tiene commits como «arreglo», «otra vez», «ahora sí».\n\nUsa el diagrama para ver cómo queda la historia en cada caso.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Antes de abrir el PR, trae lo último de main a tu rama\ngit fetch origin\ngit rebase origin/main\n\n# Si ya habías subido la rama, el push debe forzarse,\n# pero con protección: falla si alguien más subió algo\ngit push --force-with-lease",
+          "keyTakeaway": "merge conserva la bifurcación, rebase la aplana y squash deja un commit por cambio.",
+          "diagram": {
+            "type": "ramas-git"
+          }
+        },
+        {
+          "id": "nd-01-sec-4",
+          "title": "4. Proteger main",
+          "body": "Un flujo que depende de la buena memoria de cada persona falla el primer viernes por la tarde. En GitHub, **Settings → Branches → Branch protection rules** (o *Rulesets*) permite exigir a nivel técnico:\n- Que todo cambio llegue por pull request, sin push directo.\n- Al menos una aprobación de otra persona.\n- Que los checks de CI (pruebas, lint) estén en verde.\n- Que la rama esté al día con `main` antes de fusionar.\n- Historia lineal, si el equipo eligió rebase o squash.\n\nAdemás conviene un archivo `CODEOWNERS` para que GitHub pida revisión automática a quien conoce cada parte del código.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "# .github/CODEOWNERS\n# Cada línea: patrón de archivos  →  quién debe revisar\n\n*.sql                @equipo-datos\n/infra/              @ana-ops\n/.github/workflows/  @ana-ops @luis\n*                    @equipo-web",
+          "keyTakeaway": "Las reglas del flujo se hacen cumplir en GitHub, no con recordatorios."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que varias personas integren cambios sin romper main.",
+        "rules": [
+          "Ramas cortas: si una rama vive más de una semana, pártela en cambios más pequeños.",
+          "Nombra las ramas por tipo y tema: feature/filtros-fecha, fix/total-negativo.",
+          "Nunca hagas rebase de commits que otras personas ya tienen; solo de tu rama.",
+          "Usa git push --force-with-lease en lugar de --force.",
+          "Protege main: PR obligatorio, una aprobación y checks en verde."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "git switch main && git pull --ff-only\ngit switch -c feature/filtros-fecha\n# ...commits pequeños...\ngit fetch origin && git rebase origin/main\ngit push -u origin feature/filtros-fecha\n# abrir PR → revisión → checks verdes → squash and merge"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Dos personas trabajan sobre main y una necesita subir su arreglo.",
+        "juniorCode": "git pull          # trae cambios y crea un merge automático\ngit push --force  # \"no me deja subir\", así que fuerza",
+        "juniorFlaws": [
+          "--force borra del servidor los commits que su compañera subió hace un minuto.",
+          "Cada git pull deja un commit «Merge branch main» que ensucia la historia.",
+          "Nadie revisó el cambio antes de llegar a main."
+        ],
+        "intermediateCode": "git switch -c fix/total-negativo\n# ...commit del arreglo...\ngit fetch origin\ngit rebase origin/main\ngit push -u origin fix/total-negativo\n# PR con revisión y checks",
+        "intermediateBenefits": [
+          "El trabajo ajeno nunca se sobrescribe.",
+          "La historia queda limpia y cada cambio tiene su PR.",
+          "Las pruebas corren antes de tocar main."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-01-ej-1",
+          "title": "Elige el flujo",
+          "difficulty": "Básico",
+          "prompt": "Para cada equipo, indica trunk-based o GitFlow y explica en una línea: (1) una tienda en línea que despliega varias veces al día; (2) una app de escritorio que publica la versión 3.2 cada trimestre y todavía da soporte a la 2.x; (3) tú solo con tu página de estudio.",
+          "hint": "¿Hace falta mantener varias versiones a la vez o solo la que está en producción?",
+          "solutionExplanation": "Solo el caso 2 necesita convivir con varias versiones publicadas; ahí GitFlow (o al menos ramas release/) aporta. En los otros dos, ramas cortas sobre main.",
+          "solutionCode": "1) Trunk-based: despliegues continuos, main siempre lista.\n2) GitFlow: release/3.2 y soporte a 2.x en paralelo.\n3) Trunk-based: ramas cortas o incluso commits directos con CI.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-01-ej-2",
+          "title": "Pon tu rama al día sin merge",
+          "difficulty": "Intermedio",
+          "prompt": "Tu rama feature/reportes salió de main hace tres días y main avanzó. Escribe los comandos para dejar tus commits encima de lo último de main y subir la rama, que ya estaba publicada, sin riesgo de borrar trabajo ajeno.",
+          "hint": "Primero fetch; después rebase sobre origin/main; el push necesita forzarse, pero con la versión segura.",
+          "solutionExplanation": "rebase reescribe tus commits, así que el remoto los rechaza con un push normal. --force-with-lease solo fuerza si el remoto sigue como lo viste en el último fetch.",
+          "solutionCode": "git switch feature/reportes\ngit fetch origin\ngit rebase origin/main\n# resolver conflictos si aparecen: editar, git add, git rebase --continue\ngit push --force-with-lease",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-01-ej-3",
+          "title": "Escribe un CODEOWNERS",
+          "difficulty": "Intermedio",
+          "prompt": "En tu repositorio hay una carpeta cursos/ con JSON, una carpeta assets/js/ y los workflows en .github/workflows/. Escribe un CODEOWNERS donde los cursos los revise @aronis, el JavaScript @equipo-web y los workflows dos personas: @aronis y @ops.",
+          "hint": "Una línea por patrón; la última regla que coincide es la que gana, así que el comodín general va primero.",
+          "solutionExplanation": "El orden importa: GitHub aplica la última coincidencia. Por eso el patrón general va arriba y los específicos debajo.",
+          "solutionCode": "# .github/CODEOWNERS\n*                    @aronis\n/cursos/             @aronis\n/assets/js/          @equipo-web\n/.github/workflows/  @aronis @ops",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-01-q1",
+          "question": "¿Cuál es la idea central de trunk-based development?",
+          "options": [
+            "Ramas muy cortas que vuelven pronto a main.",
+            "Trabajar sin ramas y sin pull requests.",
+            "Una rama develop donde se junta todo el trabajo.",
+            "Una rama por cada versión que se publica."
+          ],
+          "correctIndex": 0,
+          "explanation": "En trunk-based las ramas duran horas o pocos días y main siempre está lista para desplegar."
+        },
+        {
+          "id": "nd-01-q2",
+          "question": "¿Qué hace git push --force-with-lease?",
+          "options": [
+            "Pide permiso al dueño del repositorio remoto.",
+            "Sube la rama sin reescribir ningún commit.",
+            "Fuerza el push aunque borre commits de otros.",
+            "Fuerza solo si el remoto no cambió desde tu fetch."
+          ],
+          "correctIndex": 3,
+          "explanation": "Es la versión segura de --force: si alguien subió algo que no has visto, el push falla."
+        },
+        {
+          "id": "nd-01-q3",
+          "question": "¿Qué historia deja un squash merge?",
+          "options": [
+            "Un commit de unión con dos padres distintos.",
+            "Todos los commits de la rama, con su hash original.",
+            "Un solo commit nuevo en main por toda la rama.",
+            "Los commits de la rama con un hash nuevo cada uno."
+          ],
+          "correctIndex": 2,
+          "explanation": "Squash comprime todo el trabajo de la rama en un único commit sobre main."
+        }
+      ]
+    },
+    {
+      "id": "nd-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1 · Git avanzado",
+      "title": "Rebase interactivo, cherry-pick y conflictos",
+      "subtitle": "Ordenar tus commits antes de compartirlos y resolver choques con calma.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Limpiar una rama con git rebase -i: unir, reordenar y renombrar commits.",
+        "Copiar un commit concreto a otra rama con cherry-pick.",
+        "Resolver conflictos entendiendo las marcas y las dos versiones en juego."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-02-sec-1",
+          "title": "1. Rebase interactivo: editar tu historia local",
+          "body": "`git rebase -i` abre una lista con tus últimos commits y te deja decidir qué hacer con cada uno antes de compartirlos. Las acciones más usadas:\n- `pick`: dejarlo como está.\n- `reword`: cambiar solo el mensaje.\n- `squash` / `fixup`: unirlo con el commit de arriba (fixup descarta su mensaje).\n- `drop`: eliminarlo.\n- Cambiar el orden de las líneas reordena los commits.\n\nEs como pasar en limpio tus apuntes antes de entregarlos: el resultado cuenta qué cambió, no cuántas veces te equivocaste.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git rebase -i HEAD~4\n\n# Se abre el editor:\npick   a1b2c3d feat: filtro por fecha\nfixup  e4f5a6b arreglo typo\npick   c7d8e9f feat: filtro por técnico\nfixup  0a1b2c3 ahora sí\n\n# Resultado: 2 commits limpios en lugar de 4",
+          "keyTakeaway": "Ordena tus commits antes de compartirlos; después de publicarlos, ya no los reescribas."
+        },
+        {
+          "id": "nd-02-sec-2",
+          "title": "2. fixup automático con --autosquash",
+          "body": "Cuando descubres un error en un commit anterior de tu rama, no hace falta abrir el editor y mover líneas a mano. Crea un commit marcado como corrección de ese commit y deja que Git lo coloque solo:\n\n1) `git commit --fixup <hash>` crea un commit llamado `fixup! mensaje original`.\n2) `git rebase -i --autosquash main` lo pone debajo del original con la acción fixup.\n\nSi configuras `git config --global rebase.autoSquash true`, no tienes que escribir la opción cada vez.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git log --oneline\n# 9f8e7d6 feat: exportar a CSV\n# 5c4b3a2 feat: filtro por fecha\n\n# Encuentras un error en el filtro:\ngit add assets/js/filtros.js\ngit commit --fixup 5c4b3a2\n\ngit rebase -i --autosquash main   # el fixup ya viene en su sitio",
+          "keyTakeaway": "commit --fixup más --autosquash corrige un commit viejo sin mover líneas a mano."
+        },
+        {
+          "id": "nd-02-sec-3",
+          "title": "3. cherry-pick: copiar un commit a otra rama",
+          "body": "`git cherry-pick <hash>` aplica los cambios de un commit concreto sobre la rama actual, creando un commit nuevo con otro hash. El caso típico: arreglaste un error en `main` y necesitas el mismo arreglo en la rama `release/2.4` que ya está en producción.\n\nÚsalo con moderación: si copias muchos commits entre ramas, la misma corrección vive dos veces con hashes distintos y cuesta seguirle la pista. La opción `-x` añade al mensaje de qué commit vino.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git switch release/2.4\ngit cherry-pick -x 3e4f5a6\n# [release/2.4 b7c8d9e] fix: total negativo en facturas\n#  (cherry picked from commit 3e4f5a6...)\n\n# Si hay conflicto: resolver, git add, y luego\ngit cherry-pick --continue   # o --abort para deshacer",
+          "keyTakeaway": "cherry-pick copia un cambio puntual; para traer ramas enteras, usa merge o rebase."
+        },
+        {
+          "id": "nd-02-sec-4",
+          "title": "4. Resolver conflictos sin miedo",
+          "body": "Un conflicto aparece cuando dos cambios tocan las mismas líneas. Git no adivina: marca el archivo y espera que decidas.\n\nDurante un **rebase** los nombres confunden: `HEAD` (*ours*) es la rama sobre la que te estás poniendo (main) y el otro lado (*theirs*) es **tu** commit que se está aplicando. En un merge es al revés.\n\nPasos seguros:\n1) `git status` para ver qué archivos están en conflicto.\n2) Abre cada uno, quita las marcas y deja el código correcto (a veces una mezcla de ambos).\n3) Ejecuta las pruebas.\n4) `git add` y `git rebase --continue` (o `git merge --continue`).\n5) Si te perdiste, `git rebase --abort` te devuelve al punto de partida.\n\nActiva `git config --global rerere.enabled true` para que Git recuerde cómo resolviste un conflicto y lo repita si vuelve a salir.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "<<<<<<< HEAD (main)\nconst IVA = 0.18;\n=======\nconst IVA = Number(config.iva ?? 0.18);\n>>>>>>> 5c4b3a2 (feat: IVA configurable)\n\n# Resolución: quedarte con la versión configurable\nconst IVA = Number(config.iva ?? 0.18);",
+          "keyTakeaway": "Un conflicto es una pregunta de Git; respóndela, prueba y continúa, o aborta y vuelve a empezar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo dejar una rama lista para revisión y cómo mover cambios entre ramas.",
+        "rules": [
+          "Reescribe solo commits que no hayas compartido o que estén en tu propia rama.",
+          "Antes de abrir un PR, deja commits que cuenten una historia: uno por idea.",
+          "Usa cherry-pick -x para que quede registrado de dónde vino el cambio.",
+          "Tras resolver un conflicto, corre las pruebas antes de continuar.",
+          "Si dudas en mitad de un rebase, --abort y vuelve a intentarlo con calma."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "git config --global rebase.autoSquash true\ngit config --global rerere.enabled true\ngit config --global pull.rebase true"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Una rama con siete commits va a revisión y uno de ellos tiene un error.",
+        "juniorCode": "git commit -m \"arreglo\"\ngit commit -m \"arreglo 2\"\ngit commit -m \"ahora sí funciona\"\ngit push",
+        "juniorFlaws": [
+          "La persona que revisa tiene que leer tres commits que no explican nada.",
+          "Si luego hay que revertir el cambio, no se sabe qué commit quitar.",
+          "La historia de main hereda el ruido para siempre."
+        ],
+        "intermediateCode": "git commit --fixup 5c4b3a2\ngit rebase -i --autosquash origin/main\ngit push --force-with-lease",
+        "intermediateBenefits": [
+          "Cada commit de la rama es un paso con sentido.",
+          "La corrección queda dentro del commit al que pertenece.",
+          "La revisión es más rápida y revertir es trivial."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-02-ej-1",
+          "title": "Limpia la rama",
+          "difficulty": "Intermedio",
+          "prompt": "git log --oneline muestra, del más nuevo al más viejo: «wip», «feat: gráfico de ventas», «typo», «feat: tabla de ventas». Escribe cómo debe quedar la lista del rebase interactivo para tener solo dos commits: tabla y gráfico, cada uno con sus correcciones.",
+          "hint": "El editor del rebase muestra los commits del más viejo al más nuevo. fixup une con el de arriba.",
+          "solutionExplanation": "«typo» corrige la tabla y «wip» es parte del gráfico, así que cada uno se marca fixup debajo del commit al que pertenece.",
+          "solutionCode": "git rebase -i HEAD~4\n\npick  1111111 feat: tabla de ventas\nfixup 2222222 typo\npick  3333333 feat: gráfico de ventas\nfixup 4444444 wip",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-02-ej-2",
+          "title": "Lleva un arreglo a producción",
+          "difficulty": "Intermedio",
+          "prompt": "El commit 3e4f5a6 de main corrige un cálculo. Producción corre la rama release/2.4. Escribe los comandos para llevar solo ese arreglo a release/2.4, dejando constancia de su origen, y subirlo.",
+          "hint": "Cambia de rama, cherry-pick con la opción que agrega el origen y push.",
+          "solutionExplanation": "cherry-pick -x crea un commit nuevo en release/2.4 con el mismo cambio y la línea «cherry picked from commit».",
+          "solutionCode": "git fetch origin\ngit switch release/2.4\ngit pull --ff-only\ngit cherry-pick -x 3e4f5a6\ngit push",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-02-ej-3",
+          "title": "Lee el conflicto",
+          "difficulty": "Básico",
+          "prompt": "Estás haciendo git rebase origin/main y aparece este bloque:\n<<<<<<< HEAD\ntitulo: \"Panel\"\n=======\ntitulo: \"Panel de mantenimiento\"\n>>>>>>> a1b2c3d (feat: título descriptivo)\n¿Cuál línea viene de main y cuál de tu commit? Escribe los pasos para terminar quedándote con tu versión.",
+          "hint": "En un rebase, HEAD es la base sobre la que te estás colocando.",
+          "solutionExplanation": "En un rebase, HEAD es main y la parte de abajo es tu commit. Te quedas con la tuya, marcas el archivo como resuelto y continúas.",
+          "solutionCode": "# Arriba (HEAD) = main; abajo = tu commit a1b2c3d\n# 1) Dejar solo: titulo: \"Panel de mantenimiento\"\n# 2)\ngit add config.yaml\ngit rebase --continue",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-02-q1",
+          "question": "¿Qué acción del rebase interactivo une un commit con el anterior y descarta su mensaje?",
+          "options": [
+            "pick",
+            "fixup",
+            "drop",
+            "reword"
+          ],
+          "correctIndex": 1,
+          "explanation": "fixup funde el commit con el de arriba y se queda con el mensaje de ese commit."
+        },
+        {
+          "id": "nd-02-q2",
+          "question": "¿Cuándo no debes reescribir commits con rebase?",
+          "options": [
+            "Cuando la rama tiene más de cinco commits.",
+            "Cuando los commits solo cambian documentación.",
+            "Cuando otras personas ya trabajan sobre ellos.",
+            "Cuando los commits todavía no tienen pruebas."
+          ],
+          "correctIndex": 2,
+          "explanation": "Reescribir cambia los hashes; quien ya tenía esos commits queda con una historia que no coincide."
+        },
+        {
+          "id": "nd-02-q3",
+          "question": "¿Qué hace git cherry-pick 3e4f5a6?",
+          "options": [
+            "Aplica ese commit como uno nuevo en tu rama.",
+            "Borra ese commit de la historia de main.",
+            "Mueve ese commit de su rama a la tuya.",
+            "Fusiona toda la rama que contiene ese commit."
+          ],
+          "correctIndex": 0,
+          "explanation": "cherry-pick copia los cambios de un commit y crea otro, con distinto hash, sobre la rama actual."
+        }
+      ]
+    },
+    {
+      "id": "nd-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 1 · Git avanzado",
+      "title": "Recuperar trabajo y publicar versiones",
+      "subtitle": "reflog, bisect, revert, etiquetas y versiones semánticas.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Recuperar commits «perdidos» con git reflog.",
+        "Encontrar el commit que introdujo un error con git bisect.",
+        "Publicar versiones con etiquetas anotadas y números SemVer."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-03-sec-1",
+          "title": "1. reflog: la red de seguridad",
+          "body": "Casi nada se pierde de verdad en Git. Cada vez que `HEAD` se mueve (commit, reset, rebase, checkout), Git lo anota en el **reflog** de tu máquina durante unos 90 días.\n\nSi hiciste un `git reset --hard` de más o un rebase salió mal, busca en `git reflog` la posición anterior y vuelve a ella. El reflog es local: no se sube a GitHub y no sirve para recuperar algo que nunca llegó a tu computadora.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git reset --hard HEAD~3        # ¡ups! eran commits buenos\n\ngit reflog\n# 4d5e6f7 HEAD@{0}: reset: moving to HEAD~3\n# 9a8b7c6 HEAD@{1}: commit: feat: exportar PDF\n# ...\n\ngit reset --hard 9a8b7c6       # todo vuelve\n# o, más prudente, en una rama nueva:\ngit switch -c rescate 9a8b7c6",
+          "keyTakeaway": "Antes de dar algo por perdido, mira git reflog."
+        },
+        {
+          "id": "nd-03-sec-2",
+          "title": "2. revert contra reset",
+          "body": "Las dos «deshacen», pero de forma muy distinta:\n- `git reset` **mueve la rama hacia atrás**, como si los commits no hubieran existido. Sirve en tu rama local, nunca en una rama compartida.\n- `git revert <hash>` **crea un commit nuevo** con el cambio contrario. La historia se conserva y es seguro en `main`.\n\nEn producción, cuando un cambio ya publicado causa un problema, la respuesta correcta es `revert` (o desplegar la versión anterior), no reescribir `main`.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# En main, un commit rompió el cálculo de totales\ngit revert 3e4f5a6\n# [main 7b8c9d0] Revert \"feat: nuevo redondeo\"\n\n# Revertir un merge: indica qué padre es la línea principal\ngit revert -m 1 <hash-del-merge>",
+          "keyTakeaway": "En ramas compartidas se deshace con revert, que agrega; reset borra y solo es para lo local."
+        },
+        {
+          "id": "nd-03-sec-3",
+          "title": "3. bisect: búsqueda binaria del error",
+          "body": "«Hace dos semanas funcionaba.» Entre aquel momento y hoy hay 200 commits. `git bisect` los parte por la mitad una y otra vez: tú dices si cada punto está bien o mal, y en unos 8 pasos (log₂ 200) Git te señala el commit culpable.\n\nSi tienes una prueba automática que falla con el error, `git bisect run` hace todo el recorrido solo.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git bisect start\ngit bisect bad                 # el commit actual falla\ngit bisect good v1.4.0         # esta versión funcionaba\n# Git cambia a un commit intermedio; pruebas y respondes:\ngit bisect good   # o: git bisect bad\n# ...tras unos pasos:\n# 3e4f5a6 is the first bad commit\ngit bisect reset\n\n# Automático, con un script que sale con 0 si todo bien:\ngit bisect run npm test",
+          "keyTakeaway": "bisect convierte «algo se rompió en algún momento» en el commit exacto, en pocos pasos."
+        },
+        {
+          "id": "nd-03-sec-4",
+          "title": "4. Etiquetas y versiones semánticas",
+          "body": "Una **etiqueta** (tag) pone un nombre fijo a un commit: `v2.3.0`. Usa etiquetas **anotadas** (`-a`), que guardan autor, fecha y mensaje.\n\n**SemVer** (versionado semántico) da significado a cada número `MAYOR.MENOR.PARCHE`:\n- **PARCHE** (2.3.0 → 2.3.1): correcciones que no cambian nada para quien lo usa.\n- **MENOR** (2.3.1 → 2.4.0): funciones nuevas compatibles con lo anterior.\n- **MAYOR** (2.4.0 → 3.0.0): cambios que rompen algo (una API distinta, un campo que desaparece).\n\nLas etiquetas no se suben con un push normal: hay que pedirlo. En GitHub, cada etiqueta puede convertirse en un *Release* con notas de los cambios, y un workflow puede desplegar al crearla.",
+          "codeLanguage": "bash",
+          "codeSnippet": "git tag -a v2.4.0 -m \"Filtros por fecha y exportar a CSV\"\ngit push origin v2.4.0          # o: git push --follow-tags\n\ngit tag --list \"v2.*\"\ngit describe --tags              # v2.4.0-3-g9a8b7c6 (3 commits después)\n\n# Crear el Release con notas generadas a partir de los PR\ngh release create v2.4.0 --generate-notes",
+          "keyTakeaway": "Una etiqueta anotada con SemVer le dice a cualquiera qué cambió y si puede actualizar sin miedo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo deshacer con seguridad y cómo marcar lo que se publica.",
+        "rules": [
+          "En main y ramas compartidas, deshaz con git revert, nunca con reset.",
+          "Ante un «se perdió», revisa git reflog antes de rehacer el trabajo.",
+          "Usa etiquetas anotadas (git tag -a) para las versiones.",
+          "Sube un número MAYOR cada vez que rompas compatibilidad, aunque el cambio sea pequeño.",
+          "Escribe una prueba que reproduzca el error antes de buscarlo con bisect run."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "git switch main && git pull --ff-only\ngit tag -a v2.4.1 -m \"Corrige total negativo en facturas\"\ngit push origin v2.4.1\ngh release create v2.4.1 --generate-notes"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Un commit publicado en main ayer rompió los totales en producción.",
+        "juniorCode": "git reset --hard HEAD~1\ngit push --force",
+        "juniorFlaws": [
+          "Quien hizo pull ayer tiene un commit que ya no existe en main.",
+          "Los commits que otros subieron después pueden desaparecer.",
+          "No queda rastro de qué pasó ni por qué se quitó."
+        ],
+        "intermediateCode": "git revert 3e4f5a6\n# el editor propone: Revert \"feat: nuevo redondeo\"\n# añade el motivo: totales negativos en producción (#142)\ngit push\n# después, el arreglo de verdad en su propia rama y PR",
+        "intermediateBenefits": [
+          "La historia queda intacta para todo el equipo.",
+          "El revert explica qué se deshizo y por qué.",
+          "El pipeline lo despliega como cualquier otro cambio."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-03-ej-1",
+          "title": "Rescata los commits",
+          "difficulty": "Básico",
+          "prompt": "Ejecutaste git reset --hard HEAD~2 en tu rama y te diste cuenta de que esos dos commits sí servían. git reflog muestra en HEAD@{1} el hash 9a8b7c6. Escribe los comandos para recuperarlos sin arriesgar nada más.",
+          "hint": "Puedes crear una rama nueva que apunte a ese hash y revisar antes de mover la tuya.",
+          "solutionExplanation": "Crear una rama de rescate deja todo como está mientras compruebas; si está bien, mueves tu rama a ese punto.",
+          "solutionCode": "git reflog\ngit switch -c rescate 9a8b7c6\ngit log --oneline -3          # comprobar\ngit switch mi-rama\ngit reset --hard rescate\ngit branch -d rescate",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-03-ej-2",
+          "title": "Elige el número de versión",
+          "difficulty": "Básico",
+          "prompt": "Tu API está en la versión 2.3.4. Indica la nueva versión SemVer después de cada cambio, por separado: (1) corriges un error de redondeo; (2) agregas un endpoint /reportes; (3) el campo fecha pasa de texto a número y los clientes viejos fallan.",
+          "hint": "Parche para arreglos, menor para lo nuevo compatible, mayor para lo que rompe.",
+          "solutionExplanation": "Al subir un número, los de su derecha vuelven a cero.",
+          "solutionCode": "1) 2.3.5\n2) 2.4.0\n3) 3.0.0",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-03-ej-3",
+          "title": "bisect automático",
+          "difficulty": "Avanzado",
+          "prompt": "Sabes que en v1.4.0 la prueba tests/totales.test.js pasaba y ahora falla. Escribe los comandos para que Git encuentre solo el commit culpable usando esa prueba, y para volver luego a tu rama.",
+          "hint": "bisect start, marca bad y good, y luego bisect run con el comando de la prueba.",
+          "solutionExplanation": "bisect run ejecuta el comando en cada paso: código de salida 0 significa good y otro distinto, bad.",
+          "solutionCode": "git bisect start\ngit bisect bad HEAD\ngit bisect good v1.4.0\ngit bisect run npx vitest run tests/totales.test.js\n# ...\n# 3e4f5a6 is the first bad commit\ngit bisect reset",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-03-q1",
+          "question": "¿Qué guarda git reflog?",
+          "options": [
+            "La lista de etiquetas publicadas en GitHub.",
+            "Por dónde pasó HEAD en tu repositorio local.",
+            "Los conflictos resueltos durante un rebase.",
+            "Los commits de todas las ramas del remoto."
+          ],
+          "correctIndex": 1,
+          "explanation": "El reflog registra cada movimiento de HEAD en tu máquina, por eso permite volver a estados anteriores."
+        },
+        {
+          "id": "nd-03-q2",
+          "question": "Un commit ya publicado en main causa un error. ¿Qué es lo seguro?",
+          "options": [
+            "Editar el commit con rebase interactivo en main.",
+            "Hacer reset de main y forzar el push al remoto.",
+            "Crear un revert y subirlo como un commit más.",
+            "Borrar la rama main y volver a crearla limpia."
+          ],
+          "correctIndex": 2,
+          "explanation": "revert añade un commit que deshace el cambio sin reescribir la historia que otros ya tienen."
+        },
+        {
+          "id": "nd-03-q3",
+          "question": "Según SemVer, ¿qué versión sigue a 4.2.7 si quitas un campo que usan los clientes?",
+          "options": [
+            "4.3.7",
+            "4.3.0",
+            "4.2.8",
+            "5.0.0"
+          ],
+          "correctIndex": 3,
+          "explanation": "Quitar algo que otros usan rompe la compatibilidad: sube el número mayor y los demás vuelven a cero."
+        }
+      ]
+    },
+    {
+      "id": "nd-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2 · Linux para servidores",
+      "title": "La terminal: archivos, permisos y usuarios",
+      "subtitle": "Moverte por un servidor Linux y entender quién puede hacer qué.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Navegar, buscar y leer archivos desde la terminal.",
+        "Leer y cambiar permisos con chmod y chown.",
+        "Usar sudo con cuidado y entender por qué no se trabaja como root."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-04-sec-1",
+          "title": "1. El árbol de carpetas de Linux",
+          "body": "En Linux todo cuelga de una sola raíz `/`; no hay `C:` ni `D:`. Las carpetas que más vas a visitar en un servidor:\n- `/home/usuario`: la carpeta personal (se abrevia `~`).\n- `/etc`: archivos de configuración (Nginx, SSH, servicios).\n- `/var/log`: registros del sistema y de las aplicaciones.\n- `/var/www` o `/srv`: donde suelen vivir las aplicaciones web.\n- `/tmp`: temporales que se borran al reiniciar.\n\nLos comandos básicos para moverte son pocos y se combinan entre sí.",
+          "codeLanguage": "bash",
+          "codeSnippet": "pwd                      # ¿dónde estoy?\nls -lah                  # listar con detalles y ocultos\ncd /var/log              # entrar a una carpeta\ncd -                     # volver a la anterior\n\ncat app.log              # mostrar un archivo\nless app.log             # leerlo con scroll (q para salir)\ntail -n 50 app.log       # últimas 50 líneas\n\nmkdir -p ~/apps/reportes # crear carpeta (y las intermedias)\ncp -r origen destino     # copiar\nmv viejo.txt nuevo.txt   # mover o renombrar\nrm -r carpeta            # borrar (¡no hay papelera!)",
+          "keyTakeaway": "Todo cuelga de /; la configuración está en /etc y los registros en /var/log."
+        },
+        {
+          "id": "nd-04-sec-2",
+          "title": "2. Buscar y filtrar: tuberías",
+          "body": "La fuerza de la terminal está en **encadenar** comandos pequeños con la tubería `|`: la salida de uno es la entrada del siguiente.\n- `grep` busca líneas que contienen un texto.\n- `find` busca archivos por nombre, tamaño o fecha.\n- `wc -l` cuenta líneas; `sort` ordena; `uniq -c` cuenta repetidos; `head` se queda con las primeras.\n- `>` guarda la salida en un archivo (lo sobrescribe) y `>>` la agrega al final.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# ¿Cuántos errores hubo hoy?\ngrep \"ERROR\" /var/log/app.log | wc -l\n\n# Las 5 IP que más peticiones hicieron\ncut -d' ' -f1 /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -5\n\n# Archivos .log de más de 100 MB\nfind /var/log -name \"*.log\" -size +100M\n\n# Guardar un resumen\ngrep -c \" 500 \" /var/log/nginx/access.log >> resumen.txt",
+          "keyTakeaway": "Comandos pequeños unidos con | resuelven preguntas que en otro lado pedirían un programa."
+        },
+        {
+          "id": "nd-04-sec-3",
+          "title": "3. Permisos: rwx para dueño, grupo y otros",
+          "body": "`ls -l` muestra algo como `-rwxr-x--- 1 ana devs 2048 deploy.sh`. Los nueve caracteres tras el tipo son tres grupos de `rwx`:\n- **r** (leer, 4), **w** (escribir, 2), **x** (ejecutar, 1).\n- El primer trío es del **dueño** (ana), el segundo del **grupo** (devs) y el tercero de **todos los demás**.\n\nCon números, se suma cada trío: `rwx` = 7, `r-x` = 5, `r--` = 4. Así `chmod 750` significa: dueño todo, grupo leer y ejecutar, otros nada.\n\nEn una carpeta, `x` significa poder entrar en ella.",
+          "codeLanguage": "bash",
+          "codeSnippet": "ls -l deploy.sh\n# -rw-r--r-- 1 ana devs 2048 nov 18 deploy.sh\n\nchmod +x deploy.sh        # que se pueda ejecutar\nchmod 750 deploy.sh       # rwx r-x ---\nchmod 600 ~/.ssh/id_ed25519   # llave privada: solo el dueño\n\nsudo chown ana:devs /srv/app -R   # cambiar dueño y grupo",
+          "keyTakeaway": "Lee los permisos como tres tríos rwx: dueño, grupo y el resto."
+        },
+        {
+          "id": "nd-04-sec-4",
+          "title": "4. Usuarios, sudo y el principio de menor privilegio",
+          "body": "`root` es el superusuario: puede borrar el sistema entero sin pedir confirmación. Por eso se trabaja con un usuario normal y se usa `sudo` solo para el comando que lo necesita; queda registrado quién lo pidió.\n\nLas aplicaciones también deben correr con **su propio usuario sin privilegios** (por ejemplo `app`), dueño solo de su carpeta. Si alguien encuentra un fallo en la aplicación, solo podrá tocar lo que ese usuario puede tocar.\n\nEsto es el **principio de menor privilegio**: cada persona y cada programa con los permisos justos para su tarea, ni uno más. Lo verás de nuevo en Docker y en Google Cloud.",
+          "codeLanguage": "bash",
+          "codeSnippet": "whoami                    # ¿quién soy?\nid                        # mis grupos\n\nsudo adduser deploy       # usuario para desplegar\nsudo usermod -aG www-data deploy\n\n# Usuario de sistema para la app: sin contraseña ni shell\nsudo useradd --system --no-create-home --shell /usr/sbin/nologin app\nsudo chown -R app:app /srv/reportes",
+          "keyTakeaway": "Ninguna persona ni programa trabaja como root; cada uno tiene solo los permisos que necesita."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos para trabajar en un servidor sin romperlo.",
+        "rules": [
+          "Comprueba dónde estás (pwd) antes de un rm -r.",
+          "Nunca uses chmod 777 para «arreglar» un permiso: busca quién necesita acceso de verdad.",
+          "Las llaves privadas y archivos con secretos van con permiso 600.",
+          "Usa sudo por comando; no abras una sesión como root.",
+          "Cada aplicación corre con su propio usuario sin privilegios."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "sudo useradd --system --shell /usr/sbin/nologin app\nsudo mkdir -p /srv/reportes\nsudo chown -R app:app /srv/reportes\nsudo chmod 750 /srv/reportes\nsudo chmod 600 /srv/reportes/.env"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "La aplicación no puede escribir en su carpeta de subidas.",
+        "juniorCode": "sudo chmod -R 777 /srv/reportes",
+        "juniorFlaws": [
+          "Cualquier usuario del servidor puede leer y cambiar el código y los secretos.",
+          "Si la app tiene un fallo, un atacante puede reemplazar archivos ejecutables.",
+          "No se entendió cuál era el problema real."
+        ],
+        "intermediateCode": "ls -ld /srv/reportes/subidas   # ¿quién es el dueño?\nps -o user= -C node           # ¿con qué usuario corre la app?\nsudo chown app:app /srv/reportes/subidas\nsudo chmod 750 /srv/reportes/subidas",
+        "intermediateBenefits": [
+          "Solo el usuario de la app puede escribir ahí.",
+          "El resto del sistema sigue protegido.",
+          "Se diagnosticó la causa antes de cambiar nada."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-04-ej-1",
+          "title": "Traduce los permisos",
+          "difficulty": "Básico",
+          "prompt": "Escribe en números y en letras los permisos para: (1) un script que el dueño ejecuta y edita, y el grupo solo ejecuta; (2) un archivo .env que solo el dueño lee y escribe; (3) una carpeta pública que todos pueden ver y abrir, pero solo el dueño modifica.",
+          "hint": "r=4, w=2, x=1; suma por cada trío dueño, grupo, otros. Una carpeta necesita x para entrar.",
+          "solutionExplanation": "Cada dígito es la suma del trío correspondiente.",
+          "solutionCode": "1) 750  → rwx r-x ---  (el grupo necesita r y x para ejecutar un script)\n2) 600  → rw- --- ---\n3) 755  → rwx r-x r-x",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-04-ej-2",
+          "title": "Investiga el registro",
+          "difficulty": "Intermedio",
+          "prompt": "En /var/log/nginx/access.log cada línea empieza por la IP y contiene el código de respuesta entre espacios (por ejemplo \" 404 \"). Escribe un comando que cuente cuántas respuestas 404 hubo y otro que muestre las 3 rutas más pedidas que dieron 404 (la ruta es el campo 7 si separas por espacios).",
+          "hint": "grep para filtrar los 404, awk '{print $7}' para la ruta, luego sort | uniq -c | sort -rn | head.",
+          "solutionExplanation": "Filtrar primero reduce las líneas; luego se extrae el campo, se cuenta y se ordena de mayor a menor.",
+          "solutionCode": "grep -c \" 404 \" /var/log/nginx/access.log\n\ngrep \" 404 \" /var/log/nginx/access.log \\\n  | awk '{print $7}' | sort | uniq -c | sort -rn | head -3",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-04-ej-3",
+          "title": "Prepara la carpeta de la app",
+          "difficulty": "Intermedio",
+          "prompt": "Vas a instalar una app en /srv/inventario que correrá con un usuario de sistema llamado inventario. Escribe los comandos para crear ese usuario sin shell, crear la carpeta, darle la propiedad y dejarla cerrada para el resto de usuarios.",
+          "hint": "useradd --system con nologin; mkdir; chown -R; chmod 750.",
+          "solutionExplanation": "El usuario de sistema no puede iniciar sesión y solo él (y su grupo) acceden a la carpeta.",
+          "solutionCode": "sudo useradd --system --no-create-home --shell /usr/sbin/nologin inventario\nsudo mkdir -p /srv/inventario\nsudo chown -R inventario:inventario /srv/inventario\nsudo chmod 750 /srv/inventario",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-04-q1",
+          "question": "¿Qué permisos da chmod 640 a un archivo?",
+          "options": [
+            "Dueño lee y escribe, grupo lee, otros nada.",
+            "Todos leen y solo el dueño puede escribir.",
+            "Dueño lee, escribe y ejecuta; grupo solo lee.",
+            "Dueño lee, grupo lee y escribe, otros nada."
+          ],
+          "correctIndex": 0,
+          "explanation": "6 = r+w para el dueño, 4 = r para el grupo, 0 = nada para los demás."
+        },
+        {
+          "id": "nd-04-q2",
+          "question": "¿Para qué sirve la tubería | en la terminal?",
+          "options": [
+            "Pasa la salida de un comando al siguiente.",
+            "Ejecuta dos comandos a la vez en paralelo.",
+            "Guarda la salida de un comando en un archivo.",
+            "Repite el comando anterior con otros datos."
+          ],
+          "correctIndex": 0,
+          "explanation": "La tubería conecta comandos: lo que uno imprime, el otro lo recibe como entrada."
+        },
+        {
+          "id": "nd-04-q3",
+          "question": "¿Por qué una aplicación debe correr con su propio usuario sin privilegios?",
+          "options": [
+            "Porque root no puede ejecutar programas web en Linux.",
+            "Para que sus registros se guarden en /var/log solos.",
+            "Para que un fallo en ella no afecte a todo el servidor.",
+            "Para que la aplicación arranque más rápido al iniciar."
+          ],
+          "correctIndex": 2,
+          "explanation": "Con el mínimo de permisos, quien abuse de la aplicación solo alcanza lo que ese usuario puede tocar."
+        }
+      ]
+    },
+    {
+      "id": "nd-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2 · Linux para servidores",
+      "title": "Procesos, servicios, registros y SSH",
+      "subtitle": "Mantener una aplicación viva en el servidor y entrar a él con seguridad.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Ver y detener procesos con ps, top y kill.",
+        "Crear un servicio de systemd que arranque solo y se reinicie si falla.",
+        "Leer registros con journalctl y conectarte por SSH con llaves."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-05-sec-1",
+          "title": "1. Procesos y señales",
+          "body": "Cada programa en ejecución es un **proceso** con un número (PID). Para verlos:\n- `ps aux` lista todos; con `grep` filtras el que buscas.\n- `top` o `htop` los muestran en vivo, ordenados por CPU o memoria.\n- `ss -tlnp` muestra qué proceso escucha en cada puerto.\n\nPara detener uno se le envía una **señal** con `kill`: por defecto `SIGTERM` (15), que le pide terminar ordenadamente. `kill -9` (`SIGKILL`) lo mata sin dejarle cerrar archivos ni conexiones: es el último recurso.",
+          "codeLanguage": "bash",
+          "codeSnippet": "ps aux | grep node\n# app  1234  2.1  3.4 ... node server.js\n\nss -tlnp | grep 3000        # ¿quién usa el puerto 3000?\n\nkill 1234                   # SIGTERM: termina con orden\nkill -9 1234                # SIGKILL: solo si no responde\n\nfree -h                     # memoria\ndf -h                       # espacio en disco",
+          "keyTakeaway": "Pide a un proceso que termine con kill; kill -9 es la última opción."
+        },
+        {
+          "id": "nd-05-sec-2",
+          "title": "2. systemd: que la app arranque sola",
+          "body": "Si lanzas tu app con `node server.js &` y cierras la sesión, o el servidor se reinicia, la app desaparece. **systemd** es el gestor de servicios de casi todas las distribuciones: arranca los programas al encender, los reinicia si fallan y guarda sus registros.\n\nSe describe cada servicio en un archivo `.service` dentro de `/etc/systemd/system/`. Las partes clave: qué ejecutar (`ExecStart`), con qué usuario (`User`), de dónde sacar las variables (`EnvironmentFile`) y qué hacer si falla (`Restart`).",
+          "codeLanguage": "ini",
+          "codeSnippet": "# /etc/systemd/system/reportes.service\n[Unit]\nDescription=API de reportes\nAfter=network.target\n\n[Service]\nUser=app\nWorkingDirectory=/srv/reportes\nEnvironmentFile=/srv/reportes/.env\nExecStart=/usr/bin/node server.js\nRestart=on-failure\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target",
+          "keyTakeaway": "Un servicio de systemd arranca con el servidor, corre con su usuario y se levanta solo si cae."
+        },
+        {
+          "id": "nd-05-sec-3",
+          "title": "3. Manejar el servicio y leer sus registros",
+          "body": "Con el archivo creado, `systemctl` controla el servicio y `journalctl` muestra lo que escribe en la salida estándar. Así no hace falta que tu aplicación gestione sus propios archivos de log: escribe en consola y systemd lo guarda con fecha.\n\nCuando algo falla, el orden de diagnóstico casi siempre es: `systemctl status` (¿está corriendo?, ¿cuál fue el último error?) y luego `journalctl` con más detalle.",
+          "codeLanguage": "bash",
+          "codeSnippet": "sudo systemctl daemon-reload          # tras crear o editar el .service\nsudo systemctl enable --now reportes  # arrancar ahora y al encender\nsudo systemctl status reportes\nsudo systemctl restart reportes\n\njournalctl -u reportes -f              # seguir en vivo\njournalctl -u reportes --since \"1 hour ago\"\njournalctl -u reportes -p err          # solo errores",
+          "keyTakeaway": "systemctl status primero, journalctl -u después: así se diagnostica un servicio."
+        },
+        {
+          "id": "nd-05-sec-4",
+          "title": "4. SSH con llaves, no con contraseñas",
+          "body": "SSH es la puerta de entrada al servidor. Las contraseñas se pueden adivinar a fuerza de intentos; una **llave** no. Funciona en pareja:\n- La **llave privada** se queda en tu computadora (permiso 600, con frase de paso).\n- La **llave pública** se copia al servidor, en `~/.ssh/authorized_keys`.\n\nCuando todo funcione con llaves, desactiva en el servidor el acceso con contraseña y el inicio de sesión de root. Un archivo `~/.ssh/config` te ahorra escribir usuario, IP y puerto cada vez.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# En tu computadora\nssh-keygen -t ed25519 -C \"aronis@portatil\"\nssh-copy-id deploy@203.0.113.10\n\n# ~/.ssh/config\nHost reportes\n  HostName 203.0.113.10\n  User deploy\n  IdentityFile ~/.ssh/id_ed25519\n\nssh reportes             # listo\n\n# En el servidor: /etc/ssh/sshd_config\nPasswordAuthentication no\nPermitRootLogin no\n# y luego: sudo systemctl reload ssh",
+          "keyTakeaway": "Entra con llaves ed25519 y apaga las contraseñas y el acceso de root."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo dejar una aplicación corriendo en un servidor de forma fiable.",
+        "rules": [
+          "Toda aplicación del servidor corre como servicio de systemd, no con & ni en una sesión abierta.",
+          "Los servicios usan Restart=on-failure y un usuario propio.",
+          "Las aplicaciones escriben registros en la salida estándar; systemd los guarda.",
+          "SSH solo con llaves; sin contraseñas ni root.",
+          "Antes de cerrar la sesión tras cambiar sshd_config, prueba entrar desde otra terminal."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "sudo systemctl daemon-reload\nsudo systemctl enable --now reportes\nsystemctl status reportes --no-pager\njournalctl -u reportes -n 50 --no-pager"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Dejar corriendo una API de Node en un servidor.",
+        "juniorCode": "ssh root@203.0.113.10\ncd /root/api\nnohup node server.js &\nexit",
+        "juniorFlaws": [
+          "Corre como root: un fallo en la API compromete todo el servidor.",
+          "Si el servidor se reinicia o la API se cae, nadie la vuelve a levantar.",
+          "Los registros van a un nohup.out que crece sin control."
+        ],
+        "intermediateCode": "ssh reportes\nsudo systemctl enable --now reportes\nsystemctl status reportes\njournalctl -u reportes -f",
+        "intermediateBenefits": [
+          "La API corre con el usuario app y sus permisos mínimos.",
+          "systemd la arranca al encender y la reinicia si falla.",
+          "Los registros quedan ordenados y consultables por fecha."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-05-ej-1",
+          "title": "Escribe el servicio",
+          "difficulty": "Intermedio",
+          "prompt": "Una API en Python está en /srv/inventario y se arranca con /srv/inventario/.venv/bin/gunicorn app:app --bind 127.0.0.1:8000. Debe correr con el usuario inventario, leer variables de /srv/inventario/.env y reiniciarse 3 segundos después de un fallo. Escribe el archivo .service y los comandos para activarlo.",
+          "hint": "Copia la estructura [Unit], [Service], [Install] del ejemplo y cambia los valores.",
+          "solutionExplanation": "daemon-reload hace que systemd lea el archivo nuevo; enable --now lo arranca y lo deja activo al reiniciar.",
+          "solutionCode": "# /etc/systemd/system/inventario.service\n[Unit]\nDescription=API de inventario\nAfter=network.target\n\n[Service]\nUser=inventario\nWorkingDirectory=/srv/inventario\nEnvironmentFile=/srv/inventario/.env\nExecStart=/srv/inventario/.venv/bin/gunicorn app:app --bind 127.0.0.1:8000\nRestart=on-failure\nRestartSec=3\n\n[Install]\nWantedBy=multi-user.target\n\n# Activar\nsudo systemctl daemon-reload\nsudo systemctl enable --now inventario",
+          "codeLanguage": "ini"
+        },
+        {
+          "id": "nd-05-ej-2",
+          "title": "Diagnostica la caída",
+          "difficulty": "Básico",
+          "prompt": "Los usuarios dicen que el servicio reportes no responde. Escribe, en orden, los comandos que usarías para saber si está corriendo, ver los últimos errores y comprobar si algo escucha en el puerto 3000.",
+          "hint": "status, journalctl con filtro de prioridad o tiempo, y ss.",
+          "solutionExplanation": "Primero el estado general, después el detalle de los registros y por último la red.",
+          "solutionCode": "systemctl status reportes --no-pager\njournalctl -u reportes -p err --since \"30 min ago\"\nss -tlnp | grep 3000",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-05-ej-3",
+          "title": "Configura tu acceso",
+          "difficulty": "Básico",
+          "prompt": "Crea una llave ed25519, cópiala al servidor 198.51.100.7 para el usuario deploy y escribe un bloque de ~/.ssh/config para entrar escribiendo solo ssh prod.",
+          "hint": "ssh-keygen, ssh-copy-id y un bloque Host con HostName, User e IdentityFile.",
+          "solutionExplanation": "Con el alias, cualquier herramienta que use SSH (git, scp, rsync) puede usar prod como destino.",
+          "solutionCode": "ssh-keygen -t ed25519 -C \"mi-portatil\"\nssh-copy-id deploy@198.51.100.7\n\n# ~/.ssh/config\nHost prod\n  HostName 198.51.100.7\n  User deploy\n  IdentityFile ~/.ssh/id_ed25519",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-05-q1",
+          "question": "¿Qué diferencia hay entre kill y kill -9?",
+          "options": [
+            "kill pausa el proceso; kill -9 lo termina con orden.",
+            "kill pide terminar con orden; kill -9 corta sin aviso.",
+            "kill reinicia el proceso; kill -9 lo deja apagado.",
+            "kill afecta a un proceso; kill -9 a todos los suyos."
+          ],
+          "correctIndex": 1,
+          "explanation": "SIGTERM deja al proceso cerrar archivos y conexiones; SIGKILL lo detiene de inmediato."
+        },
+        {
+          "id": "nd-05-q2",
+          "question": "¿Qué hace systemctl enable --now reportes?",
+          "options": [
+            "Lo arranca ya y lo activa para cada encendido.",
+            "Lo arranca ya, pero solo hasta el próximo reinicio.",
+            "Recarga su archivo .service sin tocar el proceso.",
+            "Lo deja listo para el próximo encendido sin arrancarlo."
+          ],
+          "correctIndex": 0,
+          "explanation": "enable lo activa al encender y --now además lo arranca en este momento."
+        },
+        {
+          "id": "nd-05-q3",
+          "question": "¿Qué parte de una llave SSH se copia al servidor?",
+          "options": [
+            "La pública, dentro de authorized_keys.",
+            "Las dos, dentro de la carpeta /etc/ssh.",
+            "La privada, dentro de authorized_keys.",
+            "La privada, cifrada con la frase de paso."
+          ],
+          "correctIndex": 0,
+          "explanation": "La privada nunca sale de tu computadora; el servidor solo necesita la pública para comprobar que eres tú."
+        }
+      ]
+    },
+    {
+      "id": "nd-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 2 · Linux para servidores",
+      "title": "Scripts de Bash para automatizar",
+      "subtitle": "Convertir pasos repetidos en un script fiable.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Escribir scripts de Bash con variables, condiciones, bucles y funciones.",
+        "Hacer scripts seguros con set -euo pipefail y comillas.",
+        "Programar tareas con cron o con temporizadores de systemd."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-06-sec-1",
+          "title": "1. Tu primer script",
+          "body": "Un script de Bash es un archivo de texto con comandos que se ejecutan en orden. La primera línea (*shebang*) indica con qué intérprete correrlo, y el archivo necesita permiso de ejecución.\n\nLas variables se asignan **sin espacios** alrededor del `=` y se leen con `$`. Los argumentos que recibe el script llegan como `$1`, `$2`… y `$#` dice cuántos son. `$(comando)` guarda la salida de un comando en una variable.",
+          "codeLanguage": "bash",
+          "codeSnippet": "#!/usr/bin/env bash\n# respaldo.sh — copia una carpeta con fecha\n\norigen=\"$1\"\nfecha=$(date +%Y-%m-%d)\ndestino=\"/var/respaldos/$(basename \"$origen\")-$fecha.tar.gz\"\n\ntar -czf \"$destino\" \"$origen\"\necho \"Respaldo creado: $destino\"\n\n# Uso:\n# chmod +x respaldo.sh\n# ./respaldo.sh /srv/reportes",
+          "keyTakeaway": "Shebang, permiso de ejecución y variables sin espacios: con eso ya tienes un script."
+        },
+        {
+          "id": "nd-06-sec-2",
+          "title": "2. Modo estricto y comillas",
+          "body": "Por defecto Bash sigue adelante aunque un comando falle, y eso en un script de despliegue es peligroso. Empieza siempre con:\n- `set -e`: detenerse en el primer comando que falle.\n- `set -u`: error si usas una variable que no existe (evita que `rm -rf \"$CARPETA/\"` borre `/` por un nombre mal escrito).\n- `set -o pipefail`: una tubería falla si falla cualquiera de sus partes.\n\nY **siempre comillas dobles** alrededor de las variables: `\"$archivo\"`. Sin ellas, un nombre con espacios se parte en dos argumentos.\n\nLa herramienta `shellcheck` revisa tus scripts y señala estos errores antes de que ocurran.",
+          "codeLanguage": "bash",
+          "codeSnippet": "#!/usr/bin/env bash\nset -euo pipefail\n\n# Sin comillas: \"Informe final.pdf\" se convierte en dos archivos\nrm $archivo        # ✗\nrm \"$archivo\"      # ✓\n\n# Valor por defecto si no viene la variable\nentorno=\"${1:-staging}\"\n\n# Revisar el script\nshellcheck despliegue.sh",
+          "keyTakeaway": "set -euo pipefail y comillas dobles en cada variable evitan la mayoría de los desastres."
+        },
+        {
+          "id": "nd-06-sec-3",
+          "title": "3. Condiciones, bucles y funciones",
+          "body": "Con `if` comprobaste algo, con `for` repites sobre una lista y con funciones das nombre a un bloque.\n- `[[ -f archivo ]]` existe y es archivo; `[[ -d carpeta ]]` es carpeta; `[[ -z \"$v\" ]]` está vacía.\n- Cada comando devuelve un **código de salida**: 0 es éxito, otro número es error. `if comando; then` usa ese código directamente.\n- `exit 1` termina el script con error, para que quien lo llamó (cron, CI) se entere.",
+          "codeLanguage": "bash",
+          "codeSnippet": "#!/usr/bin/env bash\nset -euo pipefail\n\nlog() { echo \"[$(date +%H:%M:%S)] $*\"; }\n\nif [[ $# -lt 1 ]]; then\n  echo \"Uso: $0 carpeta...\" >&2\n  exit 1\nfi\n\nfor carpeta in \"$@\"; do\n  if [[ ! -d \"$carpeta\" ]]; then\n    log \"No existe: $carpeta\"; continue\n  fi\n  log \"Respaldando $carpeta\"\n  tar -czf \"/var/respaldos/$(basename \"$carpeta\")-$(date +%F).tar.gz\" \"$carpeta\"\ndone\n\n# Borrar respaldos de más de 14 días\nfind /var/respaldos -name \"*.tar.gz\" -mtime +14 -delete",
+          "keyTakeaway": "Usa los códigos de salida: 0 es éxito, y un script que falla debe terminar con exit distinto de 0."
+        },
+        {
+          "id": "nd-06-sec-4",
+          "title": "4. Programar tareas: cron y temporizadores",
+          "body": "**cron** ejecuta comandos según un horario de cinco campos: minuto, hora, día del mes, mes y día de la semana. Se edita con `crontab -e`. Redirige la salida a un log, porque cron no tiene pantalla.\n\nEn servidores con systemd, un **temporizador** (`.timer`) hace lo mismo y además deja los registros en `journalctl`, evita ejecuciones superpuestas y con `Persistent=true` corre la tarea pendiente si el servidor estaba apagado a la hora prevista.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# crontab -e\n# min hora día mes día-semana  comando\n  30  2    *   *   *           /srv/scripts/respaldo.sh /srv/reportes >> /var/log/respaldo.log 2>&1\n  0   8    *   *   1-5         /srv/scripts/informe.sh\n\n# Alternativa con systemd: /etc/systemd/system/respaldo.timer\n[Timer]\nOnCalendar=*-*-* 02:30\nPersistent=true\n[Install]\nWantedBy=timers.target",
+          "keyTakeaway": "cron para lo simple; temporizadores de systemd cuando quieres registros y recuperar ejecuciones perdidas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que un script haga lo mismo hoy, mañana y a las 3 de la mañana.",
+        "rules": [
+          "Todo script empieza con #!/usr/bin/env bash y set -euo pipefail.",
+          "Cada variable va entre comillas dobles.",
+          "Valida los argumentos al inicio y muestra cómo se usa el script.",
+          "Termina con exit distinto de 0 cuando algo sale mal.",
+          "Pasa shellcheck antes de subir el script al repositorio."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "#!/usr/bin/env bash\nset -euo pipefail\n\nreadonly DESTINO=\"/var/respaldos\"\n\nmain() {\n  [[ $# -eq 1 ]] || { echo \"Uso: $0 carpeta\" >&2; exit 1; }\n  local carpeta=\"$1\"\n  tar -czf \"$DESTINO/$(basename \"$carpeta\")-$(date +%F).tar.gz\" \"$carpeta\"\n}\n\nmain \"$@\""
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Un script de limpieza borra una carpeta temporal de la app.",
+        "juniorCode": "#!/bin/bash\ncd $CARPETA_APP\nrm -rf $TEMP/*",
+        "juniorFlaws": [
+          "Si cd falla, el script sigue y borra en la carpeta donde esté.",
+          "Si TEMP está vacía o mal escrita, se ejecuta rm -rf /*.",
+          "Una ruta con espacios se parte en varias."
+        ],
+        "intermediateCode": "#!/usr/bin/env bash\nset -euo pipefail\ncd \"$CARPETA_APP\"\nrm -rf -- \"${TEMP:?TEMP no definida}\"/*",
+        "intermediateBenefits": [
+          "Si cd falla, el script se detiene ahí.",
+          "${TEMP:?} aborta con un mensaje si la variable está vacía.",
+          "Las comillas protegen las rutas con espacios."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-06-ej-1",
+          "title": "Comprueba que la web responde",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un script revisar.sh que reciba una URL como argumento, haga una petición con curl y, si no responde con éxito, escriba «CAÍDA: <url>» en la salida de error y termine con código 1. Si responde, escribe «OK: <url>».",
+          "hint": "curl -fsS falla con código distinto de 0 ante un error HTTP. Envía la salida a /dev/null.",
+          "solutionExplanation": "curl -f convierte los errores HTTP (4xx, 5xx) en un código de salida distinto de 0, que el if aprovecha.",
+          "solutionCode": "#!/usr/bin/env bash\nset -euo pipefail\n\nurl=\"${1:?Uso: $0 URL}\"\n\nif curl -fsS --max-time 10 \"$url\" > /dev/null; then\n  echo \"OK: $url\"\nelse\n  echo \"CAÍDA: $url\" >&2\n  exit 1\nfi",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-06-ej-2",
+          "title": "Lee el horario",
+          "difficulty": "Básico",
+          "prompt": "Explica cuándo se ejecuta cada línea de cron: (1) 0 * * * *; (2) */15 9-18 * * 1-5; (3) 0 3 1 * *. Luego escribe la línea para ejecutar /srv/scripts/limpiar.sh todos los domingos a las 23:45.",
+          "hint": "Campos: minuto, hora, día del mes, mes, día de la semana (0 o 7 = domingo).",
+          "solutionExplanation": "*/15 significa cada 15 unidades y 1-5 es de lunes a viernes.",
+          "solutionCode": "1) Al minuto 0 de cada hora.\n2) Cada 15 minutos, de 9:00 a 18:45, de lunes a viernes.\n3) A las 3:00 del día 1 de cada mes.\n\n45 23 * * 0 /srv/scripts/limpiar.sh >> /var/log/limpiar.log 2>&1",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-06-ej-3",
+          "title": "Encuentra los errores",
+          "difficulty": "Intermedio",
+          "prompt": "Este script tiene tres problemas. Señálalos y corrígelo:\n#!/bin/bash\nnombre = $1\nmkdir /srv/$nombre\ncp config.env /srv/$nombre/",
+          "hint": "Fíjate en los espacios del =, las comillas y qué pasa si falta el argumento o falla mkdir.",
+          "solutionExplanation": "Bash no admite espacios en la asignación; sin modo estricto ni comillas, un fallo o un nombre vacío causan resultados inesperados.",
+          "solutionCode": "#!/usr/bin/env bash\nset -euo pipefail\nnombre=\"${1:?Uso: $0 nombre}\"   # sin espacios y obligatorio\nmkdir -p \"/srv/$nombre\"\ncp config.env \"/srv/$nombre/\"",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-06-q1",
+          "question": "¿Qué consigue set -u en un script?",
+          "options": [
+            "Que usar una variable sin definir sea un error.",
+            "Que la salida se escriba también en un archivo.",
+            "Que el script se ejecute con el usuario actual.",
+            "Que las variables se pongan entre comillas solas."
+          ],
+          "correctIndex": 0,
+          "explanation": "Con -u, una variable mal escrita detiene el script en lugar de convertirse en texto vacío."
+        },
+        {
+          "id": "nd-06-q2",
+          "question": "¿Por qué se escribe \"$archivo\" con comillas dobles?",
+          "options": [
+            "Para que el valor se guarde en el historial.",
+            "Para que un nombre con espacios llegue entero.",
+            "Para que la variable no se pueda cambiar después.",
+            "Para que Bash la lea como un número y no texto."
+          ],
+          "correctIndex": 1,
+          "explanation": "Sin comillas, Bash parte el valor en cada espacio y lo trata como varios argumentos."
+        },
+        {
+          "id": "nd-06-q3",
+          "question": "¿Qué código de salida indica que un comando terminó bien?",
+          "options": [
+            "-1",
+            "0",
+            "1",
+            "255"
+          ],
+          "correctIndex": 1,
+          "explanation": "Por convención, 0 es éxito y cualquier otro número indica un tipo de error."
+        }
+      ]
+    },
+    {
+      "id": "nd-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3 · Contenedores",
+      "title": "Docker: imágenes, contenedores y puertos",
+      "subtitle": "Empaquetar una aplicación con todo lo que necesita para correr igual en cualquier sitio.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Explicar qué resuelve un contenedor y en qué se diferencia de una máquina virtual.",
+        "Distinguir imagen, contenedor y registro.",
+        "Ejecutar contenedores publicando puertos y pasando variables de entorno."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-07-sec-1",
+          "title": "1. «En mi máquina funciona»",
+          "body": "Tu API funciona en tu portátil con Node 20, pero el servidor tiene Node 18, otra versión de una librería del sistema y una variable de entorno que nadie recordó. Un **contenedor** empaqueta la aplicación **junto con todo lo que necesita** (sistema base, versión del lenguaje, dependencias) para que corra igual en tu máquina, en la de tu compañero, en CI y en la nube.\n\nA diferencia de una **máquina virtual**, un contenedor no trae su propio sistema operativo completo: comparte el núcleo (kernel) de Linux de la máquina que lo ejecuta. Por eso arranca en segundos y ocupa megas, no gigas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Máquina virtual                 Contenedores\n┌─────┐ ┌─────┐                 ┌─────┐ ┌─────┐ ┌─────┐\n│ app │ │ app │                 │ app │ │ app │ │ app │\n│ libs│ │ libs│                 │ libs│ │ libs│ │ libs│\n│ SO  │ │ SO  │                 └─────┘ └─────┘ └─────┘\n└─────┘ └─────┘                 ─── motor de Docker ───\n── hipervisor ──                ─── kernel de Linux ────\n── hardware ────                ─── hardware ───────────",
+          "keyTakeaway": "Un contenedor lleva la app con sus dependencias y comparte el kernel: ligero y reproducible."
+        },
+        {
+          "id": "nd-07-sec-2",
+          "title": "2. Imagen, contenedor y registro",
+          "body": "Tres palabras que conviene no mezclar:\n- **Imagen**: la plantilla de solo lectura (el sistema base, tu código, las dependencias). Se identifica con nombre y **etiqueta**: `node:20-alpine`, `reportes:1.4.0`.\n- **Contenedor**: una imagen en ejecución. De una imagen puedes lanzar diez contenedores iguales.\n- **Registro**: el almacén de imágenes. Docker Hub es el público; en la nube usarás Artifact Registry de Google Cloud.\n\nLa relación es la de una receta (imagen), los platos servidos (contenedores) y el recetario compartido (registro).",
+          "codeLanguage": "bash",
+          "codeSnippet": "docker pull nginx:1.27-alpine     # descargar una imagen\ndocker images                      # imágenes locales\n\ndocker run -d --name web nginx:1.27-alpine   # crear y arrancar\ndocker ps                          # contenedores en marcha\ndocker ps -a                       # también los detenidos\n\ndocker stop web && docker rm web   # detener y eliminar",
+          "keyTakeaway": "La imagen es la receta, el contenedor es el plato y el registro es el recetario compartido."
+        },
+        {
+          "id": "nd-07-sec-3",
+          "title": "3. Puertos y variables de entorno",
+          "body": "Un contenedor está aislado: aunque tu app escuche en el puerto 3000 **dentro**, desde fuera no se ve hasta que lo publicas con `-p puerto_host:puerto_contenedor`.\n\nLa configuración que cambia entre entornos (URL de la base de datos, modo, claves) **no se mete en la imagen**: se pasa al arrancar con `-e NOMBRE=valor` o con `--env-file`. Así la misma imagen sirve para pruebas y producción.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Publicar el puerto 3000 del contenedor en el 8080 de tu máquina\ndocker run -d --name api -p 8080:3000 \\\n  -e NODE_ENV=production \\\n  --env-file .env \\\n  reportes:1.4.0\n\ncurl http://localhost:8080/salud",
+          "keyTakeaway": "Publica puertos con -p y pasa la configuración por variables, nunca dentro de la imagen."
+        },
+        {
+          "id": "nd-07-sec-4",
+          "title": "4. Ver qué pasa dentro",
+          "body": "Las herramientas de diagnóstico de Docker se parecen a las de Linux que ya conoces:\n- `docker logs -f api`: lo que la app escribe en consola (el equivalente a journalctl).\n- `docker exec -it api sh`: abrir una terminal dentro del contenedor para mirar archivos o probar comandos.\n- `docker inspect api`: toda la configuración (IP, variables, montajes).\n- `docker stats`: CPU y memoria en vivo.\n\nRecuerda que los cambios que hagas a mano dentro de un contenedor **se pierden** al recrearlo. Si algo hay que cambiar, se cambia en la imagen.",
+          "codeLanguage": "bash",
+          "codeSnippet": "docker logs --tail 50 -f api\ndocker exec -it api sh\n  / # env | grep NODE\n  / # ls /app\n  / # exit\ndocker stats --no-stream\n\n# Limpiar lo que no se usa\ndocker system prune",
+          "keyTakeaway": "Diagnostica con logs y exec, pero cambia la imagen: lo que tocas dentro de un contenedor se pierde."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos básicos para trabajar con imágenes y contenedores.",
+        "rules": [
+          "Usa etiquetas concretas (node:20.18-alpine), nunca latest en producción.",
+          "Usa imágenes oficiales o verificadas como base.",
+          "Configura con variables de entorno; la misma imagen para todos los entornos.",
+          "Un proceso principal por contenedor.",
+          "No guardes datos importantes dentro del contenedor: usa volúmenes o una base de datos externa."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "docker run -d --name api --restart unless-stopped \\\n  -p 8080:3000 --env-file .env \\\n  reportes:1.4.0"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Probar la API en un contenedor con la base de datos de pruebas.",
+        "juniorCode": "docker run reportes:latest\n# no responde en localhost:3000...\ndocker exec -it <id> sh\n  # edita config.js a mano con la URL de la base",
+        "juniorFlaws": [
+          "latest puede ser una versión distinta mañana.",
+          "Sin -p, el puerto no está publicado y nunca va a responder.",
+          "El cambio hecho a mano desaparece al recrear el contenedor."
+        ],
+        "intermediateCode": "docker run -d --name api -p 3000:3000 \\\n  -e DATABASE_URL=postgres://pruebas@db:5432/reportes \\\n  reportes:1.4.0",
+        "intermediateBenefits": [
+          "Se sabe exactamente qué versión corre.",
+          "El puerto está publicado de forma explícita.",
+          "La configuración vive fuera de la imagen y se puede repetir."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-07-ej-1",
+          "title": "Levanta un servidor web",
+          "difficulty": "Básico",
+          "prompt": "Ejecuta un contenedor de nginx:1.27-alpine llamado sitio, en segundo plano, accesible en http://localhost:8081. Luego muestra sus últimas 20 líneas de log y elimínalo.",
+          "hint": "-d para segundo plano, --name, -p 8081:80 (nginx escucha en el 80).",
+          "solutionExplanation": "El puerto de la izquierda es el de tu máquina y el de la derecha el del contenedor.",
+          "solutionCode": "docker run -d --name sitio -p 8081:80 nginx:1.27-alpine\ncurl -I http://localhost:8081\ndocker logs --tail 20 sitio\ndocker stop sitio && docker rm sitio",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-07-ej-2",
+          "title": "Imagen o contenedor",
+          "difficulty": "Básico",
+          "prompt": "Clasifica cada frase como imagen, contenedor o registro: (1) tiene un estado: en marcha o detenido; (2) se identifica con nombre:etiqueta y no cambia; (3) de ella se pueden crear muchos iguales; (4) Artifact Registry; (5) docker exec entra en él.",
+          "hint": "La imagen es la plantilla; el contenedor es la ejecución; el registro es el almacén.",
+          "solutionExplanation": "Solo un contenedor tiene estado y se puede entrar en él; la imagen es inmutable y reutilizable.",
+          "solutionCode": "1) Contenedor\n2) Imagen\n3) Imagen\n4) Registro\n5) Contenedor",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-07-ej-3",
+          "title": "Cambia la configuración sin reconstruir",
+          "difficulty": "Intermedio",
+          "prompt": "La imagen reportes:1.4.0 lee el puerto de la variable PORT y la URL de la base de DATABASE_URL. Escribe dos comandos que lancen la misma imagen como api-staging en el puerto 8081 de tu máquina y api-prod en el 8082, cada una con su propio archivo de variables, haciendo que la app escuche en el 8080 dentro del contenedor.",
+          "hint": "Mismo -e PORT=8080 en los dos; cambia el puerto del host y el --env-file.",
+          "solutionExplanation": "La imagen no cambia; solo cambian las variables y el puerto publicado.",
+          "solutionCode": "docker run -d --name api-staging -p 8081:8080 -e PORT=8080 --env-file staging.env reportes:1.4.0\ndocker run -d --name api-prod    -p 8082:8080 -e PORT=8080 --env-file prod.env    reportes:1.4.0",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-07-q1",
+          "question": "¿En qué se diferencia un contenedor de una máquina virtual?",
+          "options": [
+            "Necesita un hipervisor instalado en el hardware.",
+            "Trae su propio sistema operativo completo dentro.",
+            "Comparte el kernel del sistema que lo ejecuta.",
+            "Solo puede ejecutar programas escritos en Go."
+          ],
+          "correctIndex": 2,
+          "explanation": "Por compartir el kernel, un contenedor es mucho más ligero y arranca en segundos."
+        },
+        {
+          "id": "nd-07-q2",
+          "question": "¿Qué significa -p 8080:3000 en docker run?",
+          "options": [
+            "Docker reserva los puertos del 3000 al 8080.",
+            "El 3000 de tu máquina va al 8080 del contenedor.",
+            "El 8080 de tu máquina va al 3000 del contenedor.",
+            "La app escucha en los puertos 8080 y 3000 a la vez."
+          ],
+          "correctIndex": 2,
+          "explanation": "El formato es puerto_del_host:puerto_del_contenedor."
+        },
+        {
+          "id": "nd-07-q3",
+          "question": "¿Dónde debe ir la URL de la base de datos de producción?",
+          "options": [
+            "Editada a mano dentro del contenedor en marcha.",
+            "Copiada en la imagen con una instrucción COPY.",
+            "En una variable de entorno al arrancar.",
+            "Escrita dentro del código antes de construir."
+          ],
+          "correctIndex": 2,
+          "explanation": "Así la misma imagen sirve para todos los entornos y el secreto no queda guardado en ella."
+        }
+      ]
+    },
+    {
+      "id": "nd-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3 · Contenedores",
+      "title": "Un buen Dockerfile",
+      "subtitle": "Imágenes pequeñas, rápidas de construir y seguras.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Escribir un Dockerfile con las instrucciones esenciales.",
+        "Aprovechar la caché de capas ordenando las instrucciones.",
+        "Reducir tamaño y riesgo con multi-stage, .dockerignore y un usuario sin privilegios."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-08-sec-1",
+          "title": "1. Las instrucciones esenciales",
+          "body": "Un **Dockerfile** es la receta para construir una imagen. Cada instrucción hace una cosa:\n- `FROM`: imagen base.\n- `WORKDIR`: carpeta de trabajo dentro de la imagen.\n- `COPY`: copiar archivos de tu proyecto a la imagen.\n- `RUN`: ejecutar un comando al construir (instalar dependencias).\n- `ENV`: variables con valor por defecto.\n- `EXPOSE`: documenta en qué puerto escucha la app (no lo publica).\n- `CMD`: qué ejecutar al arrancar el contenedor.\n\nSe construye con `docker build -t nombre:etiqueta .` (el punto es el **contexto**: la carpeta cuyos archivos se envían a Docker).",
+          "codeLanguage": "dockerfile",
+          "codeSnippet": "FROM node:20-alpine\nWORKDIR /app\nCOPY . .\nRUN npm install\nENV NODE_ENV=production\nEXPOSE 3000\nCMD [\"node\", \"server.js\"]\n\n# docker build -t reportes:dev .",
+          "keyTakeaway": "FROM, WORKDIR, COPY, RUN y CMD bastan para empaquetar casi cualquier app."
+        },
+        {
+          "id": "nd-08-sec-2",
+          "title": "2. La caché de capas: el orden importa",
+          "body": "Cada instrucción crea una **capa**. Al reconstruir, Docker reutiliza las capas que no cambiaron, pero en cuanto una cambia, **todas las siguientes se rehacen**.\n\nEn el ejemplo anterior, `COPY . .` va antes de `npm install`: cualquier cambio en una línea de código invalida la caché y reinstala todas las dependencias (minutos). La solución es copiar primero solo los archivos de dependencias, instalar, y después copiar el código. Además, `npm ci` instala exactamente lo que dice el `package-lock.json`.",
+          "codeLanguage": "dockerfile",
+          "codeSnippet": "FROM node:20-alpine\nWORKDIR /app\n\n# 1) Dependencias: cambian poco → capa reutilizada\nCOPY package.json package-lock.json ./\nRUN npm ci --omit=dev\n\n# 2) Código: cambia en cada commit\nCOPY . .\n\nCMD [\"node\", \"server.js\"]",
+          "keyTakeaway": "Lo que cambia poco va arriba y lo que cambia mucho va abajo."
+        },
+        {
+          "id": "nd-08-sec-3",
+          "title": "3. Multi-stage: construir en una imagen, ejecutar en otra",
+          "body": "Muchas apps necesitan herramientas para **compilarse** (TypeScript, Vite, compiladores) que no hacen falta para **ejecutarse**. Con un Dockerfile **multi-stage** usas una etapa pesada para construir y copias solo el resultado a una etapa final ligera.\n\nLa imagen final pasa de cientos de megas a unas decenas, se descarga más rápido en cada despliegue y tiene menos piezas que puedan tener vulnerabilidades.",
+          "codeLanguage": "dockerfile",
+          "codeSnippet": "# Etapa 1: construir\nFROM node:20-alpine AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build            # genera dist/\n\n# Etapa 2: ejecutar\nFROM node:20-alpine\nWORKDIR /app\nENV NODE_ENV=production\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY --from=build /app/dist ./dist\nUSER node\nEXPOSE 8080\nCMD [\"node\", \"dist/server.js\"]",
+          "keyTakeaway": "Construye con todo y ejecuta con lo mínimo: la imagen final solo lleva lo que corre."
+        },
+        {
+          "id": "nd-08-sec-4",
+          "title": "4. .dockerignore y usuario sin privilegios",
+          "body": "El archivo `.dockerignore` funciona como `.gitignore`: lo que lista no se envía al construir. Sin él, `COPY . .` mete en la imagen `node_modules` de tu máquina, la carpeta `.git` y, lo peor, tu archivo `.env` con secretos.\n\nPor defecto, el proceso de un contenedor corre como **root**. La instrucción `USER` cambia a un usuario sin privilegios (las imágenes de Node traen uno llamado `node`). Es el mismo principio de menor privilegio que aplicaste en Linux.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "# .dockerignore\nnode_modules\n.git\n.env\n*.log\ncoverage\nDockerfile\n.dockerignore\n\n# Comprobar tamaño y capas\n# docker images reportes\n# docker history reportes:1.4.0",
+          "keyTakeaway": "Un .dockerignore evita filtrar secretos y USER evita correr como root."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Checklist para revisar cualquier Dockerfile.",
+        "rules": [
+          "Imagen base con versión fija y variante pequeña (alpine o slim).",
+          "Copiar dependencias e instalar antes de copiar el código.",
+          "npm ci (o el equivalente con lockfile) en lugar de npm install.",
+          "Multi-stage cuando haya un paso de compilación.",
+          "Siempre un .dockerignore que excluya .env, .git y node_modules.",
+          "Terminar con USER sin privilegios y CMD en formato de lista."
+        ],
+        "codeLanguage": "dockerfile",
+        "referenceCode": "FROM node:20.18-alpine AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:20.18-alpine\nWORKDIR /app\nENV NODE_ENV=production\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY --from=build /app/dist ./dist\nUSER node\nCMD [\"node\", \"dist/server.js\"]"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Primera versión del Dockerfile de una API en TypeScript.",
+        "juniorCode": "FROM node:latest\nCOPY . .\nRUN npm install\nRUN npm run build\nCMD npm start",
+        "juniorFlaws": [
+          "latest cambia sin aviso y la imagen base completa pesa más de 1 GB.",
+          "Sin .dockerignore, el .env con secretos acaba dentro de la imagen.",
+          "Cada cambio de código reinstala todas las dependencias.",
+          "Corre como root y lleva el compilador y las dependencias de desarrollo a producción."
+        ],
+        "intermediateCode": "FROM node:20.18-alpine AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM node:20.18-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --omit=dev\nCOPY --from=build /app/dist ./dist\nUSER node\nCMD [\"node\", \"dist/server.js\"]",
+        "intermediateBenefits": [
+          "Versión fija y una imagen final de pocas decenas de megas.",
+          "Las dependencias se reutilizan de la caché.",
+          "Sin herramientas de compilación ni root en producción."
+        ],
+        "codeLanguage": "dockerfile"
+      },
+      "exercises": [
+        {
+          "id": "nd-08-ej-1",
+          "title": "Ordena para la caché",
+          "difficulty": "Básico",
+          "prompt": "Reordena este Dockerfile de Python para que un cambio en el código no reinstale las dependencias:\nFROM python:3.12-slim\nWORKDIR /app\nCOPY . .\nRUN pip install -r requirements.txt\nCMD [\"gunicorn\", \"app:app\", \"--bind\", \"0.0.0.0:8080\"]",
+          "hint": "Copia solo requirements.txt antes del pip install.",
+          "solutionExplanation": "Así la capa de pip solo se rehace cuando cambia requirements.txt.",
+          "solutionCode": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nCMD [\"gunicorn\", \"app:app\", \"--bind\", \"0.0.0.0:8080\"]",
+          "codeLanguage": "dockerfile"
+        },
+        {
+          "id": "nd-08-ej-2",
+          "title": "Escribe el .dockerignore",
+          "difficulty": "Básico",
+          "prompt": "Tu proyecto tiene: src/, node_modules/, .git/, .env, .env.example, coverage/, README.md, Dockerfile y package.json. Escribe un .dockerignore que deje fuera todo lo que la imagen no necesita, sin excluir nada que el build sí use.",
+          "hint": "La imagen necesita src/ y package.json; .env.example no tiene secretos pero tampoco hace falta.",
+          "solutionExplanation": "Lo que no aparece en la lista sí se envía. src y package.json deben seguir disponibles para el build.",
+          "solutionCode": "node_modules\n.git\n.env\n.env.example\ncoverage\nREADME.md\nDockerfile\n.dockerignore",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-08-ej-3",
+          "title": "Multi-stage para un sitio estático",
+          "difficulty": "Avanzado",
+          "prompt": "Un sitio hecho con Vite se construye con npm run build y genera la carpeta dist/. Escribe un Dockerfile multi-stage que construya con node:20-alpine y sirva dist/ con nginx:1.27-alpine (nginx sirve archivos desde /usr/share/nginx/html).",
+          "hint": "Etapa build con npm ci y npm run build; etapa final FROM nginx con COPY --from=build.",
+          "solutionExplanation": "La imagen final solo contiene nginx y los archivos estáticos: nada de Node ni node_modules.",
+          "solutionCode": "FROM node:20-alpine AS build\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci\nCOPY . .\nRUN npm run build\n\nFROM nginx:1.27-alpine\nCOPY --from=build /app/dist /usr/share/nginx/html\nEXPOSE 80",
+          "codeLanguage": "dockerfile"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-08-q1",
+          "question": "¿Por qué se copia package.json antes que el resto del código?",
+          "options": [
+            "Para que la imagen final pese menos que el código.",
+            "Para reutilizar la capa de dependencias en caché.",
+            "Porque Docker exige que sea el primer archivo copiado.",
+            "Para que npm pueda leer el código fuente al instalar."
+          ],
+          "correctIndex": 1,
+          "explanation": "Si solo cambia el código, la capa de instalación no se invalida y el build tarda segundos."
+        },
+        {
+          "id": "nd-08-q2",
+          "question": "¿Qué ventaja da un Dockerfile multi-stage?",
+          "options": [
+            "Hace que la imagen funcione sin un registro remoto.",
+            "Permite ejecutar dos procesos en el mismo contenedor.",
+            "Construye la imagen para varias nubes a la vez.",
+            "La imagen final no lleva las herramientas de build."
+          ],
+          "correctIndex": 3,
+          "explanation": "Se compila en una etapa y solo el resultado pasa a la etapa final, más pequeña y segura."
+        },
+        {
+          "id": "nd-08-q3",
+          "question": "¿Qué riesgo evita listar .env en .dockerignore?",
+          "options": [
+            "Que la imagen tarde más en arrancar en la nube.",
+            "Que los secretos acaben guardados dentro de la imagen.",
+            "Que Docker no encuentre el archivo de dependencias.",
+            "Que el contenedor use un puerto distinto al previsto."
+          ],
+          "correctIndex": 1,
+          "explanation": "Todo lo que se copia a la imagen viaja con ella al registro; un .env copiado expone sus claves."
+        }
+      ]
+    },
+    {
+      "id": "nd-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3 · Contenedores",
+      "title": "Docker Compose: varios servicios juntos",
+      "subtitle": "La app, su base de datos y su caché con un solo comando.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Describir varios servicios en un archivo compose.yaml.",
+        "Conectar servicios por nombre en una red y guardar datos en volúmenes.",
+        "Controlar el orden de arranque con healthchecks."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-09-sec-1",
+          "title": "1. Un archivo para todo el entorno",
+          "body": "Una aplicación real rara vez es un solo contenedor: está la API, una base de datos, quizá Redis para la caché. Lanzarlos uno por uno con `docker run` y diez opciones cada uno es frágil.\n\n**Docker Compose** describe todos los servicios en un archivo `compose.yaml` y los levanta juntos. Cualquier persona que clone el repositorio tiene el entorno completo con `docker compose up`.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# compose.yaml\nservices:\n  api:\n    build: .\n    ports:\n      - \"3000:3000\"\n    env_file: .env\n    depends_on:\n      - db\n\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: reportes\n      POSTGRES_USER: app\n      POSTGRES_PASSWORD: ${DB_PASSWORD}",
+          "keyTakeaway": "compose.yaml convierte «cómo levanto el proyecto» en un archivo versionado con el código."
+        },
+        {
+          "id": "nd-09-sec-2",
+          "title": "2. Redes: los servicios se llaman por su nombre",
+          "body": "Compose crea una **red** privada para el proyecto, y cada servicio es accesible por su **nombre**. Desde la API, la base de datos no está en `localhost`, está en `db`.\n\nEste es el error más común al empezar: dentro de un contenedor, `localhost` es **el propio contenedor**. Además, la base de datos no necesita `ports`: la API la alcanza por la red interna y así no queda expuesta fuera.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# .env de la API\nDATABASE_URL=postgres://app:secreto@db:5432/reportes\n#                                    ^^ nombre del servicio, no localhost\n\ndocker compose up -d\ndocker compose ps\ndocker compose exec api sh -c 'nc -zv db 5432'\n# db (172.18.0.2:5432) open",
+          "keyTakeaway": "Dentro de Compose, cada servicio se alcanza por su nombre; localhost es el propio contenedor."
+        },
+        {
+          "id": "nd-09-sec-3",
+          "title": "3. Volúmenes: que los datos sobrevivan",
+          "body": "Si borras el contenedor de Postgres, sus datos se van con él. Un **volumen** es un almacenamiento que vive fuera del ciclo de vida del contenedor.\n- **Volumen con nombre** (`datos-db:/var/lib/postgresql/data`): lo gestiona Docker; ideal para bases de datos.\n- **Montaje de carpeta** (`./src:/app/src`): conecta una carpeta de tu máquina; ideal en desarrollo para ver los cambios sin reconstruir.\n\n`docker compose down` detiene y elimina los contenedores pero conserva los volúmenes. `down -v` también borra los volúmenes: úsalo solo si quieres empezar de cero.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "services:\n  db:\n    image: postgres:16-alpine\n    volumes:\n      - datos-db:/var/lib/postgresql/data\n\n  api:\n    build: .\n    volumes:\n      - ./src:/app/src      # solo en desarrollo\n\nvolumes:\n  datos-db:",
+          "keyTakeaway": "Los datos van en volúmenes; los contenedores se pueden tirar y volver a crear."
+        },
+        {
+          "id": "nd-09-sec-4",
+          "title": "4. Healthchecks y orden de arranque",
+          "body": "`depends_on` solo garantiza que el contenedor `db` **arrancó**, no que Postgres esté listo para recibir conexiones (tarda unos segundos). La API intenta conectarse antes de tiempo y falla.\n\nLa solución es un **healthcheck** en la base de datos y `condition: service_healthy` en la API. Compose espera a que la comprobación pase antes de arrancar la API.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "services:\n  db:\n    image: postgres:16-alpine\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U app -d reportes\"]\n      interval: 5s\n      retries: 10\n\n  api:\n    build: .\n    depends_on:\n      db:\n        condition: service_healthy\n    restart: unless-stopped",
+          "keyTakeaway": "depends_on espera a que arranque; con un healthcheck espera a que esté listo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir un compose.yaml que cualquiera del equipo pueda usar.",
+        "rules": [
+          "El compose.yaml vive en el repositorio junto al código.",
+          "Los secretos van en .env (fuera de Git) y se referencian con ${VARIABLE}.",
+          "Expón solo los puertos que necesitas ver desde tu máquina.",
+          "Bases de datos siempre con volumen con nombre y healthcheck.",
+          "Imágenes con versión fija también en Compose."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "docker compose up -d --build   # levantar reconstruyendo\ndocker compose logs -f api     # seguir los logs de un servicio\ndocker compose exec db psql -U app reportes\ndocker compose down            # detener (conserva volúmenes)"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "La API no logra conectarse a la base de datos al levantar el proyecto.",
+        "juniorCode": "services:\n  api:\n    build: .\n    environment:\n      DATABASE_URL: postgres://app:1234@localhost:5432/reportes\n  db:\n    image: postgres\n    ports: [\"5432:5432\"]\n    environment:\n      POSTGRES_PASSWORD: 1234",
+        "juniorFlaws": [
+          "localhost apunta al contenedor de la API, no a la base de datos.",
+          "La contraseña está escrita en un archivo que va a Git.",
+          "La base queda expuesta en el puerto 5432 y sin volumen: los datos se pierden.",
+          "No hay healthcheck: la API arranca antes de que Postgres esté listo."
+        ],
+        "intermediateCode": "services:\n  api:\n    build: .\n    env_file: .env      # DATABASE_URL=...@db:5432/reportes\n    depends_on:\n      db: { condition: service_healthy }\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_PASSWORD: ${DB_PASSWORD}\n    volumes: [\"datos-db:/var/lib/postgresql/data\"]\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]\n      interval: 5s\nvolumes:\n  datos-db:",
+        "intermediateBenefits": [
+          "La API encuentra la base por su nombre de servicio.",
+          "El secreto queda fuera del repositorio.",
+          "Los datos persisten y la API espera a que la base esté lista."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "nd-09-ej-1",
+          "title": "Agrega Redis",
+          "difficulty": "Intermedio",
+          "prompt": "Al compose.yaml de la API con Postgres agrégale un servicio cache con redis:7-alpine, sin puertos publicados, y haz que la API reciba la variable REDIS_URL apuntando a él (Redis escucha en el 6379).",
+          "hint": "Un servicio nuevo; en la API, environment con la URL usando el nombre del servicio.",
+          "solutionExplanation": "Como cache está en la misma red de Compose, la API lo alcanza por su nombre.",
+          "solutionCode": "services:\n  api:\n    build: .\n    env_file: .env\n    environment:\n      REDIS_URL: redis://cache:6379\n    depends_on:\n      - db\n      - cache\n\n  cache:\n    image: redis:7-alpine",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "nd-09-ej-2",
+          "title": "¿Se pierden los datos?",
+          "difficulty": "Básico",
+          "prompt": "La base usa el volumen con nombre datos-db. Para cada comando di si los datos de la base siguen ahí después: (1) docker compose restart db; (2) docker compose down y luego up; (3) docker compose down -v y luego up; (4) docker compose up --build.",
+          "hint": "Solo una opción elimina los volúmenes.",
+          "solutionExplanation": "Los volúmenes con nombre sobreviven a todo salvo a un borrado explícito con -v o docker volume rm.",
+          "solutionCode": "1) Sí siguen.\n2) Sí siguen: down elimina contenedores, no volúmenes.\n3) No: -v borra los volúmenes.\n4) Sí siguen.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-09-ej-3",
+          "title": "Espera a la base de datos",
+          "difficulty": "Intermedio",
+          "prompt": "Una API en Python con MySQL falla al arrancar porque la base aún no está lista. Escribe la parte del compose.yaml con un healthcheck para mysql:8.4 (comando: mysqladmin ping -h localhost) y la dependencia correcta en la API.",
+          "hint": "healthcheck con test en formato CMD-SHELL o CMD, y depends_on con condition: service_healthy.",
+          "solutionExplanation": "Compose no arranca la API hasta que el ping de MySQL responde bien.",
+          "solutionCode": "services:\n  db:\n    image: mysql:8.4\n    environment:\n      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}\n    healthcheck:\n      test: [\"CMD\", \"mysqladmin\", \"ping\", \"-h\", \"localhost\"]\n      interval: 5s\n      retries: 12\n\n  api:\n    build: .\n    depends_on:\n      db:\n        condition: service_healthy",
+          "codeLanguage": "yaml"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-09-q1",
+          "question": "Dentro de Compose, ¿cómo llega la API a un servicio llamado db?",
+          "options": [
+            "Publicando el puerto de db y usando la IP pública.",
+            "Copiando la base de datos dentro de la imagen.",
+            "Usando localhost porque están en la misma máquina.",
+            "Usando db como nombre de host en la conexión."
+          ],
+          "correctIndex": 3,
+          "explanation": "Compose crea una red donde cada servicio se resuelve por su nombre."
+        },
+        {
+          "id": "nd-09-q2",
+          "question": "¿Qué hace docker compose down -v?",
+          "options": [
+            "Detiene los servicios sin eliminar sus contenedores.",
+            "Elimina contenedores, redes y también volúmenes.",
+            "Muestra los volúmenes sin cambiar nada del proyecto.",
+            "Elimina contenedores y conserva todos los volúmenes."
+          ],
+          "correctIndex": 1,
+          "explanation": "-v añade el borrado de volúmenes: los datos de la base se pierden."
+        },
+        {
+          "id": "nd-09-q3",
+          "question": "¿Qué garantiza depends_on sin condición?",
+          "options": [
+            "Que el otro servicio acepte conexiones.",
+            "Que los dos compartan el mismo volumen.",
+            "Que el otro servicio pase su healthcheck.",
+            "Que el otro contenedor arranque antes."
+          ],
+          "correctIndex": 3,
+          "explanation": "Solo controla el orden de arranque; para esperar a que esté listo hace falta service_healthy."
+        }
+      ]
+    },
+    {
+      "id": "nd-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 4 · CI/CD",
+      "title": "GitHub Actions: pruebas en cada push",
+      "subtitle": "Integración continua: que una máquina compruebe cada cambio antes de llegar a main.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es la integración continua y el recorrido de un pipeline.",
+        "Escribir un workflow con eventos, jobs y steps.",
+        "Acelerar y ampliar las comprobaciones con caché y matrices."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-10-sec-1",
+          "title": "1. Qué es CI/CD",
+          "body": "**Integración continua (CI)**: cada vez que alguien sube un cambio, una máquina limpia descarga el código, instala las dependencias y corre el linter y las pruebas. Si algo falla, se sabe en minutos y antes de llegar a `main`.\n\n**Entrega o despliegue continuo (CD)**: lo que pasó la CI se empaqueta y se despliega de forma automática (o con un solo clic de aprobación).\n\nJuntas forman un **pipeline**: una cadena de etapas donde cada una solo empieza si la anterior terminó en verde. Toca cada etapa del diagrama para ver qué hace; en este capítulo construimos las dos primeras y en el siguiente, el resto.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Sin CI                              Con CI\n──────                              ──────\n«En mi máquina pasa»                Cada PR muestra ✓ o ✗\nPruebas cuando alguien se acuerda   Pruebas en cada push\nEl error se ve en producción        El error se ve en el PR\nDesplegar = 20 pasos a mano         Desplegar = fusionar el PR",
+          "keyTakeaway": "CI comprueba cada cambio; CD entrega lo que pasó; el pipeline las encadena.",
+          "diagram": {
+            "type": "pipeline-cicd"
+          }
+        },
+        {
+          "id": "nd-10-sec-2",
+          "title": "2. Anatomía de un workflow",
+          "body": "Los workflows de GitHub Actions son archivos YAML en `.github/workflows/`. Sus partes:\n- `on`: los **eventos** que lo disparan (push, pull_request, un horario, a mano con workflow_dispatch).\n- `jobs`: los **trabajos**; cada uno corre en una máquina nueva (`runs-on`). Por defecto los jobs corren en paralelo; `needs` los encadena.\n- `steps`: los **pasos** de cada job, en orden. Un paso usa una acción ya hecha (`uses`) o ejecuta comandos (`run`).\n\n`permissions` limita lo que el token automático del workflow puede hacer; empieza siempre por el mínimo.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# .github/workflows/ci.yml\nname: CI\n\non:\n  pull_request:\n  push:\n    branches: [main]\n\npermissions:\n  contents: read\n\njobs:\n  pruebas:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: 20\n      - run: npm ci\n      - run: npm run lint\n      - run: npm test",
+          "keyTakeaway": "Un workflow es: cuándo (on), dónde (runs-on) y qué pasos (steps)."
+        },
+        {
+          "id": "nd-10-sec-3",
+          "title": "3. Caché y matrices",
+          "body": "Dos herramientas para que la CI sea rápida y completa:\n- **Caché**: `setup-node` con `cache: npm` guarda las dependencias descargadas entre ejecuciones; la instalación pasa de un minuto a segundos.\n- **Matriz** (`strategy.matrix`): corre el mismo job con varias combinaciones, por ejemplo Node 18, 20 y 22, o Linux y Windows. GitHub lanza un job por combinación, en paralelo.\n\n`fail-fast: false` deja terminar las demás combinaciones aunque una falle, para ver el panorama completo.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "jobs:\n  pruebas:\n    runs-on: ubuntu-latest\n    strategy:\n      fail-fast: false\n      matrix:\n        node: [18, 20, 22]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with:\n          node-version: ${{ matrix.node }}\n          cache: npm\n      - run: npm ci\n      - run: npm test",
+          "keyTakeaway": "La caché ahorra minutos en cada ejecución; la matriz prueba varias versiones a la vez."
+        },
+        {
+          "id": "nd-10-sec-4",
+          "title": "4. Que el rojo bloquee de verdad",
+          "body": "Un check en rojo que se puede ignorar no sirve de mucho. Conecta la CI con la protección de `main` (capítulo 1): en la regla de la rama marca como **obligatorio** el job `pruebas`. Desde ese momento GitHub no deja fusionar un PR hasta que pase.\n\nCuando algo falla, abre el job en la pestaña **Actions**, busca el primer paso en rojo y lee su salida de abajo hacia arriba. Si necesitas reproducirlo, ejecuta en tu máquina exactamente el mismo comando (`npm ci && npm test`). Nunca «arregles» un rojo desactivando la prueba.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Ver los últimos runs y su resultado desde la terminal\ngh run list --limit 5\n\n# Ver el detalle de un run fallido\ngh run view 1234567 --log-failed\n\n# Volver a lanzar solo los jobs que fallaron\ngh run rerun 1234567 --failed",
+          "keyTakeaway": "La CI vale cuando un rojo impide fusionar; lee el primer paso fallido y reprodúcelo en local."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para una integración continua útil y segura.",
+        "rules": [
+          "La CI corre en cada pull request y en cada push a main.",
+          "Usa versiones fijas de las acciones (@v4) y, en proyectos sensibles, el hash del commit.",
+          "Empieza con permissions: contents: read y añade solo lo necesario.",
+          "Activa la caché de dependencias.",
+          "Haz obligatorio el check en la protección de main.",
+          "Nunca desactives una prueba para poner el pipeline en verde."
+        ],
+        "codeLanguage": "yaml",
+        "referenceCode": "name: CI\non:\n  pull_request:\n  push:\n    branches: [main]\npermissions:\n  contents: read\nconcurrency:\n  group: ci-${{ github.ref }}\n  cancel-in-progress: true\njobs:\n  pruebas:\n    runs-on: ubuntu-latest\n    timeout-minutes: 10\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: npm }\n      - run: npm ci\n      - run: npm run lint\n      - run: npm test"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Primer workflow de CI de un proyecto Node.",
+        "juniorCode": "on: push\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@main\n      - run: npm install\n      - run: npm test || true",
+        "juniorFlaws": [
+          "No corre en los pull request, que es justo donde hace falta.",
+          "actions/checkout@main puede cambiar en cualquier momento.",
+          "npm install no respeta el lockfile y no hay caché.",
+          "|| true hace que el paso pase siempre: la CI nunca se pone en rojo."
+        ],
+        "intermediateCode": "on:\n  pull_request:\n  push:\n    branches: [main]\npermissions:\n  contents: read\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: npm }\n      - run: npm ci\n      - run: npm test",
+        "intermediateBenefits": [
+          "Comprueba los PR antes de fusionar.",
+          "Versiones de acciones y dependencias reproducibles.",
+          "Un fallo real se ve como fallo."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "nd-10-ej-1",
+          "title": "Valida tu propio repositorio",
+          "difficulty": "Intermedio",
+          "prompt": "Tu plataforma de estudio tiene scripts/validar_cursos.py. Escribe un workflow que, en cada pull request y en cada push a main, prepare Python 3.12 y ejecute ese script, con permisos de solo lectura.",
+          "hint": "actions/checkout@v4, actions/setup-python@v5 y un run con el comando.",
+          "solutionExplanation": "Como el script sale con código 1 cuando encuentra errores, el job se pone en rojo solo.",
+          "solutionCode": "name: Validar cursos\non:\n  pull_request:\n  push:\n    branches: [main]\npermissions:\n  contents: read\njobs:\n  validar:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: \"3.12\"\n      - run: python scripts/validar_cursos.py",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "nd-10-ej-2",
+          "title": "Encadena jobs",
+          "difficulty": "Intermedio",
+          "prompt": "Divide la CI en dos jobs: lint y pruebas. Las pruebas solo deben correr si el lint pasó. Escribe el bloque jobs.",
+          "hint": "Usa needs en el segundo job.",
+          "solutionExplanation": "Sin needs, los dos jobs correrían en paralelo; con needs: lint, pruebas espera y se salta si lint falla.",
+          "solutionCode": "jobs:\n  lint:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: npm }\n      - run: npm ci\n      - run: npm run lint\n\n  pruebas:\n    needs: lint\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 20, cache: npm }\n      - run: npm ci\n      - run: npm test",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "nd-10-ej-3",
+          "title": "Matriz de sistemas",
+          "difficulty": "Avanzado",
+          "prompt": "Una herramienta de línea de comandos debe probarse en ubuntu-latest y windows-latest, con Python 3.11 y 3.12 (4 combinaciones), sin que un fallo cancele el resto. Escribe el job.",
+          "hint": "matrix con dos claves (os y python); runs-on: ${{ matrix.os }}.",
+          "solutionExplanation": "GitHub crea una ejecución por cada combinación de las listas: 2 × 2 = 4.",
+          "solutionCode": "jobs:\n  pruebas:\n    strategy:\n      fail-fast: false\n      matrix:\n        os: [ubuntu-latest, windows-latest]\n        python: [\"3.11\", \"3.12\"]\n    runs-on: ${{ matrix.os }}\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: ${{ matrix.python }}\n          cache: pip\n      - run: pip install -r requirements.txt\n      - run: pytest",
+          "codeLanguage": "yaml"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-10-q1",
+          "question": "¿Qué hace la integración continua?",
+          "options": [
+            "Despliega a producción cada commit sin revisar.",
+            "Hace copias de seguridad del repositorio a diario.",
+            "Comprueba cada cambio en una máquina limpia.",
+            "Junta todas las ramas en main una vez por semana."
+          ],
+          "correctIndex": 2,
+          "explanation": "La CI instala, corre el linter y las pruebas en cada push o PR para detectar errores pronto."
+        },
+        {
+          "id": "nd-10-q2",
+          "question": "En un workflow, ¿para qué sirve needs?",
+          "options": [
+            "Para elegir el sistema operativo de la máquina.",
+            "Para pedir permisos extra al token del workflow.",
+            "Para instalar las dependencias que pide el job.",
+            "Para que un job espere a que otro termine bien."
+          ],
+          "correctIndex": 3,
+          "explanation": "needs encadena jobs: el segundo solo empieza si el primero terminó en verde."
+        },
+        {
+          "id": "nd-10-q3",
+          "question": "¿Qué problema tiene el paso run: npm test || true?",
+          "options": [
+            "Las pruebas solo se ejecutan en los pull request.",
+            "El paso no puede leer las variables del job.",
+            "Las pruebas se ejecutan dos veces seguidas.",
+            "El paso pasa en verde aunque fallen las pruebas."
+          ],
+          "correctIndex": 3,
+          "explanation": "|| true convierte cualquier fallo en éxito, así que la CI deja de avisar."
+        }
+      ]
+    },
+    {
+      "id": "nd-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 4 · CI/CD",
+      "title": "Entrega continua: imagen, secretos y entornos",
+      "subtitle": "Del PR fusionado a una imagen publicada y desplegada, sin pasos a mano.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Construir y publicar una imagen etiquetada con el commit desde GitHub Actions.",
+        "Guardar secretos fuera del código y autenticarse en Google Cloud sin llaves.",
+        "Separar staging y producción con entornos y aprobación."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-11-sec-1",
+          "title": "1. Construir una vez, desplegar muchas",
+          "body": "La regla de oro de la entrega continua: la imagen se construye **una sola vez**, en el pipeline, y esa misma imagen pasa por staging y llega a producción. Si reconstruyes para cada entorno, lo que probaste no es exactamente lo que despliegas.\n\nEtiqueta cada imagen con el **hash del commit** (`github.sha`): así cualquier contenedor en marcha te dice de qué código viene, y volver atrás es desplegar el hash anterior. Una etiqueta como `latest` no responde a ninguna de esas preguntas.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "env:\n  IMAGEN: us-central1-docker.pkg.dev/mi-proyecto/apps/reportes\n\njobs:\n  imagen:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - run: docker build -t $IMAGEN:${{ github.sha }} .\n      # ...autenticarse y docker push (siguiente sección)",
+          "keyTakeaway": "Una imagen por commit, etiquetada con su hash, que viaja sin cambios por todos los entornos."
+        },
+        {
+          "id": "nd-11-sec-2",
+          "title": "2. Secretos: nunca en el repositorio",
+          "body": "Una contraseña que llega a un commit **está filtrada**, aunque la borres en el siguiente: sigue en la historia. GitHub ofrece **Secrets** (Settings → Secrets and variables → Actions) cifrados, que el workflow lee con `${{ secrets.NOMBRE }}` y que aparecen como `***` en los logs.\n\nAun así, la mejor llave es la que no existe. Para Google Cloud, en lugar de guardar un archivo JSON de cuenta de servicio, usa **Workload Identity Federation**: GitHub emite un token de corta duración que dice «soy el workflow del repo X en la rama main», y Google Cloud lo cambia por permisos temporales. No hay ninguna llave que robar.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "permissions:\n  contents: read\n  id-token: write        # necesario para Workload Identity\n\nsteps:\n  - uses: google-github-actions/auth@v2\n    with:\n      workload_identity_provider: ${{ secrets.WIF_PROVIDER }}\n      service_account: deploy@mi-proyecto.iam.gserviceaccount.com\n  - uses: google-github-actions/setup-gcloud@v2\n  - run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet\n  - run: docker push $IMAGEN:${{ github.sha }}",
+          "keyTakeaway": "Secretos en GitHub Secrets o, mejor, sin llaves gracias a Workload Identity Federation."
+        },
+        {
+          "id": "nd-11-sec-3",
+          "title": "3. Entornos: staging y producción",
+          "body": "Los **environments** de GitHub (Settings → Environments) agrupan secretos y reglas por entorno:\n- `staging`: se despliega solo, en cada push a main.\n- `production`: exige **revisores obligatorios**; el job queda en pausa hasta que alguien aprueba en GitHub.\n\nCada job declara `environment: nombre` y solo ve los secretos de ese entorno. Así una prueba de staging nunca puede tocar la base de producción por error.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "jobs:\n  deploy-staging:\n    needs: imagen\n    environment: staging\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"desplegar $IMAGEN:${{ github.sha }} en staging\"\n\n  deploy-prod:\n    needs: deploy-staging\n    environment: production   # espera aprobación\n    runs-on: ubuntu-latest\n    steps:\n      - run: echo \"desplegar la MISMA imagen en producción\"",
+          "keyTakeaway": "Cada entorno con sus secretos; producción con aprobación humana."
+        },
+        {
+          "id": "nd-11-sec-4",
+          "title": "4. Prueba de humo y vuelta atrás",
+          "body": "Que el despliegue terminara no significa que la app funcione. Tras desplegar en staging, el pipeline hace una **prueba de humo**: pide una ruta como `/salud` y exige una respuesta 200. Si falla, el pipeline se detiene y producción no se toca.\n\nPara volver atrás no hace falta reconstruir nada: la imagen del commit anterior sigue en el registro. Basta con desplegarla otra vez (en el capítulo 12 verás que Cloud Run lo hace moviendo el tráfico a la revisión anterior).",
+          "codeLanguage": "yaml",
+          "codeSnippet": "  - name: Prueba de humo\n    run: |\n      for i in 1 2 3 4 5; do\n        curl -fsS \"$URL_STAGING/salud\" && exit 0\n        sleep 5\n      done\n      echo \"Staging no responde\" >&2\n      exit 1",
+          "keyTakeaway": "Despliegue terminado no es despliegue sano: compruébalo antes de seguir."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para un pipeline de entrega fiable y seguro.",
+        "rules": [
+          "La imagen se construye una vez y se etiqueta con el hash del commit.",
+          "Ningún secreto en el repositorio, ni en el Dockerfile, ni en los logs.",
+          "Autentícate en la nube con identidad federada, no con llaves JSON.",
+          "Producción con aprobación obligatoria y sus propios secretos.",
+          "Prueba de humo después de cada despliegue.",
+          "Volver atrás = desplegar la imagen anterior, no reconstruir."
+        ],
+        "codeLanguage": "yaml",
+        "referenceCode": "on:\n  push:\n    branches: [main]\npermissions:\n  contents: read\n  id-token: write\nconcurrency:\n  group: deploy\n  cancel-in-progress: false\njobs:\n  imagen: { ... }\n  deploy-staging: { needs: imagen, environment: staging, ... }\n  deploy-prod: { needs: deploy-staging, environment: production, ... }"
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Automatizar el despliegue a la nube desde GitHub Actions.",
+        "juniorCode": "- run: echo '${{ secrets.GCP_KEY_JSON }}' > key.json\n- run: gcloud auth activate-service-account --key-file key.json\n- run: docker build -t reportes:latest .\n- run: docker push .../reportes:latest\n- run: gcloud run deploy reportes --image .../reportes:latest",
+        "juniorFlaws": [
+          "Una llave JSON de larga duración que, si se filtra, da acceso a la nube.",
+          "latest no dice qué commit está en producción ni permite volver atrás con precisión.",
+          "Va directo a producción, sin staging, prueba de humo ni aprobación."
+        ],
+        "intermediateCode": "- uses: google-github-actions/auth@v2\n  with:\n    workload_identity_provider: ${{ secrets.WIF_PROVIDER }}\n    service_account: deploy@mi-proyecto.iam.gserviceaccount.com\n- run: docker build -t $IMAGEN:${{ github.sha }} .\n- run: docker push $IMAGEN:${{ github.sha }}\n# luego: staging → prueba de humo → aprobación → producción",
+        "intermediateBenefits": [
+          "No existe ninguna llave permanente que robar.",
+          "Cada despliegue apunta a un commit exacto.",
+          "Producción solo recibe lo que ya funcionó en staging."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "nd-11-ej-1",
+          "title": "Etiqueta la imagen",
+          "difficulty": "Básico",
+          "prompt": "Escribe los dos pasos run que construyen y suben la imagen us-central1-docker.pkg.dev/tienda-123/apps/web usando como etiqueta el hash del commit.",
+          "hint": "La variable es github.sha dentro de ${{ }}.",
+          "solutionExplanation": "Con el hash como etiqueta, cada imagen del registro corresponde a un commit exacto.",
+          "solutionCode": "- run: docker build -t us-central1-docker.pkg.dev/tienda-123/apps/web:${{ github.sha }} .\n- run: docker push us-central1-docker.pkg.dev/tienda-123/apps/web:${{ github.sha }}",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "nd-11-ej-2",
+          "title": "¿Dónde va cada dato?",
+          "difficulty": "Básico",
+          "prompt": "Clasifica cada dato como: variable de entorno normal, secreto de GitHub, o ninguno de los dos porque Workload Identity lo evita. (1) La región us-central1; (2) la contraseña de la base de producción; (3) un archivo JSON con la llave de una cuenta de servicio; (4) el identificador del proveedor de identidad federada.",
+          "hint": "Lo que no es sensible puede ser una variable; lo sensible, un secreto; algunas llaves no deberían existir.",
+          "solutionExplanation": "La región no es sensible. La contraseña sí. La llave JSON se reemplaza por identidad federada. El identificador del proveedor no da acceso por sí solo, pero se suele guardar como secreto o variable del entorno para no escribirlo a mano.",
+          "solutionCode": "1) Variable normal (env o vars).\n2) Secreto del environment production.\n3) Ninguno: se elimina usando Workload Identity Federation.\n4) Secreto o variable del repositorio (no da acceso por sí solo).",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "nd-11-ej-3",
+          "title": "Añade la aprobación",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes un job deploy que despliega a producción en cada push a main. Reescríbelo para que primero corra deploy-staging (environment staging) y después deploy-prod, que necesita staging y usa el environment production. Indica qué hay que configurar en GitHub para que production pida aprobación.",
+          "hint": "needs para encadenar; environment en cada job; en Settings → Environments, Required reviewers.",
+          "solutionExplanation": "El YAML declara el entorno; la regla de aprobación se configura en la web de GitHub, en el environment production.",
+          "solutionCode": "jobs:\n  deploy-staging:\n    environment: staging\n    runs-on: ubuntu-latest\n    steps: [ ... ]\n\n  deploy-prod:\n    needs: deploy-staging\n    environment: production\n    runs-on: ubuntu-latest\n    steps: [ ... ]\n\n# GitHub: Settings → Environments → production\n#   → Required reviewers: aronis",
+          "codeLanguage": "yaml"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-11-q1",
+          "question": "¿Por qué se etiqueta la imagen con el hash del commit?",
+          "options": [
+            "Porque los registros rechazan la etiqueta latest.",
+            "Para que Docker construya la imagen más rápido.",
+            "Para saber qué código corre y poder volver a él.",
+            "Para que la imagen pese menos en el registro."
+          ],
+          "correctIndex": 2,
+          "explanation": "El hash relaciona cada contenedor con un commit exacto y permite desplegar de nuevo una versión anterior."
+        },
+        {
+          "id": "nd-11-q2",
+          "question": "¿Qué ventaja tiene Workload Identity Federation?",
+          "options": [
+            "Hace que los secretos se vean en claro en los logs.",
+            "Permite desplegar sin tener ningún permiso en la nube.",
+            "Sustituye a las pruebas automáticas del pipeline.",
+            "No hay una llave permanente que se pueda filtrar."
+          ],
+          "correctIndex": 3,
+          "explanation": "GitHub obtiene credenciales temporales en cada ejecución; no se guarda ningún archivo de llave."
+        },
+        {
+          "id": "nd-11-q3",
+          "question": "¿Qué hace environment: production en un job con revisores obligatorios?",
+          "options": [
+            "Pausa el job hasta que alguien lo aprueba.",
+            "Despliega el job en dos regiones a la vez.",
+            "Copia los secretos de staging a producción.",
+            "Salta el job si las pruebas tardaron mucho."
+          ],
+          "correctIndex": 0,
+          "explanation": "Con Required reviewers, el job espera la aprobación de una persona antes de ejecutarse."
+        }
+      ]
+    },
+    {
+      "id": "nd-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 5 · Despliegue en la nube",
+      "title": "Tu contenedor en la nube con Google Cloud Run",
+      "subtitle": "Registro, despliegue, configuración, revisiones, registros y costos, de principio a fin.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Preparar un proyecto de Google Cloud y un repositorio de Artifact Registry.",
+        "Desplegar un contenedor en Cloud Run con variables y secretos.",
+        "Volver atrás con revisiones, leer los registros y controlar el costo."
+      ],
+      "theorySections": [
+        {
+          "id": "nd-12-sec-1",
+          "title": "1. Qué es Cloud Run y cómo se prepara",
+          "body": "**Cloud Run** ejecuta contenedores sin que gestiones servidores: le das una imagen y te devuelve una URL con HTTPS. Escala solo según las peticiones, incluso **a cero** cuando no hay tráfico, y cobra por el tiempo que tus contenedores atienden peticiones. Tiene una capa gratuita mensual suficiente para proyectos personales.\n\nLo único que exige a tu imagen: escuchar en el puerto que indica la variable `PORT` (8080 por defecto) y no guardar datos en el disco del contenedor.\n\nPreparación, una sola vez: crear un **proyecto**, vincular la facturación, activar las APIs y crear un repositorio en **Artifact Registry** para tus imágenes.",
+          "codeLanguage": "bash",
+          "codeSnippet": "gcloud auth login\ngcloud config set project mi-proyecto\ngcloud config set run/region us-central1\n\ngcloud services enable run.googleapis.com \\\n  artifactregistry.googleapis.com secretmanager.googleapis.com\n\ngcloud artifacts repositories create apps \\\n  --repository-format=docker --location=us-central1",
+          "keyTakeaway": "Cloud Run corre tu contenedor, le da HTTPS y escala a cero; tu app solo debe escuchar en $PORT."
+        },
+        {
+          "id": "nd-12-sec-2",
+          "title": "2. Primer despliegue",
+          "body": "Con la imagen en Artifact Registry, un solo comando la despliega. Cloud Run crea el **servicio** y una **revisión** (una versión inmutable de imagen más configuración) y te muestra la URL.\n\n`--allow-unauthenticated` hace la URL pública; quítalo si el servicio solo debe atender a otros servicios o a usuarios con permiso. La configuración se pasa con `--set-env-vars` y los secretos se leen de **Secret Manager** con `--set-secrets`, sin que su valor aparezca en ningún comando ni archivo.",
+          "codeLanguage": "bash",
+          "codeSnippet": "IMAGEN=us-central1-docker.pkg.dev/mi-proyecto/apps/reportes:3f9c2a1\n\ngcloud auth configure-docker us-central1-docker.pkg.dev\ndocker build -t $IMAGEN . && docker push $IMAGEN\n\n# Guardar el secreto una vez\nprintf '%s' \"$DB_PASSWORD\" | gcloud secrets create db-password --data-file=-\n\ngcloud run deploy reportes \\\n  --image $IMAGEN \\\n  --allow-unauthenticated \\\n  --set-env-vars NODE_ENV=production \\\n  --set-secrets DB_PASSWORD=db-password:latest \\\n  --service-account reportes-run@mi-proyecto.iam.gserviceaccount.com\n# Service URL: https://reportes-xxxx-uc.a.run.app",
+          "keyTakeaway": "Un gcloud run deploy publica la imagen; las variables van con --set-env-vars y los secretos desde Secret Manager."
+        },
+        {
+          "id": "nd-12-sec-3",
+          "title": "3. Revisiones, tráfico y vuelta atrás",
+          "body": "Cada despliegue crea una revisión nueva y, por defecto, le manda el 100 % del tráfico. Las anteriores **siguen ahí**, así que volver atrás es mover el tráfico, en segundos y sin reconstruir.\n\nTambién puedes desplegar sin tráfico (`--no-traffic`) con una etiqueta que da una URL propia para probarla, y después enviarle un porcentaje (despliegue *canary*) antes de pasarlo todo.",
+          "codeLanguage": "bash",
+          "codeSnippet": "gcloud run revisions list --service reportes\n# reportes-00007-kat  ← actual\n# reportes-00006-mos\n\n# Volver a la anterior\ngcloud run services update-traffic reportes \\\n  --to-revisions reportes-00006-mos=100\n\n# Canary: nueva versión sin tráfico, luego el 10 %\ngcloud run deploy reportes --image $IMAGEN --no-traffic --tag candidata\ngcloud run services update-traffic reportes --to-tags candidata=10",
+          "keyTakeaway": "Las revisiones viejas siguen disponibles: volver atrás es mover el tráfico, no reconstruir."
+        },
+        {
+          "id": "nd-12-sec-4",
+          "title": "4. Registros, alertas y costos",
+          "body": "Todo lo que tu app escribe en la salida estándar llega a **Cloud Logging**, igual que con journalctl. Si escribes **una línea JSON** por evento, con un campo `severity`, podrás filtrar por gravedad y por cualquier campo.\n\nPara que la factura no dé sustos:\n- `--max-instances` pone un techo al escalado.\n- `--min-instances 0` permite escalar a cero (la primera petición tras un rato tarda un poco más: *cold start*).\n- Un **presupuesto con alertas** en Facturación avisa por correo al llegar al 50 %, 90 % y 100 % del monto que elijas.\n- Borra las imágenes viejas del registro con una política de limpieza.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Últimos registros del servicio\ngcloud run services logs read reportes --limit 50\n\n# Solo errores en la última hora\ngcloud logging read 'resource.labels.service_name=\"reportes\" AND severity>=ERROR' \\\n  --freshness=1h\n\n# Límites de escalado\ngcloud run services update reportes --min-instances 0 --max-instances 3\n\n# En la app: una línea JSON por evento\n# console.log(JSON.stringify({ severity: \"ERROR\", message: \"pago rechazado\", pedido: 104 }))",
+          "keyTakeaway": "Registros en JSON, techo de instancias y alertas de presupuesto desde el primer día."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Checklist antes de dar por terminado un servicio en Cloud Run.",
+        "rules": [
+          "La app escucha en $PORT y no guarda datos en el disco del contenedor.",
+          "Imágenes etiquetadas con el hash del commit, nunca latest.",
+          "Secretos en Secret Manager, montados con --set-secrets.",
+          "Una cuenta de servicio propia por servicio, con los roles mínimos.",
+          "--max-instances definido y un presupuesto con alertas creado.",
+          "Registros en JSON con severity."
+        ],
+        "codeLanguage": "yaml",
+        "referenceCode": "# Paso final del workflow del capítulo 11\n- uses: google-github-actions/deploy-cloudrun@v2\n  with:\n    service: reportes\n    region: us-central1\n    image: ${{ env.IMAGEN }}:${{ github.sha }}\n    secrets: |\n      DB_PASSWORD=db-password:latest\n- run: curl -fsS \"$(gcloud run services describe reportes --region us-central1 --format='value(status.url)')/salud\""
+      },
+      "comparison": {
+        "juniorLabel": "Así no",
+        "intermediateLabel": "Así sí",
+        "scenario": "Un error en la versión nueva de la API afecta a todos los usuarios.",
+        "juniorCode": "# Arreglar a toda prisa en local\ngit revert HEAD && git push\n# esperar a que el pipeline construya y despliegue (8 minutos)\n# mientras tanto, la API sigue fallando",
+        "juniorFlaws": [
+          "Los usuarios sufren el error durante todo el pipeline.",
+          "Un arreglo con prisa puede traer un segundo error.",
+          "Se ignora que la versión buena ya está desplegada y lista."
+        ],
+        "intermediateCode": "# 1) Mitigar en segundos\ngcloud run services update-traffic reportes \\\n  --to-revisions reportes-00006-mos=100\n# 2) Revisar los registros con calma\ngcloud logging read 'resource.labels.service_name=\"reportes\" AND severity>=ERROR' --freshness=1h\n# 3) Arreglar con PR, CI y pipeline normal",
+        "intermediateBenefits": [
+          "El servicio vuelve a funcionar casi al instante.",
+          "El arreglo se hace sin presión y pasa por las pruebas.",
+          "Queda registro de qué revisión falló y por qué."
+        ],
+        "codeLanguage": "bash"
+      },
+      "exercises": [
+        {
+          "id": "nd-12-ej-1",
+          "title": "Prepara la app para Cloud Run",
+          "difficulty": "Básico",
+          "prompt": "Tu servidor Express tiene app.listen(3000). Cámbialo para que funcione en Cloud Run y siga usando 3000 en tu máquina. Explica por qué el cambio es necesario.",
+          "hint": "Lee process.env.PORT con un valor por defecto.",
+          "solutionExplanation": "Cloud Run indica el puerto en la variable PORT y envía las peticiones ahí; si la app escucha en otro, el despliegue falla porque el contenedor nunca responde.",
+          "solutionCode": "const PORT = Number(process.env.PORT) || 3000;\napp.listen(PORT, () => console.log(`Escuchando en ${PORT}`));",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "nd-12-ej-2",
+          "title": "Despliega con un secreto",
+          "difficulty": "Intermedio",
+          "prompt": "Despliega la imagen us-central1-docker.pkg.dev/tienda-123/apps/web:a1b2c3d como servicio web, público, con la variable MODO=produccion y la variable API_KEY tomada del secreto api-key de Secret Manager. Limita el escalado a 2 instancias.",
+          "hint": "gcloud run deploy con --image, --allow-unauthenticated, --set-env-vars, --set-secrets y --max-instances.",
+          "solutionExplanation": "--set-secrets lee el valor de Secret Manager al arrancar cada instancia: no aparece en el comando ni en la configuración visible.",
+          "solutionCode": "gcloud run deploy web \\\n  --image us-central1-docker.pkg.dev/tienda-123/apps/web:a1b2c3d \\\n  --region us-central1 \\\n  --allow-unauthenticated \\\n  --set-env-vars MODO=produccion \\\n  --set-secrets API_KEY=api-key:latest \\\n  --max-instances 2",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "nd-12-ej-3",
+          "title": "Canary con vuelta atrás",
+          "difficulty": "Avanzado",
+          "prompt": "Quieres probar la imagen :d4e5f6a del servicio reportes con el 10 % del tráfico y, si los errores suben, devolver todo a la revisión reportes-00011-vix. Escribe los comandos de ambos pasos y el de consulta de errores.",
+          "hint": "deploy con --no-traffic y --tag; update-traffic --to-tags; update-traffic --to-revisions para volver.",
+          "solutionExplanation": "La revisión nueva no recibe tráfico hasta que tú lo decides, y la vieja sigue lista para recuperar el 100 %.",
+          "solutionCode": "gcloud run deploy reportes --image $REPO/reportes:d4e5f6a --no-traffic --tag candidata\ngcloud run services update-traffic reportes --to-tags candidata=10\n\ngcloud logging read 'resource.labels.service_name=\"reportes\" AND severity>=ERROR' --freshness=30m\n\n# Si van mal:\ngcloud run services update-traffic reportes --to-revisions reportes-00011-vix=100",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "nd-12-q1",
+          "question": "¿Qué debe cumplir una imagen para correr en Cloud Run?",
+          "options": [
+            "Incluir un servidor SSH para poder administrarla.",
+            "Correr siempre con el usuario root del sistema.",
+            "Guardar sus datos en una carpeta del contenedor.",
+            "Escuchar en el puerto que indica la variable PORT."
+          ],
+          "correctIndex": 3,
+          "explanation": "Cloud Run envía las peticiones al puerto de $PORT y no conserva el disco del contenedor."
+        },
+        {
+          "id": "nd-12-q2",
+          "question": "¿Cómo vuelves rápido a la versión anterior en Cloud Run?",
+          "options": [
+            "Moviendo el tráfico a la revisión anterior.",
+            "Reconstruyendo la imagen desde el commit viejo.",
+            "Editando el código dentro del contenedor activo.",
+            "Borrando el servicio y desplegándolo de nuevo."
+          ],
+          "correctIndex": 0,
+          "explanation": "Las revisiones anteriores siguen disponibles; update-traffic las pone de nuevo al frente en segundos."
+        },
+        {
+          "id": "nd-12-q3",
+          "question": "¿Qué ayuda a evitar una factura inesperada en Cloud Run?",
+          "options": [
+            "Desplegar todas las imágenes con la etiqueta latest.",
+            "Un techo de instancias y un presupuesto con alertas.",
+            "Escribir los registros en un archivo del contenedor.",
+            "Mantener muchas instancias mínimas siempre activas."
+          ],
+          "correctIndex": 1,
+          "explanation": "--max-instances limita el escalado y las alertas de presupuesto avisan antes de pasarte del monto."
+        }
+      ]
+    }
+  ]
+}

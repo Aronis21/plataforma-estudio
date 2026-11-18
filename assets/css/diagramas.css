@@ -213,3 +213,25 @@
 .dg-leyenda .dg-l-fallo { background: color-mix(in srgb, var(--ko) 35%, transparent); border: 1px solid var(--ko); }
 .dg-leyenda .dg-l-omitida { background: var(--superficie-2); border: 1px dashed var(--tinta-2); }
 .dg-dag-texto { margin: .8rem 0 0; line-height: 1.5; }
+
+/* Ramas de Git (merge, rebase, squash) */
+.dg-panel-ancho { grid-template-columns: 1fr; }
+.dg-ramas { max-width: 380px; margin: 0; }
+.dg-ramas .rama { stroke: var(--tinta-2); stroke-width: 2.5; }
+.dg-ramas .rama.union { stroke-dasharray: 5 3; }
+.dg-ramas .commit circle { fill: var(--superficie); stroke: var(--tinta); stroke-width: 2; }
+.dg-ramas .commit.nuevo circle { fill: var(--cta-bg); stroke: var(--cta-bg); }
+.dg-ramas .commit text { font: 600 11px var(--f-mono); fill: var(--tinta); }
+.dg-ramas .commit.nuevo text { fill: var(--cta-txt, var(--tinta)); }
+.dg-ramas .rotulo { font: 11px var(--f-mono); fill: var(--tinta-2); }
+.dg-ramas .rotulo.tenue { font-style: italic; }
+
+/* Pipeline de CI/CD */
+.dg-pipeline { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.dg-pipeline li { display: flex; align-items: center; gap: .4rem; }
+.dg-pipeline li + li::before { content: "→"; color: var(--tinta-2); }
+.dg-pipeline li.ci .dg-btn { border-left: 4px solid var(--mano); }
+.dg-pipeline li.cd .dg-btn { border-left: 4px solid var(--cta-bg); }
+.dg-leyenda .b-ci { background: var(--mano); }
+.dg-leyenda .b-cd { background: var(--cta-bg); }
+.dg-panel-p { margin-top: .8rem; }

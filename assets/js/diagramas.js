@@ -575,6 +575,134 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 10. Ramas de Git: merge, rebase y squash (interactivo)
+  // ---------------------------------------------------------------------------
+  const MODOS_RAMAS = [
+    {
+      id: "antes", nombre: "Antes de integrar",
+      cmd: "git switch -c feature/filtros   # desde B\n# ...dos commits: D y E\n# mientras tanto, main recibe C",
+      texto: "La rama feature/filtros salió de B. Mientras trabajabas, alguien integró C en main. Ahora las dos historias se separaron y hay que juntarlas.",
+    },
+    {
+      id: "merge", nombre: "merge",
+      cmd: "git switch main\ngit merge --no-ff feature/filtros",
+      texto: "Se crea un commit de unión M con dos padres (C y E). La historia queda tal como ocurrió, con la bifurcación visible. Es seguro: no reescribe ningún commit.",
+    },
+    {
+      id: "rebase", nombre: "rebase",
+      cmd: "git switch feature/filtros\ngit rebase main\ngit switch main\ngit merge --ff-only feature/filtros",
+      texto: "D y E se vuelven a aplicar encima de C y nacen D' y E', con otro hash. La historia queda en una sola línea. Solo se hace sobre commits que nadie más tiene.",
+    },
+    {
+      id: "squash", nombre: "squash",
+      cmd: "git switch main\ngit merge --squash feature/filtros\ngit commit -m \"feat: filtros por fecha\"",
+      texto: "Todo el trabajo de la rama se convierte en un único commit S sobre main. Es lo que hace el botón «Squash and merge» de GitHub: un commit por pull request.",
+    },
+  ];
+
+  function svgRamas(modo) {
+    const X = (i) => 30 + i * 62, YM = 40, YF = 104;
+    let h = "";
+    const linea = (x1, y1, x2, y2, cls = "rama") => { h += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}"/>`; };
+    const commit = (x, y, t, cls = "") => { h += `<g class="commit ${cls}"><circle cx="${x}" cy="${y}" r="13"/><text x="${x}" y="${y + 4}" text-anchor="middle">${t}</text></g>`; };
+    h += `<text x="0" y="${YM - 22}" class="rotulo">main</text>`;
+    const main = modo === "rebase" ? ["A", "B", "C", "D'", "E'"] : modo === "merge" ? ["A", "B", "C", "M"] : modo === "squash" ? ["A", "B", "C", "S"] : ["A", "B", "C"];
+    // En merge, M va una columna después de E para que se vea la unión
+    const pos = (i) => (modo === "merge" && i === 3 ? X(4) : X(i));
+    for (let i = 0; i < main.length - 1; i++) linea(pos(i), YM, pos(i + 1), YM);
+    const conFeature = modo === "antes" || modo === "merge";
+    if (conFeature) {
+      h += `<text x="0" y="${YF + 30}" class="rotulo">feature/filtros</text>`;
+      linea(X(1), YM, X(2), YF); linea(X(2), YF, X(3), YF);
+      if (modo === "merge") linea(X(3), YF, X(4), YM, "rama union");
+      commit(X(2), YF, "D"); commit(X(3), YF, "E");
+    } else if (modo === "rebase") {
+      h += `<text x="${X(0) - 10}" y="${YF - 14}" class="rotulo tenue">los D y E originales se descartan</text>`;
+    }
+    main.forEach((t, i) => commit(pos(i), YM, t, ["D'", "E'", "M", "S"].includes(t) ? "nuevo" : ""));
+    return `<svg class="dg-svg dg-ramas" viewBox="0 0 330 ${conFeature ? 150 : 120}" role="img" aria-label="Historia de Git: ${esc(MODOS_RAMAS.find((m) => m.id === modo).nombre)}">${h}</svg>`;
+  }
+
+  function panelRamas(m) {
+    return `<div>${svgRamas(m.id)}</div>
+      <div class="dg-explica"><p>${esc(m.texto)}</p><pre class="dg-sql">${esc(m.cmd)}</pre></div>`;
+  }
+
+  function htmlRamas() {
+    const m0 = MODOS_RAMAS[0];
+    return `<figure class="diagrama" data-diagrama="ramas-git">
+      <div class="dg-botones" role="group" aria-label="Forma de integrar la rama">
+        ${MODOS_RAMAS.map((m) => `<button type="button" class="dg-btn" data-modo="${m.id}" aria-pressed="${m === m0}">${esc(m.nombre)}</button>`).join("")}
+      </div>
+      <div class="dg-panel dg-panel-ancho" aria-live="polite">${panelRamas(m0)}</div>
+      <figcaption>Elige una forma de integrar la rama y mira cómo queda la historia. Los círculos rellenos son commits nuevos que crea esa operación.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 11. Pipeline de CI/CD (interactivo)
+  // ---------------------------------------------------------------------------
+  const ETAPAS_PIPELINE = [
+    {
+      id: "push", nombre: "push / PR", tipo: "ci",
+      texto: "Todo empieza cuando subes commits o abres un pull request. GitHub lee los archivos de .github/workflows/ y arranca los trabajos cuyo evento coincide.",
+      yaml: "on:\n  pull_request:\n  push:\n    branches: [main]",
+      falla: "Si el archivo YAML tiene un error, el workflow ni siquiera aparece: revisa la pestaña Actions.",
+    },
+    {
+      id: "pruebas", nombre: "lint y pruebas", tipo: "ci",
+      texto: "Una máquina limpia descarga el código, instala dependencias exactas y corre el linter y las pruebas. Es la integración continua: cada cambio se comprueba solo.",
+      yaml: "- uses: actions/checkout@v4\n- run: npm ci\n- run: npm run lint\n- run: npm test",
+      falla: "El PR queda en rojo y la regla de protección de main impide fusionarlo.",
+    },
+    {
+      id: "build", nombre: "construir imagen", tipo: "cd",
+      texto: "Si las pruebas pasan en main, se construye la imagen de Docker una sola vez y se etiqueta con el hash del commit. Esa misma imagen viaja por todos los entornos.",
+      yaml: "- run: docker build -t $IMAGEN:${{ github.sha }} .",
+      falla: "Un Dockerfile roto se detecta aquí, antes de tocar ningún servidor.",
+    },
+    {
+      id: "registro", nombre: "publicar en registro", tipo: "cd",
+      texto: "La imagen se sube a Artifact Registry. El pipeline se autentica con una identidad de servicio, sin contraseñas guardadas en el repositorio.",
+      yaml: "- uses: google-github-actions/auth@v2\n  with:\n    workload_identity_provider: ${{ secrets.WIF_PROVIDER }}\n- run: docker push $IMAGEN:${{ github.sha }}",
+      falla: "Un error de permisos aquí casi siempre es un rol que le falta a la cuenta de servicio.",
+    },
+    {
+      id: "staging", nombre: "desplegar a staging", tipo: "cd",
+      texto: "Se despliega la imagen en un entorno de pruebas igual a producción y se ejecuta una prueba de humo: pedir /salud y esperar un 200.",
+      yaml: "- run: gcloud run deploy app-staging --image $IMAGEN:${{ github.sha }} --region us-central1\n- run: curl -fsS $URL_STAGING/salud",
+      falla: "Si la prueba de humo falla, el pipeline se detiene y producción no se entera.",
+    },
+    {
+      id: "prod", nombre: "aprobar y producción", tipo: "cd",
+      texto: "El entorno production pide una aprobación humana. Al aprobar, se despliega exactamente la misma imagen que ya pasó por staging.",
+      yaml: "deploy-prod:\n  needs: deploy-staging\n  environment: production   # pide aprobación\n  steps:\n    - run: gcloud run deploy app --image $IMAGEN:${{ github.sha }}",
+      falla: "Si algo sale mal, se vuelve a la revisión anterior en segundos, porque la imagen vieja sigue en el registro.",
+    },
+  ];
+
+  function panelPipeline(e) {
+    return `<div class="dg-explica">
+      <p><strong>${esc(e.nombre)}</strong> · <span class="dg-cuenta">${e.tipo === "ci" ? "integración continua" : "entrega continua"}</span></p>
+      <p>${esc(e.texto)}</p>
+      <pre class="dg-sql">${esc(e.yaml)}</pre>
+      <p class="dg-cuenta">Si falla: ${esc(e.falla)}</p>
+    </div>`;
+  }
+
+  function htmlPipeline() {
+    const e0 = ETAPAS_PIPELINE[0];
+    return `<figure class="diagrama" data-diagrama="pipeline-cicd">
+      <ol class="dg-pipeline" aria-label="Etapas del pipeline">
+        ${ETAPAS_PIPELINE.map((e) => `<li class="${e.tipo}"><button type="button" class="dg-btn" data-etapa="${e.id}" aria-pressed="${e === e0}">${esc(e.nombre)}</button></li>`).join("")}
+      </ol>
+      <div class="dg-leyenda"><span><i class="b-ci"></i>CI: comprobar cada cambio</span><span><i class="b-cd"></i>CD: entregar lo que pasó</span></div>
+      <div class="dg-panel-p" aria-live="polite">${panelPipeline(e0)}</div>
+      <figcaption>Toca cada etapa para ver qué hace, cómo se escribe en GitHub Actions y qué pasa si falla. Una etapa solo empieza si la anterior terminó en verde.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
@@ -587,6 +715,8 @@
     "calculate-contexto": htmlCalculate,
     "etl-elt": htmlEtlElt,
     "dag-airflow": htmlDag,
+    "ramas-git": htmlRamas,
+    "pipeline-cicd": htmlPipeline,
   };
 
   function html(spec) {
@@ -683,6 +813,28 @@
         const esc_ = DAG_ESC.find((x) => x.id === b.dataset.esc);
         fig.querySelectorAll("[data-esc]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
         fig.querySelector(".dg-panel-dag").innerHTML = `${svgDag(esc_.falla, `dg-punta-dag-${n}`)}<p class="dg-dag-texto">${esc(esc_.texto)}</p>`;
+      });
+    });
+    (raiz || document).querySelectorAll('[data-diagrama="ramas-git"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-modo]");
+        if (!b) return;
+        const m = MODOS_RAMAS.find((x) => x.id === b.dataset.modo);
+        fig.querySelectorAll("[data-modo]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel").innerHTML = panelRamas(m);
+      });
+    });
+    (raiz || document).querySelectorAll('[data-diagrama="pipeline-cicd"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-etapa]");
+        if (!b) return;
+        const et = ETAPAS_PIPELINE.find((x) => x.id === b.dataset.etapa);
+        fig.querySelectorAll("[data-etapa]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-p").innerHTML = panelPipeline(et);
       });
     });
   }
