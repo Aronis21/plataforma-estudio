@@ -272,6 +272,56 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 5. Ciclo de vida de un componente React (curso TypeScript y React)
+  // ---------------------------------------------------------------------------
+  const FASES = [
+    {
+      id: "montar", nombre: "Montar",
+      cuando: "El componente aparece en pantalla por primera vez.",
+      pasos: [
+        ["render", "React ejecuta tu función con las props y el estado inicial y obtiene el JSX."],
+        ["dom", "React crea los elementos en el DOM y el navegador los pinta."],
+        ["efecto", "Se ejecuta el useEffect: pedir datos, poner un intervalo, escuchar un evento."],
+      ],
+    },
+    {
+      id: "actualizar", nombre: "Actualizar",
+      cuando: "Cambia una prop o se llama a un setter de estado.",
+      pasos: [
+        ["render", "React vuelve a ejecutar tu función con los valores nuevos."],
+        ["dom", "Compara con el JSX anterior y cambia en el DOM solo lo que es distinto."],
+        ["limpieza", "Si cambió alguna dependencia del efecto, primero corre la limpieza del efecto anterior."],
+        ["efecto", "Luego corre el efecto otra vez con los valores nuevos. Si ninguna dependencia cambió, no se repite."],
+      ],
+    },
+    {
+      id: "desmontar", nombre: "Desmontar",
+      cuando: "El componente deja de mostrarse (cambias de vista, se filtra, se cierra).",
+      pasos: [
+        ["dom", "React quita sus elementos del DOM."],
+        ["limpieza", "Corre la limpieza del último efecto: cancelar la petición, clearInterval, removeEventListener."],
+      ],
+    },
+  ];
+  const ETIQUETA_PASO = { render: "render", dom: "DOM", efecto: "efecto", limpieza: "limpieza" };
+
+  function panelFase(f) {
+    return `<p class="dg-cuando"><strong>${esc(f.nombre)}:</strong> ${esc(f.cuando)}</p>
+      <ol class="dg-pasos">${f.pasos.map(([t, txt]) => `<li><span class="dg-paso ${t}">${ETIQUETA_PASO[t]}</span><span>${esc(txt)}</span></li>`).join("")}</ol>`;
+  }
+
+  function htmlCicloVida() {
+    const f0 = FASES[0];
+    return `<figure class="diagrama" data-diagrama="ciclo-vida-react">
+      <div class="dg-botones" role="group" aria-label="Elige un momento del ciclo de vida">
+        ${FASES.map((f) => `<button type="button" class="dg-btn" data-fase="${f.id}" aria-pressed="${f === f0}">${esc(f.nombre)}</button>`).join("")}
+      </div>
+      <div class="dg-panel-fase" aria-live="polite">${panelFase(f0)}</div>
+      <figcaption>El render solo calcula. Todo lo que toca el mundo de fuera va en un efecto, y cada efecto que deja algo encendido devuelve una limpieza.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
@@ -279,6 +329,7 @@
     regresion: htmlRegresion,
     "matriz-confusion": htmlConfusion,
     "validacion-cruzada": htmlValidacion,
+    "ciclo-vida-react": htmlCicloVida,
   };
 
   function html(spec) {
@@ -307,6 +358,18 @@
         const u = Number(inp.value);
         fig.querySelector("[data-valor]").textContent = u.toFixed(2);
         fig.querySelector(".dg-panel-c").innerHTML = panelConfusion(u);
+      });
+    });
+
+    (raiz || document).querySelectorAll('[data-diagrama="ciclo-vida-react"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-fase]");
+        if (!b) return;
+        const f = FASES.find((x) => x.id === b.dataset.fase);
+        fig.querySelectorAll("[data-fase]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-fase").innerHTML = panelFase(f);
       });
     });
   }

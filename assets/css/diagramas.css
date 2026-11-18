@@ -146,3 +146,18 @@
 .dg-svg .t-in { fill: var(--tinta); font-weight: 600; }
 .dg-leyenda { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .6rem; font-size: var(--t-xs); }
 .dg-leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: .3rem; vertical-align: -1px; }
+
+/* Ciclo de vida de un componente React */
+.dg-cuando { margin: 0 0 .6rem; line-height: 1.45; }
+.dg-pasos { margin: 0; padding-left: 1.4rem; display: grid; gap: .45rem; line-height: 1.45; }
+.dg-pasos li { padding-left: .2rem; }
+.dg-pasos li > span:last-child { overflow-wrap: anywhere; }
+.dg-paso {
+  display: inline-block; min-width: 4.6rem; margin-right: .5rem; padding: .05rem .45rem;
+  border-radius: var(--r-pill); font-family: var(--f-mono); font-size: var(--t-xs); text-align: center;
+  border: 1px solid var(--borde);
+}
+.dg-paso.render { background: color-mix(in srgb, var(--mano) 22%, transparent); }
+.dg-paso.dom { background: var(--superficie-2); }
+.dg-paso.efecto { background: color-mix(in srgb, var(--ok) 22%, transparent); }
+.dg-paso.limpieza { background: color-mix(in srgb, var(--ko) 18%, transparent); }

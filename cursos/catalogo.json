@@ -40,6 +40,22 @@
       "publicado": true
     },
     {
+      "id": "typescript-react",
+      "archivo": "typescript-react.json",
+      "tema": "web",
+      "separador": "TypeScript y React",
+      "cuaderno": "Cuaderno de interfaces",
+      "categoria": "Programación",
+      "etiquetas": [
+        "TypeScript",
+        "React",
+        "Vite",
+        "Hooks"
+      ],
+      "color": "#149ECA",
+      "publicado": true
+    },
+    {
       "id": "inteligencia-artificial",
       "archivo": "inteligencia-artificial.json",
       "tema": "ia",

@@ -1,0 +1,1796 @@
+{
+  "id": "typescript-react",
+  "title": "TypeScript y React",
+  "subtitle": "Tipos que atrapan errores antes de publicar y componentes React para construir interfaces que crecen sin romperse, hasta publicar tu propia app.",
+  "level": "Intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "tsr-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Lec. 01",
+      "module": "1 · TypeScript desde cero",
+      "title": "Por qué TypeScript y cómo se instala",
+      "subtitle": "De JSDoc con @ts-check a un proyecto con tsc, tsconfig.json y modo strict.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Explicar qué agrega TypeScript a JavaScript y qué no cambia en el navegador.",
+        "Instalar TypeScript en un proyecto y compilar un archivo con tsc.",
+        "Crear un tsconfig.json con strict activado y entender sus opciones principales."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-01-sec-1",
+          "title": "1. JavaScript con tipos que se borran",
+          "body": "En la Lec. 44 del curso Web usaste comentarios **JSDoc** y `// @ts-check` para que el editor revisara tus tipos. **TypeScript** es el paso siguiente: los tipos se escriben en el propio código, con una sintaxis pensada para eso.\n\nLa idea clave es que TypeScript **no se ejecuta**. Un compilador (`tsc`) revisa los tipos y luego **los borra**, dejando JavaScript normal que el navegador entiende. Por eso:\n- Los tipos no hacen tu página más lenta ni más pesada.\n- Los errores de tipo se ven **antes** de abrir la página, no cuando un técnico ya está usando la app.\n- Todo JavaScript válido es casi siempre TypeScript válido: puedes migrar archivo por archivo.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// actividad.ts  (lo que tú escribes)\nfunction horasPendientes(estimadas: number, hechas: number): number {\n  return estimadas - hechas;\n}\n\n// actividad.js  (lo que tsc genera: los tipos desaparecen)\nfunction horasPendientes(estimadas, hechas) {\n  return estimadas - hechas;\n}",
+          "keyTakeaway": "TypeScript revisa los tipos al compilar y luego los borra: el navegador solo ve JavaScript."
+        },
+        {
+          "id": "tsr-01-sec-2",
+          "title": "2. Instalar y compilar con tsc",
+          "body": "TypeScript se instala con **npm** como dependencia de desarrollo del proyecto, así todos en el equipo usan la misma versión.\n\nPasos:\n1. `npm init -y` si la carpeta aún no tiene `package.json`.\n2. `npm install --save-dev typescript`.\n3. `npx tsc --init` crea un `tsconfig.json` con valores por defecto.\n4. `npx tsc` compila todos los `.ts` del proyecto; `npx tsc --noEmit` solo revisa, sin generar archivos.\n\nCuando hay un error, `tsc` muestra el archivo, la línea y el motivo. Por defecto **igual genera el JavaScript**, así que no ignores la lista de errores.",
+          "codeLanguage": "bash",
+          "codeSnippet": "npm init -y\nnpm install --save-dev typescript\nnpx tsc --init        # crea tsconfig.json\nnpx tsc --noEmit      # solo revisa tipos\nnpx tsc               # revisa y genera los .js\n\n# Ejemplo de error:\n# src/actividad.ts:3:10 - error TS2345: Argument of type 'string'\n#   is not assignable to parameter of type 'number'.",
+          "keyTakeaway": "Instala TypeScript por proyecto y usa npx tsc --noEmit para revisar sin generar archivos."
+        },
+        {
+          "id": "tsr-01-sec-3",
+          "title": "3. tsconfig.json y el modo strict",
+          "body": "El archivo `tsconfig.json` le dice a `tsc` qué revisar y cómo. Las opciones que más importan al empezar:\n- **`strict: true`**: activa el conjunto de revisiones estrictas. La más útil es `strictNullChecks`, que te obliga a pensar en `null` y `undefined`.\n- **`target`**: la versión de JavaScript que se genera (por ejemplo `ES2022`).\n- **`module`** y **`moduleResolution`**: cómo se escriben los `import`. Para el navegador moderno, `ESNext` y `Bundler`.\n- **`include`**: qué carpetas revisar, normalmente `[\"src\"]`.\n- **`noEmit`**: útil cuando otra herramienta (como Vite) genera el JavaScript y TypeScript solo revisa.\n\nUn proyecto nuevo **siempre** empieza con `strict: true`. Activarlo después en un proyecto grande cuesta mucho más.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"ESNext\",\n    \"moduleResolution\": \"Bundler\",\n    \"strict\": true,\n    \"noUncheckedIndexedAccess\": true,\n    \"noEmit\": true,\n    \"skipLibCheck\": true\n  },\n  \"include\": [\"src\"]\n}",
+          "keyTakeaway": "Todo proyecto nuevo empieza con strict: true; activarlo después cuesta mucho más."
+        },
+        {
+          "id": "tsr-01-sec-4",
+          "title": "4. Migrar un archivo de JavaScript",
+          "body": "No hace falta reescribir todo. Una migración ordenada va así:\n1. Activa `allowJs: true` para que `tsc` acepte archivos `.js` y `.ts` juntos.\n2. Renombra **un** archivo de `.js` a `.ts`, empezando por los que no dependen de otros (utilidades, cálculos).\n3. Corrige los errores que aparezcan, casi siempre parámetros sin tipo o valores que pueden ser `null`.\n4. Repite con el siguiente archivo.\n\nSi un error es difícil, es mejor dejar un `// TODO` claro que esconderlo con `any`. Un `any` apaga la revisión de tipos en todo lo que toca.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// Antes: utilidades.js con JSDoc\n/** @param {string} fecha  @returns {number} */\nexport function diasDesde(fecha) { /* ... */ }\n\n// Después: utilidades.ts\nexport function diasDesde(fecha: string): number {\n  const ms = Date.now() - new Date(fecha).getTime();\n  return Math.floor(ms / 86_400_000);\n}",
+          "keyTakeaway": "Migra un archivo a la vez, empezando por los que no dependen de otros."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo arrancar un proyecto TypeScript para que dure.",
+        "rules": [
+          "Instala TypeScript como dependencia de desarrollo, nunca solo de forma global.",
+          "Empieza con strict: true desde el primer día.",
+          "Agrega un script \"revisar\": \"tsc --noEmit\" en package.json y córrelo antes de cada commit.",
+          "No subas los .js generados al repositorio si se pueden volver a generar.",
+          "Evita any: si no sabes el tipo todavía, usa unknown y estréchalo después."
+        ],
+        "codeLanguage": "json",
+        "referenceCode": "{\n  \"scripts\": {\n    \"revisar\": \"tsc --noEmit\",\n    \"build\": \"tsc\"\n  },\n  \"devDependencies\": {\n    \"typescript\": \"^5.6.0\"\n  }\n}"
+      },
+      "comparison": {
+        "scenario": "Un compañero desactiva la revisión para que el proyecto compile.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// tsconfig.json\n{ \"compilerOptions\": { \"strict\": false } }\n\n// y en el código\nfunction total(lista: any) {\n  return lista.reduce((s: any, x: any) => s + x.horas, 0);\n}",
+        "juniorFlaws": [
+          "Con strict apagado, null y undefined pasan sin aviso.",
+          "any esconde que lista podría no ser un arreglo.",
+          "Los errores aparecen en producción, no al compilar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// tsconfig.json\n{ \"compilerOptions\": { \"strict\": true } }\n\ninterface Actividad { horas: number }\n\nfunction total(lista: Actividad[]): number {\n  return lista.reduce((s, x) => s + x.horas, 0);\n}",
+        "intermediateBenefits": [
+          "El compilador comprueba que cada elemento tenga horas.",
+          "El tipo del resultado queda documentado en la firma.",
+          "Los errores aparecen en el editor mientras escribes."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-01-ej-1",
+          "title": "Práctica 1: Tu primer proyecto",
+          "difficulty": "Básico",
+          "prompt": "Crea una carpeta `ts-inicio`, instala TypeScript, genera el `tsconfig.json` y deja activadas `strict`, `target: ES2022` e `include: [\"src\"]`. Escribe `src/saludo.ts` con una función `saludar(nombre: string): string` y compílala con `npx tsc`.",
+          "hint": "Si `tsc` no encuentra archivos, revisa que el `.ts` esté dentro de `src`.",
+          "solutionExplanation": "Al compilar aparece `saludo.js` sin anotaciones de tipo. Si llamas `saludar(5)`, `tsc` marca el error TS2345 porque un número no es un string.",
+          "solutionCode": "// src/saludo.ts\nexport function saludar(nombre: string): string {\n  return `Hola, ${nombre}`;\n}\n\nconsole.log(saludar(\"Aronis\"));\n// saludar(5);  // error TS2345",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-01-ej-2",
+          "title": "Práctica 2: Leer un error de tsc",
+          "difficulty": "Básico",
+          "prompt": "Este código compila con errores en modo `strict`. Explica cada error y corrígelo:\n\n```\nfunction promedio(valores) {\n  let suma;\n  for (const v of valores) suma += v;\n  return suma / valores.length;\n}\n```",
+          "hint": "Hay dos problemas: un parámetro sin tipo y una variable que empieza como undefined.",
+          "solutionExplanation": "`valores` tiene tipo `any` implícito (error TS7006 con `noImplicitAny`, incluido en strict). Además, `suma` empieza en `undefined`, así que `suma += v` daría `NaN`. Se corrige tipando el parámetro e iniciando la suma en 0.",
+          "solutionCode": "function promedio(valores: number[]): number {\n  let suma = 0;\n  for (const v of valores) suma += v;\n  return valores.length ? suma / valores.length : 0;\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-01-ej-3",
+          "title": "Práctica 3: Migrar una utilidad",
+          "difficulty": "Intermedio",
+          "prompt": "Toma una función de tu página de mantenimiento que use JSDoc (por ejemplo, una que formatee fechas). Pásala a un archivo `.ts`, cambia el JSDoc por anotaciones de TypeScript y comprueba con `npx tsc --noEmit` que no queden errores.",
+          "hint": "Las etiquetas `@param {string} x` pasan a `x: string` y `@returns {string}` pasa a `): string`.",
+          "solutionExplanation": "La migración no cambia el comportamiento, solo mueve los tipos del comentario al código. Al final, el JSDoc puede quedarse solo con la descripción en palabras.",
+          "solutionCode": "/** Convierte 2026-11-18 en 18/11/2026. */\nexport function fechaCorta(iso: string): string {\n  const [a, m, d] = iso.slice(0, 10).split(\"-\");\n  return `${d}/${m}/${a}`;\n}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-01-q1",
+          "question": "¿Qué pasa con las anotaciones de tipo cuando tsc genera el JavaScript?",
+          "options": [
+            "Se borran y el navegador recibe JavaScript normal",
+            "Se envían al navegador para que él las compruebe",
+            "Se guardan como comentarios para revisarlas luego",
+            "Se convierten en validaciones que corren en la página"
+          ],
+          "correctIndex": 0,
+          "explanation": "TypeScript solo existe al compilar. El JavaScript generado no lleva tipos ni validaciones extra."
+        },
+        {
+          "id": "tsr-01-q2",
+          "question": "¿Qué revisión agrega strictNullChecks, incluida en strict: true?",
+          "options": [
+            "Revisa que no haya variables declaradas con var",
+            "Convierte cada undefined en un valor de cero",
+            "Prohíbe usar null en cualquier parte del código",
+            "Obliga a manejar los valores null y undefined"
+          ],
+          "correctIndex": 3,
+          "explanation": "Con strictNullChecks, un valor que puede ser null o undefined no se puede usar como si siempre existiera."
+        },
+        {
+          "id": "tsr-01-q3",
+          "question": "¿Para qué sirve el comando npx tsc --noEmit?",
+          "options": [
+            "Genera los archivos .js sin revisar ningún tipo",
+            "Borra los archivos .js que se generaron antes",
+            "Revisa los tipos sin generar archivos de salida",
+            "Instala TypeScript sin modificar package.json"
+          ],
+          "correctIndex": 2,
+          "explanation": "noEmit hace que tsc solo revise. Es lo habitual cuando otra herramienta, como Vite, genera el JavaScript."
+        }
+      ]
+    },
+    {
+      "id": "tsr-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Lec. 02",
+      "module": "1 · TypeScript desde cero",
+      "title": "Tipos básicos, inferencia y uniones",
+      "subtitle": "string, number, boolean, arreglos, uniones y tipos literales.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Anotar variables, parámetros y arreglos con los tipos básicos.",
+        "Aprovechar la inferencia para escribir menos anotaciones.",
+        "Modelar valores permitidos con uniones y tipos literales."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-02-sec-1",
+          "title": "1. Los tipos básicos",
+          "body": "Los tipos primitivos de TypeScript son los mismos de JavaScript, escritos en minúscula:\n- `string` para texto, `number` para cualquier número (enteros y decimales), `boolean` para `true` o `false`.\n- `null` y `undefined` son tipos propios.\n- Un arreglo se escribe `string[]` o `Array<string>`; los dos significan lo mismo.\n- Una **tupla** es un arreglo de largo fijo con un tipo por posición: `[string, number]`.\n\nLa anotación va después del nombre con dos puntos: `let horas: number = 4;`. Si intentas guardar otro tipo, el editor lo marca al momento.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "let equipo: string = \"Compresor 3\";\nlet horas: number = 4.5;\nlet urgente: boolean = false;\nlet tecnicos: string[] = [\"Ana\", \"Luis\"];\nlet lectura: [string, number] = [\"presión\", 7.2];\n\nhoras = \"cuatro\"; // error: string no es number",
+          "keyTakeaway": "Los tipos básicos son string, number y boolean; los arreglos se escriben tipo[]."
+        },
+        {
+          "id": "tsr-02-sec-2",
+          "title": "2. Inferencia: no anotes lo obvio",
+          "body": "TypeScript **deduce** el tipo cuando una variable nace con un valor. `let horas = 4` ya es `number`, sin escribirlo.\n\nRegla práctica:\n- **Anota** los parámetros de las funciones y lo que se exporta, porque son el contrato con otros archivos.\n- **No anotes** las variables locales que se inicializan con un valor claro.\n- Con `const`, el tipo es aún más preciso: `const estado = \"abierta\"` tiene el tipo literal `\"abierta\"`, no `string`.\n\nPasa el cursor sobre una variable en el editor para ver qué tipo dedujo TypeScript.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "let horas = 4;                 // number\nconst estado = \"abierta\";      // \"abierta\" (literal)\nconst equipos = [\"A1\", \"B2\"];  // string[]\n\n// Los parámetros sí se anotan: no hay de dónde deducirlos\nfunction duplicar(n: number) {\n  return n * 2;                // el retorno se infiere: number\n}",
+          "keyTakeaway": "Anota parámetros y exportaciones; deja que TypeScript infiera las variables locales."
+        },
+        {
+          "id": "tsr-02-sec-3",
+          "title": "3. Uniones y tipos literales",
+          "body": "Una **unión** dice que un valor puede ser de varios tipos: `string | number`. Un **tipo literal** limita el valor a uno exacto: `\"alta\"`.\n\nJuntos son muy útiles para listas cerradas de opciones, como la prioridad de una actividad. En lugar de aceptar cualquier `string` y equivocarte con `\"Alta\"` o `\"alto\"`, defines exactamente qué se permite. El editor además te **autocompleta** los valores válidos.\n\nCon una unión, TypeScript solo te deja usar lo que tienen en común todos los tipos, hasta que compruebes cuál es (eso se ve en la Lec. 05).",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Prioridad = \"baja\" | \"media\" | \"alta\";\n\nlet p: Prioridad = \"alta\";\np = \"urgente\"; // error: no está en la lista\n\nfunction etiqueta(codigo: string | number): string {\n  return `Equipo ${codigo}`;  // las dos opciones funcionan en un template\n}",
+          "keyTakeaway": "Una unión de literales describe una lista cerrada de valores y evita errores de escritura."
+        },
+        {
+          "id": "tsr-02-sec-4",
+          "title": "4. any, unknown y never",
+          "body": "Tres tipos especiales que conviene distinguir:\n- **`any`** desactiva la revisión: puedes hacer cualquier cosa con el valor, y el error aparece cuando la página ya está corriendo. Evítalo.\n- **`unknown`** también acepta cualquier valor, pero **no te deja usarlo** hasta comprobar qué es. Es la opción segura para datos de origen dudoso.\n- **`never`** es el tipo de algo que no puede ocurrir, como una función que siempre lanza un error. Lo usarás para comprobar que cubriste todos los casos.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "let a: any = \"hola\";\na.toFixed(2);        // compila, pero falla al ejecutar\n\nlet u: unknown = \"hola\";\n// u.toUpperCase();   // error: primero comprueba el tipo\nif (typeof u === \"string\") u.toUpperCase(); // bien\n\nfunction fallar(msg: string): never {\n  throw new Error(msg);\n}",
+          "keyTakeaway": "Prefiere unknown a any: acepta cualquier valor pero te obliga a comprobarlo antes de usarlo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo elegir y escribir tipos básicos.",
+        "rules": [
+          "Usa los tipos en minúscula (string, number); nunca String o Number.",
+          "Anota los parámetros de función; deja inferir las variables locales.",
+          "Para listas cerradas de opciones, usa una unión de literales en lugar de string.",
+          "Si un dato es de origen dudoso, recíbelo como unknown, no como any.",
+          "Dale nombre con type a las uniones que se repiten en varios archivos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar el estado de una orden de trabajo.",
+        "juniorLabel": "Así no",
+        "juniorCode": "function cambiarEstado(orden: any, estado: string) {\n  orden.estado = estado;\n}\n\ncambiarEstado(orden, \"Cerrada\");  // ¿cerrada o Cerrada?\ncambiarEstado(orden, \"terminada\"); // no existe, pero compila",
+        "juniorFlaws": [
+          "Cualquier texto se acepta como estado.",
+          "Los errores de mayúsculas no se detectan.",
+          "any permite asignar a una orden inexistente."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "type Estado = \"abierta\" | \"en-curso\" | \"cerrada\";\ninterface Orden { id: number; estado: Estado }\n\nfunction cambiarEstado(orden: Orden, estado: Estado): void {\n  orden.estado = estado;\n}\n\ncambiarEstado(orden, \"cerrada\"); // el editor autocompleta",
+        "intermediateBenefits": [
+          "Solo se aceptan los tres estados válidos.",
+          "El editor sugiere los valores al escribir.",
+          "Si agregas un estado, el compilador te muestra dónde falta manejarlo."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-02-ej-1",
+          "title": "Práctica 1: Anotar un registro",
+          "difficulty": "Básico",
+          "prompt": "Declara las variables de una lectura de equipo: el código del equipo (texto), la temperatura (número), si está en alarma (booleano) y las últimas tres temperaturas (arreglo de números). Usa anotaciones solo donde la inferencia no alcance.",
+          "hint": "Si das un valor inicial, no necesitas anotar.",
+          "solutionExplanation": "Con valores iniciales, TypeScript infiere todos los tipos. La anotación solo hace falta si el arreglo empieza vacío, porque `[]` solo no dice de qué es.",
+          "solutionCode": "const codigo = \"BOM-02\";\nlet temperatura = 61.5;\nlet enAlarma = false;\nconst ultimas: number[] = [];  // vacío: aquí sí se anota\nultimas.push(60.1, 61.0, 61.5);",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-02-ej-2",
+          "title": "Práctica 2: Unión de literales",
+          "difficulty": "Básico",
+          "prompt": "Crea el tipo `Turno` con los valores `\"mañana\"`, `\"tarde\"` y `\"noche\"`, y una función `horaInicio(turno: Turno): number` que devuelva 6, 14 o 22.",
+          "hint": "Un `switch` sobre el turno es la forma más clara.",
+          "solutionExplanation": "Como `Turno` tiene tres valores exactos, el `switch` cubre todos los casos y el retorno es siempre un número.",
+          "solutionCode": "type Turno = \"mañana\" | \"tarde\" | \"noche\";\n\nfunction horaInicio(turno: Turno): number {\n  switch (turno) {\n    case \"mañana\": return 6;\n    case \"tarde\": return 14;\n    case \"noche\": return 22;\n  }\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-02-ej-3",
+          "title": "Práctica 3: Cambiar any por unknown",
+          "difficulty": "Intermedio",
+          "prompt": "Esta función recibe un valor leído de `localStorage` como `any`. Cámbiala para recibir `unknown` y devolver el número solo si de verdad es un número; si no, devuelve 0.\n\n```\nfunction leerHoras(v: any) { return v * 1; }\n```",
+          "hint": "Usa `typeof v === \"number\"` y, para textos numéricos, `Number(v)` con `Number.isFinite`.",
+          "solutionExplanation": "Con `unknown` el compilador no te deja multiplicar sin comprobar. Al comprobar, cubres también el caso de un texto como \"4\".",
+          "solutionCode": "function leerHoras(v: unknown): number {\n  if (typeof v === \"number\") return v;\n  if (typeof v === \"string\" && Number.isFinite(Number(v))) return Number(v);\n  return 0;\n}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-02-q1",
+          "question": "¿Qué tipo infiere TypeScript para const estado = \"abierta\"?",
+          "options": [
+            "El tipo any por defecto",
+            "El tipo literal \"abierta\"",
+            "El tipo unknown sin más",
+            "El tipo general string"
+          ],
+          "correctIndex": 1,
+          "explanation": "Con const el valor no puede cambiar, así que TypeScript infiere el literal exacto."
+        },
+        {
+          "id": "tsr-02-q2",
+          "question": "¿Qué diferencia hay entre any y unknown?",
+          "options": [
+            "unknown solo acepta textos y también los números",
+            "any solo existe dentro de los archivos .js",
+            "unknown exige comprobar el tipo antes de usarlo",
+            "any exige comprobar el tipo antes de usarlo"
+          ],
+          "correctIndex": 2,
+          "explanation": "Los dos aceptan cualquier valor, pero unknown no deja usarlo hasta que el código compruebe qué es."
+        },
+        {
+          "id": "tsr-02-q3",
+          "question": "¿Para qué sirve type Prioridad = \"baja\" | \"media\" | \"alta\"?",
+          "options": [
+            "Limita el valor a tres textos exactos",
+            "Crea un arreglo con los tres textos",
+            "Ordena los textos de menor a mayor",
+            "Convierte los textos en números 1 a 3"
+          ],
+          "correctIndex": 0,
+          "explanation": "Es una unión de tipos literales: solo esos tres textos son válidos, y no existe en tiempo de ejecución."
+        }
+      ]
+    },
+    {
+      "id": "tsr-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Lec. 03",
+      "module": "1 · TypeScript desde cero",
+      "title": "Interfaces y type para describir objetos",
+      "subtitle": "Dar forma a los datos: propiedades opcionales, de solo lectura y objetos anidados.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Describir la forma de un objeto con interface y con type.",
+        "Usar propiedades opcionales (?) y de solo lectura (readonly).",
+        "Componer tipos con extends y con intersecciones (&)."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-03-sec-1",
+          "title": "1. Describir un objeto con interface",
+          "body": "Una **interface** describe qué propiedades tiene un objeto y de qué tipo es cada una. No genera código: solo es un contrato que el compilador revisa.\n\nCuando una variable o parámetro usa esa interface, TypeScript comprueba que:\n- No falte ninguna propiedad obligatoria.\n- Cada propiedad tenga el tipo correcto.\n- No escribas propiedades que no existen (por ejemplo, un error de dedo como `fehca`).\n\nPor convención, los nombres de interfaces y tipos van en **PascalCase**: `Actividad`, `Equipo`, `OrdenDeTrabajo`.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "interface Actividad {\n  id: number;\n  equipo: string;\n  descripcion: string;\n  horas: number;\n  hecha: boolean;\n}\n\nconst a: Actividad = {\n  id: 1,\n  equipo: \"Compresor 3\",\n  descripcion: \"Cambio de filtro\",\n  horas: 1.5,\n  hecha: false,\n};",
+          "keyTakeaway": "Una interface es el contrato de forma de un objeto; el compilador lo revisa en cada uso."
+        },
+        {
+          "id": "tsr-03-sec-2",
+          "title": "2. Opcionales y de solo lectura",
+          "body": "Dos modificadores cubren casos muy comunes:\n- **`?`** marca una propiedad como **opcional**. Su tipo pasa a incluir `undefined`, así que el compilador te obliga a revisarla antes de usarla.\n- **`readonly`** impide reasignar la propiedad después de crear el objeto. Ideal para el `id` o la fecha de creación.\n\nOjo: `readonly` es una revisión del compilador, no congela el objeto al ejecutar. Para eso existe `Object.freeze`.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "interface Actividad {\n  readonly id: number;\n  equipo: string;\n  observaciones?: string;   // puede faltar\n}\n\nfunction resumen(a: Actividad): string {\n  // a.observaciones.length  -> error: puede ser undefined\n  const obs = a.observaciones ?? \"sin observaciones\";\n  return `${a.equipo}: ${obs}`;\n}\n\n// a.id = 5;  -> error: id es de solo lectura",
+          "keyTakeaway": "? hace una propiedad opcional y obliga a revisarla; readonly evita reasignarla."
+        },
+        {
+          "id": "tsr-03-sec-3",
+          "title": "3. interface o type",
+          "body": "Para objetos, `interface` y `type` hacen casi lo mismo. Las diferencias prácticas:\n- **`type`** puede nombrar **cualquier** tipo: uniones, literales, tuplas o funciones. Una interface solo describe objetos.\n- **`interface`** se puede **ampliar** con `extends` y declarar en dos partes que se fusionan.\n\nUna convención sencilla para este curso: **interface para objetos**, **type para uniones y todo lo demás**. Lo importante es ser consistente en el proyecto.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// Objetos: interface\ninterface Equipo {\n  codigo: string;\n  area: string;\n}\n\n// Uniones, literales y funciones: type\ntype Estado = \"operando\" | \"parado\" | \"en-mantenimiento\";\ntype Filtro = (e: Equipo) => boolean;",
+          "keyTakeaway": "Convención del curso: interface para objetos, type para uniones y lo demás."
+        },
+        {
+          "id": "tsr-03-sec-4",
+          "title": "4. Componer tipos: extends e intersección",
+          "body": "No repitas propiedades. Si dos tipos comparten una base, compónlos:\n- **`extends`** crea una interface a partir de otra y le agrega propiedades.\n- La **intersección** `A & B` con `type` une las propiedades de los dos.\n\nTambién puedes anidar objetos y arreglos de objetos: una orden de trabajo puede tener un `equipo: Equipo` y una lista `repuestos: Repuesto[]`.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "interface Registro {\n  readonly id: number;\n  creadoEn: string;\n}\n\ninterface Repuesto { codigo: string; cantidad: number }\n\ninterface OrdenDeTrabajo extends Registro {\n  equipo: Equipo;\n  repuestos: Repuesto[];\n  estado: Estado;\n}\n\ntype ConAutor = Registro & { autor: string };",
+          "keyTakeaway": "Usa extends o & para reutilizar propiedades comunes en lugar de copiarlas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo modelar los datos de una aplicación.",
+        "rules": [
+          "Define los tipos de datos del dominio en un archivo propio, como src/tipos.ts.",
+          "Nombra interfaces y tipos en PascalCase y sin prefijos como IActividad.",
+          "Marca como readonly los identificadores y las fechas de creación.",
+          "Usa ? solo cuando el dato realmente puede faltar, no para evitar errores.",
+          "Reutiliza con extends o & en vez de copiar propiedades entre tipos."
+        ],
+        "codeLanguage": "typescript",
+        "referenceCode": "// src/tipos.ts\nexport type Prioridad = \"baja\" | \"media\" | \"alta\";\n\nexport interface Actividad {\n  readonly id: number;\n  readonly creadaEn: string;\n  equipo: string;\n  descripcion: string;\n  prioridad: Prioridad;\n  hecha: boolean;\n  observaciones?: string;\n}"
+      },
+      "comparison": {
+        "scenario": "Agregar observaciones a las actividades.",
+        "juniorLabel": "Así no",
+        "juniorCode": "interface Actividad {\n  id: number;\n  equipo: string;\n  observaciones: string; // ¿y las actividades viejas?\n}\n\nconst vieja = JSON.parse(texto) as Actividad;\nvieja.observaciones.trim(); // falla si no existe",
+        "juniorFlaws": [
+          "El tipo afirma que siempre hay observaciones, pero los datos viejos no las tienen.",
+          "El as engaña al compilador y el error aparece al ejecutar.",
+          "El id se puede reasignar por accidente."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "interface Actividad {\n  readonly id: number;\n  equipo: string;\n  observaciones?: string;\n}\n\nfunction obsLimpias(a: Actividad): string {\n  return a.observaciones?.trim() ?? \"\";\n}",
+        "intermediateBenefits": [
+          "El tipo dice la verdad: el dato puede faltar.",
+          "El compilador obliga a manejar el caso sin observaciones.",
+          "El id queda protegido con readonly."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-03-ej-1",
+          "title": "Práctica 1: Tipar un equipo",
+          "difficulty": "Básico",
+          "prompt": "Escribe una interface `Equipo` con `codigo` (solo lectura), `nombre`, `area`, `horasUso` (número) y `ultimaRevision` opcional (texto con fecha). Crea dos equipos de ejemplo, uno con y otro sin revisión.",
+          "hint": "La fecha opcional se marca con `?` después del nombre.",
+          "solutionExplanation": "El objeto sin `ultimaRevision` compila porque la propiedad es opcional. Si intentas cambiar `codigo`, el compilador lo impide.",
+          "solutionCode": "interface Equipo {\n  readonly codigo: string;\n  nombre: string;\n  area: string;\n  horasUso: number;\n  ultimaRevision?: string;\n}\n\nconst e1: Equipo = { codigo: \"CMP-3\", nombre: \"Compresor 3\", area: \"Planta\", horasUso: 1200, ultimaRevision: \"2026-10-02\" };\nconst e2: Equipo = { codigo: \"BOM-2\", nombre: \"Bomba 2\", area: \"Pozo\", horasUso: 340 };",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-03-ej-2",
+          "title": "Práctica 2: Componer tipos",
+          "difficulty": "Intermedio",
+          "prompt": "Crea una interface `Registro` con `id` y `creadoEn` de solo lectura. Luego crea `Inspeccion` que extienda `Registro` y agregue `equipo: Equipo`, `resultado` (`\"ok\"` o `\"falla\"`) y `notas: string[]`.",
+          "hint": "`extends Registro` hereda las dos propiedades sin repetirlas.",
+          "solutionExplanation": "Así, cualquier cambio en `Registro` (por ejemplo, agregar `creadoPor`) llega solo a todos los tipos que lo extienden.",
+          "solutionCode": "interface Registro {\n  readonly id: number;\n  readonly creadoEn: string;\n}\n\ninterface Inspeccion extends Registro {\n  equipo: Equipo;\n  resultado: \"ok\" | \"falla\";\n  notas: string[];\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-03-ej-3",
+          "title": "Práctica 3: Manejar un opcional",
+          "difficulty": "Intermedio",
+          "prompt": "Con la interface `Equipo` de la práctica 1, escribe `diasSinRevision(e: Equipo): number | null` que devuelva los días desde `ultimaRevision`, o `null` si el equipo nunca se revisó.",
+          "hint": "Comprueba primero si la propiedad existe; después TypeScript sabe que es un string.",
+          "solutionExplanation": "Dentro del `if`, el tipo de `ultimaRevision` se estrecha de `string | undefined` a `string`, y ya puedes crear la fecha.",
+          "solutionCode": "function diasSinRevision(e: Equipo): number | null {\n  if (!e.ultimaRevision) return null;\n  const ms = Date.now() - new Date(e.ultimaRevision).getTime();\n  return Math.floor(ms / 86_400_000);\n}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-03-q1",
+          "question": "¿Qué indica el signo ? en observaciones?: string?",
+          "options": [
+            "Que la propiedad acepta tanto texto como números",
+            "Que la propiedad puede faltar en el objeto",
+            "Que la propiedad se calcula de otra",
+            "Que la propiedad no se puede reasignar"
+          ],
+          "correctIndex": 1,
+          "explanation": "El ? marca una propiedad opcional: su tipo pasa a ser string | undefined."
+        },
+        {
+          "id": "tsr-03-q2",
+          "question": "¿Qué puede nombrar type que una interface no puede?",
+          "options": [
+            "Un objeto con una propiedad opcional",
+            "Un objeto con varias propiedades",
+            "Una unión como \"ok\" | \"falla\"",
+            "Un objeto con propiedades readonly"
+          ],
+          "correctIndex": 2,
+          "explanation": "Una interface solo describe objetos. Para uniones, literales, tuplas o funciones se usa type."
+        },
+        {
+          "id": "tsr-03-q3",
+          "question": "¿Qué hace readonly en una propiedad?",
+          "options": [
+            "Exige que la propiedad tenga un valor por defecto",
+            "Congela el objeto también al ejecutar la página",
+            "Oculta la propiedad al convertir el objeto a JSON",
+            "Impide reasignarla después de crear el objeto"
+          ],
+          "correctIndex": 3,
+          "explanation": "readonly es una revisión del compilador. Al ejecutar, el objeto no queda congelado; para eso existe Object.freeze."
+        }
+      ]
+    },
+    {
+      "id": "tsr-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Lec. 04",
+      "module": "1 · TypeScript desde cero",
+      "title": "Funciones, genéricos y tipos utilitarios",
+      "subtitle": "Firmas de funciones, genéricos con <T> y Partial, Pick, Omit y Record.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Tipar parámetros, valores por defecto, retornos y funciones como valores.",
+        "Escribir funciones genéricas que sirvan para varios tipos sin perder información.",
+        "Derivar tipos nuevos con Partial, Pick, Omit y Record."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-04-sec-1",
+          "title": "1. Firmas de funciones",
+          "body": "Una función bien tipada documenta su uso sin leer el cuerpo:\n- Cada parámetro lleva su tipo. Un parámetro **opcional** lleva `?` y va al final.\n- Un **valor por defecto** hace el parámetro opcional y además infiere su tipo.\n- El **retorno** se puede inferir, pero en funciones exportadas conviene escribirlo: si cambias el cuerpo por error, el compilador te avisa.\n- `void` indica que la función no devuelve nada útil.\n\nUna función también puede ser un **valor**: su tipo se escribe `(a: number) => string`.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "export function horasExtra(horas: number, limite = 8): number {\n  return Math.max(0, horas - limite);\n}\n\nfunction avisar(msg: string, nivel?: \"info\" | \"error\"): void {\n  console.log(`[${nivel ?? \"info\"}] ${msg}`);\n}\n\ntype Formateador = (n: number) => string;\nconst enHoras: Formateador = (n) => `${n} h`;",
+          "keyTakeaway": "Escribe el tipo de retorno en las funciones exportadas: así el compilador vigila el contrato."
+        },
+        {
+          "id": "tsr-04-sec-2",
+          "title": "2. Genéricos: un tipo como parámetro",
+          "body": "A veces una función sirve para cualquier tipo, como \"devolver el primer elemento de una lista\". Con `any` perderías el tipo del resultado. Un **genérico** `<T>` lo conserva: T es un tipo que se decide al llamar la función.\n\nTypeScript casi siempre **infiere** T a partir de los argumentos. Si llamas `primero([1, 2])`, T es `number` y el resultado es `number | undefined`.\n\nCon `extends` puedes **restringir** T: `<T extends { id: number }>` acepta cualquier objeto que tenga un `id` numérico.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function primero<T>(lista: T[]): T | undefined {\n  return lista[0];\n}\n\nconst n = primero([3, 5]);          // number | undefined\nconst s = primero([\"A1\", \"B2\"]);    // string | undefined\n\nfunction buscarPorId<T extends { id: number }>(lista: T[], id: number): T | undefined {\n  return lista.find((x) => x.id === id);\n}",
+          "keyTakeaway": "Un genérico conserva el tipo real de los datos; extends limita qué tipos acepta."
+        },
+        {
+          "id": "tsr-04-sec-3",
+          "title": "3. Tipos utilitarios",
+          "body": "TypeScript trae tipos que **transforman** otros tipos. Los más usados:\n- **`Partial<T>`**: todas las propiedades opcionales. Ideal para una función de \"actualizar\" que recibe solo lo que cambia.\n- **`Pick<T, \"a\" | \"b\">`**: solo esas propiedades.\n- **`Omit<T, \"id\">`**: todas menos esas. Perfecto para los datos de un formulario de alta, donde el `id` aún no existe.\n- **`Record<K, V>`**: un objeto cuyas claves son K y valores V, como `Record<Prioridad, number>`.\n- **`Readonly<T>`**: todas las propiedades de solo lectura.\n\nAsí, si agregas una propiedad a `Actividad`, todos los tipos derivados se actualizan solos.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type NuevaActividad = Omit<Actividad, \"id\" | \"creadaEn\">;\ntype CambioActividad = Partial<NuevaActividad>;\ntype Resumen = Pick<Actividad, \"equipo\" | \"hecha\">;\n\nconst conteo: Record<Prioridad, number> = { baja: 0, media: 0, alta: 0 };\n\nfunction actualizar(a: Actividad, cambios: CambioActividad): Actividad {\n  return { ...a, ...cambios };\n}",
+          "keyTakeaway": "Deriva tipos con Partial, Pick, Omit y Record en vez de escribirlos a mano otra vez."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir funciones tipadas que se mantienen solas.",
+        "rules": [
+          "Escribe el tipo de retorno en toda función exportada.",
+          "Prefiere un genérico a any cuando la función sirve para varios tipos.",
+          "Nombra los genéricos con letras claras (T, K, V) o palabras si hay varios (TItem).",
+          "Deriva tipos con Omit y Partial en lugar de copiar interfaces a mano.",
+          "Si una función recibe más de tres parámetros, recibe un objeto con nombre."
+        ]
+      },
+      "comparison": {
+        "scenario": "Una función para actualizar una actividad.",
+        "juniorLabel": "Así no",
+        "juniorCode": "interface ActividadParcial {\n  equipo?: string;\n  descripcion?: string;\n  horas?: number;\n  // ... copia a mano de Actividad\n}\n\nfunction actualizar(a: any, cambios: ActividadParcial): any {\n  return { ...a, ...cambios };\n}",
+        "juniorFlaws": [
+          "La copia a mano se desactualiza cuando Actividad cambia.",
+          "any en la entrada y en la salida borra toda la información de tipo.",
+          "Nada impide cambiar el id por accidente."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "type Cambios = Partial<Omit<Actividad, \"id\" | \"creadaEn\">>;\n\nfunction actualizar(a: Actividad, cambios: Cambios): Actividad {\n  return { ...a, ...cambios };\n}",
+        "intermediateBenefits": [
+          "El tipo se deriva de Actividad y se actualiza solo.",
+          "El id y la fecha de creación quedan fuera de los cambios.",
+          "El resultado sigue siendo una Actividad completa."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-04-ej-1",
+          "title": "Práctica 1: Firma con valores por defecto",
+          "difficulty": "Básico",
+          "prompt": "Escribe `formatearHoras(horas: number, decimales = 1): string` que devuelva, por ejemplo, `\"2.5 h\"`. Indica el tipo de retorno.",
+          "hint": "`toFixed(decimales)` devuelve un string con los decimales pedidos.",
+          "solutionExplanation": "El valor por defecto hace opcional al segundo parámetro y TypeScript infiere que es `number`.",
+          "solutionCode": "export function formatearHoras(horas: number, decimales = 1): string {\n  return `${horas.toFixed(decimales)} h`;\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-04-ej-2",
+          "title": "Práctica 2: Agrupar con un genérico",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una función genérica `agruparPor<T, K extends string>(lista: T[], clave: (x: T) => K): Partial<Record<K, T[]>>` y úsala para agrupar actividades por prioridad.",
+          "hint": "Empieza con un objeto vacío y crea el arreglo de cada grupo la primera vez.",
+          "solutionExplanation": "El genérico mantiene los tipos: el editor autocompleta `.alta` y sabe que es `Actividad[] | undefined`. El `Partial` es honesto: si no hay ninguna actividad alta, ese grupo no existe.",
+          "solutionCode": "function agruparPor<T, K extends string>(lista: T[], clave: (x: T) => K): Partial<Record<K, T[]>> {\n  const grupos: Partial<Record<K, T[]>> = {};\n  for (const x of lista) {\n    const k = clave(x);\n    (grupos[k] ??= []).push(x);\n  }\n  return grupos;\n}\n\nconst porPrioridad = agruparPor(actividades, (a) => a.prioridad);\nconst altas = porPrioridad.alta ?? [];  // Actividad[]",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-04-ej-3",
+          "title": "Práctica 3: Tipo para un formulario de alta",
+          "difficulty": "Intermedio",
+          "prompt": "A partir de `Actividad`, crea el tipo `DatosFormulario` sin `id` ni `creadaEn`, y una función `crear(datos: DatosFormulario, id: number): Actividad` que complete los campos que faltan.",
+          "hint": "Usa `Omit` con una unión de las dos claves y la fecha actual con `new Date().toISOString()`.",
+          "solutionExplanation": "Con Omit, el formulario nunca puede traer un id inventado, y al agregar campos a Actividad el formulario los exige automáticamente.",
+          "solutionCode": "type DatosFormulario = Omit<Actividad, \"id\" | \"creadaEn\">;\n\nfunction crear(datos: DatosFormulario, id: number): Actividad {\n  return { ...datos, id, creadaEn: new Date().toISOString() };\n}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-04-q1",
+          "question": "¿Qué ventaja tiene function primero<T>(lista: T[]) frente a usar any?",
+          "options": [
+            "El resultado conserva el tipo real de la lista",
+            "La lista se copia antes de devolver el elemento",
+            "La función se ejecuta más rápido en el navegador",
+            "El compilador acepta listas de cualquier largo"
+          ],
+          "correctIndex": 0,
+          "explanation": "Con un genérico, si pasas number[] el resultado es number. Con any se pierde esa información."
+        },
+        {
+          "id": "tsr-04-q2",
+          "question": "¿Qué tipo describe los datos de un formulario de alta, sin id?",
+          "options": [
+            "Omit<Actividad, \"id\">",
+            "Partial<Actividad>",
+            "Pick<Actividad, \"id\">",
+            "Record<\"id\", Actividad>"
+          ],
+          "correctIndex": 0,
+          "explanation": "Omit quita las propiedades indicadas. Pick haría lo contrario: dejaría solo el id."
+        },
+        {
+          "id": "tsr-04-q3",
+          "question": "¿Qué hace Partial<T>?",
+          "options": [
+            "Vuelve de solo lectura todas las propiedades",
+            "Divide T en dos tipos con la mitad cada uno",
+            "Vuelve opcionales todas las propiedades de T",
+            "Quita de T las propiedades que son opcionales"
+          ],
+          "correctIndex": 2,
+          "explanation": "Partial marca todo como opcional. Es útil para recibir solo los campos que cambian."
+        }
+      ]
+    },
+    {
+      "id": "tsr-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Lec. 05",
+      "module": "2 · TypeScript en la práctica",
+      "title": "Estrechar tipos y uniones discriminadas",
+      "subtitle": "typeof, in, comprobaciones de null y el patrón de la propiedad tipo.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Estrechar uniones con typeof, in, instanceof y comprobaciones de null.",
+        "Modelar estados con uniones discriminadas.",
+        "Comprobar con never que un switch cubre todos los casos."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-05-sec-1",
+          "title": "1. Qué es estrechar un tipo",
+          "body": "Cuando un valor es una unión, como `string | number`, TypeScript solo te deja usar lo que las dos opciones tienen en común. **Estrechar** es comprobar en el código cuál es, para que dentro de ese bloque el compilador conozca el tipo exacto.\n\nLas comprobaciones que TypeScript entiende:\n- **`typeof x === \"string\"`** para primitivos.\n- **`x === null`**, `x !== undefined` o simplemente `if (x)` para descartar vacíos.\n- **`\"propiedad\" in x`** para distinguir objetos por sus propiedades.\n- **`x instanceof Date`** para clases.\n- **`Array.isArray(x)`** para arreglos.\n\nDespués de un `return` temprano, el resto de la función ya trabaja con el tipo estrechado.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function mostrar(codigo: string | number | null): string {\n  if (codigo === null) return \"sin código\";\n  // aquí: string | number\n  if (typeof codigo === \"number\") {\n    return codigo.toString().padStart(4, \"0\"); // number\n  }\n  return codigo.toUpperCase();                 // string\n}",
+          "keyTakeaway": "Estrechar es comprobar el tipo en el código; dentro del bloque el compilador lo conoce exacto."
+        },
+        {
+          "id": "tsr-05-sec-2",
+          "title": "2. Uniones discriminadas",
+          "body": "Una **unión discriminada** es una unión de objetos que comparten una propiedad con un valor literal distinto en cada uno, normalmente llamada `tipo` o `estado`. Al comprobar esa propiedad, TypeScript sabe qué otras propiedades existen.\n\nEs la mejor forma de modelar algo que pasa por estados con datos diferentes: una petición que está cargando, salió bien o falló. Así es **imposible** tener a la vez un error y datos, o leer los datos antes de que lleguen.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Carga<T> =\n  | { estado: \"cargando\" }\n  | { estado: \"ok\"; datos: T }\n  | { estado: \"error\"; mensaje: string };\n\nfunction texto(c: Carga<Actividad[]>): string {\n  if (c.estado === \"cargando\") return \"Cargando…\";\n  if (c.estado === \"error\") return `Error: ${c.mensaje}`;\n  return `${c.datos.length} actividades`; // aquí existe datos\n}",
+          "keyTakeaway": "Una propiedad literal común (estado) permite que TypeScript sepa qué datos trae cada caso."
+        },
+        {
+          "id": "tsr-05-sec-3",
+          "title": "3. Cubrir todos los casos con never",
+          "body": "Si mañana agregas un estado nuevo, quieres que el compilador te diga **todos** los lugares donde falta manejarlo. El truco: en el `default` del `switch`, asigna el valor a una variable de tipo `never`.\n\nSi cubriste todos los casos, en el `default` no queda ningún tipo posible y el valor es `never`. Si falta uno, el valor tiene ese tipo y la asignación da error al compilar.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Evento =\n  | { tipo: \"inicio\"; hora: string }\n  | { tipo: \"pausa\"; motivo: string }\n  | { tipo: \"fin\"; horas: number };\n\nfunction describir(e: Evento): string {\n  switch (e.tipo) {\n    case \"inicio\": return `Empezó a las ${e.hora}`;\n    case \"pausa\": return `Pausa: ${e.motivo}`;\n    case \"fin\": return `Terminó en ${e.horas} h`;\n    default: {\n      const nunca: never = e; // error si falta un caso\n      return nunca;\n    }\n  }\n}",
+          "keyTakeaway": "Asignar a never en el default convierte un caso olvidado en un error de compilación."
+        },
+        {
+          "id": "tsr-05-sec-4",
+          "title": "4. Guardas de tipo propias",
+          "body": "Cuando la comprobación es larga o se repite, ponla en una función que devuelva **`x is Tipo`**. Esa firma se llama **predicado de tipo** y le dice al compilador: si la función devuelve `true`, el valor es de ese tipo.\n\nEs muy útil con `filter`, para quedarte solo con los elementos válidos y que el resultado tenga el tipo correcto.\n\nCuidado: TypeScript **confía** en tu predicado. Si la función comprueba mal, el compilador no lo detecta.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function esActividad(x: unknown): x is Actividad {\n  return (\n    typeof x === \"object\" && x !== null &&\n    typeof (x as Actividad).id === \"number\" &&\n    typeof (x as Actividad).equipo === \"string\"\n  );\n}\n\nconst crudos: unknown[] = JSON.parse(texto);\nconst validas = crudos.filter(esActividad); // Actividad[]",
+          "keyTakeaway": "Una función con retorno x is Tipo enseña al compilador una comprobación propia."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo modelar estados sin contradicciones.",
+        "rules": [
+          "Modela los estados con uniones discriminadas, no con varios booleanos sueltos.",
+          "Usa siempre la misma propiedad discriminante en el proyecto (por ejemplo, estado o tipo).",
+          "Cierra cada switch sobre una unión con la comprobación de never.",
+          "Prefiere un return temprano para descartar null antes que anidar if.",
+          "Mantén los predicados de tipo pequeños y pruébalos con datos malos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Guardar el estado de una carga de datos.",
+        "juniorLabel": "Así no",
+        "juniorCode": "interface Estado {\n  cargando: boolean;\n  error?: string;\n  datos?: Actividad[];\n}\n\n// ¿Qué significa esto?\nconst e: Estado = { cargando: true, error: \"timeout\", datos: [] };",
+        "juniorFlaws": [
+          "Permite combinaciones imposibles: cargando, con error y con datos a la vez.",
+          "Cada uso debe revisar varias propiedades opcionales.",
+          "Agregar un estado nuevo no avisa dónde falta manejarlo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "type Estado =\n  | { estado: \"cargando\" }\n  | { estado: \"ok\"; datos: Actividad[] }\n  | { estado: \"error\"; mensaje: string };\n\nconst e: Estado = { estado: \"error\", mensaje: \"timeout\" };",
+        "intermediateBenefits": [
+          "Solo existen los tres estados posibles.",
+          "Cada estado trae exactamente sus datos.",
+          "El switch con never avisa si falta un caso."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-05-ej-1",
+          "title": "Práctica 1: Estrechar con typeof",
+          "difficulty": "Básico",
+          "prompt": "Escribe `aTexto(v: string | number | boolean): string` que devuelva el texto tal cual, el número con dos decimales y el booleano como `\"sí\"` o `\"no\"`.",
+          "hint": "Un `if` con `typeof` por cada tipo; el último caso ya queda estrechado.",
+          "solutionExplanation": "Después de descartar string y number, TypeScript sabe que solo queda boolean, sin necesidad de un tercer `typeof`.",
+          "solutionCode": "function aTexto(v: string | number | boolean): string {\n  if (typeof v === \"string\") return v;\n  if (typeof v === \"number\") return v.toFixed(2);\n  return v ? \"sí\" : \"no\";\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-05-ej-2",
+          "title": "Práctica 2: Unión discriminada de alertas",
+          "difficulty": "Intermedio",
+          "prompt": "Modela las alertas de un equipo: `temperatura` (con `grados`), `vibracion` (con `mmPorSegundo`) y `sinSenal` (con `desde`, una hora). Escribe `mensaje(a: Alerta): string` con un `switch` y la comprobación de `never`.",
+          "hint": "La propiedad común puede llamarse `tipo`.",
+          "solutionExplanation": "Si después agregas `{ tipo: \"presion\"; bar: number }`, el `default` marca error hasta que agregues ese `case`.",
+          "solutionCode": "type Alerta =\n  | { tipo: \"temperatura\"; grados: number }\n  | { tipo: \"vibracion\"; mmPorSegundo: number }\n  | { tipo: \"sinSenal\"; desde: string };\n\nfunction mensaje(a: Alerta): string {\n  switch (a.tipo) {\n    case \"temperatura\": return `Temperatura alta: ${a.grados} °C`;\n    case \"vibracion\": return `Vibración: ${a.mmPorSegundo} mm/s`;\n    case \"sinSenal\": return `Sin señal desde ${a.desde}`;\n    default: {\n      const nunca: never = a;\n      return nunca;\n    }\n  }\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-05-ej-3",
+          "title": "Práctica 3: Filtrar con un predicado",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes `const codigos: (string | null)[]` con algunos vacíos. Escribe un predicado `noEsNulo` genérico y úsalo con `filter` para obtener un `string[]`.",
+          "hint": "La firma es `function noEsNulo<T>(x: T | null): x is T`.",
+          "solutionExplanation": "Sin el predicado, `filter(x => x !== null)` en versiones antiguas de TypeScript devolvía `(string | null)[]`. Con el predicado, el resultado tiene el tipo correcto en cualquier versión.",
+          "solutionCode": "function noEsNulo<T>(x: T | null): x is T {\n  return x !== null;\n}\n\nconst limpios: string[] = codigos.filter(noEsNulo);",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-05-q1",
+          "question": "¿Qué hace que una unión sea discriminada?",
+          "options": [
+            "Que todas sus opciones sean del tipo string",
+            "Una propiedad literal común con distinto valor",
+            "Que cada opción tenga propiedades opcionales",
+            "Que la unión se declare con interface y no type"
+          ],
+          "correctIndex": 1,
+          "explanation": "La propiedad común con valores literales distintos (como estado) permite a TypeScript saber qué opción es."
+        },
+        {
+          "id": "tsr-05-q2",
+          "question": "¿Para qué sirve asignar el valor a una variable never en el default?",
+          "options": [
+            "Da error al compilar si falta manejar un caso",
+            "Detiene la página si llega un valor extraño",
+            "Hace que el switch se ejecute más rápido",
+            "Convierte los casos no previstos en null"
+          ],
+          "correctIndex": 0,
+          "explanation": "Si se cubrieron todos los casos, en el default el tipo es never. Si falta uno, la asignación no compila."
+        },
+        {
+          "id": "tsr-05-q3",
+          "question": "¿Qué significa el retorno x is Actividad en una función?",
+          "options": [
+            "Si devuelve true, el valor se trata como Actividad",
+            "La función lanza un error si no es una Actividad",
+            "La función convierte el valor recibido en una Actividad",
+            "El valor se valida también en el servidor"
+          ],
+          "correctIndex": 0,
+          "explanation": "Es un predicado de tipo: el compilador estrecha el tipo cuando la función devuelve true, y confía en tu comprobación."
+        }
+      ]
+    },
+    {
+      "id": "tsr-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Lec. 06",
+      "module": "2 · TypeScript en la práctica",
+      "title": "Tipar datos que llegan de fuera",
+      "subtitle": "fetch, JSON y localStorage: no confiar en los datos y validarlos en la frontera.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar por qué los tipos no protegen los datos que llegan en tiempo de ejecución.",
+        "Escribir una función fetch tipada que maneje errores de red y de HTTP.",
+        "Validar JSON con una función propia antes de usarlo en la aplicación."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-06-sec-1",
+          "title": "1. La frontera: donde los tipos no llegan",
+          "body": "TypeScript revisa tu código, pero **no puede revisar** lo que llega mientras la página corre: la respuesta de una API, un archivo JSON, lo guardado en `localStorage` o lo que escribe el usuario.\n\n`JSON.parse` y `respuesta.json()` devuelven `any`. Si escribes `const datos: Actividad[] = await r.json()`, el compilador **te cree**, aunque el servidor mande otra cosa. El error aparece después, lejos del lugar real.\n\nLa solución es tratar esos datos como **`unknown`** en la frontera y validarlos una sola vez. Del otro lado de esa validación, todo el código trabaja con tipos confiables.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// Peligroso: el compilador cree lo que le digas\nconst datos: Actividad[] = await r.json();\n\n// Seguro: unknown en la frontera, validar y luego usar\nconst crudo: unknown = await r.json();\nconst actividades = leerActividades(crudo); // Actividad[] validado",
+          "keyTakeaway": "Los datos externos entran como unknown y se validan una sola vez en la frontera."
+        },
+        {
+          "id": "tsr-06-sec-2",
+          "title": "2. fetch tipado con manejo de errores",
+          "body": "Una función de carga útil hace tres cosas:\n1. Captura los errores de **red** (sin conexión), que hacen que `fetch` lance una excepción.\n2. Revisa **`r.ok`**: un 404 o un 500 no lanzan excepción, solo devuelven `ok: false`.\n3. Devuelve un resultado que obligue a quien la llama a manejar el error. La unión discriminada de la Lec. 05 encaja perfecto.\n\nRecibir el validador como parámetro hace que la función sirva para cualquier tipo de dato.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Resultado<T> = { ok: true; datos: T } | { ok: false; error: string };\n\nexport async function cargar<T>(url: string, validar: (x: unknown) => T): Promise<Resultado<T>> {\n  try {\n    const r = await fetch(url);\n    if (!r.ok) return { ok: false, error: `HTTP ${r.status}` };\n    return { ok: true, datos: validar(await r.json()) };\n  } catch (e) {\n    return { ok: false, error: e instanceof Error ? e.message : String(e) };\n  }\n}",
+          "keyTakeaway": "fetch no lanza error con un 404: revisa r.ok y devuelve un resultado que obligue a manejar el fallo."
+        },
+        {
+          "id": "tsr-06-sec-3",
+          "title": "3. Validar JSON a mano",
+          "body": "Un **validador** recibe `unknown`, comprueba campo por campo y devuelve el tipo correcto o lanza un error claro. Es repetitivo pero sencillo, y para proyectos pequeños basta.\n\nBuenas prácticas:\n- Un validador por tipo del dominio: `leerActividad`, `leerEquipo`.\n- Mensajes de error que digan **qué** campo falló.\n- Para arreglos, valida cada elemento y decide si un elemento malo descarta todo o solo ese elemento.\n\nEn proyectos grandes se usan bibliotecas como **Zod**, que generan el validador y el tipo a la vez. La idea es la misma.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function esObjeto(x: unknown): x is Record<string, unknown> {\n  return typeof x === \"object\" && x !== null;\n}\n\nexport function leerActividad(x: unknown): Actividad {\n  if (!esObjeto(x)) throw new Error(\"La actividad no es un objeto\");\n  const { id, equipo, descripcion, prioridad, hecha } = x;\n  if (typeof id !== \"number\") throw new Error(\"id inválido\");\n  if (typeof equipo !== \"string\") throw new Error(\"equipo inválido\");\n  if (typeof descripcion !== \"string\") throw new Error(\"descripcion inválida\");\n  if (prioridad !== \"baja\" && prioridad !== \"media\" && prioridad !== \"alta\")\n    throw new Error(\"prioridad inválida\");\n  return { id, equipo, descripcion, prioridad, hecha: hecha === true,\n           creadaEn: typeof x.creadaEn === \"string\" ? x.creadaEn : \"\" };\n}",
+          "keyTakeaway": "Un validador comprueba cada campo de unknown y devuelve el tipo o un error claro."
+        },
+        {
+          "id": "tsr-06-sec-4",
+          "title": "4. localStorage con tipos",
+          "body": "`localStorage` solo guarda texto. Una pequeña capa tipada evita repetir `JSON.parse` y `JSON.stringify` en todo el proyecto, y concentra la validación:\n- **Guardar**: convierte a JSON con la clave correcta.\n- **Leer**: si no hay nada, si el JSON está roto o si los datos no pasan la validación, devuelve un valor por defecto en vez de romper la página.\n\nCon `try/catch` también cubres navegadores que bloquean el almacenamiento, como algunos modos privados.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "export function leerGuardado<T>(clave: string, validar: (x: unknown) => T, porDefecto: T): T {\n  try {\n    const texto = localStorage.getItem(clave);\n    return texto === null ? porDefecto : validar(JSON.parse(texto));\n  } catch {\n    return porDefecto;\n  }\n}\n\nexport function guardar<T>(clave: string, valor: T): void {\n  try { localStorage.setItem(clave, JSON.stringify(valor)); } catch { /* sin espacio o bloqueado */ }\n}",
+          "keyTakeaway": "Envuelve localStorage en funciones tipadas que validan al leer y nunca rompen la página."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo recibir datos externos con seguridad.",
+        "rules": [
+          "Todo dato externo (API, JSON, localStorage, formularios) entra como unknown.",
+          "Valida en un solo lugar, en la frontera, y usa tipos confiables del otro lado.",
+          "No uses as Tipo sobre datos externos: es una promesa que nadie comprueba.",
+          "Revisa r.ok después de cada fetch; un 404 no lanza excepción.",
+          "Devuelve errores como datos (Resultado<T>) para que quien llama no pueda ignorarlos."
+        ]
+      },
+      "comparison": {
+        "scenario": "Cargar la lista de equipos desde una API.",
+        "juniorLabel": "Así no",
+        "juniorCode": "async function equipos() {\n  const r = await fetch(\"/api/equipos\");\n  return (await r.json()) as Equipo[];\n}\n\nconst lista = await equipos();\nlista.forEach((e) => pintar(e.nombre)); // ¿y si llegó un error 500?",
+        "juniorFlaws": [
+          "as Equipo[] promete un tipo que nadie comprobó.",
+          "Un 500 devuelve un JSON de error que se trata como lista.",
+          "Sin conexión, la excepción sube sin control y deja la pantalla en blanco."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const r = await cargar(\"/api/equipos\", (x) => {\n  if (!Array.isArray(x)) throw new Error(\"Se esperaba una lista\");\n  return x.map(leerEquipo);\n});\n\nif (r.ok) r.datos.forEach((e) => pintar(e.nombre));\nelse mostrarAviso(`No se pudieron cargar los equipos (${r.error})`);",
+        "intermediateBenefits": [
+          "Los datos se validan antes de usarlos.",
+          "Errores de red y de HTTP llegan como un resultado manejable.",
+          "El usuario ve un aviso en lugar de una pantalla rota."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-06-ej-1",
+          "title": "Práctica 1: Detectar la mentira",
+          "difficulty": "Básico",
+          "prompt": "Explica qué pasa al ejecutar este código si el servidor responde `{\"error\": \"sin permiso\"}` con estado 403, y por qué el compilador no avisó:\n\n```\nconst r = await fetch(\"/api/actividades\");\nconst lista: Actividad[] = await r.json();\nconsole.log(lista.length);\n```",
+          "hint": "Piensa en qué devuelve `r.json()` y qué hace `fetch` con un 403.",
+          "solutionExplanation": "`fetch` no lanza error con un 403. `r.json()` devuelve `any`, que se puede asignar a `Actividad[]` sin comprobación. `lista` es en realidad un objeto, así que `lista.length` es `undefined` y el fallo aparece más adelante."
+        },
+        {
+          "id": "tsr-06-ej-2",
+          "title": "Práctica 2: Validador de equipos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `leerEquipo(x: unknown): Equipo` para la interface `{ codigo: string; nombre: string; horasUso: number }`. Lanza un error que nombre el campo que falló.",
+          "hint": "Reutiliza `esObjeto` para comprobar primero que sea un objeto.",
+          "solutionExplanation": "Al final, TypeScript acepta el objeto de retorno porque cada variable ya fue estrechada a su tipo.",
+          "solutionCode": "function leerEquipo(x: unknown): Equipo {\n  if (!esObjeto(x)) throw new Error(\"El equipo no es un objeto\");\n  const { codigo, nombre, horasUso } = x;\n  if (typeof codigo !== \"string\") throw new Error(\"codigo inválido\");\n  if (typeof nombre !== \"string\") throw new Error(\"nombre inválido\");\n  if (typeof horasUso !== \"number\") throw new Error(\"horasUso inválido\");\n  return { codigo, nombre, horasUso };\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-06-ej-3",
+          "title": "Práctica 3: Cargar sin romper",
+          "difficulty": "Avanzado",
+          "prompt": "Usa `cargar` y `leerEquipo` para traer `/api/equipos`. Si algún equipo no pasa la validación, descártalo y cuenta cuántos se descartaron en lugar de rechazar toda la lista.",
+          "hint": "Dentro del validador, recorre la lista con un `try/catch` por elemento.",
+          "solutionExplanation": "Así la página sigue funcionando aunque un registro venga dañado, y el contador te permite avisar o registrar el problema.",
+          "solutionCode": "const r = await cargar(\"/api/equipos\", (x) => {\n  if (!Array.isArray(x)) throw new Error(\"Se esperaba una lista\");\n  const buenos: Equipo[] = [];\n  let descartados = 0;\n  for (const item of x) {\n    try { buenos.push(leerEquipo(item)); } catch { descartados++; }\n  }\n  return { buenos, descartados };\n});",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-06-q1",
+          "question": "¿Qué tipo devuelve JSON.parse en TypeScript?",
+          "options": [
+            "any, por eso hay que validar el resultado",
+            "string, igual que el texto que recibe",
+            "unknown, y el compilador obliga a validar",
+            "El tipo de la variable donde se guarda"
+          ],
+          "correctIndex": 0,
+          "explanation": "JSON.parse devuelve any. Por eso conviene recibirlo como unknown y validarlo a propósito."
+        },
+        {
+          "id": "tsr-06-q2",
+          "question": "¿Qué hace fetch cuando el servidor responde con un 404?",
+          "options": [
+            "Devuelve null en lugar de la respuesta",
+            "Resuelve la promesa con r.ok igual a false",
+            "Lanza una excepción que cae en el bloque catch",
+            "Reintenta la petición hasta tres veces"
+          ],
+          "correctIndex": 1,
+          "explanation": "fetch solo lanza con errores de red. Los errores HTTP llegan como respuestas con ok en false."
+        },
+        {
+          "id": "tsr-06-q3",
+          "question": "¿Dónde conviene validar los datos que llegan de una API?",
+          "options": [
+            "Solo en el servidor que los envía",
+            "Una vez, en la frontera donde entran",
+            "En cada componente que los muestra",
+            "En ninguna parte si ya están tipados"
+          ],
+          "correctIndex": 1,
+          "explanation": "Validar en la frontera deja tipos confiables en todo el resto del código y evita validaciones repetidas."
+        }
+      ]
+    },
+    {
+      "id": "tsr-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Lec. 07",
+      "module": "3 · React con TypeScript",
+      "title": "Primer proyecto con Vite: componentes y props",
+      "subtitle": "Crear el proyecto, entender JSX y pasar datos a componentes con props tipadas.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Crear un proyecto React con TypeScript usando Vite y entender su estructura.",
+        "Escribir componentes como funciones que devuelven JSX.",
+        "Tipar las props de un componente, incluidas las opcionales y children."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-07-sec-1",
+          "title": "1. Crear el proyecto con Vite",
+          "body": "**React** es una biblioteca para construir interfaces a partir de **componentes**: piezas reutilizables que reciben datos y devuelven lo que se ve en pantalla. **Vite** es la herramienta que crea el proyecto, levanta un servidor de desarrollo que recarga al guardar y genera la versión final optimizada.\n\nLos archivos que importan al empezar:\n- `index.html`: la página, con un `<div id=\"root\">` vacío.\n- `src/main.tsx`: monta la aplicación dentro de ese div.\n- `src/App.tsx`: el primer componente.\n- `tsconfig.json`: ya viene con `strict: true`.\n\nLa extensión **`.tsx`** es TypeScript que además permite escribir JSX.",
+          "codeLanguage": "bash",
+          "codeSnippet": "npm create vite@latest tablero -- --template react-ts\ncd tablero\nnpm install\nnpm run dev      # abre http://localhost:5173\n\n# Estructura\n# index.html\n# src/main.tsx   -> createRoot(...).render(<App />)\n# src/App.tsx    -> primer componente\n# vite.config.ts",
+          "keyTakeaway": "Vite crea el proyecto React con TypeScript ya configurado; los componentes van en archivos .tsx."
+        },
+        {
+          "id": "tsr-07-sec-2",
+          "title": "2. JSX: HTML dentro de TypeScript",
+          "body": "Un componente es una **función** que empieza con mayúscula y devuelve **JSX**, una sintaxis parecida a HTML. Diferencias con HTML que debes recordar:\n- `class` se escribe **`className`**, y `for` se escribe **`htmlFor`**.\n- Las expresiones van entre **llaves**: `{actividad.horas * 2}`.\n- Todas las etiquetas se cierran, incluso `<img />` y `<input />`.\n- Un componente devuelve **un solo elemento raíz**; si necesitas varios, envuélvelos en un fragmento `<>...</>`.\n- Los estilos en línea son objetos: `style={{ color: \"red\" }}`.\n\nReact escapa automáticamente el texto entre llaves, así que mostrar datos del usuario es seguro por defecto.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "export default function App() {\n  const equipo = \"Compresor 3\";\n  const horas = 1.5;\n  return (\n    <>\n      <h1 className=\"titulo\">Tablero de mantenimiento</h1>\n      <p>\n        {equipo}: {horas * 60} minutos estimados\n      </p>\n      <label htmlFor=\"nota\">Nota</label>\n      <input id=\"nota\" />\n    </>\n  );\n}",
+          "keyTakeaway": "JSX usa className, cierra todas las etiquetas y pone las expresiones entre llaves."
+        },
+        {
+          "id": "tsr-07-sec-3",
+          "title": "3. Props tipadas",
+          "body": "Las **props** son los datos que un componente recibe de su padre, como los atributos de una etiqueta HTML. En TypeScript se describen con una interface y se **desestructuran** en los parámetros.\n\nAsí, si usas el componente sin una prop obligatoria o con un tipo equivocado, el editor lo marca en el lugar del uso. Las props opcionales pueden tener un valor por defecto en la desestructuración.\n\nLas props son de **solo lectura**: un componente nunca modifica las props que recibe.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "interface TarjetaProps {\n  equipo: string;\n  descripcion: string;\n  prioridad: Prioridad;\n  horas?: number;\n}\n\nexport function TarjetaActividad({ equipo, descripcion, prioridad, horas = 1 }: TarjetaProps) {\n  return (\n    <article className={`tarjeta ${prioridad}`}>\n      <h3>{equipo}</h3>\n      <p>{descripcion}</p>\n      <small>{horas} h · prioridad {prioridad}</small>\n    </article>\n  );\n}\n\n// Uso: <TarjetaActividad equipo=\"BOM-2\" descripcion=\"Revisar sello\" prioridad=\"alta\" />",
+          "keyTakeaway": "Describe las props con una interface; el editor revisa cada uso del componente."
+        },
+        {
+          "id": "tsr-07-sec-4",
+          "title": "4. children y composición",
+          "body": "La prop especial **`children`** es lo que va entre la etiqueta de apertura y la de cierre. Se tipa con **`React.ReactNode`**, que acepta texto, elementos, listas o nada.\n\nCon `children` construyes componentes **contenedores** (un panel, una tarjeta, un modal) que no necesitan saber qué muestran por dentro. Es la forma principal de reutilizar en React: **componer** piezas pequeñas en lugar de crear un componente gigante con muchas opciones.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "import type { ReactNode } from \"react\";\n\ninterface PanelProps {\n  titulo: string;\n  children: ReactNode;\n}\n\nfunction Panel({ titulo, children }: PanelProps) {\n  return (\n    <section className=\"panel\">\n      <h2>{titulo}</h2>\n      {children}\n    </section>\n  );\n}\n\n// <Panel titulo=\"Hoy\">\n//   <TarjetaActividad ... />\n//   <TarjetaActividad ... />\n// </Panel>",
+          "keyTakeaway": "children (tipo ReactNode) permite componer componentes contenedores reutilizables."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo organizar componentes desde el principio.",
+        "rules": [
+          "Un componente por archivo, con el mismo nombre en PascalCase: TarjetaActividad.tsx.",
+          "Declara las props con una interface llamada NombreProps junto al componente.",
+          "Nunca modifiques las props; si algo cambia, es estado (Lec. 08).",
+          "Prefiere componer con children a agregar props de configuración sin fin.",
+          "Usa import type para importar solo tipos; no agregan nada al JavaScript final."
+        ]
+      },
+      "comparison": {
+        "scenario": "Mostrar la tarjeta de una actividad.",
+        "juniorLabel": "Así no",
+        "juniorCode": "function tarjeta(props: any) {\n  return (\n    <div class=\"tarjeta\">\n      <h3>{props.equpo}</h3>\n      <p>{props.descripcion}</p>\n    </div>\n  );\n}",
+        "juniorFlaws": [
+          "El nombre en minúscula hace que React lo trate como etiqueta HTML.",
+          "class en lugar de className.",
+          "props: any no detecta el error de dedo en equpo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "interface TarjetaProps { equipo: string; descripcion: string }\n\nfunction Tarjeta({ equipo, descripcion }: TarjetaProps) {\n  return (\n    <div className=\"tarjeta\">\n      <h3>{equipo}</h3>\n      <p>{descripcion}</p>\n    </div>\n  );\n}",
+        "intermediateBenefits": [
+          "Nombre en mayúscula: React lo reconoce como componente.",
+          "className correcto en JSX.",
+          "El editor marca cualquier prop mal escrita."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-07-ej-1",
+          "title": "Práctica 1: Crear el proyecto",
+          "difficulty": "Básico",
+          "prompt": "Crea un proyecto con `npm create vite@latest tablero -- --template react-ts`, ábrelo con `npm run dev` y cambia `App.tsx` para que muestre el título \"Tablero de mantenimiento\" y la fecha de hoy.",
+          "hint": "`new Date().toLocaleDateString(\"es\")` da la fecha en formato local.",
+          "solutionExplanation": "Al guardar, Vite recarga la página sola. La fecha se calcula en cada render del componente.",
+          "solutionCode": "export default function App() {\n  const hoy = new Date().toLocaleDateString(\"es\");\n  return (\n    <main>\n      <h1>Tablero de mantenimiento</h1>\n      <p>{hoy}</p>\n    </main>\n  );\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-07-ej-2",
+          "title": "Práctica 2: Componente con props",
+          "difficulty": "Básico",
+          "prompt": "Crea `InsigniaPrioridad` que reciba `prioridad: Prioridad` y muestre un `<span>` con la clase `insignia` más la prioridad, y el texto en mayúsculas. Úsalo tres veces en `App`.",
+          "hint": "La clase se arma con un template: `` `insignia ${prioridad}` ``.",
+          "solutionExplanation": "Si escribes `prioridad=\"urgente\"`, el editor lo marca porque no está en la unión `Prioridad`.",
+          "solutionCode": "type Prioridad = \"baja\" | \"media\" | \"alta\";\n\nfunction InsigniaPrioridad({ prioridad }: { prioridad: Prioridad }) {\n  return <span className={`insignia ${prioridad}`}>{prioridad.toUpperCase()}</span>;\n}\n\n// <InsigniaPrioridad prioridad=\"alta\" />",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-07-ej-3",
+          "title": "Práctica 3: Composición con children",
+          "difficulty": "Intermedio",
+          "prompt": "Crea un componente `Seccion` con `titulo` y `children`, y un prop opcional `contador?: number` que, si existe, se muestre junto al título entre paréntesis. Úsalo para agrupar tres tarjetas.",
+          "hint": "Para mostrar algo solo si existe: `{contador !== undefined && <span>...</span>}`.",
+          "solutionExplanation": "Comparar con `undefined` en lugar de usar `{contador && ...}` evita que un contador en 0 muestre un \"0\" suelto en pantalla.",
+          "solutionCode": "interface SeccionProps { titulo: string; contador?: number; children: React.ReactNode }\n\nfunction Seccion({ titulo, contador, children }: SeccionProps) {\n  return (\n    <section>\n      <h2>\n        {titulo} {contador !== undefined && <span>({contador})</span>}\n      </h2>\n      {children}\n    </section>\n  );\n}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-07-q1",
+          "question": "¿Cómo se escribe el atributo class de HTML en JSX?",
+          "options": [
+            "htmlClass",
+            "class",
+            "className",
+            "cssClass"
+          ],
+          "correctIndex": 2,
+          "explanation": "class es palabra reservada en JavaScript, por eso JSX usa className."
+        },
+        {
+          "id": "tsr-07-q2",
+          "question": "¿Por qué un componente debe empezar con mayúscula?",
+          "options": [
+            "Así el navegador lo carga antes que el resto",
+            "Así TypeScript le asigna tipos a sus props",
+            "Así React lo distingue de una etiqueta HTML",
+            "Así Vite lo incluye al generar la versión final"
+          ],
+          "correctIndex": 2,
+          "explanation": "En JSX, un nombre en minúscula se trata como etiqueta HTML; en mayúscula, como componente."
+        },
+        {
+          "id": "tsr-07-q3",
+          "question": "¿Qué tipo se usa normalmente para la prop children?",
+          "options": [
+            "any, porque puede ser cualquier cosa",
+            "HTMLElement, como en el DOM normal",
+            "ReactNode, que acepta texto o elementos",
+            "string, porque siempre es un texto"
+          ],
+          "correctIndex": 2,
+          "explanation": "ReactNode cubre todo lo que React sabe mostrar: texto, números, elementos, listas o nada."
+        }
+      ]
+    },
+    {
+      "id": "tsr-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Lec. 08",
+      "module": "3 · React con TypeScript",
+      "title": "Estado y eventos con useState",
+      "subtitle": "Datos que cambian, eventos tipados y formularios controlados.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Guardar datos que cambian con useState y entender cuándo React vuelve a dibujar.",
+        "Tipar manejadores de eventos de clic, cambio y envío de formulario.",
+        "Construir un formulario controlado que valide antes de guardar."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-08-sec-1",
+          "title": "1. useState: datos que cambian",
+          "body": "Las props vienen de fuera. El **estado** es la memoria propia del componente: un contador, el texto de un campo o la lista de actividades. Se crea con el **hook** `useState`, que devuelve el valor actual y una función para cambiarlo.\n\nCada vez que llamas al **setter**, React vuelve a ejecutar el componente (**re-render**) con el valor nuevo y actualiza solo lo que cambió en pantalla.\n\nReglas de los hooks: se llaman **siempre en el nivel superior** del componente, nunca dentro de un `if`, un bucle o una función interna.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "import { useState } from \"react\";\n\nfunction ContadorHoras() {\n  const [horas, setHoras] = useState(0);   // number inferido\n  return (\n    <div>\n      <p>{horas} h registradas</p>\n      <button onClick={() => setHoras(horas + 0.5)}>+30 min</button>\n    </div>\n  );\n}",
+          "keyTakeaway": "useState guarda un valor del componente; llamar al setter hace que React vuelva a dibujarlo."
+        },
+        {
+          "id": "tsr-08-sec-2",
+          "title": "2. Tipar el estado y actualizarlo bien",
+          "body": "TypeScript infiere el tipo del valor inicial. Hay que escribirlo cuando el inicial no lo dice todo: `useState<Actividad | null>(null)` o `useState<Actividad[]>([])`.\n\nDos reglas para actualizar sin errores:\n- **Nunca modifiques** el estado directamente (`lista.push(x)`). Crea un valor nuevo: `setLista([...lista, x])`. React compara referencias; si el arreglo es el mismo, no se entera del cambio.\n- Si el valor nuevo depende del anterior, usa la **forma de función**: `setHoras(h => h + 1)`. Así siempre trabajas con el valor más reciente, aunque haya varias actualizaciones seguidas.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "const [seleccion, setSeleccion] = useState<Actividad | null>(null);\nconst [lista, setLista] = useState<Actividad[]>([]);\n\nfunction agregar(a: Actividad) {\n  setLista((prev) => [...prev, a]);                // copia nueva\n}\n\nfunction marcarHecha(id: number) {\n  setLista((prev) => prev.map((a) => (a.id === id ? { ...a, hecha: true } : a)));\n}",
+          "keyTakeaway": "No modifiques el estado: crea un valor nuevo, y usa la forma de función si depende del anterior."
+        },
+        {
+          "id": "tsr-08-sec-3",
+          "title": "3. Eventos tipados",
+          "body": "Los eventos en JSX se escriben en camelCase: `onClick`, `onChange`, `onSubmit`. Si escribes la función en línea, TypeScript infiere el tipo del evento.\n\nSi la escribes aparte, necesitas el tipo:\n- **`React.MouseEvent<HTMLButtonElement>`** para clics en un botón.\n- **`React.ChangeEvent<HTMLInputElement>`** para un `<input>` (o `HTMLSelectElement`, `HTMLTextAreaElement`).\n- **`React.FormEvent<HTMLFormElement>`** para enviar un formulario.\n\nTruco: escribe el manejador en línea, pasa el cursor sobre `e` y copia el tipo que muestra el editor.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function Buscador({ alBuscar }: { alBuscar: (texto: string) => void }) {\n  const [texto, setTexto] = useState(\"\");\n\n  function cambiar(e: React.ChangeEvent<HTMLInputElement>) {\n    setTexto(e.target.value);\n  }\n\n  return (\n    <>\n      <input value={texto} onChange={cambiar} />\n      <button onClick={() => alBuscar(texto)}>Buscar</button>\n    </>\n  );\n}",
+          "keyTakeaway": "Los eventos en línea se infieren; aparte se tipan con ChangeEvent, MouseEvent o FormEvent."
+        },
+        {
+          "id": "tsr-08-sec-4",
+          "title": "4. Formularios controlados",
+          "body": "Un campo es **controlado** cuando su valor viene del estado (`value={texto}`) y cada cambio actualiza el estado (`onChange`). React se vuelve la única fuente de verdad: puedes validar, limpiar o deshabilitar el botón según lo escrito.\n\nPara formularios con varios campos, un solo objeto de estado y una función que actualice un campo por nombre evitan repetir un `useState` por campo.\n\nAl enviar, llama a **`e.preventDefault()`** para que el navegador no recargue la página.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Datos = { equipo: string; descripcion: string; prioridad: Prioridad };\nconst VACIO: Datos = { equipo: \"\", descripcion: \"\", prioridad: \"media\" };\n\nfunction FormActividad({ alGuardar }: { alGuardar: (d: Datos) => void }) {\n  const [datos, setDatos] = useState<Datos>(VACIO);\n  const valido = datos.equipo.trim() !== \"\" && datos.descripcion.trim() !== \"\";\n\n  function cambiar<K extends keyof Datos>(campo: K, valor: Datos[K]) {\n    setDatos((d) => ({ ...d, [campo]: valor }));\n  }\n\n  function enviar(e: React.FormEvent<HTMLFormElement>) {\n    e.preventDefault();\n    if (!valido) return;\n    alGuardar(datos);\n    setDatos(VACIO);\n  }\n\n  return (\n    <form onSubmit={enviar}>\n      <input value={datos.equipo} onChange={(e) => cambiar(\"equipo\", e.target.value)} placeholder=\"Equipo\" />\n      <input value={datos.descripcion} onChange={(e) => cambiar(\"descripcion\", e.target.value)} placeholder=\"Descripción\" />\n      <select value={datos.prioridad} onChange={(e) => cambiar(\"prioridad\", e.target.value as Prioridad)}>\n        <option value=\"baja\">Baja</option>\n        <option value=\"media\">Media</option>\n        <option value=\"alta\">Alta</option>\n      </select>\n      <button disabled={!valido}>Guardar</button>\n    </form>\n  );\n}",
+          "keyTakeaway": "En un formulario controlado el estado manda: valida, limpia y deshabilita según lo escrito."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo manejar estado sin sorpresas.",
+        "rules": [
+          "Llama a los hooks siempre en el nivel superior del componente.",
+          "Trata el estado como inmutable: copia con spread o map, nunca push ni asignación directa.",
+          "Usa la forma setX(prev => ...) cuando el valor nuevo depende del anterior.",
+          "No guardes en el estado lo que se puede calcular de otro estado o de las props.",
+          "Llama e.preventDefault() en cada onSubmit."
+        ]
+      },
+      "comparison": {
+        "scenario": "Agregar una actividad a la lista.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const [lista, setLista] = useState<Actividad[]>([]);\n\nfunction agregar(a: Actividad) {\n  lista.push(a);      // modifica el arreglo actual\n  setLista(lista);    // misma referencia: React no redibuja\n}",
+        "juniorFlaws": [
+          "push modifica el estado directamente.",
+          "Al pasar el mismo arreglo, React cree que nada cambió y no actualiza la pantalla.",
+          "Dos llamadas seguidas pueden perder datos."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const [lista, setLista] = useState<Actividad[]>([]);\n\nfunction agregar(a: Actividad) {\n  setLista((prev) => [...prev, a]);\n}",
+        "intermediateBenefits": [
+          "Se crea un arreglo nuevo y React detecta el cambio.",
+          "La forma de función usa siempre el valor más reciente.",
+          "El estado anterior queda intacto."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-08-ej-1",
+          "title": "Práctica 1: Interruptor",
+          "difficulty": "Básico",
+          "prompt": "Crea un componente `EstadoEquipo` con un botón que alterne entre \"Operando\" y \"Parado\". Usa un estado booleano y la forma de función del setter.",
+          "hint": "`setOperando(o => !o)` invierte el valor anterior.",
+          "solutionExplanation": "Con la forma de función, aunque el usuario haga doble clic muy rápido, cada clic parte del valor más reciente.",
+          "solutionCode": "function EstadoEquipo() {\n  const [operando, setOperando] = useState(true);\n  return (\n    <button onClick={() => setOperando((o) => !o)}>\n      {operando ? \"Operando\" : \"Parado\"}\n    </button>\n  );\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-08-ej-2",
+          "title": "Práctica 2: Quitar de la lista",
+          "difficulty": "Intermedio",
+          "prompt": "Con `const [lista, setLista] = useState<Actividad[]>(...)`, escribe `eliminar(id: number)` sin modificar el arreglo original, y un botón \"Eliminar\" en cada tarjeta que la llame.",
+          "hint": "`filter` devuelve un arreglo nuevo con los elementos que cumplen la condición.",
+          "solutionExplanation": "`filter` nunca toca el arreglo original, así que es seguro para el estado.",
+          "solutionCode": "function eliminar(id: number) {\n  setLista((prev) => prev.filter((a) => a.id !== id));\n}\n\n// <button onClick={() => eliminar(a.id)}>Eliminar</button>",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-08-ej-3",
+          "title": "Práctica 3: Formulario con validación",
+          "difficulty": "Avanzado",
+          "prompt": "Amplía `FormActividad` con un campo `horas` (número entre 0.5 y 12). Muestra un mensaje de error debajo del campo si el valor está fuera de rango y deshabilita Guardar mientras haya errores.",
+          "hint": "Un `<input type=\"number\">` entrega texto en `e.target.value`: conviértelo con `Number` o usa `e.target.valueAsNumber`.",
+          "solutionExplanation": "El error se **calcula** en cada render a partir del estado; no hace falta guardarlo en otro `useState`.",
+          "solutionCode": "const errorHoras =\n  !Number.isFinite(datos.horas) || datos.horas < 0.5 || datos.horas > 12\n    ? \"Las horas deben estar entre 0.5 y 12\"\n    : null;\n\n<input type=\"number\" step=\"0.5\" value={datos.horas}\n  onChange={(e) => cambiar(\"horas\", e.target.valueAsNumber)} />\n{errorHoras && <p className=\"error\">{errorHoras}</p>}\n<button disabled={!valido || errorHoras !== null}>Guardar</button>",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-08-q1",
+          "question": "¿Qué ocurre al llamar al setter de useState con un valor nuevo?",
+          "options": [
+            "React guarda el valor en localStorage",
+            "React vuelve a ejecutar el componente",
+            "React recarga la página completa",
+            "React borra el estado de los hijos"
+          ],
+          "correctIndex": 1,
+          "explanation": "Cambiar el estado provoca un re-render del componente con el valor nuevo."
+        },
+        {
+          "id": "tsr-08-q2",
+          "question": "¿Por qué lista.push(x) seguido de setLista(lista) no actualiza la pantalla?",
+          "options": [
+            "setLista solo acepta arreglos vacíos",
+            "push no funciona con arreglos tipados",
+            "React solo redibuja cuando se recarga la página",
+            "El arreglo es el mismo y React no ve cambio"
+          ],
+          "correctIndex": 3,
+          "explanation": "React compara referencias. Si pasas el mismo arreglo, considera que el estado no cambió."
+        },
+        {
+          "id": "tsr-08-q3",
+          "question": "¿Qué tipo tiene el evento de onChange en un <input>?",
+          "options": [
+            "React.FormEvent<HTMLFormElement>",
+            "React.ChangeEvent<HTMLInputElement>",
+            "React.MouseEvent<HTMLInputElement>",
+            "React.KeyboardEvent<HTMLElement>"
+          ],
+          "correctIndex": 1,
+          "explanation": "ChangeEvent con el elemento como parámetro de tipo da acceso a e.target.value con el tipo correcto."
+        }
+      ]
+    },
+    {
+      "id": "tsr-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Lec. 09",
+      "module": "3 · React con TypeScript",
+      "title": "Listas, keys y renderizado condicional",
+      "subtitle": "Pintar colecciones con map, elegir buenas keys y mostrar u ocultar según el estado.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Convertir un arreglo de datos en una lista de componentes con map.",
+        "Elegir keys estables y explicar por qué el índice no sirve como key.",
+        "Mostrar contenido según condiciones con &&, el operador ternario y returns tempranos."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-09-sec-1",
+          "title": "1. Listas con map",
+          "body": "Para mostrar una colección, transforma el arreglo de **datos** en un arreglo de **elementos JSX** con `map`. React sabe dibujar arreglos de elementos.\n\nEs habitual encadenar `filter`, `sort` y `map`. Recuerda que `sort` **modifica** el arreglo: si trabajas sobre el estado, ordena una copia: `[...lista].sort(...)`. (`toSorted` hace lo mismo, pero necesita `\"lib\": [\"ES2023\"]` en el tsconfig.)",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function ListaActividades({ actividades }: { actividades: Actividad[] }) {\n  const pendientes = actividades\n    .filter((a) => !a.hecha)            // filter ya devuelve una copia\n    .sort((a, b) => a.equipo.localeCompare(b.equipo));\n\n  return (\n    <ul>\n      {pendientes.map((a) => (\n        <li key={a.id}>\n          {a.equipo}: {a.descripcion}\n        </li>\n      ))}\n    </ul>\n  );\n}",
+          "keyTakeaway": "map convierte datos en elementos; ordena siempre una copia, nunca el estado original."
+        },
+        {
+          "id": "tsr-09-sec-2",
+          "title": "2. keys: la identidad de cada elemento",
+          "body": "Cada elemento de una lista necesita una prop **`key`** única entre sus hermanos. React la usa para saber qué elemento es cuál cuando la lista cambia: cuál se agregó, cuál se movió y cuál se borró.\n\nLa mejor key es el **id del dato**. Usar el **índice** del arreglo funciona solo si la lista nunca cambia de orden ni se borran elementos. Si eliminas el primero, todos los índices se corren y React mezcla el estado interno: por ejemplo, un campo de texto escrito en una fila aparece en la fila de abajo.\n\nNunca generes la key con `Math.random()` durante el render: cambia en cada dibujo y React recrea todo.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// Bien: id estable del dato\n{lista.map((a) => <FilaActividad key={a.id} actividad={a} />)}\n\n// Mal si la lista cambia: el índice se corre al borrar\n{lista.map((a, i) => <FilaActividad key={i} actividad={a} />)}\n\n// Muy mal: una key nueva en cada render\n{lista.map((a) => <FilaActividad key={Math.random()} actividad={a} />)}",
+          "keyTakeaway": "Usa el id del dato como key; el índice falla cuando la lista cambia de orden o se borran elementos."
+        },
+        {
+          "id": "tsr-09-sec-3",
+          "title": "3. Renderizado condicional",
+          "body": "Tres formas de mostrar algo según una condición:\n- **`cond && <X />`** muestra X solo si la condición es verdadera. Cuidado con números: `{lista.length && ...}` muestra un `0` si está vacía. Usa `lista.length > 0`.\n- **`cond ? <A /> : <B />`** elige entre dos.\n- **Return temprano**: si el componente no tiene nada que mostrar (cargando, vacío, error), devuelve eso al inicio y deja el caso normal al final.\n\nUn componente que devuelve `null` no dibuja nada.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function Resumen({ lista }: { lista: Actividad[] }) {\n  if (lista.length === 0) return <p>No hay actividades. ¡Todo al día!</p>;\n\n  const urgentes = lista.filter((a) => a.prioridad === \"alta\" && !a.hecha);\n  return (\n    <div>\n      <p>{lista.length} actividades</p>\n      {urgentes.length > 0 && <p className=\"alerta\">{urgentes.length} urgentes</p>}\n      <p>{urgentes.length > 0 ? \"Atiende primero las urgentes\" : \"Sin urgencias\"}</p>\n    </div>\n  );\n}",
+          "keyTakeaway": "Usa && con condiciones booleanas, el ternario para elegir entre dos y returns tempranos para casos especiales."
+        },
+        {
+          "id": "tsr-09-sec-4",
+          "title": "4. Estado derivado: calcular en vez de guardar",
+          "body": "Un error común es guardar en otro `useState` algo que se puede **calcular**: la lista filtrada, el total de horas o la cantidad de pendientes. Luego hay que mantener las dos copias sincronizadas, y tarde o temprano se desfasan.\n\nLa regla: guarda en el estado **lo mínimo** (la lista y el filtro elegido) y **calcula** el resto en cada render. Calcular un filtro sobre cientos de elementos es instantáneo.\n\nSolo si un cálculo es realmente pesado se usa `useMemo`, pero empieza siempre sin él.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Filtro = \"todas\" | \"pendientes\" | \"hechas\";\n\nfunction Tablero({ lista }: { lista: Actividad[] }) {\n  const [filtro, setFiltro] = useState<Filtro>(\"todas\");\n\n  // Derivado: se calcula, no se guarda\n  const visibles = lista.filter((a) =>\n    filtro === \"todas\" ? true : filtro === \"hechas\" ? a.hecha : !a.hecha,\n  );\n  const cuantasPendientes = lista.filter((a) => !a.hecha).length;\n\n  return <>{/* botones de filtro + visibles.map(...) */}</>;\n}",
+          "keyTakeaway": "Guarda en el estado solo lo mínimo y calcula el resto en cada render."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo pintar listas que no fallan al cambiar.",
+        "rules": [
+          "Usa siempre una key estable y única, normalmente el id del dato.",
+          "No uses el índice como key si la lista se puede ordenar, filtrar o editar.",
+          "Ordena copias ([...lista].sort o toSorted), nunca el estado directamente.",
+          "Compara longitudes con > 0 en vez de poner el número solo antes de &&.",
+          "Calcula los filtros y totales en el render en lugar de guardarlos en otro estado."
+        ]
+      },
+      "comparison": {
+        "scenario": "Mostrar las actividades pendientes.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const [lista, setLista] = useState<Actividad[]>(datos);\nconst [pendientes, setPendientes] = useState<Actividad[]>(datos.filter((a) => !a.hecha));\n\nreturn (\n  <ul>\n    {lista.length && pendientes.map((a, i) => <li key={i}>{a.equipo}</li>)}\n  </ul>\n);",
+        "juniorFlaws": [
+          "pendientes se desfasa en cuanto cambia lista.",
+          "Con la lista vacía aparece un 0 en pantalla.",
+          "La key por índice mezcla filas al borrar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const [lista, setLista] = useState<Actividad[]>(datos);\nconst pendientes = lista.filter((a) => !a.hecha);\n\nreturn (\n  <ul>\n    {pendientes.length > 0 && pendientes.map((a) => <li key={a.id}>{a.equipo}</li>)}\n  </ul>\n);",
+        "intermediateBenefits": [
+          "pendientes se calcula siempre desde la lista actual.",
+          "La condición es booleana: nunca aparece un 0 suelto.",
+          "Cada fila conserva su identidad con el id."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-09-ej-1",
+          "title": "Práctica 1: Lista de equipos",
+          "difficulty": "Básico",
+          "prompt": "Recibe `equipos: Equipo[]` y muéstralos en una tabla con código, nombre y horas de uso, ordenados de más a menos horas. Usa el código como key.",
+          "hint": "`[...equipos].sort((a, b) => b.horasUso - a.horasUso)` ordena de mayor a menor sin tocar el original.",
+          "solutionExplanation": "El código del equipo es único y estable, así que es una key correcta.",
+          "solutionCode": "function TablaEquipos({ equipos }: { equipos: Equipo[] }) {\n  return (\n    <table>\n      <tbody>\n        {[...equipos]\n          .sort((a, b) => b.horasUso - a.horasUso)\n          .map((e) => (\n            <tr key={e.codigo}>\n              <td>{e.codigo}</td>\n              <td>{e.nombre}</td>\n              <td>{e.horasUso}</td>\n            </tr>\n          ))}\n      </tbody>\n    </table>\n  );\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-09-ej-2",
+          "title": "Práctica 2: Filtros con botones",
+          "difficulty": "Intermedio",
+          "prompt": "Agrega a `Tablero` tres botones (Todas, Pendientes, Hechas) que cambien el filtro. Marca el botón activo con `aria-pressed` y muestra cuántas actividades se ven.",
+          "hint": "Recorre un arreglo de filtros con `map` para no repetir los botones.",
+          "solutionExplanation": "`aria-pressed` le dice a los lectores de pantalla cuál está activo, y sirve también como selector en el CSS.",
+          "solutionCode": "const FILTROS: Filtro[] = [\"todas\", \"pendientes\", \"hechas\"];\n\n<div role=\"group\" aria-label=\"Filtro\">\n  {FILTROS.map((f) => (\n    <button key={f} aria-pressed={filtro === f} onClick={() => setFiltro(f)}>\n      {f}\n    </button>\n  ))}\n</div>\n<p>{visibles.length} de {lista.length}</p>",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-09-ej-3",
+          "title": "Práctica 3: Encontrar el error de key",
+          "difficulty": "Intermedio",
+          "prompt": "Una lista usa `key={i}` y cada fila tiene un `<input>` para notas. Al borrar la primera fila, la nota de la segunda aparece en otra fila. Explica por qué y corrígelo.",
+          "hint": "Piensa en qué índice tiene cada fila antes y después de borrar.",
+          "solutionExplanation": "Con el índice, la fila que antes era la 1 pasa a ser la 0, y React reutiliza el componente que tenía key 0 (con su nota). Con `key={a.id}`, cada fila conserva su propio componente y su estado.",
+          "solutionCode": "{lista.map((a) => <FilaConNota key={a.id} actividad={a} />)}",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-09-q1",
+          "question": "¿Cuál es la mejor key para una fila de actividad?",
+          "options": [
+            "Un número aleatorio de Math.random()",
+            "El texto de la descripción",
+            "El índice de la fila en el arreglo",
+            "El id único de la actividad"
+          ],
+          "correctIndex": 3,
+          "explanation": "El id es único y estable. El índice cambia al borrar u ordenar, y un número aleatorio cambia en cada render."
+        },
+        {
+          "id": "tsr-09-q2",
+          "question": "¿Qué muestra {lista.length && <Tabla />} si la lista está vacía?",
+          "options": [
+            "La tabla sin filas",
+            "Un 0 en la pantalla",
+            "Un error de React",
+            "Nada en la pantalla"
+          ],
+          "correctIndex": 1,
+          "explanation": "0 es falso pero React sí dibuja números. Por eso se escribe lista.length > 0."
+        },
+        {
+          "id": "tsr-09-q3",
+          "question": "¿Qué conviene hacer con la lista filtrada que depende del estado?",
+          "options": [
+            "Guardarla en un useState aparte y sincronizarla",
+            "Calcularla una vez al cargar la página",
+            "Guardarla en una variable global del archivo",
+            "Calcularla en cada render desde el estado"
+          ],
+          "correctIndex": 3,
+          "explanation": "Es estado derivado: calcularlo evita tener dos copias que se desfasan."
+        }
+      ]
+    },
+    {
+      "id": "tsr-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Lec. 10",
+      "module": "3 · React con TypeScript",
+      "title": "Efectos con useEffect",
+      "subtitle": "Cargar datos, sincronizar con el navegador y limpiar al desmontar.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Explicar el ciclo de vida de un componente: montar, actualizar y desmontar.",
+        "Usar useEffect con su arreglo de dependencias para sincronizar con sistemas externos.",
+        "Cargar datos con fetch dentro de un efecto, con estados de carga y error, y cancelar al salir."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-10-sec-1",
+          "title": "1. El ciclo de vida de un componente",
+          "body": "Un componente **se monta** cuando aparece en pantalla por primera vez, **se actualiza** cada vez que cambian sus props o su estado, y **se desmonta** cuando deja de mostrarse.\n\nEl render debe ser **puro**: solo calcula JSX a partir de props y estado. Todo lo que toca el mundo de fuera (pedir datos, poner un temporizador, escuchar un evento de `window`, cambiar `document.title`) es un **efecto** y va dentro de `useEffect`, que React ejecuta **después** de pintar.\n\nToca los botones del diagrama para ver qué pasa en cada momento.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "useEffect(() => {\n  // se ejecuta después de pintar\n  console.log(\"efecto\");\n  return () => {\n    // limpieza: antes del siguiente efecto y al desmontar\n    console.log(\"limpieza\");\n  };\n}, [dependencias]);",
+          "keyTakeaway": "El render calcula; los efectos tocan el mundo de fuera y se ejecutan después de pintar.",
+          "diagram": {
+            "type": "ciclo-vida-react"
+          }
+        },
+        {
+          "id": "tsr-10-sec-2",
+          "title": "2. El arreglo de dependencias",
+          "body": "El segundo argumento de `useEffect` dice **cuándo** volver a ejecutar el efecto:\n- **`[]`**: solo después del primer montaje.\n- **`[equipoId]`**: después del montaje y cada vez que `equipoId` cambie.\n- **Sin arreglo**: después de cada render. Casi nunca es lo que quieres.\n\nRegla: incluye **todo** valor de props, estado o funciones del componente que uses dentro del efecto. El complemento de ESLint `react-hooks/exhaustive-deps` (incluido en la plantilla de Vite) te avisa si falta alguno. Si lo ignoras, el efecto trabaja con valores viejos.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function TituloPestana({ pendientes }: { pendientes: number }) {\n  useEffect(() => {\n    document.title = pendientes > 0 ? `(${pendientes}) Tablero` : \"Tablero\";\n  }, [pendientes]); // se repite solo cuando cambia pendientes\n  return null;\n}",
+          "keyTakeaway": "Pon en las dependencias todo lo que el efecto usa; [] significa solo al montar."
+        },
+        {
+          "id": "tsr-10-sec-3",
+          "title": "3. Cargar datos y cancelar",
+          "body": "Cargar datos es el efecto más común. El patrón completo:\n1. Estado de carga con la unión discriminada de la Lec. 05.\n2. Un `AbortController` para **cancelar** la petición si el componente se desmonta o si cambia el id antes de que llegue la respuesta.\n3. La **limpieza** llama a `abort()`. Así evitas que una respuesta vieja pise a una nueva (una **condición de carrera**).\n\nEl efecto no puede ser `async` directamente; declara la función asíncrona dentro y llámala.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Carga<T> = { estado: \"cargando\" } | { estado: \"ok\"; datos: T } | { estado: \"error\"; mensaje: string };\n\nfunction HistorialEquipo({ codigo }: { codigo: string }) {\n  const [carga, setCarga] = useState<Carga<Actividad[]>>({ estado: \"cargando\" });\n\n  useEffect(() => {\n    const ctrl = new AbortController();\n    setCarga({ estado: \"cargando\" });\n    (async () => {\n      try {\n        const r = await fetch(`/api/equipos/${codigo}/actividades`, { signal: ctrl.signal });\n        if (!r.ok) throw new Error(`HTTP ${r.status}`);\n        const crudo: unknown = await r.json();\n        if (!Array.isArray(crudo)) throw new Error(\"Respuesta inesperada\");\n        setCarga({ estado: \"ok\", datos: crudo.map(leerActividad) });\n      } catch (e) {\n        if (ctrl.signal.aborted) return;\n        setCarga({ estado: \"error\", mensaje: e instanceof Error ? e.message : \"Error\" });\n      }\n    })();\n    return () => ctrl.abort();\n  }, [codigo]);\n\n  if (carga.estado === \"cargando\") return <p>Cargando…</p>;\n  if (carga.estado === \"error\") return <p role=\"alert\">{carga.mensaje}</p>;\n  return <ListaActividades actividades={carga.datos} />;\n}",
+          "keyTakeaway": "Usa AbortController y aborta en la limpieza para que una respuesta vieja no pise a la nueva."
+        },
+        {
+          "id": "tsr-10-sec-4",
+          "title": "4. Cuándo no usar un efecto",
+          "body": "Muchos efectos sobran. Antes de escribir uno, pregúntate si estás sincronizando con algo **externo**. Si no, probablemente no lo necesitas:\n- **Calcular datos** a partir del estado (filtros, totales): hazlo en el render (Lec. 09).\n- **Responder a un clic**: ponlo en el manejador del evento, no en un efecto que vigila un estado.\n- **Reiniciar el estado** cuando cambia una prop: usa una `key` distinta en el componente.\n\nEn desarrollo, React con `StrictMode` monta, desmonta y vuelve a montar cada componente una vez. Si ves un efecto ejecutarse dos veces, es a propósito: comprueba que tu limpieza funciona.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "// Sobra: un efecto para calcular\nconst [total, setTotal] = useState(0);\nuseEffect(() => setTotal(lista.length), [lista]);\n\n// Mejor: calcular en el render\nconst total = lista.length;\n\n// Sobra: un efecto para responder a un clic\n// Mejor: hacerlo dentro de onClick",
+          "keyTakeaway": "Un efecto es para sincronizar con algo externo; cálculos y clics no lo necesitan."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir efectos correctos.",
+        "rules": [
+          "Usa useEffect solo para sincronizar con algo externo a React.",
+          "Incluye en las dependencias todo lo que el efecto usa y no desactives el aviso de ESLint.",
+          "Todo efecto que se suscribe, pone un temporizador o pide datos devuelve una limpieza.",
+          "Cancela las peticiones con AbortController al desmontar o al cambiar las dependencias.",
+          "Si un efecto se ejecuta dos veces en desarrollo, revisa la limpieza; no quites StrictMode."
+        ],
+        "codeLanguage": "typescript",
+        "referenceCode": "useEffect(() => {\n  const id = setInterval(() => setAhora(new Date()), 60_000);\n  return () => clearInterval(id);   // limpieza\n}, []);"
+      },
+      "comparison": {
+        "scenario": "Mostrar las lecturas de un equipo cuando cambia la selección.",
+        "juniorLabel": "Así no",
+        "juniorCode": "useEffect(async () => {\n  const r = await fetch(`/api/lecturas/${codigo}`);\n  setLecturas(await r.json());\n}); // sin dependencias ni limpieza",
+        "juniorFlaws": [
+          "Un efecto async devuelve una promesa, no una limpieza.",
+          "Sin arreglo de dependencias se repite en cada render: bucle de peticiones.",
+          "Si el usuario cambia rápido de equipo, una respuesta vieja puede pisar a la nueva."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "useEffect(() => {\n  const ctrl = new AbortController();\n  fetch(`/api/lecturas/${codigo}`, { signal: ctrl.signal })\n    .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))\n    .then((x: unknown) => setLecturas(leerLecturas(x)))\n    .catch((e) => { if (!ctrl.signal.aborted) setError(String(e)); });\n  return () => ctrl.abort();\n}, [codigo]);",
+        "intermediateBenefits": [
+          "Se ejecuta solo al montar y cuando cambia el código.",
+          "La limpieza cancela la petición anterior.",
+          "Los datos se validan y los errores se muestran."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-10-ej-1",
+          "title": "Práctica 1: Reloj con limpieza",
+          "difficulty": "Básico",
+          "prompt": "Crea un componente `Reloj` que muestre la hora y se actualice cada segundo con `setInterval`. Asegúrate de limpiar el intervalo al desmontar.",
+          "hint": "El efecto lleva `[]` como dependencias y devuelve `() => clearInterval(id)`.",
+          "solutionExplanation": "Sin la limpieza, cada vez que el componente se monta queda un intervalo vivo que intenta actualizar un componente que ya no existe.",
+          "solutionCode": "function Reloj() {\n  const [ahora, setAhora] = useState(() => new Date());\n  useEffect(() => {\n    const id = setInterval(() => setAhora(new Date()), 1000);\n    return () => clearInterval(id);\n  }, []);\n  return <time>{ahora.toLocaleTimeString(\"es\")}</time>;\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-10-ej-2",
+          "title": "Práctica 2: Escuchar el estado de conexión",
+          "difficulty": "Intermedio",
+          "prompt": "Crea un componente `AvisoConexion` que muestre \"Sin conexión\" cuando el navegador pierde internet. Usa los eventos `online` y `offline` de `window` y quita los listeners en la limpieza.",
+          "hint": "El valor inicial sale de `navigator.onLine`.",
+          "solutionExplanation": "`window` es un sistema externo a React, así que un efecto es justo la herramienta. La limpieza con `removeEventListener` evita listeners duplicados.",
+          "solutionCode": "function AvisoConexion() {\n  const [enLinea, setEnLinea] = useState(navigator.onLine);\n  useEffect(() => {\n    const si = () => setEnLinea(true);\n    const no = () => setEnLinea(false);\n    window.addEventListener(\"online\", si);\n    window.addEventListener(\"offline\", no);\n    return () => {\n      window.removeEventListener(\"online\", si);\n      window.removeEventListener(\"offline\", no);\n    };\n  }, []);\n  return enLinea ? null : <p role=\"status\">Sin conexión</p>;\n}",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-10-ej-3",
+          "title": "Práctica 3: Quitar un efecto innecesario",
+          "difficulty": "Intermedio",
+          "prompt": "Este componente usa un efecto para contar las actividades pendientes. Reescríbelo sin efecto:\n\n```\nconst [pendientes, setPendientes] = useState(0);\nuseEffect(() => {\n  setPendientes(lista.filter(a => !a.hecha).length);\n}, [lista]);\n```",
+          "hint": "Lo que se calcula a partir de props o estado no necesita estado propio.",
+          "solutionExplanation": "El efecto provocaba un render extra (primero con el valor viejo, luego con el nuevo). Calculado en el render, el valor siempre está al día.",
+          "solutionCode": "const pendientes = lista.filter((a) => !a.hecha).length;",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-10-q1",
+          "question": "¿Cuándo se ejecuta un useEffect con el arreglo de dependencias vacío []?",
+          "options": [
+            "Después de cada render del componente",
+            "Solo cuando el componente se desmonta",
+            "Solo después del primer montaje",
+            "Antes de que el componente se pinte"
+          ],
+          "correctIndex": 2,
+          "explanation": "Con [] no hay dependencias que cambien, así que solo corre tras el montaje (y su limpieza al desmontar)."
+        },
+        {
+          "id": "tsr-10-q2",
+          "question": "¿Para qué sirve la función que devuelve un efecto?",
+          "options": [
+            "Indicar a React qué dependencias revisar",
+            "Guardar el estado del componente en memoria",
+            "Devolver el valor que mostrará luego el componente",
+            "Deshacer el efecto antes de repetirlo o al salir"
+          ],
+          "correctIndex": 3,
+          "explanation": "La limpieza corre antes de la siguiente ejecución del efecto y al desmontar: quita listeners, timers o peticiones."
+        },
+        {
+          "id": "tsr-10-q3",
+          "question": "¿Qué caso NO necesita un useEffect?",
+          "options": [
+            "Poner un intervalo que actualice la hora",
+            "Pedir datos al servidor al cambiar el id",
+            "Escuchar el evento resize de la ventana activa",
+            "Calcular el total de horas desde la lista"
+          ],
+          "correctIndex": 3,
+          "explanation": "Un cálculo a partir del estado se hace en el render. Los otros tres sincronizan con algo externo."
+        }
+      ]
+    },
+    {
+      "id": "tsr-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Lec. 11",
+      "module": "4 · App completa",
+      "title": "Hooks propios y estado compartido con Context",
+      "subtitle": "Extraer lógica reutilizable a hooks y compartir datos sin pasar props por todos los niveles.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Extraer lógica con estado y efectos a un hook propio tipado.",
+        "Subir el estado al ancestro común cuando dos componentes lo necesitan.",
+        "Compartir datos con Context y useReducer sin pasar props por cada nivel."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-11-sec-1",
+          "title": "1. Hooks propios",
+          "body": "Un **hook propio** es una función cuyo nombre empieza con **`use`** y que usa otros hooks dentro. Sirve para sacar del componente la lógica de estado y efectos, y reutilizarla.\n\nNo comparte el **estado** entre componentes: cada componente que llama al hook tiene su propia copia. Lo que se comparte es la **lógica**.\n\nUn buen candidato: guardar un valor en `localStorage` y mantenerlo sincronizado. Combinado con el validador de la Lec. 06, queda tipado de punta a punta.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "export function useGuardado<T>(clave: string, validar: (x: unknown) => T, inicial: T) {\n  const [valor, setValor] = useState<T>(() => leerGuardado(clave, validar, inicial));\n\n  useEffect(() => {\n    guardar(clave, valor);\n  }, [clave, valor]);\n\n  return [valor, setValor] as const;\n}\n\n// En un componente:\nconst [tema, setTema] = useGuardado(\"tema\", (x) => (x === \"oscuro\" ? \"oscuro\" : \"claro\"), \"claro\");",
+          "keyTakeaway": "Un hook propio (useAlgo) reutiliza lógica con estado; cada componente tiene su propia copia del estado."
+        },
+        {
+          "id": "tsr-11-sec-2",
+          "title": "2. Subir el estado",
+          "body": "Cuando dos componentes hermanos necesitan el mismo dato (por ejemplo, el formulario agrega actividades y la lista las muestra), el estado se **sube** al ancestro común más cercano. Ese padre guarda el estado y pasa:\n- El **valor** a quien lo muestra.\n- Una **función** a quien lo cambia (`alGuardar`, `alEliminar`).\n\nEs el flujo normal de React: los datos bajan por props y los cambios suben por funciones. Funciona muy bien hasta que tienes que pasar la misma prop por tres o cuatro niveles que no la usan; eso se llama **prop drilling** y es la señal para usar Context.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "function App() {\n  const [lista, setLista] = useState<Actividad[]>([]);\n\n  function agregar(d: DatosFormulario) {\n    setLista((prev) => [...prev, crear(d, Date.now())]);\n  }\n\n  return (\n    <>\n      <FormActividad alGuardar={agregar} />\n      <ListaActividades actividades={lista} />\n    </>\n  );\n}",
+          "keyTakeaway": "Si dos componentes comparten un dato, el estado vive en su ancestro común y baja por props."
+        },
+        {
+          "id": "tsr-11-sec-3",
+          "title": "3. useReducer: cambios con nombre",
+          "body": "Cuando el estado tiene muchas formas de cambiar (agregar, editar, marcar hecha, eliminar, cargar), `useReducer` ordena el código. Defines **acciones** con nombre como una unión discriminada, y una función **reductora** pura que recibe el estado y una acción y devuelve el estado nuevo.\n\nVentajas:\n- Toda la lógica de cambios está en un solo lugar y se puede probar sin React.\n- El `switch` con `never` de la Lec. 05 garantiza que manejas todas las acciones.\n- Los componentes solo **despachan** acciones: `dispatch({ tipo: \"eliminar\", id })`.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "type Accion =\n  | { tipo: \"agregar\"; actividad: Actividad }\n  | { tipo: \"alternar\"; id: number }\n  | { tipo: \"eliminar\"; id: number };\n\nexport function reductor(lista: Actividad[], a: Accion): Actividad[] {\n  switch (a.tipo) {\n    case \"agregar\": return [...lista, a.actividad];\n    case \"alternar\": return lista.map((x) => (x.id === a.id ? { ...x, hecha: !x.hecha } : x));\n    case \"eliminar\": return lista.filter((x) => x.id !== a.id);\n    default: {\n      const nunca: never = a;\n      return nunca;\n    }\n  }\n}\n\nconst [lista, dispatch] = useReducer(reductor, []);",
+          "keyTakeaway": "useReducer junta todos los cambios de estado en una función pura con acciones tipadas."
+        },
+        {
+          "id": "tsr-11-sec-4",
+          "title": "4. Context: compartir sin pasar props",
+          "body": "**Context** permite que cualquier componente dentro de un **Provider** lea un valor sin recibirlo por props. Es ideal para datos que usa media aplicación: la lista de actividades, el usuario o el tema.\n\nEl patrón tipado tiene tres piezas:\n1. `createContext<Tipo | null>(null)`.\n2. Un componente **Provider** que guarda el estado y lo entrega.\n3. Un **hook** `useActividades()` que lee el contexto y lanza un error claro si se usa fuera del Provider. Así ningún componente tiene que manejar el `null`.\n\nNo metas todo en Context: los componentes que lo leen se vuelven a dibujar cuando el valor cambia.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "import { createContext, useContext, useReducer, type ReactNode, type Dispatch } from \"react\";\n\ninterface ValorActividades { lista: Actividad[]; dispatch: Dispatch<Accion> }\nconst ActividadesContext = createContext<ValorActividades | null>(null);\n\nexport function ProveedorActividades({ children }: { children: ReactNode }) {\n  const [lista, dispatch] = useReducer(reductor, []);\n  return (\n    <ActividadesContext.Provider value={{ lista, dispatch }}>\n      {children}\n    </ActividadesContext.Provider>\n  );\n}\n\nexport function useActividades(): ValorActividades {\n  const v = useContext(ActividadesContext);\n  if (!v) throw new Error(\"useActividades debe usarse dentro de ProveedorActividades\");\n  return v;\n}",
+          "keyTakeaway": "Context con un hook que valida el Provider da acceso tipado sin pasar props por cada nivel."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo organizar el estado de una app mediana.",
+        "rules": [
+          "Empieza con estado local; súbelo solo cuando otro componente lo necesite.",
+          "Usa Context para datos que comparte media aplicación, no para todo.",
+          "Exporta un hook (useActividades) en vez del contexto crudo, y valida que haya Provider.",
+          "Mantén el reductor puro y en su propio archivo, para poder probarlo sin React.",
+          "Los hooks propios empiezan con use y siguen las mismas reglas que los de React."
+        ]
+      },
+      "comparison": {
+        "scenario": "Un componente profundo necesita marcar actividades como hechas.",
+        "juniorLabel": "Así no",
+        "juniorCode": "<App lista={lista} setLista={setLista}>\n  <Tablero lista={lista} setLista={setLista}>\n    <Columna lista={lista} setLista={setLista}>\n      <Tarjeta actividad={a} setLista={setLista} />\n    </Columna>\n  </Tablero>\n</App>",
+        "juniorFlaws": [
+          "Tablero y Columna reciben props que no usan.",
+          "Cualquier componente puede cambiar la lista de cualquier forma con setLista.",
+          "Agregar un nivel nuevo obliga a tocar todos los intermedios."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// main.tsx\n<ProveedorActividades><App /></ProveedorActividades>\n\n// Tarjeta.tsx\nfunction Tarjeta({ actividad }: { actividad: Actividad }) {\n  const { dispatch } = useActividades();\n  return (\n    <button onClick={() => dispatch({ tipo: \"alternar\", id: actividad.id })}>\n      {actividad.hecha ? \"Reabrir\" : \"Marcar hecha\"}\n    </button>\n  );\n}",
+        "intermediateBenefits": [
+          "Los intermedios ya no cargan props ajenas.",
+          "Los cambios solo ocurren con acciones definidas.",
+          "El hook avisa si falta el Provider."
+        ],
+        "codeLanguage": "typescript"
+      },
+      "exercises": [
+        {
+          "id": "tsr-11-ej-1",
+          "title": "Práctica 1: Hook useAlternar",
+          "difficulty": "Básico",
+          "prompt": "Escribe un hook `useAlternar(inicial = false)` que devuelva `[valor, alternar]`, donde `alternar` invierte el booleano. Úsalo para mostrar y ocultar las observaciones de una tarjeta.",
+          "hint": "Devuelve la tupla con `as const` para que TypeScript no la convierta en un arreglo de tipos mezclados.",
+          "solutionExplanation": "Sin `as const`, el retorno sería `(boolean | (() => void))[]` y tendrías que comprobar el tipo de cada posición.",
+          "solutionCode": "function useAlternar(inicial = false) {\n  const [valor, setValor] = useState(inicial);\n  const alternar = () => setValor((v) => !v);\n  return [valor, alternar] as const;\n}\n\nconst [verObs, alternarObs] = useAlternar();",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-11-ej-2",
+          "title": "Práctica 2: Reductor con edición",
+          "difficulty": "Intermedio",
+          "prompt": "Agrega al reductor la acción `{ tipo: \"editar\"; id: number; cambios: Partial<DatosFormulario> }` que aplique los cambios a la actividad con ese id. Comprueba que el `never` del `default` te obligó a agregar el `case`.",
+          "hint": "Combina `map` con el spread de la Lec. 04: `{ ...x, ...a.cambios }`.",
+          "solutionExplanation": "Al agregar la acción a la unión antes que el `case`, el compilador marca el `default`. Es la red de seguridad del patrón.",
+          "solutionCode": "case \"editar\":\n  return lista.map((x) => (x.id === a.id ? { ...x, ...a.cambios } : x));",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-11-ej-3",
+          "title": "Práctica 3: Probar el reductor sin React",
+          "difficulty": "Intermedio",
+          "prompt": "Como el reductor es una función pura, escribe tres comprobaciones con `console.assert` (o con Vitest si lo tienes instalado): agregar suma uno, alternar cambia `hecha` y eliminar quita el id indicado.",
+          "hint": "Crea una lista de ejemplo con dos actividades y aplica cada acción.",
+          "solutionExplanation": "Probar la lógica fuera de los componentes es rápido y no necesita navegador. Es una de las grandes ventajas de `useReducer`.",
+          "solutionCode": "const base: Actividad[] = [ejemplo(1), ejemplo(2)];\n\nconsole.assert(reductor(base, { tipo: \"agregar\", actividad: ejemplo(3) }).length === 3);\nconsole.assert(reductor(base, { tipo: \"alternar\", id: 1 })[0]?.hecha === true);\nconsole.assert(reductor(base, { tipo: \"eliminar\", id: 2 }).every((a) => a.id !== 2));",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-11-q1",
+          "question": "Si dos componentes llaman al mismo hook propio, ¿qué comparten?",
+          "options": [
+            "El mismo estado, pero solo si están en un Provider",
+            "Nada, porque un hook propio solo se usa una vez",
+            "La lógica, pero cada uno tiene su propio estado",
+            "El mismo estado, que cambia en los dos a la vez"
+          ],
+          "correctIndex": 2,
+          "explanation": "Un hook propio reutiliza código. El estado compartido requiere subirlo o usar Context."
+        },
+        {
+          "id": "tsr-11-q2",
+          "question": "¿Qué problema resuelve Context?",
+          "options": [
+            "Hacer que los componentes se dibujen mucho más rápido",
+            "Guardar los datos de la app en el navegador",
+            "Validar los datos que llegan de una API externa",
+            "Pasar datos por muchos niveles que no los usan"
+          ],
+          "correctIndex": 3,
+          "explanation": "Context evita el prop drilling: cualquier componente dentro del Provider lee el valor directamente."
+        },
+        {
+          "id": "tsr-11-q3",
+          "question": "¿Qué debe ser la función reductora de useReducer?",
+          "options": [
+            "Una función pura que devuelve el estado nuevo",
+            "Un efecto que se ejecuta después de pintar",
+            "Un componente que recibe el estado por props",
+            "Una función async que guarda en el servidor"
+          ],
+          "correctIndex": 0,
+          "explanation": "El reductor recibe estado y acción y devuelve un estado nuevo, sin efectos secundarios. Por eso es fácil de probar."
+        }
+      ]
+    },
+    {
+      "id": "tsr-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Proy. 1",
+      "module": "4 · App completa",
+      "title": "Proyecto final: tablero de tareas de mantenimiento",
+      "subtitle": "Una app completa con filtros, guardado en localStorage y publicación en GitHub Pages.",
+      "estimatedMinutes": 120,
+      "status": "published",
+      "objectives": [
+        "Construir una app React con TypeScript que use todo lo aprendido en el curso.",
+        "Guardar las tareas en localStorage con validación al leer.",
+        "Generar la versión de producción y publicarla en GitHub Pages con una acción automática."
+      ],
+      "theorySections": [
+        {
+          "id": "tsr-12-sec-1",
+          "title": "1. Qué vas a construir",
+          "body": "Un **tablero de tareas de mantenimiento** para un equipo pequeño:\n- Formulario para agregar tareas: equipo, descripción, prioridad y horas estimadas.\n- Lista con filtros por estado (todas, pendientes, hechas) y por prioridad, y búsqueda por equipo.\n- Marcar como hecha, editar y eliminar.\n- Resumen arriba: pendientes, urgentes y horas por hacer.\n- Todo se guarda en `localStorage` y sobrevive a recargar la página.\n\nOrganiza el código por responsabilidad: `tipos.ts`, `validar.ts`, `estado/` (reductor, contexto) y `componentes/`.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "src/\n  tipos.ts              Actividad, Prioridad, Filtro\n  validar.ts            leerActividad, leerLista\n  estado/\n    reductor.ts         Accion + reductor (puro)\n    contexto.tsx        ProveedorActividades + useActividades\n  hooks/\n    useGuardado.ts\n  componentes/\n    FormActividad.tsx\n    Filtros.tsx\n    ListaActividades.tsx\n    Resumen.tsx\n  App.tsx\n  main.tsx",
+          "keyTakeaway": "Separa tipos, validación, estado y componentes desde el inicio del proyecto."
+        },
+        {
+          "id": "tsr-12-sec-2",
+          "title": "2. Estado persistente",
+          "body": "Une las piezas de las Lec. 06 y 11: el Provider inicializa el reductor con lo guardado y un efecto guarda cada cambio.\n\n`useReducer` acepta un tercer argumento, una **función inicializadora**, que se ejecuta solo en el primer render. Así no lees `localStorage` en cada dibujo.\n\nUsa una **clave con versión** (`tablero:v1`). Si algún día cambias la forma de los datos, cambias a `v2` y escribes una migración en vez de romper lo que los usuarios ya tenían guardado.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "const CLAVE = \"tablero:v1\";\n\nfunction leerLista(x: unknown): Actividad[] {\n  if (!Array.isArray(x)) return [];\n  return x.flatMap((item) => {\n    try { return [leerActividad(item)]; } catch { return []; }\n  });\n}\n\nexport function ProveedorActividades({ children }: { children: ReactNode }) {\n  const [lista, dispatch] = useReducer(reductor, undefined, () => leerGuardado(CLAVE, leerLista, []));\n\n  useEffect(() => {\n    guardar(CLAVE, lista);\n  }, [lista]);\n\n  return <ActividadesContext.Provider value={{ lista, dispatch }}>{children}</ActividadesContext.Provider>;\n}",
+          "keyTakeaway": "Inicializa el reductor desde localStorage una sola vez y guarda en un efecto cada cambio."
+        },
+        {
+          "id": "tsr-12-sec-3",
+          "title": "3. Filtros y resumen como estado derivado",
+          "body": "Los filtros son estado de la interfaz, no de los datos: viven en `App` (o en su propio contexto si muchos componentes los usan). La lista visible y el resumen se **calculan** en cada render, como en la Lec. 09.\n\nUna función pura `aplicarFiltros(lista, filtros)` en su propio archivo es fácil de leer y de probar.",
+          "codeLanguage": "typescript",
+          "codeSnippet": "export interface Filtros {\n  estado: \"todas\" | \"pendientes\" | \"hechas\";\n  prioridad: Prioridad | \"todas\";\n  texto: string;\n}\n\nexport function aplicarFiltros(lista: Actividad[], f: Filtros): Actividad[] {\n  const t = f.texto.trim().toLowerCase();\n  return lista.filter((a) =>\n    (f.estado === \"todas\" || (f.estado === \"hechas\") === a.hecha) &&\n    (f.prioridad === \"todas\" || a.prioridad === f.prioridad) &&\n    (t === \"\" || a.equipo.toLowerCase().includes(t)),\n  );\n}\n\nexport function resumen(lista: Actividad[]) {\n  const pendientes = lista.filter((a) => !a.hecha);\n  return {\n    pendientes: pendientes.length,\n    urgentes: pendientes.filter((a) => a.prioridad === \"alta\").length,\n    horas: pendientes.reduce((s, a) => s + a.horas, 0),\n  };\n}",
+          "keyTakeaway": "Los filtros son estado de la interfaz; la lista visible y el resumen se calculan."
+        },
+        {
+          "id": "tsr-12-sec-4",
+          "title": "4. Publicar en GitHub Pages",
+          "body": "`npm run build` revisa los tipos con `tsc` y genera la carpeta `dist/` con HTML, CSS y JavaScript optimizados. Esa carpeta es lo que se publica.\n\nPara GitHub Pages:\n1. En `vite.config.ts`, pon `base: \"/nombre-del-repo/\"`, porque la app vive en una subcarpeta.\n2. Crea el workflow `.github/workflows/publicar.yml` que instala, compila y publica `dist/` con las acciones oficiales de Pages.\n3. En el repositorio, Settings → Pages → Source: **GitHub Actions**.\n\nCada push a `main` publica una versión nueva. Si `tsc` encuentra un error de tipos, el build falla y **no se publica** nada roto.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "name: Publicar\non:\n  push:\n    branches: [main]\npermissions:\n  contents: read\n  pages: write\n  id-token: write\njobs:\n  publicar:\n    runs-on: ubuntu-latest\n    environment: github-pages\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22, cache: npm }\n      - run: npm ci\n      - run: npm run build\n      - uses: actions/upload-pages-artifact@v3\n        with: { path: dist }\n      - uses: actions/deploy-pages@v4",
+          "keyTakeaway": "npm run build revisa tipos y genera dist/; el workflow lo publica solo si todo compila."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista de comprobación del proyecto.",
+        "rules": [
+          "strict: true y npm run build sin errores ni any explícitos.",
+          "Todos los datos de localStorage pasan por un validador al leer.",
+          "Las acciones del reductor cubren agregar, editar, alternar y eliminar, con el never en el default.",
+          "Cada lista usa el id como key y los filtros se calculan en el render.",
+          "Formulario con etiquetas, validación visible y botón deshabilitado si hay errores.",
+          "Publicado en GitHub Pages con el workflow y probado en el celular."
+        ]
+      },
+      "comparison": {
+        "scenario": "Terminaste la app y quieres publicarla.",
+        "juniorLabel": "Así no",
+        "juniorCode": "# Compilar en tu computadora y subir dist/ a mano\nnpm run build\n# copiar dist/ a la rama gh-pages\n# \"en mi máquina funciona\"",
+        "juniorFlaws": [
+          "El build depende de tu computadora y de lo que tengas instalado.",
+          "Es fácil olvidar compilar y publicar una versión vieja.",
+          "Nadie revisa que los tipos estén bien antes de publicar."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "# Push a main → GitHub Actions:\n#   npm ci           (versiones exactas del lockfile)\n#   npm run build    (tsc + vite build: falla si hay errores)\n#   deploy-pages     (publica dist/)\n# Luego: abrir la URL en el celular y probar agregar, filtrar y recargar",
+        "intermediateBenefits": [
+          "El build es igual siempre y no depende de tu equipo.",
+          "Un error de tipos detiene la publicación.",
+          "Publicar es tan simple como hacer push."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "tsr-12-ej-1",
+          "title": "Práctica 1: Construye el tablero",
+          "difficulty": "Avanzado",
+          "prompt": "Crea el proyecto con Vite y la estructura de carpetas propuesta. Implementa tipos, validador, reductor con las cuatro acciones, contexto con guardado en `localStorage`, formulario, filtros, lista y resumen.",
+          "hint": "Avanza por capas: primero tipos y reductor (pruébalos con `console.assert`), luego el contexto y al final los componentes.",
+          "solutionExplanation": "Lo importante es que cada pieza tenga una sola responsabilidad y que los tipos guíen las conexiones. Si algo no compila, el mensaje de `tsc` suele decir exactamente qué falta."
+        },
+        {
+          "id": "tsr-12-ej-2",
+          "title": "Práctica 2: Agrega una fecha límite",
+          "difficulty": "Avanzado",
+          "prompt": "Agrega a `Actividad` un campo opcional `fechaLimite?: string`. Actualiza el validador, el formulario y la tarjeta (que se marque en rojo si está vencida y pendiente). Ordena las pendientes por fecha límite, con las que no tienen fecha al final.",
+          "hint": "Al agregar el campo al tipo, deja que el compilador te muestre cada lugar que hay que actualizar.",
+          "solutionExplanation": "Como el campo es opcional, los datos viejos de `localStorage` siguen siendo válidos y no hace falta cambiar la clave de versión.",
+          "solutionCode": "const vencida = (a: Actividad) =>\n  !a.hecha && a.fechaLimite !== undefined && a.fechaLimite < new Date().toISOString().slice(0, 10);\n\nconst porFecha = (a: Actividad, b: Actividad) =>\n  (a.fechaLimite ?? \"9999-12-31\").localeCompare(b.fechaLimite ?? \"9999-12-31\");",
+          "codeLanguage": "typescript"
+        },
+        {
+          "id": "tsr-12-ej-3",
+          "title": "Práctica 3: Publica",
+          "difficulty": "Avanzado",
+          "prompt": "Sube el proyecto a un repositorio, configura `base` en `vite.config.ts`, agrega el workflow de publicación y activa GitHub Pages con la fuente GitHub Actions. Prueba la URL publicada en el celular: agrega una tarea, recarga y comprueba que sigue ahí.",
+          "hint": "Si la página sale en blanco, casi siempre es el `base`: revisa en la consola del navegador si los archivos dan error 404.",
+          "solutionExplanation": "Con `base` correcto, Vite genera rutas como `/tablero/assets/index-abc.js`, que coinciden con la subcarpeta de GitHub Pages.",
+          "solutionCode": "// vite.config.ts\nimport { defineConfig } from \"vite\";\nimport react from \"@vitejs/plugin-react\";\n\nexport default defineConfig({\n  plugins: [react()],\n  base: \"/tablero/\",\n});",
+          "codeLanguage": "typescript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "tsr-12-q1",
+          "question": "¿Para qué sirve el tercer argumento de useReducer en el proyecto?",
+          "options": [
+            "Guardar el estado en cada cambio de acción",
+            "Validar cada acción antes de aplicarla",
+            "Indicar la clave usada en localStorage",
+            "Calcular el estado inicial una sola vez"
+          ],
+          "correctIndex": 3,
+          "explanation": "La función inicializadora corre solo en el primer render, así localStorage se lee una vez."
+        },
+        {
+          "id": "tsr-12-q2",
+          "question": "¿Por qué la clave de localStorage lleva versión, como tablero:v1?",
+          "options": [
+            "Para migrar los datos si cambia su forma",
+            "Para que el navegador guarde más espacio",
+            "Para que TypeScript la reconozca como tipo",
+            "Para que GitHub Pages la pueda encontrar"
+          ],
+          "correctIndex": 0,
+          "explanation": "Con una versión en la clave puedes detectar datos antiguos y migrarlos en lugar de romperlos."
+        },
+        {
+          "id": "tsr-12-q3",
+          "question": "¿Qué pasa si hay un error de tipos al hacer push con el workflow propuesto?",
+          "options": [
+            "Se publica igual y se avisa por correo",
+            "El build falla y no se publica la versión",
+            "Se publica solo la parte que compila bien",
+            "GitHub corrige el error automáticamente"
+          ],
+          "correctIndex": 1,
+          "explanation": "npm run build ejecuta tsc. Si falla, los pasos siguientes no corren y la versión publicada sigue siendo la anterior."
+        }
+      ]
+    }
+  ]
+}
