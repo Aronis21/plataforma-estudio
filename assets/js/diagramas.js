@@ -154,9 +154,132 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 2. Regresión lineal con residuos (estático)
+  // ---------------------------------------------------------------------------
+  const REG = [[1, 5.6], [2, 3.9], [3, 8.4], [4, 7.0], [5, 11.2], [6, 9.0], [7, 13.9], [8, 11.6], [9, 16.8], [10, 15.1]];
+
+  function ajusteLineal(pts) {
+    const n = pts.length;
+    const mx = pts.reduce((a, p) => a + p[0], 0) / n, my = pts.reduce((a, p) => a + p[1], 0) / n;
+    let sxy = 0, sxx = 0;
+    for (const [x, y] of pts) { sxy += (x - mx) * (y - my); sxx += (x - mx) ** 2; }
+    const b1 = sxy / sxx, b0 = my - b1 * mx;
+    let sae = 0, sse = 0, sst = 0;
+    for (const [x, y] of pts) { const e = y - (b0 + b1 * x); sae += Math.abs(e); sse += e * e; sst += (y - my) ** 2; }
+    return { b0, b1, mae: sae / n, rmse: Math.sqrt(sse / n), r2: 1 - sse / sst };
+  }
+
+  function htmlRegresion() {
+    const a = ajusteLineal(REG);
+    const W = 360, H = 220, m = 34;
+    const X = (x) => m + (x / 11) * (W - m - 10), Y = (y) => H - m - (y / 18) * (H - m - 10);
+    const f = (x) => a.b0 + a.b1 * x;
+    const res = REG.map(([x, y]) => `<line class="residuo" x1="${X(x)}" y1="${Y(y)}" x2="${X(x)}" y2="${Y(f(x))}"/>`).join("");
+    const pts = REG.map(([x, y]) => `<circle class="punto" cx="${X(x)}" cy="${Y(y)}" r="4"/>`).join("");
+    const r = (v, d = 2) => v.toFixed(d);
+    return `<figure class="diagrama" data-diagrama="regresion">
+      <svg class="dg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Diagrama de dispersión con la recta de regresión y los residuos de cada punto">
+        <line class="eje" x1="${m}" y1="${H - m}" x2="${W - 8}" y2="${H - m}"/>
+        <line class="eje" x1="${m}" y1="8" x2="${m}" y2="${H - m}"/>
+        ${res}
+        <line class="recta" x1="${X(0.5)}" y1="${Y(f(0.5))}" x2="${X(10.5)}" y2="${Y(f(10.5))}"/>
+        ${pts}
+        <text x="${W / 2}" y="${H - 8}" text-anchor="middle">gasto en anuncios (miles)</text>
+        <text x="12" y="${H / 2}" text-anchor="middle" transform="rotate(-90 12 ${H / 2})">ventas (miles)</text>
+        <text x="${X(0.6)}" y="${Y(17)}" class="t-in">ŷ = ${r(a.b0)} + ${r(a.b1)}·x</text>
+      </svg>
+      <div class="dg-metricas">
+        <span><strong>Pendiente</strong> ${r(a.b1)}: cada mil extra en anuncios se asocia con ${r(a.b1)} mil más en ventas.</span>
+        <span><strong>MAE</strong> ${r(a.mae)}</span><span><strong>RMSE</strong> ${r(a.rmse)}</span><span><strong>R²</strong> ${r(a.r2, 3)}</span>
+      </div>
+      <figcaption>La recta roja es la predicción; cada línea punteada es un residuo (real − predicho). MAE promedia sus tamaños, RMSE castiga más los grandes y R² dice qué parte de la variación explica la recta.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. Matriz de confusión con umbral ajustable (interactivo)
+  // ---------------------------------------------------------------------------
+  // Probabilidad de baja (churn) que da el modelo y si el cliente realmente se fue (1) o no (0)
+  const CLIENTES_CHURN = [
+    [0.95, 1], [0.91, 1], [0.86, 0], [0.82, 1], [0.77, 1], [0.71, 0], [0.66, 1], [0.62, 0], [0.57, 0], [0.53, 1],
+    [0.48, 0], [0.44, 1], [0.39, 0], [0.34, 0], [0.29, 0], [0.25, 1], [0.2, 0], [0.15, 0], [0.11, 0], [0.06, 0],
+  ];
+
+  function panelConfusion(u) {
+    let vp = 0, fp = 0, fn = 0, vn = 0;
+    for (const [p, y] of CLIENTES_CHURN) {
+      const pred = p >= u ? 1 : 0;
+      if (pred && y) vp++; else if (pred && !y) fp++; else if (!pred && y) fn++; else vn++;
+    }
+    const pct = (a, b) => (b ? Math.round((a / b) * 100) + "%" : "—");
+    const W = 360, H = 64, m = 12;
+    const X = (p) => m + (1 - p) * (W - 2 * m);
+    const puntos = CLIENTES_CHURN.map(([p, y]) => `<circle cx="${X(p)}" cy="${y ? 22 : 44}" r="6" class="${y ? "real-si" : "real-no"}"/>`).join("");
+    return `<svg class="dg-svg dg-tira" viewBox="0 0 ${W} ${H}" role="img" aria-label="Clientes ordenados por probabilidad; arriba los que se fueron, abajo los que se quedaron">
+        <rect x="${m}" y="6" width="${X(u) - m}" height="54" class="zona-alerta"/>
+        <line x1="${X(u)}" y1="2" x2="${X(u)}" y2="${H - 2}" class="umbral"/>
+        ${puntos}
+      </svg>
+      <div class="dg-matriz-fila">
+        <table class="dg-tabla dg-matriz" aria-label="Matriz de confusión">
+          <thead><tr><th></th><th>predice: se va</th><th>predice: se queda</th></tr></thead>
+          <tbody>
+            <tr><th>real: se fue</th><td class="bien">VP ${vp}</td><td class="mal">FN ${fn}</td></tr>
+            <tr><th>real: se quedó</th><td class="mal">FP ${fp}</td><td class="bien">VN ${vn}</td></tr>
+          </tbody>
+        </table>
+        <div class="dg-metricas col">
+          <span><strong>Precision</strong> ${pct(vp, vp + fp)} <small>de los avisados, cuántos se iban de verdad</small></span>
+          <span><strong>Recall</strong> ${pct(vp, vp + fn)} <small>de los que se iban, cuántos detectamos</small></span>
+          <span><strong>Accuracy</strong> ${pct(vp + vn, CLIENTES_CHURN.length)} <small>aciertos totales</small></span>
+        </div>
+      </div>`;
+  }
+
+  function htmlConfusion() {
+    return `<figure class="diagrama" data-diagrama="matriz-confusion">
+      <label class="dg-umbral">Umbral de decisión: <strong data-valor>0.50</strong>
+        <input type="range" min="0.05" max="0.95" step="0.05" value="0.5" aria-label="Umbral de decisión">
+      </label>
+      <div class="dg-panel-c" aria-live="polite">${panelConfusion(0.5)}</div>
+      <figcaption>20 clientes ordenados por la probabilidad de baja que da el modelo (izquierda = más riesgo). Arriba, en color, los que realmente se fueron. Todo lo que queda dentro de la zona sombreada recibe la alerta. Baja el umbral: sube el recall y cae la precision.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4. División de datos y validación cruzada (estático)
+  // ---------------------------------------------------------------------------
+  function htmlValidacion() {
+    const W = 360, fila = 26, x0 = 70, ancho = 270;
+    let h = "";
+    // Fila 0: separación inicial
+    h += `<text x="0" y="18">datos</text>
+      <rect x="${x0}" y="4" width="${ancho * 0.8}" height="20" class="b-train"/><text x="${x0 + ancho * 0.4}" y="18" text-anchor="middle" class="t-in">entrenamiento (80%)</text>
+      <rect x="${x0 + ancho * 0.8}" y="4" width="${ancho * 0.2}" height="20" class="b-test"/><text x="${x0 + ancho * 0.9}" y="18" text-anchor="middle" class="t-in">test</text>`;
+    for (let k = 0; k < 5; k++) {
+      const y = 44 + k * fila;
+      h += `<text x="0" y="${y + 14}">pliegue ${k + 1}</text>`;
+      for (let j = 0; j < 5; j++) {
+        h += `<rect x="${x0 + (j * ancho * 0.8) / 5}" y="${y}" width="${(ancho * 0.8) / 5 - 2}" height="20" class="${j === k ? "b-val" : "b-train"}"/>`;
+      }
+    }
+    const H = 44 + 5 * fila + 6;
+    return `<figure class="diagrama" data-diagrama="validacion-cruzada">
+      <svg class="dg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Separación en entrenamiento y test, y validación cruzada de 5 pliegues sobre el entrenamiento">${h}</svg>
+      <div class="dg-leyenda"><span><i class="b-train"></i>entrena</span><span><i class="b-val"></i>valida</span><span><i class="b-test"></i>test: se usa una sola vez, al final</span></div>
+      <figcaption>Primero apartas el test y no lo tocas. Con el resto haces validación cruzada: 5 rondas, cada vez validando en un bloque distinto. El promedio de las 5 notas es tu estimación honesta para elegir modelo.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
-  const TIPOS = { "venn-joins": htmlVennJoins };
+  const TIPOS = {
+    "venn-joins": htmlVennJoins,
+    regresion: htmlRegresion,
+    "matriz-confusion": htmlConfusion,
+    "validacion-cruzada": htmlValidacion,
+  };
 
   function html(spec) {
     const f = spec && TIPOS[spec.type];
@@ -176,7 +299,17 @@
         fig.querySelector(".dg-panel").innerHTML = panelJoin(j, n);
       });
     });
+    (raiz || document).querySelectorAll('[data-diagrama="matriz-confusion"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      const inp = fig.querySelector("input[type=range]");
+      inp.addEventListener("input", () => {
+        const u = Number(inp.value);
+        fig.querySelector("[data-valor]").textContent = u.toFixed(2);
+        fig.querySelector(".dg-panel-c").innerHTML = panelConfusion(u);
+      });
+    });
   }
 
-  window.Diagramas = { html, activar, svgVenn, JOINS, filasJoin };
+  window.Diagramas = { html, activar, svgVenn, JOINS, filasJoin, ajusteLineal, REG, CLIENTES_CHURN };
 })();

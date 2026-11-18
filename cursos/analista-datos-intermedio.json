@@ -1,7 +1,7 @@
 {
   "id": "analista-datos-intermedio",
   "title": "Analista de Datos Intermedio",
-  "subtitle": "Ruta completa de 27 capítulos y apéndices: del SQL declarativo y Python reproducible al modelado dimensional, estadística aplicada y entrega ejecutiva.",
+  "subtitle": "Ruta completa de 29 capítulos y apéndices: del SQL declarativo y Python reproducible al modelado dimensional, estadística aplicada y entrega ejecutiva.",
   "level": "Intermedio",
   "author": "Plan de Estudio Autónomo",
   "updatedAt": "2026-11-12",
@@ -31,7 +31,7 @@
         {
           "id": "intro-sec-2",
           "title": "2. Los tres pilares del trabajo analítico intermedio",
-          "body": "En este curso trabajaremos 27 capítulos organizados alrededor de tres competencias transversales:\n\n1) Integridad estructural: entender la clave primaria y el grano (qué representa exactamente una fila) en cada paso de transformación.\n2) Reproducibilidad del código: SQL y Python legibles, parametrizados, sin números mágicos ocultos ni pasos manuales en hojas de cálculo.\n3) Comunicación orientada a decisión: traducir hallazgos estadísticos y métricas operativas en recomendaciones con supuestos explícitos.",
+          "body": "En este curso trabajaremos 29 capítulos organizados alrededor de tres competencias transversales:\n\n1) Integridad estructural: entender la clave primaria y el grano (qué representa exactamente una fila) en cada paso de transformación.\n2) Reproducibilidad del código: SQL y Python legibles, parametrizados, sin números mágicos ocultos ni pasos manuales en hojas de cálculo.\n3) Comunicación orientada a decisión: traducir hallazgos estadísticos y métricas operativas en recomendaciones con supuestos explícitos.",
           "codeLanguage": "sql",
           "codeSnippet": "-- Verificación obligatoria de grano antes de unir o agregar\nSELECT\n  COUNT(*) AS total_filas,\n  COUNT(DISTINCT pedido_id) AS pedidos_unicos\nFROM pedidos_crudos;",
           "keyTakeaway": "Si total_filas > pedidos_unicos, un JOIN directo por pedido_id multiplicará tus ingresos."
@@ -99,21 +99,21 @@
           "id": "intro-q1",
           "question": "¿Cuál es el riesgo principal de unir una tabla de cabecera (`pedidos`) con una tabla de detalle (`items_pedido`) antes de sumar `pedidos.monto_total`?",
           "options": [
-            "La base de datos rechazará la consulta con un error de sintaxis, porque no se puede sumar una columna de cabecera tras un JOIN.",
-            "Los pedidos sin ítems desaparecerán del resultado, aunque el monto de los pedidos restantes se sumará una sola vez.",
             "El orden de las filas cambiará de forma impredecible, pero la suma del monto total de cada pedido seguirá siendo exacta.",
-            "El monto total del pedido se sumará tantas veces como ítems tenga el pedido, inflando silenciosamente la métrica."
+            "El monto total del pedido se sumará tantas veces como ítems tenga el pedido, inflando silenciosamente la métrica.",
+            "La base de datos rechazará la consulta con un error de sintaxis, porque no se puede sumar una columna de cabecera tras un JOIN.",
+            "Los pedidos sin ítems desaparecerán del resultado, aunque el monto de los pedidos restantes se sumará una sola vez."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Un JOIN de 1 a N replica las columnas de la tabla padre en cada fila hija. Sumar métricas de cabecera después de un JOIN 1:N provoca doble o múltiple conteo silencioso."
         },
         {
           "id": "intro-q2",
           "question": "¿Qué significa definir el \"grano\" (grain) de una tabla o consulta?",
           "options": [
+            "Fijar el orden en que se presentan las filas, de la más reciente a la más antigua.",
             "Elegir el formato de almacenamiento y compresión del archivo, por ejemplo Parquet o CSV.",
             "Definir la precisión decimal con que se guardan las columnas numéricas de la tabla.",
-            "Fijar el orden en que se presentan las filas, de la más reciente a la más antigua.",
             "Especificar exactamente qué entidad o nivel de detalle representa cada fila."
           ],
           "correctIndex": 3,
@@ -123,24 +123,24 @@
           "id": "intro-q3",
           "question": "¿Por qué se prefiere `DATETRUNC(month, fecha)` sobre `MONTH(fecha)` en series temporales?",
           "options": [
-            "Porque `MONTH(fecha)` devuelve el nombre del mes como texto y eso impide ordenar la serie cronológicamente.",
-            "Porque `DATETRUNC` ajusta automáticamente cada fecha a la zona horaria UTC antes de agrupar los datos.",
+            "Porque `MONTH(fecha)` colapsa el mismo mes de distintos años (ej. enero 2025 y enero 2026 juntos).",
             "Porque `MONTH()` no se puede usar dentro de un `GROUP BY` y obliga a agrupar por la fecha completa.",
-            "Porque `MONTH(fecha)` colapsa el mismo mes de distintos años (ej. enero 2025 y enero 2026 juntos)."
+            "Porque `MONTH(fecha)` devuelve el nombre del mes como texto y eso impide ordenar la serie cronológicamente.",
+            "Porque `DATETRUNC` ajusta automáticamente cada fecha a la zona horaria UTC antes de agrupar los datos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "`MONTH()` devuelve un entero del 1 al 12, mezclando datos de diferentes años. `DATETRUNC(month, fecha)` (SQL Server 2022+) o `DATEFROMPARTS(YEAR(fecha), MONTH(fecha), 1)` conservan el año y permiten ordenar cronológicamente."
         },
         {
           "id": "intro-q4",
           "question": "¿Cuál es la mejor práctica respecto a filtros de negocio como excluir órdenes canceladas o cuentas de prueba?",
           "options": [
-            "Omitirlos en la consulta y mencionarlos solo de palabra en la reunión, para que el SQL sea más corto.",
+            "Incluirlos explícitamente en el código SQL/Python y documentarlos en el encabezado o entrega.",
             "Aplicarlos después de exportar, en Excel, para que el código SQL quede más simple y genérico.",
             "Confiar en `SELECT DISTINCT` para que las órdenes canceladas y las cuentas de prueba se eliminen solas.",
-            "Incluirlos explícitamente en el código SQL/Python y documentarlos en el encabezado o entrega."
+            "Omitirlos en la consulta y mencionarlos solo de palabra en la reunión, para que el SQL sea más corto."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "La reproducibilidad y auditabilidad requieren que las reglas de exclusión vivan en el código versionado y queden documentadas de forma transparente."
         }
       ]
@@ -262,24 +262,24 @@
           "id": "cap01-q1",
           "question": "¿Por qué falla la consulta `SELECT id, ROW_NUMBER() OVER (ORDER BY fecha) AS rn FROM eventos WHERE rn = 1` en SQL estándar?",
           "options": [
-            "Porque las funciones de ventana requieren obligatoriamente un `GROUP BY` sobre las demás columnas del `SELECT` para ejecutarse.",
             "Porque en SQL estándar la comparación debe escribirse como `rn == 1`, y el operador `=` solo se admite dentro de un `SET`.",
             "Porque la cláusula `WHERE` se evalúa antes que las funciones de ventana, así que el alias `rn` aún no existe en esa etapa.",
-            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`, así que la ventana es inválida antes de llegar al `WHERE`."
+            "Porque `ROW_NUMBER()` solo acepta `PARTITION BY` y no `ORDER BY`, así que la ventana es inválida antes de llegar al `WHERE`.",
+            "Porque las funciones de ventana requieren obligatoriamente un `GROUP BY` sobre las demás columnas del `SELECT` para ejecutarse."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "En el orden lógico de ejecución de SQL, `WHERE` se ejecuta antes que la lista `SELECT` (donde se evalúan las Window Functions). Por eso debes envolver el cálculo en una CTE (en SQL Server no existe `QUALIFY`)."
         },
         {
           "id": "cap01-q2",
           "question": "Si dos filas tienen exactamente el mismo valor en el `ORDER BY` de una ventana, ¿qué función garantiza que nunca devolverá empates y asignará 1, 2, 3... consecutivos?",
           "options": [
-            "ROW_NUMBER()",
             "RANK()",
+            "NTILE(1)",
             "DENSE_RANK()",
-            "NTILE(1)"
+            "ROW_NUMBER()"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "`ROW_NUMBER()` asigna siempre un entero único consecutivo por fila dentro de cada partición. Aun así, es estándar agregar una columna única de desempate en `ORDER BY` para que la asignación sea determinista."
         },
         {
@@ -287,35 +287,35 @@
           "question": "¿Qué ventaja ofrece `LAG(ventas, 1) OVER (ORDER BY mes)` frente a un auto-JOIN (`self-join`) por `mes - 1`?",
           "options": [
             "Convierte automáticamente los valores NULL en ceros y rellena los meses faltantes de la serie, por lo que ya no hace falta partir de un calendario continuo ni preocuparse por los huecos.",
+            "Permite omitir el `ORDER BY` dentro de `OVER()` sin afectar el resultado, porque el motor deduce solo el orden cronológico de la columna `mes` y trae siempre el mes calendario anterior.",
             "Lee la fila anterior en una sola pasada ordenada, sin cruzar la tabla consigo misma (aunque si falta un mes, trae el mes existente anterior, por eso conviene partir de un calendario continuo).",
-            "Es la única forma de aprovechar índices B-Tree sobre la columna `mes`, mientras que el auto-JOIN siempre fuerza un escaneo completo de la tabla y por eso devuelve resultados distintos.",
-            "Permite omitir el `ORDER BY` dentro de `OVER()` sin afectar el resultado, porque el motor deduce solo el orden cronológico de la columna `mes` y trae siempre el mes calendario anterior."
+            "Es la única forma de aprovechar índices B-Tree sobre la columna `mes`, mientras que el auto-JOIN siempre fuerza un escaneo completo de la tabla y por eso devuelve resultados distintos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`LAG()` lee la fila inmediatamente anterior en una única pasada ordenada sobre la partición, evitando la complejidad y el costo de un self-join. Ojo: 'anterior' significa la fila previa, no el mes calendario previo; si la serie tiene huecos, rellénala antes con un calendario."
         },
         {
           "id": "cap01-q4",
           "question": "En una serie diaria ya agregada (1 fila por día sin días faltantes), ¿qué frame define correctamente el promedio móvil de los últimos 7 días incluyendo hoy?",
           "options": [
-            "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
             "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW",
-            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING",
-            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING"
+            "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
+            "ROWS BETWEEN CURRENT ROW AND 6 FOLLOWING",
+            "ROWS BETWEEN 7 PRECEDING AND 1 FOLLOWING"
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "6 filas anteriores más la fila actual suman exactamente 7 días (hoy y los 6 días previos)."
         },
         {
           "id": "cap01-q5",
           "question": "¿Para qué sirve envolver un denominador con `NULLIF(denominador, 0)` en métricas de variación porcentual?",
           "options": [
-            "Para reemplazar por cero cualquier variación negativa, de modo que las caídas no aparezcan en el reporte como porcentajes menores a cero.",
-            "Para convertir un 0 en `NULL`, logrando que la división devuelva `NULL` en lugar de abortar la consulta con error de división por cero.",
             "Para convertir un `NULL` en 0, logrando que la división siempre devuelva un número y el reporte no muestre celdas vacías en la variación.",
-            "Para que el motor use un índice sobre el denominador y acelere el ordenamiento del `ORDER BY` cuando hay muchas filas con ceros."
+            "Para que el motor use un índice sobre el denominador y acelere el ordenamiento del `ORDER BY` cuando hay muchas filas con ceros.",
+            "Para convertir un 0 en `NULL`, logrando que la división devuelva `NULL` en lugar de abortar la consulta con error de división por cero.",
+            "Para reemplazar por cero cualquier variación negativa, de modo que las caídas no aparezcan en el reporte como porcentajes menores a cero."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`NULLIF(x, 0)` devuelve `NULL` cuando `x = 0`. En SQL, dividir cualquier número entre `NULL` da `NULL` en vez de lanzar un error fatal en tiempo de ejecución."
         }
       ]
@@ -428,36 +428,36 @@
           "id": "cap02-q1",
           "question": "¿Qué ocurre si ejecutas `WHERE cliente_id NOT IN (SELECT cliente_id FROM bajas)` y la tabla `bajas` contiene una sola fila con `cliente_id IS NULL`?",
           "options": [
-            "Devuelve todos los clientes excepto los que tienen baja; el NULL simplemente no coincide con nadie.",
-            "Devuelve solo los clientes con `cliente_id` nulo, ya que son los únicos que coinciden con esa fila.",
             "Toda la consulta devuelve 0 filas porque comparar contra NULL produce UNKNOWN.",
-            "Lanza un error porque `NOT IN` no admite subconsultas que puedan devolver valores nulos."
+            "Lanza un error porque `NOT IN` no admite subconsultas que puedan devolver valores nulos.",
+            "Devuelve todos los clientes excepto los que tienen baja; el NULL simplemente no coincide con nadie.",
+            "Devuelve solo los clientes con `cliente_id` nulo, ya que son los únicos que coinciden con esa fila."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "En lógica trivaluada SQL, `x NOT IN (1, 2, NULL)` equivale a `x != 1 AND x != 2 AND x != NULL`, cuya tercera parte es `UNKNOWN`, haciendo que ninguna fila pase el `WHERE`."
         },
         {
           "id": "cap02-q2",
           "question": "Si agregas `AND tabla_derecha.estado = 'activo'` en la cláusula `WHERE` tras un `LEFT JOIN`, ¿qué sucede?",
           "options": [
-            "Se acelera el LEFT JOIN porque el filtro se aplica antes de la unión, sin alterar las filas que devuelve la consulta.",
             "Se duplican las filas de la izquierda que tienen más de una coincidencia activa en la tabla derecha del LEFT JOIN.",
             "Se eliminan las filas de la izquierda sin coincidencia, convirtiendo el LEFT JOIN en un INNER JOIN efectivo.",
+            "Se acelera el LEFT JOIN porque el filtro se aplica antes de la unión, sin alterar las filas que devuelve la consulta.",
             "Se mantienen las filas de la izquierda sin coincidencia con NULL, y solo se descartan las filas derechas inactivas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Las filas sin coincidencia tienen `NULL` en `tabla_derecha.estado`; al evaluar `NULL = 'activo'` en `WHERE`, quedan descartadas."
         },
         {
           "id": "cap02-q3",
           "question": "¿Cuál es la forma correcta de combinar dos tablas de métricas 1:N (`pagos` y `reembolsos`) hacia una tabla padre `pedidos`?",
           "options": [
-            "Hacer `INNER JOIN` de `pedidos` con `pagos` y con `reembolsos`, y luego sumar los montos en un solo `GROUP BY`.",
-            "Pre-agregar `pagos` por `pedido_id` y `reembolsos` por `pedido_id` en CTEs separadas antes del `LEFT JOIN`.",
+            "Usar `CROSS JOIN` entre `pagos` y `reembolsos` y después un `GROUP BY pedido_id` para reunir ambas métricas en una fila.",
             "Unir ambas tablas directamente a `pedidos` y usar `SUM(DISTINCT monto)` para que los montos repetidos no se dupliquen.",
-            "Usar `CROSS JOIN` entre `pagos` y `reembolsos` y después un `GROUP BY pedido_id` para reunir ambas métricas en una fila."
+            "Hacer `INNER JOIN` de `pedidos` con `pagos` y con `reembolsos`, y luego sumar los montos en un solo `GROUP BY`.",
+            "Pre-agregar `pagos` por `pedido_id` y `reembolsos` por `pedido_id` en CTEs separadas antes del `LEFT JOIN`."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Pre-agregar cada tabla hija a la clave `pedido_id` garantiza relaciones 1:1 antes de cruzarlas con `pedidos`."
         }
       ]
@@ -559,8 +559,8 @@
           "options": [
             "Porque excluye casi todo el día 31 de marzo al interpretarse como `2026-03-31 00:00:00`.",
             "Porque incluye todo el 1 de abril, ya que `BETWEEN` redondea el límite superior al día siguiente.",
-            "Porque `BETWEEN` no funciona con columnas de tipo timestamp y compara las fechas como texto.",
-            "Porque `BETWEEN` excluye ambos extremos y deja fuera completos el día 1 y el día 31 de marzo."
+            "Porque `BETWEEN` excluye ambos extremos y deja fuera completos el día 1 y el día 31 de marzo.",
+            "Porque `BETWEEN` no funciona con columnas de tipo timestamp y compara las fechas como texto."
           ],
           "correctIndex": 0,
           "explanation": "Un literal de fecha convertido a timestamp apunta a medianoche (`00:00:00`), dejando fuera todas las horas posteriores del último día."
@@ -569,24 +569,24 @@
           "id": "cap03-q2",
           "question": "¿Para qué sirve cruzar una tabla de ventas contra una tabla calendario (`GENERATE_SERIES`) mediante `LEFT JOIN`?",
           "options": [
-            "Para garantizar una fila por cada fecha del periodo aunque no haya habido transacciones (asignando 0).",
             "Para obtener un JOIN cartesiano más rápido que el `GROUP BY` cuando la tabla de ventas es muy grande.",
             "Para convertir todas las fechas de la tabla de ventas a UTC y alinear las zonas horarias del periodo.",
+            "Para garantizar una fila por cada fecha del periodo aunque no haya habido transacciones (asignando 0).",
             "Para eliminar del resultado los días sin ventas, de modo que la serie solo muestre fechas con transacciones."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Preserva los días sin actividad como 0, evitando distorsionar promedios móviles y tasas diarias."
         },
         {
           "id": "cap03-q3",
           "question": "En una matriz de retención por cohorte, ¿qué representa `mes_relativo = 0`?",
           "options": [
+            "El mes de adquisición inicial de esa cohorte (100% de base).",
             "Los clientes de la cohorte que abandonaron durante el primer mes.",
             "El mes previo a la adquisición, usado como línea base de la cohorte.",
-            "El promedio de retención de todos los meses posteriores de la cohorte.",
-            "El mes de adquisición inicial de esa cohorte (100% de base)."
+            "El promedio de retención de todos los meses posteriores de la cohorte."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "El periodo `0` corresponde al mes en que el usuario realizó su evento inicial de cohorte y sirve como denominador base (100%)."
         }
       ]
@@ -677,36 +677,36 @@
           "id": "cap04-q1",
           "question": "¿Qué ocurre con el grano de una tabla `pedidos` después de aplicar `CROSS JOIN UNNEST(pedidos.items)`?",
           "options": [
-            "El grano cambia a 1 fila por ítem dentro de cada pedido (y los pedidos con arreglo vacío desaparecen).",
             "El grano sigue siendo 1 fila por pedido, porque `UNNEST` solo agrega columnas con los ítems del arreglo.",
             "El número de filas se reduce, porque `CROSS JOIN UNNEST` conserva solo los pedidos con un único ítem.",
+            "El grano cambia a 1 fila por ítem dentro de cada pedido (y los pedidos con arreglo vacío desaparecen).",
             "El grano cambia a 1 fila por SKU distinto, porque `UNNEST` elimina automáticamente los ítems repetidos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`CROSS JOIN UNNEST` expande cada elemento del arreglo en su propia fila y descarta filas cuyo arreglo esté vacío."
         },
         {
           "id": "cap04-q2",
           "question": "¿Cuál es el riesgo de acceder a elementos JSON por índice fijo (`items[0]`, `items[1]`) en lugar de desanidar?",
           "options": [
-            "Duplica cada pedido tantas veces como índices escritos, inflando las métricas igual que un JOIN 1:N sin pre-agregar.",
             "Convierte el JSON en texto plano y obliga a parsear de nuevo todo el documento cada vez que se consulta un elemento.",
             "Impide usar `WHERE` sobre los atributos del ítem, porque los índices fijos solo se pueden leer en la cláusula `SELECT`.",
-            "Trunca elementos cuando el arreglo supera el número de índices escritos y dificulta agrupar por atributos del ítem."
+            "Trunca elementos cuando el arreglo supera el número de índices escritos y dificulta agrupar por atributos del ítem.",
+            "Duplica cada pedido tantas veces como índices escritos, inflando las métricas igual que un JOIN 1:N sin pre-agregar."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Hardcodear posiciones pierde datos de carritos o listas variables y rompe el principio relacional de primera forma normal."
         },
         {
           "id": "cap04-q3",
           "question": "¿Dónde conviene realizar la extracción y tipado de rutas JSON complejas?",
           "options": [
-            "Una sola vez en una vista o tabla staging bien tipada.",
             "Dentro de cada gráfico del tablero BI, según lo necesite.",
             "Manualmente en Excel, tras descargar el JSON como CSV.",
-            "En cada consulta que la use, para adaptar el tipado al caso."
+            "En cada consulta que la use, para adaptar el tipado al caso.",
+            "Una sola vez en una vista o tabla staging bien tipada."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Centralizar el parseo en staging evita duplicar lógica frágil en decenas de reportes posteriores."
         }
       ]
@@ -798,10 +798,10 @@
           "id": "cap05-q1",
           "question": "¿Qué hace que la condición `WHERE YEAR(fecha_venta) = 2026` sea ineficiente en tablas grandes?",
           "options": [
-            "Devuelve también fechas de 2025, porque `YEAR()` redondea las fechas cercanas al cambio de año.",
+            "Convierte `fecha_venta` a texto en cada fila y por eso las comparaciones numéricas dejan de funcionar.",
             "Aplica la función a cada fila e impide usar índices o partition pruning sobre `fecha_venta`.",
-            "Obliga al motor a agrupar la tabla con un `GROUP BY` implícito antes de poder aplicar el filtro.",
-            "Convierte `fecha_venta` a texto en cada fila y por eso las comparaciones numéricas dejan de funcionar."
+            "Devuelve también fechas de 2025, porque `YEAR()` redondea las fechas cercanas al cambio de año.",
+            "Obliga al motor a agrupar la tabla con un `GROUP BY` implícito antes de poder aplicar el filtro."
           ],
           "correctIndex": 1,
           "explanation": "Aplicar una función sobre la columna filtrada vuelve el predicado no-SARGable, forzando un escaneo completo."
@@ -810,24 +810,24 @@
           "id": "cap05-q2",
           "question": "¿Cuál es la diferencia operativa de rendimiento entre `UNION` y `UNION ALL`?",
           "options": [
+            "No hay diferencia de rendimiento: ambos deduplican el resultado y el motor elige internamente el mismo plan de ejecución.",
             "`UNION ALL` es más lento porque ordena el resultado completo antes de devolverlo, mientras `UNION` solo concatena las filas.",
             "`UNION` deduplica el resultado (exigiendo sort o hash sobre todo el volumen), mientras `UNION ALL` concatena directamente.",
-            "No hay diferencia de rendimiento: ambos deduplican el resultado y el motor elige internamente el mismo plan de ejecución.",
             "`UNION ALL` solo puede combinar consultas con el mismo número de filas, por lo que el motor debe rellenar con NULL primero."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "`UNION` realiza un `DISTINCT` global implícito; usa `UNION ALL` siempre que no necesites eliminar duplicados."
         },
         {
           "id": "cap05-q3",
           "question": "En motores columnares en la nube (BigQuery, Snowflake, Parquet), ¿por qué evitar `SELECT *` reduce costos y tiempo?",
           "options": [
-            "Porque `SELECT *` limita la lectura a las primeras particiones de la tabla, y el motor debe repetir el escaneo para obtener el resto.",
-            "Porque `SELECT *` desactiva la caché de resultados y los CTEs, obligando al motor a recalcular cada subconsulta en cada ejecución.",
             "Porque los datos columnares almacenan cada columna por separado y `SELECT *` lee todas las columnas del disco aunque no las uses.",
+            "Porque `SELECT *` desactiva la caché de resultados y los CTEs, obligando al motor a recalcular cada subconsulta en cada ejecución.",
+            "Porque `SELECT *` limita la lectura a las primeras particiones de la tabla, y el motor debe repetir el escaneo para obtener el resto.",
             "Porque `SELECT *` convierte todas las columnas a texto antes de enviarlas, y esa conversión es lo que más tiempo y dinero consume."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Al leer solo las columnas proyectadas, el motor omite bloques completos de columnas no solicitadas."
         }
       ]
@@ -916,24 +916,24 @@
           "id": "cap06-q1",
           "question": "¿Qué tipo de métrica es el saldo bancario o el inventario en bodega?",
           "options": [
-            "Semi-aditiva: se puede sumar entre cuentas/almacenes en un mismo instante, pero NO a lo largo del tiempo.",
             "Totalmente aditiva: se puede sumar entre cuentas o almacenes y también a lo largo del tiempo sin distorsión.",
-            "No aditiva: no se puede sumar ni entre cuentas o almacenes ni a lo largo del tiempo, solo promediar.",
-            "Categórica: describe un estado de la cuenta o del almacén, así que solo se puede contar, nunca sumar."
+            "Categórica: describe un estado de la cuenta o del almacén, así que solo se puede contar, nunca sumar.",
+            "Semi-aditiva: se puede sumar entre cuentas/almacenes en un mismo instante, pero NO a lo largo del tiempo.",
+            "No aditiva: no se puede sumar ni entre cuentas o almacenes ni a lo largo del tiempo, solo promediar."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Las fotografías de estado (snapshots) se suman entre entidades en un corte dado, pero en el tiempo se toma el último valor o el promedio."
         },
         {
           "id": "cap06-q2",
           "question": "¿Cómo se debe agregar una razón como el porcentaje de conversión o margen en SQL?",
           "options": [
-            "Aplicando `AVG(porcentaje)` directamente sobre la columna ya calculada para obtener la tasa de toda la tabla.",
-            "Almacenando numerador y denominador por separado y calculando `SUM(numerador) / NULLIF(SUM(denominador), 0)`.",
+            "Tomando la mediana de los porcentajes de cada fila, porque es más robusta a los valores extremos que la media.",
             "Sumando el porcentaje calculado en cada fila y dividiendo luego entre 100 para devolverlo a la escala original.",
-            "Tomando la mediana de los porcentajes de cada fila, porque es más robusta a los valores extremos que la media."
+            "Aplicando `AVG(porcentaje)` directamente sobre la columna ya calculada para obtener la tasa de toda la tabla.",
+            "Almacenando numerador y denominador por separado y calculando `SUM(numerador) / NULLIF(SUM(denominador), 0)`."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Los porcentajes son no-aditivos; la razón agregada correcta siempre divide la suma de los numeradores entre la suma de los denominadores."
         },
         {
@@ -941,11 +941,11 @@
           "question": "¿Cuál es el grano ideal para una tabla de hechos transaccional?",
           "options": [
             "El resumen diario por tienda, para ahorrar espacio y acelerar los tableros.",
-            "Una fila por cliente con sus totales acumulados, actualizada en cada carga.",
             "Un mix de resumen diario y detalle por ítem, según lo que pida cada reporte.",
-            "El nivel más atómico del evento (ej. 1 línea de ticket o 1 transacción)."
+            "El nivel más atómico del evento (ej. 1 línea de ticket o 1 transacción).",
+            "Una fila por cliente con sus totales acumulados, actualizada en cada carga."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "El grano atómico permite responder preguntas imprevistas agrupando hacia arriba sin perder detalle."
         }
       ]
@@ -1036,12 +1036,12 @@
           "id": "cap07-q1",
           "question": "¿Qué diferencia a una dimensión SCD Tipo 2 de una Tipo 1?",
           "options": [
-            "La Tipo 2 borra las filas antiguas para ahorrar disco y solo conserva la versión vigente marcada con `is_current`.",
             "La Tipo 2 conserva el historial completo creando una nueva fila con rango de fechas de vigencia por cada cambio.",
-            "La Tipo 2 guarda el historial en una tabla de auditoría separada, mientras la dimensión mantiene una sola fila.",
-            "La Tipo 2 sobrescribe el valor anterior en la misma fila y guarda la fecha del último cambio en una columna aparte."
+            "La Tipo 2 borra las filas antiguas para ahorrar disco y solo conserva la versión vigente marcada con `is_current`.",
+            "La Tipo 2 sobrescribe el valor anterior en la misma fila y guarda la fecha del último cambio en una columna aparte.",
+            "La Tipo 2 guarda el historial en una tabla de auditoría separada, mientras la dimensión mantiene una sola fila."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "SCD Tipo 2 mantiene versiones históricas con `valid_from` y `valid_to`, permitiendo analizar hechos con los atributos vigentes en su momento."
         },
         {
@@ -1049,9 +1049,9 @@
           "question": "¿Por qué es preferible `fecha >= valid_from AND fecha < valid_to` frente a `BETWEEN` en joins SCD2?",
           "options": [
             "Porque `BETWEEN` no acepta columnas de fecha en la condición de un JOIN y obliga a convertirlas a texto.",
-            "Porque descarta automáticamente las versiones con `is_current = 1` y deja solo el historial ya cerrado.",
+            "Porque `BETWEEN` excluye ambos extremos y el evento del primer día de vigencia no encuentra ninguna versión.",
             "Porque evita que un evento ocurrido en el límite de transición haga match con dos versiones a la vez.",
-            "Porque `BETWEEN` excluye ambos extremos y el evento del primer día de vigencia no encuentra ninguna versión."
+            "Porque descarta automáticamente las versiones con `is_current = 1` y deja solo el historial ya cerrado."
           ],
           "correctIndex": 2,
           "explanation": "Los intervalos semiabiertos aseguran partición exacta del tiempo sin solapamientos en la frontera."
@@ -1166,24 +1166,24 @@
           "id": "cap08-q2",
           "question": "¿En qué capa de la arquitectura Medallón se deduplican registros y se corrigen tipos de datos?",
           "options": [
-            "Silver",
             "Bronze",
+            "Silver",
             "Gold",
             "Landing"
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Bronze conserva el dato crudo original; Silver lo limpia, tipa y deduplica; Gold lo modela para consumo analítico."
         },
         {
           "id": "cap08-q3",
           "question": "¿Por qué es peligroso usar un `INSERT INTO ... SELECT` sin `DELETE` previo ni `MERGE` en cargas diarias?",
           "options": [
-            "Porque cada re-ejecución del job insertará filas duplicadas.",
+            "Porque bloquea la tabla y nadie puede leerla hasta el día siguiente.",
             "Porque `INSERT INTO ... SELECT` no admite filtros con `WHERE`.",
             "Porque sobrescribe la tabla destino y borra el historial previo.",
-            "Porque bloquea la tabla y nadie puede leerla hasta el día siguiente."
+            "Porque cada re-ejecución del job insertará filas duplicadas."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Si el job corre dos veces por un reintento manual o automático, los registros se duplicarán silenciosamente."
         }
       ]
@@ -1272,12 +1272,12 @@
           "id": "cap09-q1",
           "question": "¿Qué valida una prueba de \"frescura\" (freshness) en un pipeline analítico?",
           "options": [
-            "Que las dependencias y librerías del pipeline estén actualizadas a su versión más reciente disponible.",
-            "Que los datos más recientes de la tabla no superen el tiempo máximo permitido de retraso (SLA).",
             "Que todos los precios y montos de la tabla sean mayores a cero y no contengan valores nulos.",
-            "Que la consulta del modelo se haya modificado recientemente y no contenga código obsoleto."
+            "Que las dependencias y librerías del pipeline estén actualizadas a su versión más reciente disponible.",
+            "Que la consulta del modelo se haya modificado recientemente y no contenga código obsoleto.",
+            "Que los datos más recientes de la tabla no superen el tiempo máximo permitido de retraso (SLA)."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "La frescura comprueba que el timestamp del último registro cargado esté dentro de la ventana de SLA acordada."
         },
         {
@@ -1285,9 +1285,9 @@
           "question": "Si una consulta termina sin errores SQL (`exit 0`), ¿garantiza que la calidad del dato sea correcta?",
           "options": [
             "Sí, siempre que la tabla destino tenga claves primarias, porque bloquean cualquier dato erróneo.",
-            "Sí: si la consulta termina sin errores, el motor ya validó tipos, claves y volumen esperado.",
+            "Solo si se usan `INNER JOIN`, porque así se descartan automáticamente las filas inconsistentes.",
             "No: pueden haberse introducido duplicados, nulos masivos o caídas silenciosas de volumen.",
-            "Solo si se usan `INNER JOIN`, porque así se descartan automáticamente las filas inconsistentes."
+            "Sí: si la consulta termina sin errores, el motor ya validó tipos, claves y volumen esperado."
           ],
           "correctIndex": 2,
           "explanation": "Un pipeline puede ejecutarse sin errores técnicos y aún así entregar cifras vacías o duplicadas si no hay checks de calidad."
@@ -1296,12 +1296,12 @@
           "id": "cap09-q3",
           "question": "¿Qué es un Data Contract?",
           "options": [
-            "Un documento legal con el proveedor del data warehouse que fija el precio y el almacenamiento.",
-            "Una copia congelada del dashboard que se envía a negocio como referencia oficial de las cifras.",
             "Un acuerdo formal de esquema, tipos, semántica y SLA entre productores de datos y analítica.",
-            "Un índice o restricción de base de datos que impide insertar filas que no cumplan el esquema."
+            "Un índice o restricción de base de datos que impide insertar filas que no cumplan el esquema.",
+            "Un documento legal con el proveedor del data warehouse que fija el precio y el almacenamiento.",
+            "Una copia congelada del dashboard que se envía a negocio como referencia oficial de las cifras."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Los contratos previenen cambios inesperados de esquema en origen que rompen pipelines aguas abajo."
         }
       ]
@@ -1393,12 +1393,12 @@
           "id": "cap10-q1",
           "question": "¿Por qué es recomendable almacenar datasets analíticos intermedios en formato Parquet en lugar de CSV?",
           "options": [
-            "Porque es columnar, conserva tipos de datos exactos, comprime mejor y permite leer solo las columnas solicitadas.",
-            "Porque Parquet es un formato de texto plano que se puede abrir y editar en cualquier editor sin herramientas extra.",
+            "Porque Parquet elimina automáticamente los valores nulos y duplicados al escribir, dejando el dataset ya limpio.",
             "Porque CSV no admite números decimales ni fechas, así que hay que guardarlos como texto y convertirlos al leer.",
-            "Porque Parquet elimina automáticamente los valores nulos y duplicados al escribir, dejando el dataset ya limpio."
+            "Porque Parquet es un formato de texto plano que se puede abrir y editar en cualquier editor sin herramientas extra.",
+            "Porque es columnar, conserva tipos de datos exactos, comprime mejor y permite leer solo las columnas solicitadas."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Parquet evita inferencias lentas/erróneas de tipos y permite proyección columnar con compresión eficiente."
         },
         {
@@ -1417,12 +1417,12 @@
           "id": "cap10-q3",
           "question": "¿Por qué evitar rutas absolutas como `C:\\Users\\MiNombre\\archivo.csv` en scripts analíticos?",
           "options": [
-            "Porque Python no puede abrir rutas que empiecen con una letra de unidad como C: sin permisos de administrador.",
-            "Porque hacen que los archivos generados ocupen más espacio en disco al guardar la ruta completa en ellos.",
             "Porque las rutas absolutas cambian la codificación del archivo leído de UTF-8 a la del sistema operativo.",
-            "Porque rompe la reproducibilidad en cualquier otra computadora, repositorio Git o flujo automatizado."
+            "Porque rompe la reproducibilidad en cualquier otra computadora, repositorio Git o flujo automatizado.",
+            "Porque Python no puede abrir rutas que empiecen con una letra de unidad como C: sin permisos de administrador.",
+            "Porque hacen que los archivos generados ocupen más espacio en disco al guardar la ruta completa en ellos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Usar `pathlib.Path` relativo al repositorio o variables de configuración asegura que el código corra en cualquier entorno."
         }
       ]
@@ -1511,33 +1511,33 @@
           "id": "cap11-q1",
           "question": "¿Qué problema ocurre si aplicas `df.dropna()` sin el parámetro `subset`?",
           "options": [
-            "Elimina toda fila que tenga al menos un `NaN` en cualquier columna, incluso columnas opcionales que no usas.",
-            "Elimina solo los `NaN` de la primera columna del DataFrame y deja intactas las filas con nulos en las demás.",
             "Reemplaza todos los `NaN` por ceros en cada columna, lo que sesga los promedios hacia abajo sin avisar.",
-            "Elimina las columnas que tienen algún `NaN` en lugar de las filas, perdiendo variables completas del análisis."
+            "Elimina las columnas que tienen algún `NaN` en lugar de las filas, perdiendo variables completas del análisis.",
+            "Elimina toda fila que tenga al menos un `NaN` en cualquier columna, incluso columnas opcionales que no usas.",
+            "Elimina solo los `NaN` de la primera columna del DataFrame y deja intactas las filas con nulos en las demás."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Siempre debes especificar `subset=[...]` para restringir la eliminación únicamente a las columnas indispensables para el análisis."
         },
         {
           "id": "cap11-q2",
           "question": "Si los clientes que más gastan omiten responder su edad en una encuesta, ¿qué tipo de dato faltante es y qué pasa si los borras?",
           "options": [
-            "MNAR/MAR; al borrarlos subestimarás el gasto promedio de la población.",
             "Son outliers positivos; al borrarlos el gasto promedio queda más exacto.",
-            "MCAR; borrarlos no sesga el promedio porque los nulos son aleatorios.",
-            "MCAR; al borrarlos sobrestimarás el gasto promedio de la población."
+            "MNAR/MAR; al borrarlos subestimarás el gasto promedio de la población.",
+            "MCAR; al borrarlos sobrestimarás el gasto promedio de la población.",
+            "MCAR; borrarlos no sesga el promedio porque los nulos son aleatorios."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Cuando la ausencia depende de variables del usuario o del valor mismo, borrar las filas sesga gravemente las estimaciones."
         },
         {
           "id": "cap11-q3",
           "question": "¿Qué parámetro de `pd.to_numeric()` evita que un texto corrupto aborte el script y lo transforma en `NaN` auditable?",
           "options": [
-            "inplace=True",
-            "downcast=\"signed\"",
             "errors=\"ignore\"",
+            "downcast=\"signed\"",
+            "inplace=True",
             "errors=\"coerce\""
           ],
           "correctIndex": 3,
@@ -1631,24 +1631,24 @@
           "id": "cap12-q1",
           "question": "¿Qué parámetro de `pd.merge()` lanza una excepción si la tabla derecha tiene claves duplicadas cuando esperabas relación 1:1 o N:1?",
           "options": [
-            "check_keys=True",
             "validate=\"many_to_one\"",
             "how=\"one_to_one\"",
+            "check_keys=True",
             "drop_duplicates=True"
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "`validate=\"many_to_one\"` (o `\"one_to_one\"`) verifica la cardinalidad antes de retornar el resultado y falla ruidosamente si hay fan-out."
         },
         {
           "id": "cap12-q2",
           "question": "¿Por qué debe evitarse `df.iterrows()` para transformar columnas en DataFrames grandes?",
           "options": [
-            "Porque reinicia el índice del DataFrame en cada iteración, de modo que las filas modificadas quedan desalineadas.",
-            "Porque no funciona en Python 3 ni en las versiones recientes de Pandas, que ya eliminaron ese método por completo.",
             "Porque ejecuta un bucle de Python fila por fila en lugar de operaciones vectorizadas en C/NumPy, siendo mucho más lento.",
-            "Porque convierte los tipos de cada columna a `object` de forma permanente y luego hay que volver a tiparlas a mano."
+            "Porque no funciona en Python 3 ni en las versiones recientes de Pandas, que ya eliminaron ese método por completo.",
+            "Porque convierte los tipos de cada columna a `object` de forma permanente y luego hay que volver a tiparlas a mano.",
+            "Porque reinicia el índice del DataFrame en cada iteración, de modo que las filas modificadas quedan desalineadas."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "La vectorización (`np.where`, `np.select`, operaciones de Series) procesa bloques enteros en memoria nativa."
         },
         {
@@ -1656,9 +1656,9 @@
           "question": "¿Qué método transforma múltiples columnas de meses (`ene`, `feb`, `mar`) en dos columnas (`mes`, `valor`)?",
           "options": [
             "df.melt()",
-            "df.pivot()",
+            "df.describe()",
             "df.dropna()",
-            "df.describe()"
+            "df.pivot()"
           ],
           "correctIndex": 0,
           "explanation": "`melt()` pasa datos de formato ancho a formato largo (tidy data), ideal para series temporales y gráficos."
@@ -1751,36 +1751,36 @@
           "id": "cap13-q1",
           "question": "¿Qué código HTTP indica que estás enviando demasiadas peticiones por segundo a una API (rate limit)?",
           "options": [
-            "404 Not Found",
-            "429 Too Many Requests",
+            "503 Service Unavailable",
             "301 Moved Permanently",
-            "503 Service Unavailable"
+            "429 Too Many Requests",
+            "404 Not Found"
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "El código 429 indica límite de tasa excedido; la respuesta profesional es aplicar backoff exponencial o respetar la cabecera `Retry-After`."
         },
         {
           "id": "cap13-q2",
           "question": "¿Por qué es obligatorio especificar `timeout=` en `requests.get()` dentro de pipelines automáticos?",
           "options": [
-            "Para evitar que el script quede colgado indefinidamente si el servidor remoto no cierra la conexión.",
+            "Para que `requests` pagine automáticamente la respuesta cuando el servidor devuelve muchos registros.",
             "Para que el servidor comprima la respuesta JSON y la descarga termine en menos tiempo de red.",
             "Para limitar la memoria RAM que puede usar la respuesta y evitar que el script se quede sin recursos.",
-            "Para que `requests` pagine automáticamente la respuesta cuando el servidor devuelve muchos registros."
+            "Para evitar que el script quede colgado indefinidamente si el servidor remoto no cierra la conexión."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Sin `timeout`, una caída silenciosa de red puede bloquear el proceso por horas."
         },
         {
           "id": "cap13-q3",
           "question": "¿Dónde deben almacenarse los tokens y llaves de API en un proyecto analítico?",
           "options": [
-            "Pegados como string en la primera celda del notebook.",
             "En variables de entorno / archivo `.env` fuera de Git.",
-            "En el README del proyecto, para que el equipo los encuentre.",
-            "En un archivo `config.py` del repositorio, fuera del notebook."
+            "En un archivo `config.py` del repositorio, fuera del notebook.",
+            "Pegados como string en la primera celda del notebook.",
+            "En el README del proyecto, para que el equipo los encuentre."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Subir credenciales a un repositorio es un incidente crítico de seguridad."
         }
       ]
@@ -1872,34 +1872,34 @@
           "id": "cap14-q1",
           "question": "¿Cuál es el beneficio principal de mover fórmulas de KPIs desde un notebook a un módulo `.py`?",
           "options": [
-            "Permite dejar de usar Git para los notebooks, porque los módulos `.py` guardan solo la versión final de cada fórmula de KPI.",
-            "Reduce la memoria RAM que usa el navegador al abrir el notebook, ya que las fórmulas dejan de cargarse en cada celda.",
+            "Permite que el motor de base de datos ejecute las fórmulas directamente, porque los módulos `.py` se traducen solos a SQL.",
             "Permite reutilizar una única fuente de verdad en múltiples reportes y validar su exactitud con pruebas unitarias automatizadas.",
-            "Permite que el motor de base de datos ejecute las fórmulas directamente, porque los módulos `.py` se traducen solos a SQL."
+            "Reduce la memoria RAM que usa el navegador al abrir el notebook, ya que las fórmulas dejan de cargarse en cada celda.",
+            "Permite dejar de usar Git para los notebooks, porque los módulos `.py` guardan solo la versión final de cada fórmula de KPI."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Centralizar la lógica elimina discrepancias entre equipos y permite ejecutar `pytest` en cada cambio."
         },
         {
           "id": "cap14-q2",
           "question": "¿Qué casos borde deberías probar siempre en métricas analíticas?",
           "options": [
-            "Solo los formatos y colores de los gráficos que consumen la métrica en el tablero.",
+            "Denominadores en cero, DataFrames vacíos, valores nulos y duplicados en el grano.",
             "Solo datos positivos, completos y sin duplicados, que son los que llegan en producción.",
-            "Únicamente un DataFrame de una fila con valores típicos, para que el test sea rápido.",
-            "Denominadores en cero, DataFrames vacíos, valores nulos y duplicados en el grano."
+            "Solo los formatos y colores de los gráficos que consumen la métrica en el tablero.",
+            "Únicamente un DataFrame de una fila con valores típicos, para que el test sea rápido."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Los fallos en producción suelen ocurrir justo en límites vacíos, ceros y duplicados inesperados."
         },
         {
           "id": "cap14-q3",
           "question": "¿Qué decorador de Pytest permite compartir datos de prueba limpios entre múltiples funciones test?",
           "options": [
-            "@pytest.metric",
+            "@pytest.mock_all",
             "@pytest.fixture",
-            "@pytest.pandas",
-            "@pytest.mock_all"
+            "@pytest.metric",
+            "@pytest.pandas"
           ],
           "correctIndex": 1,
           "explanation": "`@pytest.fixture` inyecta datos de prueba frescos y reutilizables en cada test."
@@ -1990,36 +1990,36 @@
           "id": "cap15-q1",
           "question": "¿Qué estadístico es menos sensible a unos pocos valores extremos gigantes (outliers)?",
           "options": [
-            "La media aritmética",
-            "La varianza muestral",
+            "El rango (máximo - mínimo)",
             "La mediana (percentil 50)",
-            "El rango (máximo - mínimo)"
+            "La media aritmética",
+            "La varianza muestral"
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "La mediana depende del orden posicional central, no de la magnitud extrema de las colas."
         },
         {
           "id": "cap15-q2",
           "question": "¿Cómo se manifiesta la Paradoja de Simpson en analítica de negocio?",
           "options": [
-            "Cuando una tendencia observada dentro de cada subgrupo desaparece o se invierte al combinar todos los grupos.",
-            "Cuando la mediana y la media coinciden en cada subgrupo, pero difieren al calcularlas sobre todos los datos juntos.",
+            "Cuando una muestra pequeña muestra una tendencia que desaparece por completo al aumentar el tamaño de muestra.",
             "Cuando dos variables están muy correlacionadas en el total, lo que prueba que una de ellas causa a la otra.",
-            "Cuando una muestra pequeña muestra una tendencia que desaparece por completo al aumentar el tamaño de muestra."
+            "Cuando la mediana y la media coinciden en cada subgrupo, pero difieren al calcularlas sobre todos los datos juntos.",
+            "Cuando una tendencia observada dentro de cada subgrupo desaparece o se invierte al combinar todos los grupos."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Cambios en los pesos de los subgrupos (variables confusoras) pueden invertir la tendencia agregada."
         },
         {
           "id": "cap15-q3",
           "question": "Si analizas únicamente las encuestas de clientes que siguen activos tras 12 meses para concluir qué tan satisfechos estaban los nuevos usuarios, ¿qué sesgo cometes?",
           "options": [
-            "Sesgo de supervivencia",
             "Sesgo de confirmación",
             "Sesgo de redondeo",
-            "Sesgo de anclaje"
+            "Sesgo de anclaje",
+            "Sesgo de supervivencia"
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Ignorar a los clientes que abandonaron antes del corte sobreestima artificialmente la satisfacción y retención."
         }
       ]
@@ -2110,36 +2110,36 @@
           "id": "cap16-q1",
           "question": "¿Para qué sirve principalmente el remuestreo Bootstrap en analítica?",
           "options": [
-            "Para aumentar el tamaño real de la muestra duplicando filas, de modo que los p-values del análisis resulten más pequeños.",
-            "Para rellenar los valores nulos de un dataset con valores tomados al azar de la misma columna, sin alterar la distribución.",
             "Para acelerar los `JOIN` sobre tablas grandes, dividiéndolas en muestras más pequeñas que el motor procesa en paralelo.",
-            "Para estimar intervalos de confianza y errores estándar de estadísticos complejos (medianas, razones) sin asumir distribución normal."
+            "Para estimar intervalos de confianza y errores estándar de estadísticos complejos (medianas, razones) sin asumir distribución normal.",
+            "Para aumentar el tamaño real de la muestra duplicando filas, de modo que los p-values del análisis resulten más pequeños.",
+            "Para rellenar los valores nulos de un dataset con valores tomados al azar de la misma columna, sin alterar la distribución."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "Bootstrap estima la variabilidad muestral directamente remuestreando con reemplazo los datos observados."
         },
         {
           "id": "cap16-q2",
           "question": "Si duplicas el tamaño de muestra (`n` pasa a `2n`), ¿se reduce a la mitad el ancho del intervalo de confianza?",
           "options": [
-            "Sí: el ancho del intervalo es inversamente proporcional a `n`, así que duplicar la muestra lo reduce exactamente a la mitad.",
-            "No: el ancho aumenta, porque una muestra más grande captura más variabilidad y el error estándar crece con `sqrt(n)`.",
             "No: el ancho se multiplica por `1 / sqrt(2)` (≈0.71, unos 29% más estrecho); para reducirlo a la mitad hace falta `4n`.",
-            "No cambia: el ancho del intervalo depende solo del nivel de confianza elegido (95%), no del tamaño de la muestra."
+            "No: el ancho aumenta, porque una muestra más grande captura más variabilidad y el error estándar crece con `sqrt(n)`.",
+            "No cambia: el ancho del intervalo depende solo del nivel de confianza elegido (95%), no del tamaño de la muestra.",
+            "Sí: el ancho del intervalo es inversamente proporcional a `n`, así que duplicar la muestra lo reduce exactamente a la mitad."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "La precisión crece con la raíz cuadrada de `n`, por lo que reducir el margen a la mitad exige cuadruplicar la muestra."
         },
         {
           "id": "cap16-q3",
           "question": "¿Qué debemos hacer al usar generadores aleatorios en simulaciones Bootstrap?",
           "options": [
-            "Descartar la mitad de los datos en cada iteración, para que las muestras simuladas sean independientes entre sí.",
             "Fijar una semilla (`seed`) para que cualquier colega pueda reproducir exactamente los mismos límites.",
             "Dejar la semilla sin fijar, para que cada ejecución explore remuestreos distintos y los límites sean más robustos.",
-            "Usar `replace=False` al remuestrear, para que ninguna observación aparezca repetida dentro de una misma muestra."
+            "Usar `replace=False` al remuestrear, para que ninguna observación aparezca repetida dentro de una misma muestra.",
+            "Descartar la mitad de los datos en cada iteración, para que las muestras simuladas sean independientes entre sí."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Fijar `seed` asegura resultados deterministas al re-ejecutar el análisis."
         }
       ]
@@ -2230,36 +2230,36 @@
           "id": "cap17-q1",
           "question": "¿Qué indica un Sample Ratio Mismatch (SRM) con `p < 0.001` en una prueba A/B?",
           "options": [
-            "Que la conversión de ambos grupos es prácticamente idéntica, por lo que la prueba no encontró ninguna diferencia significativa.",
             "Que la prueba aún no tiene suficientes usuarios ni clics en cada grupo, así que solo hay que esperar más días antes de leerla.",
-            "Que la proporción real de usuarios asignados a cada grupo difiere significativamente de la configurada, señalando un sesgo o bug técnico.",
-            "Que la variante B ganó con una diferencia tan grande en la métrica principal que ya se puede detener la prueba y lanzarla a todos."
+            "Que la conversión de ambos grupos es prácticamente idéntica, por lo que la prueba no encontró ninguna diferencia significativa.",
+            "Que la variante B ganó con una diferencia tan grande en la métrica principal que ya se puede detener la prueba y lanzarla a todos.",
+            "Que la proporción real de usuarios asignados a cada grupo difiere significativamente de la configurada, señalando un sesgo o bug técnico."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Un SRM invalida la equivalencia aleatoria entre grupos, por lo que no se debe confiar en la diferencia de métricas."
         },
         {
           "id": "cap17-q2",
           "question": "¿Por qué es un error detener un A/B test en el momento en que ves `p < 0.05` al día 2 (peeking)?",
           "options": [
-            "Porque dispara la probabilidad real de aceptar falsos positivos muy por encima del 5% nominal.",
-            "Porque los datos de los primeros días se descartan y el test debe reiniciarse desde cero.",
+            "Porque el efecto observado al día 2 siempre se reduce a la mitad al terminar la prueba.",
             "Porque antes del día 7 el p-value se reporta como porcentaje y no se puede comparar con 0.05.",
-            "Porque el efecto observado al día 2 siempre se reduce a la mitad al terminar la prueba."
+            "Porque dispara la probabilidad real de aceptar falsos positivos muy por encima del 5% nominal.",
+            "Porque los datos de los primeros días se descartan y el test debe reiniciarse desde cero."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "Hacer múltiples pruebas secuenciales sin corrección infla drásticamente el error Tipo I (falsos descubrimientos)."
         },
         {
           "id": "cap17-q3",
           "question": "Si una diferencia tiene `p = 0.001` con millones de usuarios pero el lift es +0.01%, ¿qué demuestra?",
           "options": [
-            "Que hay que lanzarla de inmediato, porque un p-value tan bajo garantiza un impacto grande en el negocio.",
             "Que hay un Sample Ratio Mismatch, porque con millones de usuarios cualquier diferencia mínima es sospechosa.",
-            "Que el p-value está mal calculado, porque un lift tan pequeño nunca puede ser estadísticamente significativo.",
-            "Que hay significancia estadística, pero puede carecer de relevancia práctica si no supera el MDE de negocio."
+            "Que hay significancia estadística, pero puede carecer de relevancia práctica si no supera el MDE de negocio.",
+            "Que hay que lanzarla de inmediato, porque un p-value tan bajo garantiza un impacto grande en el negocio.",
+            "Que el p-value está mal calculado, porque un lift tan pequeño nunca puede ser estadísticamente significativo."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "El `p-value` mide evidencia contra el azar, no magnitud económica de la mejora."
         }
       ]
@@ -2351,9 +2351,9 @@
           "question": "¿Qué demuestra una correlación de Pearson `r = 0.0` entre dos variables?",
           "options": [
             "Que no existe ningún tipo de relación entre ellas, ni lineal ni curva, y son independientes.",
-            "Que las variables son idénticas y por eso la covarianza entre ellas se anula por completo.",
+            "Que la relación es negativa y perfecta: cuando una sube, la otra baja en la misma proporción.",
             "Que no existe relación LINEAL; podría haber una relación curva fuerte (ej. U o parábola).",
-            "Que la relación es negativa y perfecta: cuando una sube, la otra baja en la misma proporción."
+            "Que las variables son idénticas y por eso la covarianza entre ellas se anula por completo."
           ],
           "correctIndex": 2,
           "explanation": "Pearson solo mide asociación lineal; una relación cuadrática simétrica produce `r ≈ 0` aunque sea determinista."
@@ -2362,24 +2362,24 @@
           "id": "cap18-q2",
           "question": "¿Para qué sirve incluir variables de control en una regresión múltiple explicativa?",
           "options": [
-            "Para reemplazar los valores faltantes de la variable principal con estimaciones de las otras variables.",
+            "Para aislar la asociación de una variable manteniendo constantes otros factores confusores medidos.",
             "Para reducir el número de observaciones necesarias, ya que cada control aporta información adicional.",
-            "Para aumentar el R² del modelo y demostrar que la relación encontrada entre las variables es causal.",
-            "Para aislar la asociación de una variable manteniendo constantes otros factores confusores medidos."
+            "Para reemplazar los valores faltantes de la variable principal con estimaciones de las otras variables.",
+            "Para aumentar el R² del modelo y demostrar que la relación encontrada entre las variables es causal."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Controlar por confusores evita atribuir a una variable el efecto de otra característica del usuario o negocio."
         },
         {
           "id": "cap18-q3",
           "question": "¿Por qué es mala idea incluir a la vez `precio_sin_iva`, `iva` y `precio_total` como predictores en una regresión lineal?",
           "options": [
-            "Porque las librerías de regresión no permiten más de dos predictores numéricos expresados en la misma unidad monetaria.",
-            "Porque `iva` tiene una varianza mucho menor que los precios y el modelo la ignora al estimar los coeficientes.",
             "Por multicolinealidad perfecta (`precio_total = precio_sin_iva + iva`), lo que vuelve inestables los coeficientes.",
-            "Porque el modelo tendría demasiadas columnas y el tiempo de entrenamiento aumentaría hasta volverse impracticable."
+            "Porque las librerías de regresión no permiten más de dos predictores numéricos expresados en la misma unidad monetaria.",
+            "Porque el modelo tendría demasiadas columnas y el tiempo de entrenamiento aumentaría hasta volverse impracticable.",
+            "Porque `iva` tiene una varianza mucho menor que los precios y el modelo la ignora al estimar los coeficientes."
           ],
-          "correctIndex": 2,
+          "correctIndex": 0,
           "explanation": "Predictores linealmente dependientes impiden estimar de forma única el efecto separado de cada uno."
         }
       ]
@@ -2470,33 +2470,33 @@
           "id": "cap19-q1",
           "question": "¿Por qué es inválido usar `train_test_split(..., shuffle=True)` en problemas de pronóstico de series temporales?",
           "options": [
+            "Porque reduce el conjunto de entrenamiento a la mitad de las filas, dejando muy pocos datos para estimar la tendencia.",
             "Porque elimina las columnas de fecha del DataFrame y el modelo pierde la información temporal que necesita para pronosticar.",
             "Porque `shuffle=True` solo funciona con columnas de texto y convierte las fechas en cadenas antes de dividir los datos.",
-            "Porque mezcla observaciones futuras en el conjunto de entrenamiento (data leakage), inflando falsamente la precisión.",
-            "Porque reduce el conjunto de entrenamiento a la mitad de las filas, dejando muy pocos datos para estimar la tendencia."
+            "Porque mezcla observaciones futuras en el conjunto de entrenamiento (data leakage), inflando falsamente la precisión."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Las series temporales deben evaluarse siempre con cortes cronológicos hacia adelante (walk-forward / holdout temporal)."
         },
         {
           "id": "cap19-q2",
           "question": "¿Por qué `LAG(ventas, 7)` suele ser mejor referencia diaria que `LAG(ventas, 1)` en retail o apps de consumo?",
           "options": [
-            "Porque `LAG(ventas, 7)` se calcula más rápido en Python al trabajar con bloques semanales de datos.",
-            "Porque `LAG(ventas, 7)` excluye los feriados y fines de semana de la comparación entre días.",
+            "Porque compara lunes contra lunes y sábado contra sábado, controlando la estacionalidad semanal.",
             "Porque `LAG(ventas, 7)` divide automáticamente entre 7 y entrega así el promedio semanal de ventas.",
-            "Porque compara lunes contra lunes y sábado contra sábado, controlando la estacionalidad semanal."
+            "Porque `LAG(ventas, 7)` excluye los feriados y fines de semana de la comparación entre días.",
+            "Porque `LAG(ventas, 7)` se calcula más rápido en Python al trabajar con bloques semanales de datos."
           ],
-          "correctIndex": 3,
+          "correctIndex": 0,
           "explanation": "Comparar el mismo día de la semana evita confundir caídas naturales de domingo/lunes con anomalías reales."
         },
         {
           "id": "cap19-q3",
           "question": "¿Qué métrica de error es preferible frente a `MAPE` cuando existen días o productos con ventas reales iguales a 0?",
           "options": [
-            "Moda de los errores porcentuales absolutos",
             "R² ajustado, porque no depende de la escala",
             "Desviación estándar de los errores de pronóstico",
+            "Moda de los errores porcentuales absolutos",
             "WAPE (Weighted Absolute Percentage Error) o MAE"
           ],
           "correctIndex": 3,
@@ -2505,10 +2505,333 @@
       ]
     },
     {
-      "id": "cap-20",
+      "id": "cap-regresion",
       "order": 20,
       "kind": "chapter",
       "code": "Cap. 20",
+      "module": "Módulo 4: Estadística Aplicada y Experimentación",
+      "title": "Modelos de Regresión: Lineal, Logística y Regularización",
+      "subtitle": "Predecir números y probabilidades, leer coeficientes, medir el error en datos nuevos y evitar el sobreajuste con Ridge y Lasso.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Ajustar e interpretar una regresión lineal con scikit-learn y medir su error con MAE, RMSE y R² en datos que el modelo no vio.",
+        "Diagnosticar supuestos con residuos y detectar multicolinealidad con VIF antes de confiar en un coeficiente.",
+        "Usar regresión logística para estimar probabilidades (por ejemplo, de baja) e interpretar sus coeficientes como odds ratios.",
+        "Aplicar regularización Ridge y Lasso dentro de un Pipeline con escalado para controlar modelos con muchas variables."
+      ],
+      "theorySections": [
+        {
+          "id": "capreg-sec-1",
+          "title": "1. Regresión lineal: la recta, los residuos y cómo medir el error",
+          "body": "Una regresión lineal busca la recta (o el plano, si hay varias variables) que mejor resume la relación entre unas variables de entrada `X` y un número a predecir `y`: `ŷ = b0 + b1·x1 + b2·x2 + ...`.\n\n- **b0 (intercepto)**: el valor predicho cuando todas las `x` valen 0. Muchas veces no tiene sentido de negocio por sí solo.\n- **b1, b2... (coeficientes)**: cuánto cambia `ŷ` en promedio por cada unidad extra de esa variable, *manteniendo las demás constantes*.\n- **Residuo**: la diferencia `real − predicho` de cada fila. El modelo elige la recta que hace mínima la suma de residuos al cuadrado (por eso se llama *mínimos cuadrados*, OLS).\n\nPara saber si el modelo sirve, mide el error **en datos que no usó para aprender** (conjunto de test):\n- **MAE**: error absoluto medio, en las mismas unidades que `y`. Fácil de explicar: «nos equivocamos en promedio por 1.2 mil».\n- **RMSE**: raíz del error cuadrático medio; castiga más los errores grandes.\n- **R²**: proporción de la variación de `y` que explica el modelo (1 = perfecto, 0 = igual que predecir siempre el promedio).",
+          "diagram": {
+            "type": "regresion"
+          },
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score\n\nX = df[[\"gasto_ads\", \"precio\", \"dias_promo\"]]\ny = df[\"ventas\"]\nX_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n\nmodelo = LinearRegression().fit(X_train, y_train)\npred = modelo.predict(X_test)\n\nprint(dict(zip(X.columns, modelo.coef_.round(2))))\nprint(\"MAE:\", round(mean_absolute_error(y_test, pred), 2))\nprint(\"RMSE:\", round(mean_squared_error(y_test, pred) ** 0.5, 2))\nprint(\"R2:\", round(r2_score(y_test, pred), 3))",
+          "keyTakeaway": "Reporta siempre el error en el conjunto de test y en unidades de negocio (MAE); un R² alto medido en los mismos datos de entrenamiento no prueba nada."
+        },
+        {
+          "id": "capreg-sec-2",
+          "title": "2. Diagnóstico: residuos, multicolinealidad y puntos influyentes",
+          "body": "Un coeficiente solo es confiable si el modelo cumple sus supuestos básicos. Revisa tres cosas:\n\n1) **Gráfico de residuos vs. predicción**: debe verse como una nube sin forma. Una curva indica que la relación no es lineal (prueba transformar con `log` o añadir un término cuadrático); un embudo que se abre indica **heterocedasticidad** (usa errores robustos `HC3`, como en el capítulo 18).\n2) **Multicolinealidad**: si dos variables cuentan casi lo mismo (`subtotal` y `total`), sus coeficientes se vuelven inestables y hasta cambian de signo. El **VIF** (*Variance Inflation Factor*) lo mide: por encima de 5–10 conviene quitar o combinar variables.\n3) **Puntos influyentes**: unos pocos clientes gigantes pueden mover toda la recta. Revisa la distancia de Cook o compara el modelo con y sin ellos.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\nimport statsmodels.api as sm\nfrom statsmodels.stats.outliers_influence import variance_inflation_factor\n\nX = sm.add_constant(df[[\"gasto_ads\", \"precio\", \"dias_promo\"]])\nvif = pd.Series(\n    [variance_inflation_factor(X.values, i) for i in range(X.shape[1])],\n    index=X.columns,\n).drop(\"const\")\nprint(vif.round(2).sort_values(ascending=False))",
+          "keyTakeaway": "Antes de interpretar un coeficiente, mira el gráfico de residuos y el VIF: si fallan, el número que vas a presentar puede ser engañoso."
+        },
+        {
+          "id": "capreg-sec-3",
+          "title": "3. Regresión logística: cuando lo que predices es un sí o un no",
+          "body": "Si la variable a predecir es binaria (¿el cliente se da de baja?, ¿el pago es fraude?), una regresión lineal puede devolver valores como `-0.3` o `1.4`, que no son probabilidades. La **regresión logística** pasa la combinación lineal por la función sigmoide y devuelve siempre un valor entre 0 y 1.\n\nCómo leer sus coeficientes: están en escala de *log-odds*. Aplica `exp(coef)` para obtener el **odds ratio**. Un odds ratio de `1.35` para `tickets_soporte` significa que cada ticket extra multiplica por 1.35 las probabilidades relativas (*odds*) de baja, manteniendo lo demás constante.\n\nPara evaluarla no uses R². Usa **AUC** (qué tan bien ordena a los clientes de mayor a menor riesgo; 0.5 es azar y 1 es perfecto) y, cuando ya elijas un umbral, la matriz de confusión del capítulo siguiente.",
+          "codeLanguage": "python",
+          "codeSnippet": "import numpy as np\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import roc_auc_score\n\nvars_x = [\"meses_cliente\", \"tickets_soporte\", \"uso_semanal\"]\nlogit = LogisticRegression(max_iter=1000).fit(X_train[vars_x], y_train)\n\nprob_baja = logit.predict_proba(X_test[vars_x])[:, 1]\nprint(\"AUC:\", round(roc_auc_score(y_test, prob_baja), 3))\nprint(dict(zip(vars_x, np.exp(logit.coef_[0]).round(2))))  # odds ratios",
+          "keyTakeaway": "Lineal para predecir cantidades, logística para predecir probabilidades de un evento; y en la logística se interpreta exp(coef), no el coeficiente crudo."
+        },
+        {
+          "id": "capreg-sec-4",
+          "title": "4. Sobreajuste y regularización con Ridge y Lasso",
+          "body": "Con muchas variables y pocos datos, un modelo puede aprenderse el ruido del entrenamiento: error bajísimo en train y malo en test. A eso se le llama **sobreajuste** (*overfitting*).\n\nLa **regularización** añade una penalización al tamaño de los coeficientes:\n- **Ridge (L2)**: encoge todos los coeficientes hacia 0. Útil cuando muchas variables aportan un poco y están correlacionadas.\n- **Lasso (L1)**: puede dejar coeficientes en exactamente 0, así que además **selecciona variables**.\n\nDos reglas prácticas: escala las variables antes (si no, la penalización castiga distinto a una variable en pesos que a otra en miles) y elige la fuerza de la penalización (`alpha`) con validación cruzada. Ponerlo todo en un `Pipeline` evita que el escalado «vea» los datos de test.",
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.linear_model import LassoCV\n\nmodelo = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=42))\nmodelo.fit(X_train, y_train)\n\nlasso = modelo.named_steps[\"lassocv\"]\nprint(\"alpha elegido:\", round(lasso.alpha_, 4))\nprint(\"variables descartadas:\", list(X_train.columns[lasso.coef_ == 0]))",
+          "keyTakeaway": "Si el error de train es mucho menor que el de test, el modelo está sobreajustado: regulariza, quita variables o consigue más datos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar de Código Profesional",
+        "summary": "Reglas para entregar un modelo de regresión que el negocio pueda creer.",
+        "rules": [
+          "Separa train y test antes de cualquier transformación, y reporta las métricas solo en test (MAE en unidades de negocio primero).",
+          "Compara siempre contra un baseline simple (el promedio o el valor del periodo anterior); si el modelo no lo supera, no se usa.",
+          "Usa regresión logística, no lineal, para variables binarias, e interpreta sus coeficientes como odds ratios.",
+          "Escala y regulariza dentro de un `Pipeline`; nunca ajustes el escalador con todos los datos.",
+          "Revisa residuos y VIF antes de presentar un coeficiente como «el efecto de X»."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "from sklearn.dummy import DummyRegressor\nfrom sklearn.linear_model import RidgeCV\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\nbaseline = DummyRegressor(strategy=\"mean\").fit(X_train, y_train)\nmodelo = make_pipeline(StandardScaler(), RidgeCV(alphas=[0.1, 1, 10, 100])).fit(X_train, y_train)\n\nmae_base = mean_absolute_error(y_test, baseline.predict(X_test))\nmae_mod = mean_absolute_error(y_test, modelo.predict(X_test))\nprint(f\"MAE baseline: {mae_base:.2f} | MAE modelo: {mae_mod:.2f}\")"
+      },
+      "comparison": {
+        "scenario": "Te piden un modelo que diga qué clientes tienen más probabilidad de darse de baja el próximo mes.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "from sklearn.linear_model import LinearRegression\n\nmodelo = LinearRegression().fit(X, df[\"se_dio_de_baja\"])\nprint(\"R2:\", modelo.score(X, df[\"se_dio_de_baja\"]))\ndf[\"riesgo\"] = modelo.predict(X)  # valores como -0.2 o 1.3",
+        "juniorFlaws": [
+          "Usa regresión lineal para un sí/no: devuelve «probabilidades» negativas o mayores que 1.",
+          "Mide el R² con los mismos datos con los que entrenó, así que no sabe cómo funcionará con clientes nuevos.",
+          "No compara contra un baseline ni elige una métrica que sirva para ordenar clientes por riesgo."
+        ],
+        "intermediateLabel": "Solución de Intermedio",
+        "intermediateCode": "from sklearn.linear_model import LogisticRegression\nfrom sklearn.metrics import roc_auc_score\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\ny = df[\"se_dio_de_baja\"]\nX_train, X_test, y_train, y_test = train_test_split(\n    X, y, test_size=0.2, stratify=y, random_state=42\n)\nmodelo = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))\nmodelo.fit(X_train, y_train)\nprob = modelo.predict_proba(X_test)[:, 1]\nprint(\"AUC test:\", round(roc_auc_score(y_test, prob), 3))",
+        "intermediateBenefits": [
+          "La logística devuelve probabilidades reales entre 0 y 1 que se pueden ordenar y comunicar.",
+          "`stratify=y` mantiene la misma proporción de bajas en train y test, y la métrica se mide en clientes no vistos.",
+          "El AUC responde directamente a la pregunta de negocio: ¿el modelo pone primero a los que de verdad se van?"
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "capreg-ej-1",
+          "title": "Práctica 1: Traducir un coeficiente logístico a negocio",
+          "difficulty": "Básico",
+          "prompt": "En un modelo de baja de clientes, el coeficiente de `tickets_soporte` es `0.405`. ¿Cuál es su odds ratio y cómo se lo explicarías a un gerente?",
+          "hint": "Calcula `exp(0.405)`.",
+          "solutionExplanation": "`exp(0.405) ≈ 1.50`. Cada ticket de soporte adicional multiplica por 1.5 las probabilidades relativas (odds) de baja, es decir, las aumenta un 50%, comparando clientes con la misma antigüedad y uso.",
+          "solutionCode": "import numpy as np\n\nodds_ratio = np.exp(0.405)\nprint(round(odds_ratio, 2))  # 1.5 -> +50% en las odds de baja por ticket",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "capreg-ej-2",
+          "title": "Práctica 2: ¿MAE o RMSE?",
+          "difficulty": "Intermedio",
+          "prompt": "Dos modelos de demanda tienen en test: A con MAE 120 y RMSE 150; B con MAE 110 y RMSE 260. Quedarse sin stock en un día pico es muy caro. ¿Cuál eliges y por qué?",
+          "hint": "Compara cuánto se separa el RMSE del MAE en cada modelo.",
+          "solutionExplanation": "B se equivoca un poco menos en promedio (MAE), pero su RMSE muy superior al MAE indica algunos errores grandes. Como los errores grandes (días pico) son los caros, conviene A, cuyos errores son más parejos.",
+          "solutionCode": "# A: RMSE/MAE = 1.25 -> errores parejos\n# B: RMSE/MAE = 2.36 -> pocos errores muy grandes\n# Si los errores grandes cuestan mucho, se elige A.",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "capreg-ej-3",
+          "title": "Práctica 3: Ridge con baseline en un Pipeline",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe una función `evaluar_ridge(X, y)` que separe 80/20 con `random_state=0`, entrene un `Pipeline` con `StandardScaler` y `RidgeCV`, y devuelva un diccionario con el MAE del modelo y el MAE de un `DummyRegressor` que predice la media.",
+          "hint": "Usa `make_pipeline(StandardScaler(), RidgeCV(alphas=[0.1, 1, 10]))` y calcula ambos MAE sobre `X_test`.",
+          "solutionExplanation": "El baseline da el error mínimo aceptable que debes superar. Al poner el escalador dentro del Pipeline, este solo aprende media y desviación del conjunto de entrenamiento.",
+          "solutionCode": "from sklearn.dummy import DummyRegressor\nfrom sklearn.linear_model import RidgeCV\nfrom sklearn.metrics import mean_absolute_error\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.pipeline import make_pipeline\nfrom sklearn.preprocessing import StandardScaler\n\n\ndef evaluar_ridge(X, y):\n    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=0)\n    modelo = make_pipeline(StandardScaler(), RidgeCV(alphas=[0.1, 1, 10])).fit(X_tr, y_tr)\n    base = DummyRegressor(strategy=\"mean\").fit(X_tr, y_tr)\n    return {\n        \"mae_modelo\": mean_absolute_error(y_te, modelo.predict(X_te)),\n        \"mae_baseline\": mean_absolute_error(y_te, base.predict(X_te)),\n    }",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "capreg-q1",
+          "question": "Un modelo de churn con regresión logística tiene, para `uso_semanal`, un coeficiente de `-0.69`. ¿Cómo se interpreta?",
+          "options": [
+            "El uso semanal explica el 69% de la variación de las bajas, por lo que es la variable más importante.",
+            "Cada hora extra de uso semanal reduce la probabilidad de baja exactamente en 69 puntos porcentuales.",
+            "Cada hora extra de uso semanal multiplica las odds de baja por cerca de 0.5, es decir, las reduce a la mitad.",
+            "Como el coeficiente es negativo, la variable no aporta información y conviene quitarla del modelo."
+          ],
+          "correctIndex": 2,
+          "explanation": "Los coeficientes logísticos están en log-odds: `exp(-0.69) ≈ 0.50`. Cada unidad extra de uso multiplica las odds de baja por 0.5, manteniendo lo demás constante. No es un cambio directo en puntos de probabilidad."
+        },
+        {
+          "id": "capreg-q2",
+          "question": "Un modelo tiene R² = 0.97 en entrenamiento y R² = 0.41 en test. ¿Qué está pasando y qué harías?",
+          "options": [
+            "El modelo es excelente; el test tiene datos raros y conviene repetir la separación hasta obtener un R² parecido.",
+            "El modelo está sobreajustado: conviene regularizar con Ridge o Lasso, quitar variables o conseguir más datos.",
+            "El R² de test no es comparable con el de entrenamiento, así que se reporta el 0.97 como métrica principal.",
+            "Falta potencia estadística: hay que añadir más variables para que el R² del test suba al nivel del entrenamiento."
+          ],
+          "correctIndex": 1,
+          "explanation": "Una gran distancia entre el error de entrenamiento y el de test es la señal clásica de sobreajuste. Repetir la separación hasta que salga bien o añadir variables lo empeora; la regularización ataca la causa."
+        },
+        {
+          "id": "capreg-q3",
+          "question": "¿Por qué se escala con `StandardScaler` antes de aplicar Ridge o Lasso, y por qué dentro de un `Pipeline`?",
+          "options": [
+            "Porque el Pipeline elimina automáticamente las variables con VIF alto antes de ajustar la penalización.",
+            "Porque sin escalar, scikit-learn rechaza las variables con valores mayores a 1 y el ajuste termina con error.",
+            "Porque escalar convierte la relación en lineal y así se cumplen los supuestos del modelo de mínimos cuadrados.",
+            "Porque la penalización depende de la escala de cada variable, y el Pipeline evita que el escalador vea el test."
+          ],
+          "correctIndex": 3,
+          "explanation": "La penalización castiga el tamaño de los coeficientes, que depende de las unidades de cada variable. Escalar las pone en igualdad de condiciones, y hacerlo dentro del Pipeline asegura que media y desviación se aprendan solo con datos de entrenamiento."
+        }
+      ]
+    },
+    {
+      "id": "cap-machine-learning",
+      "order": 21,
+      "kind": "chapter",
+      "code": "Cap. 21",
+      "module": "Módulo 4: Estadística Aplicada y Experimentación",
+      "title": "Machine Learning Aplicado con scikit-learn: del Problema al Modelo Validado",
+      "subtitle": "Cuándo usar ML, cómo validar sin fuga de datos, árboles y random forest, métricas de clasificación y segmentación con k-means.",
+      "estimatedMinutes": 60,
+      "status": "published",
+      "objectives": [
+        "Distinguir problemas de regresión, clasificación y clustering, y decidir cuándo una regla simple es mejor que un modelo.",
+        "Validar modelos con train/test, validación cruzada y Pipelines que impidan la fuga de datos.",
+        "Entrenar árboles y random forest y explicar qué variables pesan con importancia por permutación.",
+        "Elegir umbral y métrica (precision, recall, F1) según el costo de cada error, usando la matriz de confusión.",
+        "Segmentar clientes con k-means e interpretar los grupos en lenguaje de negocio."
+      ],
+      "theorySections": [
+        {
+          "id": "capml-sec-1",
+          "title": "1. Qué es machine learning y cuándo (no) usarlo",
+          "body": "Machine learning es aprender una regla a partir de ejemplos en lugar de escribirla a mano. Hay dos grandes familias:\n\n- **Supervisado**: tienes la respuesta correcta en datos históricos. Si es un número (ventas de mañana) es **regresión**; si es una categoría (¿fraude o no?) es **clasificación**.\n- **No supervisado**: no hay respuesta; buscas estructura, por ejemplo **clustering** para agrupar clientes parecidos.\n\nAntes de entrenar nada, define un **baseline**: predecir siempre la clase más frecuente, el promedio o «lo mismo que la semana pasada». Si tu modelo no lo supera con claridad, no aporta valor.\n\nCuándo **no** usar ML: si una regla de negocio de 3 líneas resuelve el 95% de los casos, si tienes muy pocos ejemplos, si no vas a poder mantener el modelo o si la decisión exige explicar cada caso y una regla clara lo permite.",
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.dummy import DummyClassifier\nfrom sklearn.metrics import accuracy_score\n\nbase = DummyClassifier(strategy=\"most_frequent\").fit(X_train, y_train)\nprint(\"Accuracy del baseline:\", round(accuracy_score(y_test, base.predict(X_test)), 3))\n# Si el 92% de las transacciones no son fraude, el baseline ya tiene 0.92 de accuracy",
+          "keyTakeaway": "Primero el baseline y la pregunta de negocio; el modelo solo vale lo que mejora sobre esa referencia."
+        },
+        {
+          "id": "capml-sec-2",
+          "title": "2. Validación honesta: train/test, validación cruzada y fuga de datos",
+          "body": "El objetivo de un modelo es acertar con **datos nuevos**, así que su nota se mide con datos que no vio.\n\n1) Aparta un **test** (por ejemplo, 20%) al principio y no lo uses hasta el final.\n2) Con el resto, compara modelos y parámetros con **validación cruzada** (`cross_val_score`): entrena 5 veces, validando cada vez en un bloque distinto, y promedia.\n3) Si los datos tienen orden en el tiempo, separa por fecha (`TimeSeriesSplit`), como viste en el capítulo de series temporales.\n\nLa **fuga de datos** (*data leakage*) ocurre cuando el modelo aprende con información que no tendría en producción: imputar o escalar con todos los datos antes de separar, usar una columna que se llena *después* del evento (`fecha_cancelacion` para predecir cancelaciones) o mezclar el futuro en el entrenamiento. Un `Pipeline` con `ColumnTransformer` aplica cada paso solo con los datos de entrenamiento de cada ronda.",
+          "diagram": {
+            "type": "validacion-cruzada"
+          },
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.compose import ColumnTransformer\nfrom sklearn.impute import SimpleImputer\nfrom sklearn.linear_model import LogisticRegression\nfrom sklearn.model_selection import cross_val_score\nfrom sklearn.pipeline import Pipeline, make_pipeline\nfrom sklearn.preprocessing import OneHotEncoder, StandardScaler\n\nnumericas = [\"meses_cliente\", \"uso_semanal\", \"tickets_soporte\"]\ncategoricas = [\"plan\", \"pais\"]\n\nprep = ColumnTransformer([\n    (\"num\", make_pipeline(SimpleImputer(strategy=\"median\"), StandardScaler()), numericas),\n    (\"cat\", OneHotEncoder(handle_unknown=\"ignore\"), categoricas),\n])\nmodelo = Pipeline([(\"prep\", prep), (\"clf\", LogisticRegression(max_iter=1000))])\n\nnotas = cross_val_score(modelo, X_train, y_train, cv=5, scoring=\"roc_auc\")\nprint(f\"AUC CV: {notas.mean():.3f} ± {notas.std():.3f}\")",
+          "keyTakeaway": "Si una métrica parece demasiado buena para ser verdad, busca primero una fuga de datos: casi siempre está ahí."
+        },
+        {
+          "id": "capml-sec-3",
+          "title": "3. Árboles de decisión, random forest y qué variables pesan",
+          "body": "Un **árbol de decisión** hace preguntas en cadena (`¿uso_semanal < 2?` → `¿tickets ≥ 3?` → baja). Es fácil de explicar, pero un árbol profundo memoriza el entrenamiento.\n\nUn **random forest** entrena cientos de árboles, cada uno con una muestra distinta de filas y variables, y promedia sus votos. Suele funcionar muy bien con datos tabulares sin mucho ajuste, captura relaciones no lineales e interacciones y no necesita escalar. El **gradient boosting** (`HistGradientBoostingClassifier`, XGBoost, LightGBM) construye árboles en secuencia corrigiendo errores y suele ser aún más preciso.\n\nPara explicar el modelo usa **importancia por permutación**: desordena una variable en el test y mide cuánto empeora la métrica. Cuanto más cae, más depende el modelo de esa variable. Es más fiable que la importancia interna del árbol, que favorece variables con muchos valores distintos.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.inspection import permutation_importance\n\nbosque = RandomForestClassifier(n_estimators=300, min_samples_leaf=20, random_state=42, n_jobs=-1)\nbosque.fit(X_train, y_train)\n\nimp = permutation_importance(bosque, X_test, y_test, scoring=\"roc_auc\", n_repeats=10, random_state=42)\nprint(pd.Series(imp.importances_mean, index=X_test.columns).sort_values(ascending=False).round(3))",
+          "keyTakeaway": "La importancia de una variable dice cuánto la usa el modelo, no que esa variable cause el resultado."
+        },
+        {
+          "id": "capml-sec-4",
+          "title": "4. Métricas de clasificación: matriz de confusión, precision y recall",
+          "body": "Un clasificador devuelve una probabilidad; tú eliges el **umbral** a partir del cual actúas. Con ese umbral, cada caso cae en una de cuatro casillas de la **matriz de confusión**: verdaderos positivos (VP), falsos positivos (FP), falsos negativos (FN) y verdaderos negativos (VN).\n\n- **Precision** = VP / (VP + FP): de los que marcamos, cuántos eran de verdad. Importa cuando actuar es caro (llamar a un cliente, bloquear una tarjeta).\n- **Recall** = VP / (VP + FN): de los casos reales, cuántos encontramos. Importa cuando no detectar es caro (fraude, enfermedad).\n- **F1**: media armónica de ambas, útil para resumir.\n- **Accuracy** engaña con clases desbalanceadas: con 2% de fraude, decir siempre «no es fraude» da 98%.\n\nMueve el umbral del diagrama: bajarlo detecta más (sube el recall) a cambio de más falsas alarmas (baja la precision). El umbral correcto sale del costo de cada error, no del 0.5 por defecto.",
+          "diagram": {
+            "type": "matriz-confusion"
+          },
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.metrics import classification_report, confusion_matrix\n\nprob = bosque.predict_proba(X_test)[:, 1]\numbral = 0.35  # elegido según el costo de perder un cliente vs. el de contactarlo\npred = (prob >= umbral).astype(int)\n\nprint(confusion_matrix(y_test, pred))\nprint(classification_report(y_test, pred, digits=3))",
+          "keyTakeaway": "Elige la métrica y el umbral a partir del costo de un falso positivo frente a un falso negativo; nunca reportes solo accuracy con clases desbalanceadas."
+        },
+        {
+          "id": "capml-sec-5",
+          "title": "5. Aprendizaje no supervisado: segmentar clientes con k-means",
+          "body": "**k-means** agrupa filas en `k` grupos de modo que cada fila quede cerca del centro (centroide) de su grupo. Es la forma más común de crear segmentos de clientes a partir de variables como recencia, frecuencia y gasto (RFM).\n\nTres cuidados:\n1) **Escala** las variables: si no, el gasto en miles domina a la frecuencia en unidades.\n2) **Elige k** comparando el *silhouette score* (más alto es mejor separación) y, sobre todo, si los grupos se pueden explicar y accionar.\n3) **Interpreta** cada grupo con sus promedios en las unidades originales y ponle un nombre de negocio (`«Leales de alto gasto»`, `«En riesgo»`).\n\nUn cluster no es una verdad: es una propuesta de agrupación que debe tener sentido para el equipo que la va a usar.",
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.cluster import KMeans\nfrom sklearn.metrics import silhouette_score\nfrom sklearn.preprocessing import StandardScaler\n\nrfm = clientes[[\"recencia_dias\", \"frecuencia\", \"gasto_total\"]]\nZ = StandardScaler().fit_transform(rfm)\n\nfor k in range(2, 7):\n    etiquetas = KMeans(n_clusters=k, n_init=10, random_state=42).fit_predict(Z)\n    print(k, round(silhouette_score(Z, etiquetas), 3))\n\nclientes[\"segmento\"] = KMeans(n_clusters=4, n_init=10, random_state=42).fit_predict(Z)\nprint(clientes.groupby(\"segmento\")[[\"recencia_dias\", \"frecuencia\", \"gasto_total\"]].mean().round(1))",
+          "keyTakeaway": "Un buen segmento se puede describir en una frase y genera una acción distinta para cada grupo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar de Código Profesional",
+        "summary": "Checklist mínimo antes de entregar un modelo de machine learning.",
+        "rules": [
+          "Define la pregunta de negocio, la métrica y el baseline antes de entrenar el primer modelo.",
+          "Aparta el test al inicio y úsalo una sola vez; compara modelos con validación cruzada sobre el entrenamiento.",
+          "Mete toda la preparación (imputar, escalar, codificar) en un `Pipeline` para evitar fugas de datos.",
+          "Revisa que ninguna columna contenga información posterior al momento de la predicción.",
+          "Elige el umbral según el costo de los errores y reporta precision y recall, no solo accuracy.",
+          "Fija `random_state` y guarda versión de datos y librerías para que el resultado sea reproducible."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "from sklearn.ensemble import HistGradientBoostingClassifier\nfrom sklearn.model_selection import GridSearchCV\nfrom sklearn.pipeline import Pipeline\n\nmodelo = Pipeline([(\"prep\", prep), (\"clf\", HistGradientBoostingClassifier(random_state=42))])\nbusqueda = GridSearchCV(\n    modelo,\n    param_grid={\"clf__max_depth\": [3, 5, None], \"clf__learning_rate\": [0.05, 0.1]},\n    cv=5,\n    scoring=\"roc_auc\",\n)\nbusqueda.fit(X_train, y_train)\nprint(busqueda.best_params_, round(busqueda.best_score_, 3))\n# Solo al final: evaluar busqueda.best_estimator_ una vez en X_test"
+      },
+      "comparison": {
+        "scenario": "Un modelo de detección de fraude muestra 99% de accuracy en una presentación y el equipo quiere ponerlo en producción.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "from sklearn.preprocessing import StandardScaler\nfrom sklearn.ensemble import RandomForestClassifier\nfrom sklearn.model_selection import train_test_split\n\nX = StandardScaler().fit_transform(df.drop(columns=[\"es_fraude\"]))  # incluye 'monto_reembolsado'\nX_tr, X_te, y_tr, y_te = train_test_split(X, df[\"es_fraude\"])\nmodelo = RandomForestClassifier().fit(X_tr, y_tr)\nprint(\"Accuracy:\", modelo.score(X_te, y_te))  # 0.99",
+        "juniorFlaws": [
+          "Con 1% de fraude, decir siempre «no es fraude» ya da 99% de accuracy: la métrica no prueba nada.",
+          "Escala con todos los datos antes de separar y usa `monto_reembolsado`, que solo existe después de confirmar el fraude (fuga).",
+          "No fija `random_state` ni estratifica, así que el resultado cambia en cada ejecución."
+        ],
+        "intermediateLabel": "Solución de Intermedio",
+        "intermediateCode": "from sklearn.ensemble import RandomForestClassifier\nfrom sklearn.metrics import average_precision_score, classification_report\nfrom sklearn.model_selection import train_test_split\n\nX = df.drop(columns=[\"es_fraude\", \"monto_reembolsado\"])  # sin columnas del futuro\ny = df[\"es_fraude\"]\nX_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)\n\nmodelo = RandomForestClassifier(n_estimators=300, class_weight=\"balanced\", random_state=42)\nmodelo.fit(X_tr, y_tr)\nprob = modelo.predict_proba(X_te)[:, 1]\nprint(\"PR-AUC:\", round(average_precision_score(y_te, prob), 3))\nprint(classification_report(y_te, (prob >= 0.3).astype(int), digits=3))",
+        "intermediateBenefits": [
+          "Quita la columna con fuga y estratifica para que el test tenga la misma proporción de fraude.",
+          "Usa PR-AUC, precision y recall, que sí reflejan el desempeño en la clase rara.",
+          "`class_weight=\"balanced\"` y un umbral explícito alinean el modelo con el costo real de no detectar fraude."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "capml-ej-1",
+          "title": "Práctica 1: Calcular precision y recall",
+          "difficulty": "Básico",
+          "prompt": "Un modelo de churn, con umbral 0.5, da en test: VP = 40, FP = 10, FN = 60, VN = 890. Calcula accuracy, precision y recall. ¿Es un buen modelo para retener clientes?",
+          "hint": "Precision = VP / (VP + FP) y Recall = VP / (VP + FN).",
+          "solutionExplanation": "Accuracy = 930/1000 = 93%, precision = 40/50 = 80% y recall = 40/100 = 40%. Acierta cuando avisa, pero se le escapan 6 de cada 10 clientes que se van. Para retención conviene bajar el umbral y ganar recall.",
+          "solutionCode": "vp, fp, fn, vn = 40, 10, 60, 890\nprint(\"accuracy:\", (vp + vn) / (vp + fp + fn + vn))  # 0.93\nprint(\"precision:\", vp / (vp + fp))                  # 0.80\nprint(\"recall:\", vp / (vp + fn))                     # 0.40",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "capml-ej-2",
+          "title": "Práctica 2: Encontrar la fuga de datos",
+          "difficulty": "Intermedio",
+          "prompt": "Quieres predecir, el día que se crea un pedido, si será devuelto. Las columnas son: `monto`, `categoria`, `metodo_pago`, `dias_hasta_entrega`, `motivo_devolucion`, `cliente_devoluciones_previas`. ¿Cuáles debes quitar y por qué?",
+          "hint": "Pregúntate para cada columna: ¿la conozco en el momento exacto en que se crea el pedido?",
+          "solutionExplanation": "Quita `motivo_devolucion` (solo existe si hubo devolución, es la respuesta disfrazada) y `dias_hasta_entrega` (se conoce después de entregar). `cliente_devoluciones_previas` es válida si se calcula solo con pedidos anteriores a la fecha del pedido.",
+          "solutionCode": "columnas_validas = [\"monto\", \"categoria\", \"metodo_pago\", \"cliente_devoluciones_previas\"]\n# Fuera: motivo_devolucion (respuesta disfrazada) y dias_hasta_entrega (dato del futuro)\nX = pedidos[columnas_validas]",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "capml-ej-3",
+          "title": "Práctica 3: Elegir el umbral por costo",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe `mejor_umbral(y_real, prob, costo_fp, costo_fn)` que pruebe umbrales de 0.05 a 0.95 (paso 0.05) y devuelva el umbral con menor costo total, donde costo = FP · costo_fp + FN · costo_fn.",
+          "hint": "Usa `numpy.arange(0.05, 0.96, 0.05)` y cuenta FP y FN con máscaras booleanas.",
+          "solutionExplanation": "Cuando perder un cliente (FN) cuesta mucho más que contactarlo (FP), la función devolverá un umbral bajo. Así el umbral sale del negocio y no del 0.5 por defecto.",
+          "solutionCode": "import numpy as np\n\n\ndef mejor_umbral(y_real, prob, costo_fp, costo_fn):\n    y_real = np.asarray(y_real)\n    prob = np.asarray(prob)\n    mejor, costo_min = None, float(\"inf\")\n    for u in np.arange(0.05, 0.96, 0.05):\n        pred = prob >= u\n        fp = int(np.sum(pred & (y_real == 0)))\n        fn = int(np.sum(~pred & (y_real == 1)))\n        costo = fp * costo_fp + fn * costo_fn\n        if costo < costo_min:\n            mejor, costo_min = round(float(u), 2), costo\n    return mejor, costo_min",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "capml-q1",
+          "question": "Escalas todas las variables con `StandardScaler().fit_transform(X)` y luego separas en train y test. ¿Cuál es el problema?",
+          "options": [
+            "Fuga de datos: el escalador aprendió media y desviación del test, y la métrica en test sale optimista.",
+            "Ninguno serio: el escalado no cambia el orden de los datos, así que el modelo aprende exactamente lo mismo.",
+            "StandardScaler solo funciona con variables categóricas, así que las numéricas quedan sin transformar.",
+            "El escalado debe hacerse después del modelo, sobre las predicciones, para que queden entre 0 y 1."
+          ],
+          "correctIndex": 0,
+          "explanation": "Cualquier paso que aprende algo de los datos (escalar, imputar, codificar) debe ajustarse solo con el entrenamiento. Meterlo en un Pipeline lo garantiza también dentro de la validación cruzada."
+        },
+        {
+          "id": "capml-q2",
+          "question": "En detección de fraude, no detectar un fraude cuesta 50 veces más que revisar una transacción legítima. ¿Qué ajustas?",
+          "options": [
+            "Bajas el umbral para ganar recall, aceptando más falsas alarmas porque cada una cuesta mucho menos.",
+            "Mantienes el umbral en 0.5 porque es el valor estándar y cambiarlo sesga los resultados del modelo.",
+            "Usas accuracy como métrica principal porque resume en un número los aciertos de ambas clases.",
+            "Subes el umbral a 0.9 para que el modelo solo marque los casos más seguros y así gane precision."
+          ],
+          "correctIndex": 0,
+          "explanation": "Si el falso negativo es mucho más caro, conviene detectar más casos aunque aumenten los falsos positivos. Eso se logra bajando el umbral, idealmente eligiéndolo con una función de costo."
+        },
+        {
+          "id": "capml-q3",
+          "question": "En un random forest de churn, `uso_semanal` tiene la mayor importancia por permutación. ¿Qué puedes afirmar?",
+          "options": [
+            "Que las demás variables no aportan nada y conviene eliminarlas para simplificar el modelo final.",
+            "Que el modelo depende mucho de esa variable para predecir, sin que eso pruebe una relación causal.",
+            "Que aumentar el uso semanal de los clientes reducirá las bajas, porque el modelo lo identifica como causa.",
+            "Que el modelo tiene fuga de datos, porque una sola variable no puede explicar tanto por sí misma."
+          ],
+          "correctIndex": 1,
+          "explanation": "La importancia por permutación mide cuánto empeora el modelo al desordenar la variable: indica dependencia predictiva, no causalidad. Para saber si subir el uso reduce bajas hace falta un experimento."
+        }
+      ]
+    },
+    {
+      "id": "cap-20",
+      "order": 22,
+      "kind": "chapter",
+      "code": "Cap. 22",
       "module": "Módulo 5: Métricas de Negocio, BI y Visualización",
       "title": "Diseño de KPIs, Árboles de Métricas y Métricas Guardarraíl",
       "subtitle": "Cómo descomponer una North Star Metric en palancas accionables y evitar incentivos perversos.",
@@ -2588,24 +2911,24 @@
           "id": "cap20-q1",
           "question": "¿Qué es una métrica guardarraíl (guardrail metric)?",
           "options": [
+            "Un permiso de administrador que impide a los analistas modificar la métrica principal sin aprobación del equipo de datos.",
             "Un indicador secundario que vigila que optimizar la métrica principal no dañe la calidad, experiencia o rentabilidad.",
-            "Una métrica de vanidad que siempre crece y se muestra en el tablero para dar contexto positivo a los resultados.",
             "El valor histórico máximo de la métrica principal, usado como límite superior para detectar errores en los datos.",
-            "Un permiso de administrador que impide a los analistas modificar la métrica principal sin aprobación del equipo de datos."
+            "Una métrica de vanidad que siempre crece y se muestra en el tablero para dar contexto positivo a los resultados."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Las métricas guardarraíl previenen efectos secundarios perversos (ej. aumentar velocidad a costa de calidad o margen)."
         },
         {
           "id": "cap20-q2",
           "question": "¿Por qué \"usuarios registrados históricos acumulados\" suele ser una métrica de vanidad?",
           "options": [
+            "Porque su cálculo requiere un `JOIN` costoso entre usuarios y eventos que vuelve lento el tablero ejecutivo.",
             "Porque puede dar números negativos cuando hay más bajas que altas, lo que confunde a los equipos de negocio.",
             "Porque nunca puede disminuir aunque el producto esté muriendo hoy, ocultando caídas en retención o actividad.",
-            "Porque solo tiene sentido en empresas B2B, donde el número de cuentas registradas es pequeño y estable.",
-            "Porque su cálculo requiere un `JOIN` costoso entre usuarios y eventos que vuelve lento el tablero ejecutivo."
+            "Porque solo tiene sentido en empresas B2B, donde el número de cuentas registradas es pequeño y estable."
           ],
-          "correctIndex": 1,
+          "correctIndex": 2,
           "explanation": "Las métricas acumuladas históricas siempre crecen o se estancan, sin reflejar la salud actual del negocio."
         },
         {
@@ -2614,8 +2937,8 @@
           "options": [
             "Para documentar la jerarquía de tablas del data warehouse y el orden en que se cargan en cada ejecución diaria.",
             "Para descomponer un KPI global en factores multiplicativos o aditivos que explican qué palanca específica cambió.",
-            "Para calcular el p-value de cada KPI y decidir qué variaciones del periodo son estadísticamente significativas.",
-            "Para clasificar las métricas del tablero por importancia y ocultar las que el equipo directivo no necesita ver."
+            "Para clasificar las métricas del tablero por importancia y ocultar las que el equipo directivo no necesita ver.",
+            "Para calcular el p-value de cada KPI y decidir qué variaciones del periodo son estadísticamente significativas."
           ],
           "correctIndex": 1,
           "explanation": "Permite diagnosticar rápidamente qué componente operativo provocó una variación en el resultado final."
@@ -2624,9 +2947,9 @@
     },
     {
       "id": "cap-21",
-      "order": 21,
+      "order": 23,
       "kind": "chapter",
-      "code": "Cap. 21",
+      "code": "Cap. 23",
       "module": "Módulo 5: Métricas de Negocio, BI y Visualización",
       "title": "Análisis de Embudo (Funnels), Conversión y Fricción de Producto",
       "subtitle": "Embudos estrictos vs. abiertos, ventanas de conversión y atribución de puntos de abandono.",
@@ -2706,21 +3029,21 @@
           "id": "cap21-q1",
           "question": "¿Por qué un embudo calculado con `COUNT(*)` por nombre de evento puede mostrar un paso posterior mayor al 100%?",
           "options": [
-            "Porque SQL redondea hacia arriba los conteos al dividir entre pasos, y con volúmenes pequeños el porcentaje termina superando el 100%.",
             "Porque `GROUP BY` duplica las filas de los usuarios con más de una sesión, aunque cada evento se haya registrado una sola vez.",
-            "Porque un usuario puede disparar múltiples veces el mismo evento (reintentos/recargas) o llegar directo al paso sin pasar por el primero.",
-            "Porque falta un `ORDER BY` por fecha en la consulta, y sin él los eventos se cuentan en el paso equivocado del embudo de conversión."
+            "Porque falta un `ORDER BY` por fecha en la consulta, y sin él los eventos se cuentan en el paso equivocado del embudo de conversión.",
+            "Porque SQL redondea hacia arriba los conteos al dividir entre pasos, y con volúmenes pequeños el porcentaje termina superando el 100%.",
+            "Porque un usuario puede disparar múltiples veces el mismo evento (reintentos/recargas) o llegar directo al paso sin pasar por el primero."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Un embudo riguroso cuenta usuarios/sesiones únicos y valida orden cronológico secuencial."
         },
         {
           "id": "cap21-q2",
           "question": "¿Qué diferencia a un embudo estricto de un embudo abierto?",
           "options": [
-            "El embudo estricto solo cuenta usuarios que completaron todos los pasos, mientras el abierto cuenta a todos los visitantes.",
             "El embudo abierto se calcula por sesión y el estricto por usuario, pero ambos ignoran el orden en que ocurren los pasos.",
             "El embudo estricto excluye las fechas y cuenta eventos totales, mientras el abierto agrupa los pasos por día calendario.",
+            "El embudo estricto solo cuenta usuarios que completaron todos los pasos, mientras el abierto cuenta a todos los visitantes.",
             "El embudo estricto exige que cada paso ocurra cronológicamente después del anterior para el mismo usuario/sesión."
           ],
           "correctIndex": 3,
@@ -2732,19 +3055,19 @@
           "options": [
             "Para reducir el volumen de eventos que lee la consulta y así bajar el costo, sin afectar la tasa de conversión.",
             "Para descartar a los usuarios que entraron directo al último paso sin haber pasado por el paso inicial.",
-            "Para que los timestamps de distintas zonas horarias se conviertan a texto y se puedan comparar entre sí.",
-            "Para asegurar que la conversión pertenezca al mismo intento de compra o cohorte comparable en el tiempo."
+            "Para asegurar que la conversión pertenezca al mismo intento de compra o cohorte comparable en el tiempo.",
+            "Para que los timestamps de distintas zonas horarias se conviertan a texto y se puedan comparar entre sí."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Sin ventana fija, los usuarios más antiguos tienen meses extra para convertir y distorsionan la comparación entre periodos recientes y pasados."
         }
       ]
     },
     {
       "id": "cap-22",
-      "order": 22,
+      "order": 24,
       "kind": "chapter",
-      "code": "Cap. 22",
+      "code": "Cap. 24",
       "module": "Módulo 5: Métricas de Negocio, BI y Visualización",
       "title": "Unit Economics, LTV, CAC, Payback y Retención SaaS/E-commerce",
       "subtitle": "Cálculo riguroso de márgenes de contribución, cohortes de ingreso neto (NDR) y periodo de recuperación.",
@@ -2824,20 +3147,20 @@
           "id": "cap22-q1",
           "question": "¿Por qué debe calcularse el LTV utilizando el margen bruto/de contribución en lugar de las ventas brutas?",
           "options": [
-            "Porque las ventas brutas siempre son menores que el margen de contribución, y el LTV quedaría subestimado frente al CAC.",
-            "Porque el dinero disponible para pagar el CAC y generar utilidad es únicamente el margen después de costos directos.",
+            "Porque los impuestos y descuentos no afectan al LTV, y usar el margen evita tener que excluirlos manualmente del cálculo.",
             "Porque el margen es más estable mes a mes que las ventas, y así el LTV varía menos entre cohortes sin cambiar su nivel.",
-            "Porque los impuestos y descuentos no afectan al LTV, y usar el margen evita tener que excluirlos manualmente del cálculo."
+            "Porque las ventas brutas siempre son menores que el margen de contribución, y el LTV quedaría subestimado frente al CAC.",
+            "Porque el dinero disponible para pagar el CAC y generar utilidad es únicamente el margen después de costos directos."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Confundir ingresos totales con margen disponible lleva a sobrestimar el LTV y sobreinvertir en adquisición."
         },
         {
           "id": "cap22-q2",
           "question": "¿Qué mide el CAC Payback Period?",
           "options": [
-            "El tiempo promedio que tarda un cliente nuevo en realizar su primera compra desde que ve el anuncio de adquisición.",
             "La proporción del presupuesto de marketing que se recupera en el primer mes a partir de los ingresos brutos generados.",
+            "El tiempo promedio que tarda un cliente nuevo en realizar su primera compra desde que ve el anuncio de adquisición.",
             "El número de meses que un cliente permanece activo antes de cancelar, usado para estimar su valor de vida total.",
             "El número de meses necesarios para recuperar la inversión de adquirir un cliente a partir de su margen mensual."
           ],
@@ -2849,20 +3172,20 @@
           "question": "Si una cohorte SaaS tiene un NDR (Net Dollar Retention) de 112% a 12 meses, ¿qué significa?",
           "options": [
             "Que el 12% de los clientes de la cohorte canceló durante el año, y el 88% restante se mantiene con el mismo gasto inicial.",
-            "Que el número de clientes activos de la cohorte creció un 12%, aunque el ingreso promedio por cliente se mantuvo igual.",
             "Que la empresa adquirió un 12% más de clientes nuevos en los últimos 12 meses, sumándolos a la cohorte original medida.",
-            "Que los ingresos actuales de esa misma cohorte son un 12% mayores que cuando empezó, gracias a upsells que superaron al churn."
+            "Que los ingresos actuales de esa misma cohorte son un 12% mayores que cuando empezó, gracias a upsells que superaron al churn.",
+            "Que el número de clientes activos de la cohorte creció un 12%, aunque el ingreso promedio por cliente se mantuvo igual."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "NDR > 100% demuestra expansión neta dentro de la base de clientes existente."
         }
       ]
     },
     {
       "id": "cap-23",
-      "order": 23,
+      "order": 25,
       "kind": "chapter",
-      "code": "Cap. 23",
+      "code": "Cap. 25",
       "module": "Módulo 5: Métricas de Negocio, BI y Visualización",
       "title": "Arquitectura de Tableros en BI y Modelado Semántico",
       "subtitle": "Principios de diseño en Power BI / Looker / Tableau: capa semántica única, rendimiento de consultas y UX ejecutiva.",
@@ -2940,10 +3263,10 @@
           "id": "cap23-q1",
           "question": "¿Dónde conviene ejecutar limpiezas pesadas y uniones complejas que alimentan un tablero?",
           "options": [
+            "Manualmente en Excel cada lunes, antes de cargar el archivo al tablero.",
             "En el propio tablero BI, con filtros y medidas definidos en cada visual.",
-            "En columnas calculadas que el navegador evalúa al renderizar cada gráfico.",
             "Aguas arriba en las capas Silver/Gold del Data Warehouse antes de llegar al BI.",
-            "Manualmente en Excel cada lunes, antes de cargar el archivo al tablero."
+            "En columnas calculadas que el navegador evalúa al renderizar cada gráfico."
           ],
           "correctIndex": 2,
           "explanation": "Preparar modelos Gold pre-limpiados y dimensionados vuelve los tableros rápidos, reutilizables y consistentes."
@@ -2952,33 +3275,33 @@
           "id": "cap23-q2",
           "question": "¿Qué busca resolver la \"capa semántica única\"?",
           "options": [
-            "Unificar la paleta de colores y el formato visual de todos los tableros de la empresa.",
             "Traducir automáticamente las consultas SQL entre distintos motores de base de datos.",
-            "Evitar que distintos departamentos calculen fórmulas diferentes para la misma métrica oficial.",
-            "Concentrar todas las tablas del data warehouse en un único esquema para simplificar permisos."
+            "Concentrar todas las tablas del data warehouse en un único esquema para simplificar permisos.",
+            "Unificar la paleta de colores y el formato visual de todos los tableros de la empresa.",
+            "Evitar que distintos departamentos calculen fórmulas diferentes para la misma métrica oficial."
           ],
-          "correctIndex": 2,
+          "correctIndex": 3,
           "explanation": "Garantiza una única definición verificada para KPIs compartidos en toda la organización."
         },
         {
           "id": "cap23-q3",
           "question": "¿Cuál es el orden lógico de lectura en un tablero ejecutivo bien diseñado?",
           "options": [
-            "Filtros y segmentaciones -> Detalle por fila -> Conclusión ejecutiva en una nota final.",
             "Gráficos de tendencia -> Tabla de detalle -> KPIs, en orden alfabético de métricas.",
-            "Tabla de detalle completa arriba -> Gráficos de tendencia -> KPIs resumidos al final.",
-            "Resumen de KPIs clave -> Diagnóstico por tendencia/drivers -> Detalle accionable."
+            "Resumen de KPIs clave -> Diagnóstico por tendencia/drivers -> Detalle accionable.",
+            "Filtros y segmentaciones -> Detalle por fila -> Conclusión ejecutiva en una nota final.",
+            "Tabla de detalle completa arriba -> Gráficos de tendencia -> KPIs resumidos al final."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "La jerarquía visual progresiva permite captar el estado general en segundos y profundizar solo donde hace falta."
         }
       ]
     },
     {
       "id": "cap-24",
-      "order": 24,
+      "order": 26,
       "kind": "chapter",
-      "code": "Cap. 24",
+      "code": "Cap. 26",
       "module": "Módulo 5: Métricas de Negocio, BI y Visualización",
       "title": "Visualización Efectiva y Storytelling Basado en Evidencia",
       "subtitle": "Elección correcta de gráficos, eliminación de ruido visual, escalas honestas y redacción de títulos orientados a conclusión.",
@@ -3058,45 +3381,45 @@
           "id": "cap24-q1",
           "question": "¿Por qué debe empezar en 0 el eje de magnitud de un gráfico de barras?",
           "options": [
-            "Porque el cerebro interpreta la longitud total de cada barra como proporcional al valor; truncar el eje exagera visualmente diferencias pequeñas.",
             "Porque así se ocultan las categorías con valores pequeños, que solo agregan ruido visual y distraen de las barras realmente importantes del gráfico.",
+            "Porque el cerebro interpreta la longitud total de cada barra como proporcional al valor; truncar el eje exagera visualmente diferencias pequeñas.",
             "Porque un eje que parte en 0 permite usar escala logarítmica, que es la única forma correcta de comparar magnitudes muy distintas entre barras.",
             "Porque Matplotlib y la mayoría de librerías fallan o lanzan un error si el eje de un gráfico de barras empieza en un número distinto de cero."
           ],
-          "correctIndex": 0,
+          "correctIndex": 1,
           "explanation": "Recortar el eje en gráficos de barras distorsiona la relación de proporciones entre las barras."
         },
         {
           "id": "cap24-q2",
           "question": "¿Qué gráfico es más efectivo para comparar 10 categorías con nombres largos?",
           "options": [
-            "Gráfico de barras horizontales ordenadas de mayor a menor.",
+            "Gráfico de radar con un eje por cada una de las categorías.",
             "Gráfico circular (pastel) con una porción por categoría.",
             "Gráfico de líneas con una serie por cada categoría.",
-            "Gráfico de radar con un eje por cada una de las categorías."
+            "Gráfico de barras horizontales ordenadas de mayor a menor."
           ],
-          "correctIndex": 0,
+          "correctIndex": 3,
           "explanation": "Las barras horizontales permiten leer etiquetas largas cómodamente en horizontal y comparar longitudes exactas."
         },
         {
           "id": "cap24-q3",
           "question": "¿Qué caracteriza a un título efectivo en storytelling con datos?",
           "options": [
-            "Usa las siglas internas del equipo para que el título sea corto y entre en una sola línea.",
             "Describe con precisión las variables de los ejes y la fuente, sin adelantar conclusiones.",
+            "Sintetiza la conclusión o hallazgo principal del gráfico en lugar de solo nombrar los ejes.",
             "Incluye la consulta SQL o el filtro exacto usado, para que cualquiera reproduzca el gráfico.",
-            "Sintetiza la conclusión o hallazgo principal del gráfico en lugar de solo nombrar los ejes."
+            "Usa las siglas internas del equipo para que el título sea corto y entre en una sola línea."
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "El título guía la atención hacia la evidencia clave para la toma de decisión."
         }
       ]
     },
     {
       "id": "cap-25",
-      "order": 25,
+      "order": 27,
       "kind": "chapter",
-      "code": "Cap. 25",
+      "code": "Cap. 27",
       "module": "Módulo 6: Operación Profesional y Proyecto Integrador",
       "title": "Control de Versiones con Git y Revisión de Código Analítico",
       "subtitle": "Flujos de ramas, commits atómicos, Pull Requests de SQL/Python y cómo realizar revisiones constructivas entre analistas.",
@@ -3176,45 +3499,45 @@
           "id": "cap25-q1",
           "question": "¿Qué archivos NUNCA deben subirse a un repositorio Git de analítica?",
           "options": [
-            "Las consultas `.sql` y las pruebas `.py`, porque contienen la lógica de negocio y deben quedar solo en local.",
             "Archivos `.env` con contraseñas/API keys y extractos crudos con datos personales de clientes (`.csv`, `.parquet`).",
+            "Las plantillas YAML del diccionario de métricas, porque cambian seguido y generan conflictos de merge constantes.",
             "El archivo `README.md` y la documentación del proyecto, porque pueden revelar la estructura interna de los datos.",
-            "Las plantillas YAML del diccionario de métricas, porque cambian seguido y generan conflictos de merge constantes."
+            "Las consultas `.sql` y las pruebas `.py`, porque contienen la lógica de negocio y deben quedar solo en local."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Credenciales y datos sensibles deben excluirse en `.gitignore` y mantenerse en gestores de secretos o almacenamiento seguro."
         },
         {
           "id": "cap25-q2",
           "question": "¿Qué información es más valiosa en la descripción de un Pull Request que modifica un modelo Gold?",
           "options": [
-            "Una lista de los archivos modificados y la hora de cada commit, ya que el código por sí solo explica la nueva lógica.",
-            "Capturas de pantalla del editor con el código modificado, para que el revisor vea los cambios sin abrir los archivos.",
+            "El historial completo de la conversación con el solicitante, para dejar constancia de quién pidió cada uno de los cambios.",
             "Explicación del cambio de lógica, comparación numérica de totales antes vs. después y resultado de las pruebas de calidad.",
-            "El historial completo de la conversación con el solicitante, para dejar constancia de quién pidió cada uno de los cambios."
+            "Capturas de pantalla del editor con el código modificado, para que el revisor vea los cambios sin abrir los archivos.",
+            "Una lista de los archivos modificados y la hora de cada commit, ya que el código por sí solo explica la nueva lógica."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "La reconciliación antes/después permite validar el impacto real en negocio antes de aprobar el cambio."
         },
         {
           "id": "cap25-q3",
           "question": "¿Para qué sirve trabajar en una rama dedicada (`feat/...` o `fix/...`) en lugar de editar directo sobre `main`?",
           "options": [
-            "Para que los cambios se apliquen directamente en producción sin pasar por la revisión de otro analista.",
             "Para probar cambios de forma aislada y permitir revisión por pares (Code Review) sin romper producción.",
-            "Para tener una copia completa de la base de datos asociada a cada rama y no afectar la tabla original.",
-            "Para poder omitir el `.gitignore` en la rama y subir archivos de datos que no deben llegar a `main`."
+            "Para que los cambios se apliquen directamente en producción sin pasar por la revisión de otro analista.",
+            "Para poder omitir el `.gitignore` en la rama y subir archivos de datos que no deben llegar a `main`.",
+            "Para tener una copia completa de la base de datos asociada a cada rama y no afectar la tabla original."
           ],
-          "correctIndex": 1,
+          "correctIndex": 0,
           "explanation": "Mantiene `main` estable y auditable mientras los cambios se validan y revisan en ramas separadas."
         }
       ]
     },
     {
       "id": "cap-26",
-      "order": 26,
+      "order": 28,
       "kind": "chapter",
-      "code": "Cap. 26",
+      "code": "Cap. 28",
       "module": "Módulo 6: Operación Profesional y Proyecto Integrador",
       "title": "Orquestación Ligera, dbt Básico y Documentación Viva",
       "subtitle": "Introducción a modelos modulares con dependencias (`ref`), linaje de datos y ejecución programada confiable.",
@@ -3296,45 +3619,45 @@
           "id": "cap26-q1",
           "question": "¿Qué función cumple `{{ ref('stg_clientes') }}` dentro de un modelo dbt?",
           "options": [
-            "Declara una dependencia en el DAG para ejecutar `stg_clientes` primero y resuelve automáticamente el esquema según el entorno (dev/prod).",
-            "Exporta la tabla `stg_clientes` a un archivo CSV en el entorno actual, para que el modelo la lea como fuente externa en cada ejecución.",
+            "Borra y recrea la tabla `stg_clientes` antes de cada ejecución del modelo, para garantizar que siempre parta de datos frescos de producción.",
             "Copia el SQL de `stg_clientes` dentro del modelo como subconsulta, sin registrar la dependencia en el DAG ni cambiar el esquema según entorno.",
-            "Borra y recrea la tabla `stg_clientes` antes de cada ejecución del modelo, para garantizar que siempre parta de datos frescos de producción."
+            "Declara una dependencia en el DAG para ejecutar `stg_clientes` primero y resuelve automáticamente el esquema según el entorno (dev/prod).",
+            "Exporta la tabla `stg_clientes` a un archivo CSV en el entorno actual, para que el modelo la lea como fuente externa en cada ejecución."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`ref()` construye el grafo de ejecución ordenado, genera linaje y aísla entornos de desarrollo y producción."
         },
         {
           "id": "cap26-q2",
           "question": "¿Cuál es la diferencia entre `dbt run` y `dbt build`?",
           "options": [
-            "Son equivalentes: ambos materializan modelos, ejecutan tests, snapshots y seeds; `dbt build` es solo el nombre nuevo del comando en versiones recientes.",
             "`dbt build` solo compila el SQL de los modelos sin ejecutarlos; `dbt run` materializa los modelos y además corre todos los tests definidos en el proyecto.",
             "`dbt run` solo materializa modelos; `dbt build` ejecuta modelos, tests, snapshots y seeds en orden DAG deteniéndose si falla un test aguas arriba.",
-            "`dbt run` ejecuta los modelos en paralelo sin respetar el DAG, mientras `dbt build` los ejecuta uno por uno en orden alfabético sin correr ningún test."
+            "`dbt run` ejecuta los modelos en paralelo sin respetar el DAG, mientras `dbt build` los ejecuta uno por uno en orden alfabético sin correr ningún test.",
+            "Son equivalentes: ambos materializan modelos, ejecutan tests, snapshots y seeds; `dbt build` es solo el nombre nuevo del comando en versiones recientes."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "`dbt build` evita que un modelo corrupto propague errores a las tablas Gold dependientes."
         },
         {
           "id": "cap26-q3",
           "question": "¿Dónde deben vivir las pruebas `unique` y `not_null` en un proyecto dbt?",
           "options": [
-            "En una consulta SQL manual que alguien corre después de cada deploy.",
-            "En el archivo `schema.yml` junto al modelo SQL versionado en Git.",
             "En el archivo `dbt_project.yml`, como variables globales del proyecto.",
-            "Dentro del propio modelo SQL, como filtros `WHERE` que descartan filas."
+            "En una consulta SQL manual que alguien corre después de cada deploy.",
+            "Dentro del propio modelo SQL, como filtros `WHERE` que descartan filas.",
+            "En el archivo `schema.yml` junto al modelo SQL versionado en Git."
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "Mantener tests y documentación junto al código asegura que evolucionen juntos."
         }
       ]
     },
     {
       "id": "cap-27",
-      "order": 27,
+      "order": 29,
       "kind": "chapter",
-      "code": "Cap. 27",
+      "code": "Cap. 29",
       "module": "Módulo 6: Operación Profesional y Proyecto Integrador",
       "title": "Caso Integrador Final: Auditoría, Pipeline y Presentación Ejecutiva",
       "subtitle": "Resolución de un caso integral de negocio combinando SQL analítico, validación estadística en Python, calidad de datos y recomendación ejecutiva.",
@@ -3414,24 +3737,24 @@
           "id": "cap27-q1",
           "question": "Ante un reporte ejecutivo de caída abrupta de una métrica global, ¿cuál es el primer paso de un analista intermedio?",
           "options": [
-            "Rehacer el tablero con nuevos colores y alertas visuales, para que la dirección identifique con más claridad dónde se concentra la caída.",
             "Proponer de inmediato un cambio de precio o una campaña de recuperación, ya que cada día de espera multiplica el impacto de la caída.",
             "Borrar los datos antiguos y recargar el histórico completo desde la fuente, ya que una caída abrupta casi siempre indica una tabla corrupta.",
-            "Auditar integridad de datos (fan-out, nulos, frescura, zonas horarias) y desagregar por segmentos clave para descartar errores o mix shift."
+            "Auditar integridad de datos (fan-out, nulos, frescura, zonas horarias) y desagregar por segmentos clave para descartar errores o mix shift.",
+            "Rehacer el tablero con nuevos colores y alertas visuales, para que la dirección identifique con más claridad dónde se concentra la caída."
           ],
-          "correctIndex": 3,
+          "correctIndex": 2,
           "explanation": "Primero verificas que el dato no esté roto ni sesgado por cambios de mezcla antes de recomendar acciones de negocio."
         },
         {
           "id": "cap27-q2",
           "question": "¿Qué combinación garantiza que una solución analítica sea sostenible en equipo?",
           "options": [
-            "Grano explícito, pruebas automatizadas, control de versiones en Git, capa semántica única y comunicación clara con incertidumbre.",
             "Consultas largas con `SELECT *` en notebooks locales, para que cada analista pueda adaptar la lógica de las métricas a su propio reporte.",
-            "Tableros con muchos indicadores, sin intervalos de confianza ni supuestos, para que los mensajes a negocio sean simples y sin ambigüedad.",
-            "Un analista experto que mantiene todas las fórmulas en su computadora y responde personalmente cualquier duda del equipo sobre los datos."
+            "Un analista experto que mantiene todas las fórmulas en su computadora y responde personalmente cualquier duda del equipo sobre los datos.",
+            "Grano explícito, pruebas automatizadas, control de versiones en Git, capa semántica única y comunicación clara con incertidumbre.",
+            "Tableros con muchos indicadores, sin intervalos de confianza ni supuestos, para que los mensajes a negocio sean simples y sin ambigüedad."
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "La unión de rigor técnico, reproducibilidad y criterio de negocio define el estándar intermedio completo."
         },
         {
@@ -3439,18 +3762,18 @@
           "question": "Si ambos segmentos (Orgánico y Pagado) mantienen exactamente su mismo margen individual pero el margen total cae, ¿qué ocurrió?",
           "options": [
             "Un error en la consulta SQL que suma los márgenes de cada segmento en lugar de promediarlos.",
-            "Un Sample Ratio Mismatch entre los segmentos, que invalida la comparación del margen total.",
             "Un cambio de composición (mix shift / Paradoja de Simpson) hacia el segmento de menor margen.",
+            "Un Sample Ratio Mismatch entre los segmentos, que invalida la comparación del margen total.",
             "Una división por cero en el cálculo del margen total, que deja fuera a uno de los dos segmentos."
           ],
-          "correctIndex": 2,
+          "correctIndex": 1,
           "explanation": "Cuando cambia el peso relativo de los segmentos, el promedio ponderado global cambia aunque el desempeño interno de cada segmento siga intacto."
         }
       ]
     },
     {
       "id": "apendice-a",
-      "order": 28,
+      "order": 30,
       "kind": "appendix",
       "code": "Apéndice A",
       "module": "Apéndices y Referencia Rápida",
@@ -3516,31 +3839,31 @@
           "id": "apa-q1",
           "question": "¿Qué término describe la propiedad de que re-ejecutar un pipeline diario varias veces no duplica datos?",
           "options": [
+            "Peeking",
             "Fan-Out",
-            "Idempotencia",
             "Atomicidad",
-            "Peeking"
+            "Idempotencia"
           ],
-          "correctIndex": 1,
+          "correctIndex": 3,
           "explanation": "La idempotencia garantiza resultados idénticos ante re-ejecuciones."
         },
         {
           "id": "apa-q2",
           "question": "¿Qué concepto explica la multiplicación silenciosa de métricas tras un JOIN 1:N?",
           "options": [
-            "Bootstrap",
-            "SARGable",
             "Data skew",
-            "Fan-Out"
+            "Fan-Out",
+            "SARGable",
+            "Bootstrap"
           ],
-          "correctIndex": 3,
+          "correctIndex": 1,
           "explanation": "El fan-out ocurre cuando el lado derecho tiene múltiples filas por clave de unión."
         }
       ]
     },
     {
       "id": "apendice-b",
-      "order": 29,
+      "order": 31,
       "kind": "appendix",
       "code": "Apéndice B",
       "module": "Apéndices y Referencia Rápida",
@@ -3622,19 +3945,19 @@
           "id": "apb-q2",
           "question": "¿Qué función SQL previene errores de división por cero en tasas?",
           "options": [
-            "NULLIF(denominador, 0)",
+            "GREATEST(denominador, 0)",
             "ROUND(denominador, 2)",
-            "COALESCE(numerador, 0)",
-            "GREATEST(denominador, 0)"
+            "NULLIF(denominador, 0)",
+            "COALESCE(numerador, 0)"
           ],
-          "correctIndex": 0,
+          "correctIndex": 2,
           "explanation": "`NULLIF(denominador, 0)` devuelve `NULL` si el denominador es 0, evitando abortar la consulta."
         }
       ]
     },
     {
       "id": "apendice-c",
-      "order": 30,
+      "order": 32,
       "kind": "appendix",
       "code": "Apéndice C",
       "module": "Apéndices y Referencia Rápida",
@@ -3703,9 +4026,9 @@
           "question": "¿Qué estructura sigue el principio piramidal en un reporte ejecutivo?",
           "options": [
             "Presentar primero la conclusión y recomendación clave (TL;DR), seguida de la evidencia y el detalle técnico al final.",
-            "Empezar por la limpieza y preparación de los datos, seguir con el análisis y dejar la conclusión para el último párrafo.",
+            "Ordenar las secciones por fecha de análisis, mostrando cada hallazgo en el orden cronológico en que se fue descubriendo.",
             "Presentar primero todo el código SQL y Python usado, para que el lector valide la lógica antes de leer cualquier resultado.",
-            "Ordenar las secciones por fecha de análisis, mostrando cada hallazgo en el orden cronológico en que se fue descubriendo."
+            "Empezar por la limpieza y preparación de los datos, seguir con el análisis y dejar la conclusión para el último párrafo."
           ],
           "correctIndex": 0,
           "explanation": "Los tomadores de decisiones necesitan el hallazgo y la acción recomendada al inicio, con el respaldo metodológico accesible debajo."
@@ -3715,9 +4038,9 @@
           "question": "¿Cuál es el objetivo principal de redactar un Brief corto antes de iniciar un análisis largo?",
           "options": [
             "Retrasar el inicio del análisis hasta que la dirección apruebe por escrito el presupuesto y el equipo asignado al proyecto.",
-            "Sustituir las pruebas unitarias y la revisión de código, ya que el brief deja documentada de antemano la lógica a usar.",
+            "Reemplazar el reporte final, de modo que el análisis completo solo se entregue si alguien lo solicita de forma explícita.",
             "Alinear la decisión buscada, definiciones exactas de métricas y exclusiones antes de invertir horas en código.",
-            "Reemplazar el reporte final, de modo que el análisis completo solo se entregue si alguien lo solicita de forma explícita."
+            "Sustituir las pruebas unitarias y la revisión de código, ya que el brief deja documentada de antemano la lógica a usar."
           ],
           "correctIndex": 2,
           "explanation": "Clarificar definiciones al principio evita tener que rehacer todo el análisis por ambigüedades."

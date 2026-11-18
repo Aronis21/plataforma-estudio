@@ -116,10 +116,33 @@
 .dg-svg .eje { stroke: var(--tinta-2); stroke-width: 1; }
 .dg-svg .punto { fill: var(--mano); }
 .dg-svg .recta { stroke: var(--ko); stroke-width: 2.5; }
-.dg-svg .residuo { stroke: var(--tinta-2); stroke-dasharray: 3 3; }
+.dg-svg .residuo { stroke: var(--tinta-2); stroke-width: 1.5; stroke-dasharray: 3 3; }
 .dg-svg text { font: 11px var(--f-ui); fill: var(--tinta-2); }
 
 @media (max-width: 700px) {
   .dg-panel { grid-template-columns: 1fr; }
   .venn { max-width: 300px; margin: 0 auto; }
 }
+
+.dg-metricas { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .8rem; line-height: 1.45; }
+.dg-metricas.col { flex-direction: column; margin-top: 0; }
+.dg-metricas small { display: block; color: var(--tinta-2); font-size: var(--t-xs); }
+.dg-umbral { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-bottom: .6rem; }
+.dg-umbral input { flex: 1 1 180px; accent-color: var(--acento); min-height: 28px; }
+.dg-tira { max-width: 100%; }
+.dg-tira .real-si { fill: var(--ko); }
+.dg-tira .real-no { fill: var(--superficie); stroke: var(--tinta-2); stroke-width: 1.5; }
+.dg-tira .zona-alerta { fill: color-mix(in srgb, var(--cta-bg) 35%, transparent); }
+.dg-tira .umbral { stroke: var(--tinta); stroke-width: 2; stroke-dasharray: 4 3; }
+.dg-matriz-fila { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; margin-top: .8rem; }
+.dg-matriz td { text-align: center; font-weight: 600; min-width: 4rem; }
+.dg-matriz th { white-space: normal; }
+.dg-matriz-fila > * { min-width: 0; max-width: 100%; }
+.dg-matriz td.bien { background: color-mix(in srgb, var(--ok) 18%, transparent); }
+.dg-matriz td.mal { background: color-mix(in srgb, var(--ko) 15%, transparent); }
+.dg-svg .b-train, .dg-leyenda .b-train { fill: color-mix(in srgb, var(--mano) 30%, transparent); background: color-mix(in srgb, var(--mano) 30%, transparent); }
+.dg-svg .b-val, .dg-leyenda .b-val { fill: var(--cta-bg); background: var(--cta-bg); }
+.dg-svg .b-test, .dg-leyenda .b-test { fill: color-mix(in srgb, var(--ko) 45%, transparent); background: color-mix(in srgb, var(--ko) 45%, transparent); }
+.dg-svg .t-in { fill: var(--tinta); font-weight: 600; }
+.dg-leyenda { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .6rem; font-size: var(--t-xs); }
+.dg-leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: .3rem; vertical-align: -1px; }

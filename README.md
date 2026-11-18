@@ -8,7 +8,7 @@ Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejerci
 
 | Cuaderno | Curso | Estado |
 |---|---|---|
-| Cuaderno de analista (Datos) | Analista de Datos Intermedio · 27 capítulos + 3 apéndices | Disponible |
+| Cuaderno de analista (Datos) | Analista de Datos Intermedio · 29 capítulos + 3 apéndices | Disponible |
 | Cuaderno de desarrollador (Web) | Programación y Desarrollo Web · 45 lecciones + 7 proyectos | Disponible (159 preguntas) |
 | Cuaderno de laboratorio (IA) | Inteligencia Artificial · 13 temas | En preparación (temario listo) |
 
