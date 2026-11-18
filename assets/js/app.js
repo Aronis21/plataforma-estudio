@@ -81,14 +81,27 @@
     pintarSeparadores(sepActivo || (entrada ? entrada.id : null));
   }
 
+  // Un separador por área (tema). Si el área tiene un solo curso, lleva directo a él;
+  // si tiene varios, lleva a la página del área con la lista de sus cursos.
+  const AREAS = { datos: "Datos", web: "Web", ia: "IA" };
+  function cursosPorArea() {
+    const grupos = new Map();
+    for (const c of catalogo.cursos.filter((x) => x.publicado !== false)) {
+      const tema = temaDe(c);
+      if (!grupos.has(tema)) grupos.set(tema, []);
+      grupos.get(tema).push(c);
+    }
+    return grupos;
+  }
+  const hrefArea = (tema, lista) => (lista.length === 1 ? `#/curso/${encodeURIComponent(lista[0].id)}` : `#/area/${tema}`);
+
   function pintarSeparadores(idActivo) {
     if (!catalogo) return;
-    const cursos = catalogo.cursos.filter((c) => c.publicado !== false);
     let html = `<a class="separador hoy" href="#/" ${idActivo ? "" : 'aria-current="page"'}>Hoy</a>`;
-    for (const c of cursos) {
-      const tema = temaDe(c);
-      const nombre = c.separador || c.id;
-      html += `<a class="separador ${tema}" href="#/curso/${encodeURIComponent(c.id)}" ${c.id === idActivo ? 'aria-current="page"' : ""}>${escapar(nombre)}</a>`;
+    for (const [tema, lista] of cursosPorArea()) {
+      const activo = idActivo === `area:${tema}` || lista.some((c) => c.id === idActivo);
+      const nombre = AREAS[tema] || (lista.length === 1 ? lista[0].separador || lista[0].id : tema);
+      html += `<a class="separador ${tema}" href="${hrefArea(tema, lista)}" ${activo ? 'aria-current="page"' : ""} title="${escapar(lista.map((c) => c.separador || c.id).join(" · "))}">${escapar(nombre)}</a>`;
     }
     html += `<a class="separador practica" href="#/practica" ${idActivo === "practica" ? 'aria-current="page"' : ""}>Práctica</a>`;
     separadores.innerHTML = html;
@@ -241,6 +254,49 @@
     };
   }
 
+  // Tarjeta de un curso (Hoy y páginas de área)
+  function itemCuaderno(curso) {
+    const m = curso._meta;
+    const tema = temaDe(m);
+    if (curso._error) return `<div class="cuaderno-item ${tema}"><strong>${escapar(m.id)}</strong><span class="small">${escapar(curso._error.message)}</span></div>`;
+    const prep = enPreparacion(m);
+    const r = P.resumenCurso(curso);
+    return `<a class="cuaderno-item ${tema} ${prep ? "prep" : ""}" href="#/curso/${curso.id}">
+      <span class="tipo">${escapar(m.cuaderno || NOMBRE_CUADERNO[tema] || "Cuaderno")}</span>
+      <strong>${escapar(curso.title)}</strong>
+      <span class="pie"><span>${prep ? "En preparación" : `${r.aprobados}/${r.total} aprobados`}</span><span>${prep ? "" : r.pct + "%"}</span></span>
+      ${prep ? "" : `<span class="mini-bar"><span style="width:${r.pct}%"></span></span>`}
+    </a>`;
+  }
+
+  // Migas: el área del curso cuando tiene más de un curso
+  function migaArea(curso) {
+    const tema = temaDe(curso._meta);
+    const lista = catalogo ? cursosPorArea().get(tema) || [] : [];
+    return lista.length > 1 ? [{ texto: AREAS[tema] || tema, href: `#/area/${tema}` }] : [];
+  }
+
+  // ---------- Vista: área (todos los cursos de Datos, Web o IA) ----------
+  async function vistaArea(tema) {
+    await obtenerCatalogo();
+    const nombre = AREAS[tema] || tema;
+    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: nombre }]);
+    mostrarSidebar(null);
+    aplicarTema({ tema, id: `area:${tema}`, cuaderno: NOMBRE_CUADERNO[tema] }, `area:${tema}`);
+    document.title = `${nombre} · NEXUS`;
+    const cursos = (await cursosVisibles()).filter((c) => temaDe(c._meta) === tema);
+    if (!cursos.length) throw new Error(`No hay cursos en el área "${nombre}".`);
+    app.innerHTML = `<div class="pagina"><div class="pagina-main">
+      <header class="cap-header">
+        <span class="cap-kicker">área</span>
+        <h1 class="titulo-hoja" style="font-size:clamp(2rem,3.6vw,2.9rem);margin-top:.5rem">${escapar(nombre)}</h1>
+        <p class="lead" style="margin-top:.6rem">${cursos.length} ${cursos.length === 1 ? "curso" : "cursos"} en esta área. Elige uno para abrir su índice.</p>
+      </header>
+      <div class="cuadernos">${cursos.map(itemCuaderno).join("")}</div>
+    </div></div>`;
+    window.scrollTo(0, 0);
+  }
+
   // ---------- Vista: Hoy (página principal) ----------
   async function vistaHoy() {
     const cat = await obtenerCatalogo();
@@ -257,7 +313,8 @@
 
     // Plan de hoy: el siguiente capítulo de cada curso + repaso + lo que tú agregues
     const items = [];
-    for (const curso of activos) {
+    const empezados = activos.filter((c) => c.chapters.some((cap) => P.estado(c.id, cap.id) !== "pendiente"));
+    for (const curso of empezados.length ? empezados : activos.slice(0, 1)) {
       const sig = siguienteCap(curso);
       if (!sig) continue;
       const tema = temaDe(curso._meta);
@@ -337,19 +394,16 @@
           <span class="pregunta-txt">${C.tarjetas().length ? "Hoy no te toca ninguna. ¡Al día!" : "Aún no tienes tarjetas: créalas en las lecciones o al fallar una pregunta."}</span></span></div>`;
 
     // Cuadernos (cursos)
-    const cuadernosHTML = cursos.map((curso) => {
-      const m = curso._meta;
-      const tema = temaDe(m);
-      if (curso._error) return `<div class="cuaderno-item ${tema}"><strong>${escapar(m.id)}</strong><span class="small">${escapar(curso._error.message)}</span></div>`;
-      const prep = enPreparacion(m);
-      const r = P.resumenCurso(curso);
-      return `<a class="cuaderno-item ${tema} ${prep ? "prep" : ""}" href="#/curso/${curso.id}">
-        <span class="tipo">${escapar(m.cuaderno || NOMBRE_CUADERNO[tema] || "Cuaderno")}</span>
-        <strong>${escapar(curso.title)}</strong>
-        <span class="pie"><span>${prep ? "En preparación" : `${r.aprobados}/${r.total} aprobados`}</span><span>${prep ? "" : r.pct + "%"}</span></span>
-        ${prep ? "" : `<span class="mini-bar"><span style="width:${r.pct}%"></span></span>`}
-      </a>`;
-    }).join("");
+    // Agrupados por área cuando hay más de una
+    const grupos = new Map();
+    for (const c of cursos) {
+      const t = temaDe(c._meta);
+      if (!grupos.has(t)) grupos.set(t, []);
+      grupos.get(t).push(c);
+    }
+    const cuadernosHTML = grupos.size > 1 && cursos.length > grupos.size
+      ? [...grupos].map(([t, l]) => `<div class="area-grupo"><a class="etiqueta" href="#/area/${t}">${escapar(AREAS[t] || t)}</a><div class="cuadernos">${l.map(itemCuaderno).join("")}</div></div>`).join("")
+      : `<div class="cuadernos">${cursos.map(itemCuaderno).join("")}</div>`;
 
     // Margen: dudas guardadas
     const dudasHTML = dudas.length
@@ -385,7 +439,7 @@
         </div>
         <section style="margin-top:2.6rem" aria-labelledby="tCuadernos">
           <h2 class="h-mano" id="tCuadernos">Tus cuadernos</h2>
-          <div class="cuadernos">${cuadernosHTML || '<p class="muted">Aún no hay cursos publicados.</p>'}</div>
+          ${cursos.length ? cuadernosHTML : '<p class="muted">Aún no hay cursos publicados.</p>'}
         </section>
         <form class="fila-agregar" id="formDuda" style="margin-top:2.4rem">
           <svg width="60" height="30" viewBox="0 0 60 30" aria-hidden="true" style="flex:none"><path d="M4 22C18 6 36 4 52 14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" style="color:var(--mano)"/><path d="M46 8l7 6-8 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" style="color:var(--mano)"/></svg>
@@ -568,7 +622,7 @@
     const m = curso._meta;
     const tema = temaDe(m);
     const prep = enPreparacion(m);
-    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title }]);
+    setCrumbs([{ texto: "Hoy", href: "#/" }, ...migaArea(curso), { texto: curso.title }]);
     aplicarTema(m);
     mostrarSidebar(sidebarCurso(curso, null));
     document.title = curso.title;
@@ -1022,7 +1076,7 @@
     const pestañas = pestañasDe(cap, tema);
     let activa = pestañas.some(([k]) => k === pestañaInicial) ? pestañaInicial : pestañas[0]?.[0];
 
-    setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
+    setCrumbs([{ texto: "Hoy", href: "#/" }, ...migaArea(curso), { texto: curso.title, href: `#/curso/${curso.id}` }, { texto: cap.code || cap.title }]);
     aplicarTema(curso._meta);
     mostrarSidebar(sidebarCurso(curso, cap.id));
     document.title = `${cap.code ? cap.code + " · " : ""}${cap.title}`;
@@ -1116,6 +1170,7 @@
       if (partes[0] === "curso" && partes[1] && partes[2]) await vistaCapitulo(partes[1], partes[2], partes[3]);
       else if (partes[0] === "curso" && partes[1]) await vistaCurso(partes[1]);
       else if (partes[0] === "repaso") await vistaRepaso();
+      else if (partes[0] === "area" && partes[1]) await vistaArea(partes[1]);
       else if (partes[0] === "practica") {
         await window.Practica.vista({ app, obtenerCatalogo, obtenerCurso, cursosVisibles, setCrumbs, mostrarSidebar, aplicarTema, aviso, temaDe, modulosDe, capDisponible }, partes.slice(1));
       }

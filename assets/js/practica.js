@@ -330,18 +330,30 @@
     <p class="small muted" style="margin:.4rem 0 0">${r.values.length} ${r.values.length === 1 ? "fila" : "filas"}${r.values.length > max ? ` · se muestran las primeras ${max}` : ""}</p>`;
   }
 
-  // Pestañas principales: Mi nivel, un tema por curso y JavaScript (después de Web)
+  // Pestañas principales: Mi nivel, una por área (Datos, Web, IA) y JavaScript (después de Web).
+  // Si un área tiene varios cursos, debajo aparece una fila con sus cursos.
+  const AREAS = { datos: "Datos", web: "Web", ia: "IA" };
   function pestanasPrincipales(cursos, activa) {
-    const items = [["nivel", "Mi nivel", "#/practica"]];
-    let conJS = false;
+    const grupos = new Map();
     for (const c of cursos) {
-      items.push([c.id, c._meta.separador || c.title, `#/practica/${encodeURIComponent(c.id)}`]);
-      if (c._meta.tema === "web") { items.push(["js", "JavaScript", "#/practica/js/ejercicios"]); conJS = true; }
+      const t = c._meta.tema || "otro";
+      if (!grupos.has(t)) grupos.set(t, []);
+      grupos.get(t).push(c);
+    }
+    const items = [["nivel", "Mi nivel", "#/practica"]];
+    let conJS = false, filaCursos = "";
+    for (const [t, lista] of grupos) {
+      const activo = lista.some((c) => c.id === activa);
+      items.push([activo ? activa : lista[0].id, AREAS[t] || lista[0]._meta.separador || t, `#/practica/${encodeURIComponent(lista[0].id)}`]);
+      if (activo && lista.length > 1) {
+        filaCursos = subpestanas(lista.map((c) => [c.id, c._meta.separador || c.title, `#/practica/${encodeURIComponent(c.id)}`]), activa, `Cursos de ${AREAS[t] || t}`, "Curso");
+      }
+      if (t === "web") { items.push(["js", "JavaScript", "#/practica/js/ejercicios"]); conJS = true; }
     }
     if (!conJS) items.push(["js", "JavaScript", "#/practica/js/ejercicios"]);
     return `<nav class="tabs practica-tabs" aria-label="Temas de práctica">${items
       .map(([id, txt, href]) => `<a class="tab ${id === activa ? "activa" : ""}" href="${href}" ${id === activa ? 'aria-current="page"' : ""}>${escapar(txt)}</a>`)
-      .join("")}</nav>`;
+      .join("")}</nav>${filaCursos}`;
   }
   function subpestanas(items, activa, etiqueta, titulo) {
     return `<nav class="subtabs" aria-label="${escapar(etiqueta)}">${titulo ? `<span class="subtabs-titulo">${escapar(titulo)}</span>` : ""}${items
@@ -357,7 +369,8 @@
     </header>`;
   }
 
-  const cursoDatos = (cursos) => cursos.find((c) => c._meta.tema === "datos") || null;
+  // Curso al que pertenece la práctica de T-SQL (pestaña Datos)
+  const cursoDatos = (cursos) => cursos.find((c) => c.id === "analista-datos-intermedio") || cursos.find((c) => c._meta.tema === "datos") || null;
 
   // Navegación de la pestaña Datos: T-SQL (ejercicios, consola, reto) y preguntas por módulo
   function navDatos(ctx, cursos, activa) {
@@ -402,7 +415,7 @@
     if (primero === "js") return vistaJS(ctx, cursos, resto);
     const curso = cursos.find((c) => c.id === primero);
     if (!curso) throw new Error(`No encontré el tema "${primero}" en la práctica.`);
-    if (curso._meta.tema === "datos" && !resto.length) return vistaSQL(ctx, cursos, []);
+    if (curso === cursoDatos(cursos) && !resto.length) return vistaSQL(ctx, cursos, []);
     return vistaCurso(ctx, cursos, curso, resto);
   }
 
@@ -449,7 +462,7 @@
       const prep = curso._meta && curso._meta.estado === "en-preparacion";
       const mods = modulosPractica(ctx, curso).filter((m) => m.total);
       const evMods = mods.map((m) => ({ m, ev: evaluarModulo(curso, m, d) }));
-      const esDatos = curso._meta.tema === "datos";
+      const esDatos = curso === cursoDatos(cursos);
       const evs = evMods.map((x) => x.ev).concat(esDatos ? evSQL.map((x) => x.ev) : []);
       return { curso, prep, evMods, esDatos, ev: combinar(evs) };
     });
@@ -687,7 +700,7 @@
 
   function migasDatos(cursos, ultimo) {
     const curso = cursoDatos(cursos);
-    const items = [{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: (curso && curso._meta.separador) || "Datos", href: "#/practica/sql/ejercicios" }];
+    const items = [{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "Datos", href: "#/practica/sql/ejercicios" }];
     return items.concat(ultimo);
   }
 
@@ -1193,7 +1206,7 @@
     }
     const idx = resto[0] != null && conPreguntas.some((m) => String(m.i) === resto[0]) ? Number(resto[0]) : conPreguntas[0].i;
     const mod = mods[idx];
-    const subtabs = curso._meta.tema === "datos"
+    const subtabs = curso === cursoDatos(cursos)
       ? navDatos(ctx, cursos, `mod-${idx}`)
       : subpestanas(conPreguntas.map((m) => [String(m.i), etiquetaCorta(m.nombre), `#/practica/${encodeURIComponent(curso.id)}/${m.i}`]), String(idx), "Subtemas");
 

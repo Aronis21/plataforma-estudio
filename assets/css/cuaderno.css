@@ -87,10 +87,10 @@ a.papel-card:hover { text-decoration: none; transform: translateY(-2px); }
 .plan a { color: inherit; }
 .plan .min { color: var(--tinta-2); }
 .plan .quitar { font-family: var(--f-ui); font-size: .8rem; border: 0; background: none; color: var(--tinta-2); cursor: pointer; min-width: 32px; min-height: 32px; }
-.fila-agregar { display: flex; gap: .5rem; align-items: center; margin-top: .5rem; }
+.fila-agregar { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .5rem; }
 
 /* Campo que se escribe "a mano" sobre un renglón */
-.entrada-mano { flex: 1; min-height: var(--toque); border: 0; border-bottom: 2px solid var(--borde); background: transparent; font-family: var(--f-mano); font-size: 1.45rem; color: var(--mano); padding: 0 .2rem; outline: none; }
+.entrada-mano { flex: 1 1 8rem; min-width: 0; min-height: var(--toque); border: 0; border-bottom: 2px solid var(--borde); background: transparent; font-family: var(--f-mano); font-size: 1.45rem; color: var(--mano); padding: 0 .2rem; outline: none; }
 .entrada-mano:focus { border-bottom-color: var(--mano); }
 .entrada-mano::placeholder { color: var(--tinta-2); opacity: .8; }
 .area-mano { width: 100%; min-height: 70px; border: 1.5px dashed var(--borde); border-radius: var(--r-md); background: transparent; font-family: var(--f-mano); font-size: 1.35rem; color: var(--mano); padding: .5rem .7rem; resize: vertical; outline: none; }
@@ -239,3 +239,5 @@ dialog.dialogo textarea { width: 100%; min-height: 80px; font: inherit; padding:
 }
 .practicar-tema > div:first-child { display: flex; flex-direction: column; gap: .15rem; }
 .practicar-tema .row { gap: .5rem; flex-wrap: wrap; }
+.area-grupo { margin-bottom: var(--e-4); }
+.area-grupo > .etiqueta { display: inline-block; margin-bottom: .5rem; color: var(--tinta-2); }
