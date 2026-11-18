@@ -41,7 +41,7 @@ Cada curso es **un archivo JSON** dentro de la carpeta `cursos/`. La página lo 
 | `module` | No | Nombre del módulo; los capítulos con el mismo texto se agrupan juntos |
 | `subtitle`, `estimatedMinutes` | No | Resumen y duración |
 | `objectives` | No | Lista de objetivos |
-| `theorySections` | No | Secciones con `title`, `body`, `codeSnippet`, `codeLanguage`, `keyTakeaway` |
+| `theorySections` | No | Secciones con `title`, `body`, `codeSnippet`, `codeLanguage`, `keyTakeaway` y, opcional, `diagram` (`{"type": "venn-joins"}`; los tipos están en `assets/js/diagramas.js`) |
 | `professionalStandard` | No | Reglas de buenas prácticas y código de referencia |
 | `comparison` | No | Comparación "forma incorrecta vs. correcta" |
 | `exercises` | No | Ejercicios con pista y solución ocultas |

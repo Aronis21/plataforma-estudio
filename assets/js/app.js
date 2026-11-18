@@ -692,6 +692,7 @@
       h += `<article class="seccion" data-seccion="${escapar(s.id || "")}">
         <h2>${enLinea(s.title)}</h2>
         <div class="lectura">${bloques(s.body)}</div>
+        ${s.diagram && window.Diagramas ? window.Diagramas.html(s.diagram) : ""}
         ${bloqueCodigo(s.codeSnippet, s.codeLanguage)}
         ${s.keyTakeaway ? `<div class="takeaway"><strong>Idea clave</strong>${enLinea(s.keyTakeaway)}</div>` : ""}
       </article>`;
@@ -1058,6 +1059,7 @@
         <aside class="margen" aria-label="Margen">${pestañas.length ? margenCapitulo(curso, cap, activa, tema) : `<div class="margen-titulo">Margen</div>`}</aside>
       </div>`;
 
+      if (window.Diagramas) window.Diagramas.activar(app);
       app.querySelectorAll(".tab").forEach((b) => {
         b.onclick = () => {
           activa = b.dataset.tab;

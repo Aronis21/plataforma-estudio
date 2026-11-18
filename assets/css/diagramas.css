@@ -1,0 +1,125 @@
+/* ==========================================================================
+   NEXUS · Diagramas de las lecciones (assets/js/diagramas.js)
+   Usa las variables del tema activo, así funciona en todos los "papeles".
+   ========================================================================== */
+.diagrama {
+  margin: 1.4rem 0;
+  padding: 1rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--r-md);
+  font-family: var(--f-ui);
+  font-size: var(--t-sm);
+  color: var(--tinta);
+}
+.diagrama figcaption {
+  margin-top: .8rem;
+  color: var(--tinta-2);
+  font-size: var(--t-xs);
+}
+.dg-cap {
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  color: var(--tinta-2);
+  margin-bottom: .25rem;
+}
+.dg-fuentes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.dg-tabla {
+  border-collapse: collapse;
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  background: var(--superficie);
+}
+.dg-tabla th, .dg-tabla td {
+  border: 1px solid var(--borde);
+  padding: .2rem .55rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.dg-tabla th { background: var(--superficie-2); font-weight: 600; }
+.dg-tabla td.nulo { color: var(--tinta-2); font-style: italic; }
+.dg-tabla tr.marca td { background: color-mix(in srgb, var(--resaltador) 35%, transparent); }
+
+.dg-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+.dg-btn {
+  font: inherit;
+  font-size: var(--t-xs);
+  font-family: var(--f-mono);
+  padding: .35rem .7rem;
+  min-height: 34px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--borde);
+  background: var(--superficie-2);
+  color: var(--tinta);
+  cursor: pointer;
+}
+.dg-btn:hover { border-color: var(--tinta-2); }
+.dg-btn[aria-pressed="true"] {
+  background: var(--chip-bg);
+  color: var(--chip-txt);
+  border-color: var(--chip-bg);
+}
+.dg-btn:focus-visible { outline: 2px solid var(--mano); outline-offset: 2px; }
+
+.dg-panel {
+  display: grid;
+  grid-template-columns: minmax(170px, 230px) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.dg-panel > * { min-width: 0; }
+.dg-explica p { margin: 0 0 .6rem; line-height: 1.5; }
+.dg-sql {
+  margin: 0 0 .6rem;
+  padding: .6rem .75rem;
+  background: var(--code-bg);
+  border: 1px solid var(--code-borde);
+  border-radius: var(--r-sm);
+  font-family: var(--f-mono);
+  font-size: var(--t-xs);
+  white-space: pre;
+  overflow-x: auto;
+}
+.dg-cuenta { color: var(--tinta-2); }
+.dg-explica .dg-tabla { max-width: 100%; display: block; overflow-x: auto; }
+
+/* Venn */
+.venn { width: 100%; height: auto; display: block; }
+.venn-zona circle { fill: transparent; transition: fill .2s; }
+.venn-zona.on circle { fill: color-mix(in srgb, var(--cta-bg) 70%, transparent); }
+.venn-borde circle { fill: none; stroke: var(--tinta); stroke-width: 2; }
+.venn-etq { font: 600 11px var(--f-ui); fill: var(--tinta); }
+.venn-tit { font: 12px var(--f-mono); fill: var(--tinta-2); }
+
+/* CROSS JOIN */
+.venn-cross { display: grid; gap: .35rem; padding: .5rem 0; }
+.fila-cross { display: flex; gap: .35rem; align-items: center; font-family: var(--f-mono); font-size: var(--t-xs); }
+.fila-cross > span:first-child { width: 3.5rem; font-weight: 600; }
+.fila-cross .pc {
+  padding: .15rem .35rem;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--cta-bg) 55%, transparent);
+}
+
+/* Gráficos genéricos (regresión, matriz de confusión) */
+.dg-svg { width: 100%; max-width: 560px; height: auto; display: block; margin: 0 auto; }
+.dg-svg .eje { stroke: var(--tinta-2); stroke-width: 1; }
+.dg-svg .punto { fill: var(--mano); }
+.dg-svg .recta { stroke: var(--ko); stroke-width: 2.5; }
+.dg-svg .residuo { stroke: var(--tinta-2); stroke-dasharray: 3 3; }
+.dg-svg text { font: 11px var(--f-ui); fill: var(--tinta-2); }
+
+@media (max-width: 700px) {
+  .dg-panel { grid-template-columns: 1fr; }
+  .venn { max-width: 300px; margin: 0 auto; }
+}

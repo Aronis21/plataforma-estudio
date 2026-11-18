@@ -331,14 +331,26 @@
       "estimatedMinutes": 35,
       "status": "published",
       "objectives": [
+        "Elegir el tipo de `JOIN` correcto (INNER, LEFT, RIGHT, FULL, anti-joins y CROSS) leyendo su diagrama de Venn y anticipando cuántas filas devolverá.",
         "Detectar claves no únicas antes de cruzar tablas mediante pruebas de cardinalidad.",
         "Implementar patrones `NOT EXISTS` frente a los riesgos silenciosos de `NOT IN` con valores NULL.",
         "Reconciliar tablas con `FULL OUTER JOIN` para encontrar registros huérfanos en ambos lados."
       ],
       "theorySections": [
         {
+          "id": "cap02-sec-0",
+          "title": "1. Cómo funciona cada JOIN: el diagrama de Venn",
+          "body": "Un `JOIN` decide qué filas de dos tablas sobreviven según una condición (`ON`). La forma más rápida de recordarlo es un **diagrama de Venn**: el círculo izquierdo es la tabla de la izquierda (`clientes`), el derecho es la tabla de la derecha (`pedidos`) y la intersección son las filas que cumplen la condición.\n\n- **INNER JOIN**: solo la intersección.\n- **LEFT JOIN**: todo el círculo izquierdo; lo que no coincide trae `NULL` a la derecha.\n- **RIGHT JOIN**: todo el círculo derecho (casi siempre se reescribe como `LEFT JOIN` invirtiendo las tablas).\n- **FULL OUTER JOIN**: ambos círculos completos.\n- **Anti-joins**: la parte de un círculo que *no* toca al otro. Se obtienen con `LEFT JOIN ... WHERE derecha.clave IS NULL` o, mejor, con `NOT EXISTS` (sección 3).\n- **CROSS JOIN**: no tiene condición; combina todo con todo y no cabe en un Venn.\n\n**Cuidado:** el diagrama de Venn muestra *qué zonas* sobreviven, pero no *cuántas veces* aparece cada fila. Si un cliente tiene dos pedidos, aparece dos veces. Pulsa `INNER JOIN` en el diagrama y mira a Ana: ese es exactamente el fan-out de la siguiente sección.",
+          "diagram": {
+            "type": "venn-joins"
+          },
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Plantilla general: cambia solo el tipo de JOIN y, si hace falta, el WHERE\nSELECT c.nombre, p.pedido_id, p.monto\nFROM clientes AS c\nLEFT JOIN pedidos AS p            -- INNER | LEFT | RIGHT | FULL OUTER\n  ON p.cliente_id = c.cliente_id\n-- WHERE p.pedido_id IS NULL      -- descomenta para el LEFT anti-join\nORDER BY c.nombre;",
+          "keyTakeaway": "El Venn te dice qué zonas conserva cada JOIN; para saber cuántas filas devuelve, revisa siempre si la clave del otro lado es única."
+        },
+        {
           "id": "cap02-sec-1",
-          "title": "1. Qué es el Fan-Out y por qué ocurre en silencio",
+          "title": "2. Qué es el Fan-Out y por qué ocurre en silencio",
           "body": "El fan-out ocurre cuando cruzas una tabla de grano 1:1 (ej. `pedidos`) contra otra tabla donde la clave aparece múltiples veces (ej. `envios` o `cupones_aplicados`) sin haber agregado primero el lado derecho.\n\nEl motor SQL no arroja ningún error: simplemente multiplica cada pedido por la cantidad de coincidencias y duplica cualquier `SUM()` o `COUNT(*)` posterior. La regla de oro intermedia es auditar la unicidad de la clave derecha antes del JOIN o pre-agregar en una CTE.",
           "codeLanguage": "sql",
           "codeSnippet": "-- Auditoría previa de cardinalidad en la tabla derecha\nSELECT TOP (20)\n  pedido_id,\n  COUNT(*) AS repeticiones\nFROM logistica.envios\nGROUP BY pedido_id\nHAVING COUNT(*) > 1;",
@@ -346,7 +358,7 @@
         },
         {
           "id": "cap02-sec-2",
-          "title": "2. Anti-Joins seguros: NOT EXISTS vs. la trampa de NOT IN",
+          "title": "3. Anti-Joins seguros: NOT EXISTS vs. la trampa de NOT IN",
           "body": "Para encontrar registros que NO existen en otra tabla (ej. clientes sin compras), `NOT IN (SELECT cliente_id FROM pedidos)` falla silenciosamente si existe un solo `NULL` en `pedidos.cliente_id`: en lógica trivaluada SQL (`TRUE`, `FALSE`, `UNKNOWN`), comparar cualquier valor contra `NULL` produce `UNKNOWN` y la consulta devuelve 0 filas.\n\n`NOT EXISTS` evalúa existencia booleana pura (`TRUE` o `FALSE`) sin verse afectado por valores `NULL`, y además suele optimizarse como anti-join nativo.",
           "codeLanguage": "sql",
           "codeSnippet": "SELECT\n  c.cliente_id,\n  c.email,\n  c.fecha_registro\nFROM crm.clientes AS c\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM ventas.pedidos AS p\n  WHERE p.cliente_id = c.cliente_id\n    AND p.estado = 'completado'\n);",
@@ -354,7 +366,7 @@
         },
         {
           "id": "cap02-sec-3",
-          "title": "3. Reconciliación bidireccional con FULL OUTER JOIN",
+          "title": "4. Reconciliación bidireccional con FULL OUTER JOIN",
           "body": "Cuando necesitas auditar dos sistemas (por ejemplo, pagos registrados en pasarela vs. facturas emitidas en ERP), un `LEFT JOIN` solo muestra lo que falta en el ERP. Un `FULL OUTER JOIN` conserva filas exclusivas de ambos lados para clasificar diferencias en `solo_pasarela`, `solo_erp`, `diferencia_monto` y `conciliado`.",
           "codeLanguage": "sql",
           "codeSnippet": "SELECT\n  COALESCE(p.transaccion_id, e.transaccion_id) AS transaccion_id,\n  CASE\n    WHEN p.transaccion_id IS NULL THEN 'solo_erp'\n    WHEN e.transaccion_id IS NULL THEN 'solo_pasarela'\n    WHEN ABS(p.monto - e.monto) > 0.01 THEN 'diferencia_monto'\n    ELSE 'conciliado'\n  END AS estado_conciliacion\nFROM pagos.pasarela AS p\nFULL OUTER JOIN contabilidad.erp AS e\n  ON p.transaccion_id = e.transaccion_id;",
