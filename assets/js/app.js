@@ -735,7 +735,14 @@
 
   function htmlEjercicios(curso, cap) {
     const hechos = P.capitulo(curso.id, cap.id).ejercicios || {};
-    return `<p class="sin-penalizacion" style="margin-bottom:1rem">Escribe tu intento, pide pistas si te atascas y mira la solución cuando quieras. Sin penalización: el objetivo es entender.</p>` + cap.exercises
+    const enlaces = window.Practica && window.Practica.enlacesCapitulo ? window.Practica.enlacesCapitulo(curso.id, cap.id) : [];
+    const practicar = enlaces.length
+      ? `<aside class="practicar-tema" aria-label="Practicar este tema">
+          <div><strong>Practicar este tema</strong><span class="small muted">Ejercicios con consola que se corrigen solos y suman a tu nivel.</span></div>
+          <div class="row">${enlaces.map((x) => `<a class="btn cta" href="${x.href}">${escapar(x.nombre)} · ${escapar(x.concepto)} <span class="small">(${x.hechos}/${x.total})</span></a>`).join("")}</div>
+        </aside>`
+      : "";
+    return `<p class="sin-penalizacion" style="margin-bottom:1rem">Escribe tu intento, pide pistas si te atascas y mira la solución cuando quieras. Sin penalización: el objetivo es entender.</p>` + practicar + cap.exercises
       .map((e) => {
         const niveles = [e.hint, e.solutionExplanation].filter(Boolean).length;
         return `<article class="ejercicio" data-ej="${escapar(e.id)}">

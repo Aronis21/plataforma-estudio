@@ -1336,5 +1336,26 @@
     pintar();
   }
 
-  window.Practica = { vista, exportar, importar, evaluar, comparar };
+  // Botón "Practicar este tema" en la pestaña Ejercicios de cada capítulo
+  const TEMAS_CAPITULO = {
+    "analista-datos-intermedio": {
+      "cap-01": ["Subconsultas y CTE", "Funciones de ventana"],
+      "cap-02": ["JOIN"],
+      "cap-03": ["Fechas y texto"],
+      "cap-04": ["JSON"],
+    },
+  };
+  function enlacesCapitulo(cursoId, capId) {
+    const sql = (TEMAS_CAPITULO[cursoId] || {})[capId] || [];
+    const js = cursoId === "programacion-desarrollo-web" ? CONCEPTOS_JS.filter((c) => JSD.lecciones[c] === capId) : [];
+    const d = leer();
+    const item = (clase, c) => {
+      const lista = CLASES[clase].lista().filter((e) => e.concepto === c);
+      const hechos = lista.filter((e) => d[clase][e.id] && d[clase][e.id].resuelto).length;
+      return { clase, nombre: CLASES[clase].nombre, concepto: c, href: `${CLASES[clase].ruta}/ejercicios/${slug(c)}`, total: lista.length, hechos };
+    };
+    return [...sql.map((c) => item("sql", c)), ...js.map((c) => item("js", c))].filter((x) => x.total);
+  }
+
+  window.Practica = { vista, exportar, importar, evaluar, comparar, enlacesCapitulo };
 })();

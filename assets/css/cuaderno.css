@@ -223,3 +223,19 @@ dialog.dialogo textarea { width: 100%; min-height: 80px; font: inherit; padding:
   .margen { max-width: none; border-left: 0; border-top: 2px solid var(--linea-margen); padding: var(--e-5) var(--e-4); }
   .titulo-hoja { font-size: 2.1rem; }
 }
+
+/* Botón "Practicar este tema" (pestaña Ejercicios del capítulo) */
+.practicar-tema {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .8rem 1rem;
+  margin: 0 0 1.4rem;
+  padding: .9rem 1rem;
+  border: 1px dashed var(--borde);
+  border-radius: var(--r-md);
+  background: var(--superficie-2);
+}
+.practicar-tema > div:first-child { display: flex; flex-direction: column; gap: .15rem; }
+.practicar-tema .row { gap: .5rem; flex-wrap: wrap; }

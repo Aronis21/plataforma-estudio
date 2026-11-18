@@ -467,7 +467,7 @@ window.PracticaDatos = {
    "pista": "`IIF(condición, valor_si, valor_no)` es un CASE corto de T-SQL."
   },
   {
-   "id": "j01",
+   "id": "jn01",
    "base": "rrhh",
    "nivel": "basico",
    "concepto": "JOIN",
@@ -479,7 +479,7 @@ window.PracticaDatos = {
    "venn": "inner"
   },
   {
-   "id": "j02",
+   "id": "jn02",
    "base": "rrhh",
    "nivel": "basico",
    "concepto": "JOIN",
@@ -491,7 +491,7 @@ window.PracticaDatos = {
    "venn": "left"
   },
   {
-   "id": "j03",
+   "id": "jn03",
    "base": "rrhh",
    "nivel": "intermedio",
    "concepto": "JOIN",
@@ -503,7 +503,7 @@ window.PracticaDatos = {
    "venn": "right"
   },
   {
-   "id": "j04",
+   "id": "jn04",
    "base": "rrhh",
    "nivel": "intermedio",
    "concepto": "JOIN",
@@ -515,7 +515,7 @@ window.PracticaDatos = {
    "venn": "full"
   },
   {
-   "id": "j05",
+   "id": "jn05",
    "base": "rrhh",
    "nivel": "intermedio",
    "concepto": "JOIN",
@@ -527,7 +527,7 @@ window.PracticaDatos = {
    "venn": "full-anti"
   },
   {
-   "id": "j06",
+   "id": "jn06",
    "base": "tienda",
    "nivel": "intermedio",
    "concepto": "JOIN",
@@ -539,7 +539,7 @@ window.PracticaDatos = {
    "venn": "left-anti"
   },
   {
-   "id": "j07",
+   "id": "jn07",
    "base": "tienda",
    "nivel": "intermedio",
    "concepto": "JOIN",
@@ -551,7 +551,7 @@ window.PracticaDatos = {
    "venn": "inner"
   },
   {
-   "id": "j08",
+   "id": "jn08",
    "base": "tienda",
    "nivel": "avanzado",
    "concepto": "JOIN",
