@@ -621,6 +621,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "-- Desanidando un arreglo JSON en SQL Server conservando pedidos vacíos\nSELECT\n  e.evento_id,\n  e.creado_en,\n  i.sku,\n  i.cantidad,\n  i.precio AS precio_unitario\nFROM raw.eventos_checkout AS e\nOUTER APPLY OPENJSON(e.payload, '$.items')\n  WITH (\n    sku      NVARCHAR(50)  '$.sku',\n    cantidad INT           '$.cantidad',\n    precio   DECIMAL(18,4) '$.precio'\n  ) AS i;",
           "keyTakeaway": "Nunca mantengas métricas de cabecera sin advertir que el grano cambió tras hacer `UNNEST` o `FLATTEN`."
+        },
+        {
+          "id": "cap04-sec-3",
+          "title": "3. Validar el JSON antes de Extraer: ISJSON y Cuarentena",
+          "body": "En producción no todos los payloads son JSON válido: llegan textos truncados, cadenas vacías o un proveedor cambia el nombre de un campo. `JSON_VALUE` en modo por defecto (*lax*) devuelve `NULL` cuando la ruta no existe, y eso puede esconder el problema: el total baja sin que nadie sepa por qué.\n\nEl patrón profesional tiene tres pasos:\n1) **Validar** con `ISJSON(payload) = 1` antes de extraer.\n2) **Separar** en una tabla de cuarentena las filas inválidas o sin los campos obligatorios, con el motivo.\n3) **Medir** cada día cuántas filas van a cuarentena; si sube, avisar.\n\nCuando un campo es obligatorio, el modo `strict` (`JSON_VALUE(payload, 'strict $.monto')`) lanza un error si falta, en lugar de devolver `NULL` en silencio. Úsalo en validaciones, no en tableros.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Perfil diario de calidad de los payloads\nSELECT\n  CAST(recibido AS DATE) AS dia,\n  COUNT(*) AS total,\n  SUM(CASE WHEN ISJSON(payload) = 0 THEN 1 ELSE 0 END) AS json_invalido,\n  SUM(CASE WHEN ISJSON(payload) = 1\n            AND JSON_VALUE(payload, '$.monto') IS NULL THEN 1 ELSE 0 END) AS sin_monto\nFROM app.webhooks_pago\nGROUP BY CAST(recibido AS DATE)\nORDER BY dia;",
+          "keyTakeaway": "Un NULL de JSON_VALUE puede ser un dato perdido: valida con ISJSON y mide lo que va a cuarentena."
         }
       ],
       "professionalStandard": {
@@ -655,20 +663,30 @@
           "id": "cap04-ej-1",
           "title": "Práctica 1: Normalización de Tags en Arreglo SQL",
           "difficulty": "Básico",
-          "prompt": "Tienes la tabla `articulos (articulo_id, tags TEXT[])`. Escribe una consulta que cuente cuántos artículos tiene cada `tag`, ordenando de mayor a menor.",
-          "hint": "Desanida el arreglo usando `UNNEST(tags) AS tag` y luego agrupa por `tag`.",
+          "prompt": "Tienes la tabla `contenido.articulos (articulo_id INT, tags NVARCHAR(MAX))`, donde `tags` guarda un arreglo JSON como `[\"sql\",\"bi\"]`. Escribe una consulta que cuente cuántos artículos tiene cada `tag`, ordenando de mayor a menor.",
+          "hint": "Desanida el arreglo con `CROSS APPLY OPENJSON(a.tags)`; cada elemento queda en la columna `value`.",
           "solutionExplanation": "Al desanidar el arreglo, cada etiqueta pasa a ser un valor atómico agrupable en SQL estándar.",
-          "solutionCode": "SELECT\n  tag,\n  COUNT(DISTINCT articulo_id) AS total_articulos\nFROM contenido.articulos\nCROSS JOIN UNNEST(tags) AS t(tag)\nGROUP BY tag\nORDER BY total_articulos DESC;",
+          "solutionCode": "SELECT\n  t.value AS tag,\n  COUNT(DISTINCT a.articulo_id) AS total_articulos\nFROM contenido.articulos AS a\nCROSS APPLY OPENJSON(a.tags) AS t\nGROUP BY t.value\nORDER BY total_articulos DESC;",
           "codeLanguage": "sql"
         },
         {
           "id": "cap04-ej-2",
           "title": "Práctica 2: Recálculo Seguro desde JSON",
           "difficulty": "Intermedio",
-          "prompt": "Dado un evento con `payload -> 'items'` donde cada elemento tiene `precio` y `cantidad`, calcula el `subtotal_calculado` por `evento_id` sin perder eventos cuyo arreglo `items` sea `[]`.",
+          "prompt": "Dado un evento cuyo `payload` tiene un arreglo `$.items`, donde cada elemento tiene `precio` y `cantidad`, calcula el `subtotal_calculado` por `evento_id` sin perder eventos cuyo arreglo `items` sea `[]`.",
           "hint": "Haz `OUTER APPLY OPENJSON(...)` y luego agrupa por `evento_id` usando `COALESCE(SUM(...), 0)`.",
           "solutionExplanation": "Re-agregar tras desanidar devuelve la consulta al grano 1:1 por `evento_id` con total exacto.",
           "solutionCode": "SELECT\n  e.evento_id,\n  COALESCE(SUM(it.precio * it.cantidad), 0) AS subtotal_calculado\nFROM raw.eventos_checkout AS e\nOUTER APPLY OPENJSON(COALESCE(JSON_QUERY(e.payload, '$.items'), '[]'))\n  WITH (\n    precio   DECIMAL(18,4) '$.precio',\n    cantidad INT           '$.cantidad'\n  ) AS it\nGROUP BY e.evento_id;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap04-ej-3",
+          "title": "Práctica 3: Cuarentena de Payloads Inválidos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta sobre `app.webhooks_pago (id, recibido, payload)` que devuelva las filas que deben ir a cuarentena con una columna `motivo`: 'json_invalido' si no es JSON válido, o 'sin_monto' si es válido pero no tiene `$.monto`.",
+          "hint": "Usa un CASE con ISJSON primero (si no es JSON, no intentes extraer) y filtra las filas cuyo motivo no sea NULL.",
+          "solutionExplanation": "Evaluar ISJSON antes de JSON_VALUE evita errores y deja trazabilidad del motivo, que permite reclamar al proveedor con evidencia.",
+          "solutionCode": "SELECT id, recibido, motivo\nFROM (\n  SELECT id, recibido,\n    CASE\n      WHEN ISJSON(payload) = 0 THEN 'json_invalido'\n      WHEN JSON_VALUE(payload, '$.monto') IS NULL THEN 'sin_monto'\n    END AS motivo\n  FROM app.webhooks_pago\n) AS r\nWHERE motivo IS NOT NULL\nORDER BY recibido;",
           "codeLanguage": "sql"
         }
       ],
@@ -741,6 +759,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "-- Inspeccionar lecturas, tiempo y plan real en SQL Server\n-- (en SSMS activa también \"Incluir plan de ejecución real\" con Ctrl + M)\nSET STATISTICS IO, TIME ON;\n\nSELECT\n  cliente_id,\n  SUM(monto_neto) AS ingreso\nFROM ventas.pedidos\nWHERE fecha_pedido >= '2026-01-01'\nGROUP BY cliente_id;\n\nSET STATISTICS IO, TIME OFF;",
           "keyTakeaway": "En almacenes columnares (BigQuery, Snowflake, Redshift), evita `SELECT *` porque cada columna extra leída cuesta dinero y ancho de banda."
+        },
+        {
+          "id": "cap05-sec-3",
+          "title": "3. Índices de Cobertura y el Costo Oculto de SELECT *",
+          "body": "Aunque el filtro sea SARGable, una consulta puede seguir lenta por los **Key Lookups**: el motor encuentra las filas con un índice no agrupado, pero luego debe ir a la tabla base una vez por fila para traer las columnas que el índice no tiene. Con miles de filas, eso domina el tiempo.\n\nUn **índice de cobertura** incluye, con `INCLUDE`, las columnas que la consulta devuelve, de modo que todo se resuelve desde el índice. Reglas prácticas:\n- Columnas del `WHERE` y del `JOIN` en la **clave** del índice (la de igualdad primero, la de rango después).\n- Columnas del `SELECT` en `INCLUDE`.\n- **Evita `SELECT *`** en consultas recurrentes: impide cubrir la consulta y arrastra columnas que nadie usa.\n\nCada índice acelera lecturas pero encarece las escrituras; crea los que justifican consultas frecuentes, no uno por consulta.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Consulta frecuente del tablero de cobros\nSELECT cliente_id, fecha_vencimiento, saldo\nFROM fin.facturas\nWHERE estado = 'abierta' AND fecha_vencimiento < '2026-11-18';\n\n-- Índice que la cubre: igualdad (estado), luego rango (fecha) e INCLUDE de lo que se devuelve\nCREATE NONCLUSTERED INDEX ix_facturas_estado_venc\n  ON fin.facturas (estado, fecha_vencimiento)\n  INCLUDE (cliente_id, saldo);",
+          "keyTakeaway": "Clave para filtrar, INCLUDE para devolver: así desaparecen los Key Lookups."
         }
       ],
       "professionalStandard": {
@@ -790,6 +816,16 @@
           "hint": "Piensa en qué operación oculta ejecuta `UNION` para eliminar repetidos.",
           "solutionExplanation": "`UNION` ordena o construye una tabla hash con todas las filas de ambas tablas para deduplicar. Como norte y sur no comparten registros, `UNION ALL` apila en streaming sin costo extra de memoria.",
           "solutionCode": "SELECT venta_id, 'norte' AS region, monto_neto FROM ventas_norte\nUNION ALL\nSELECT venta_id, 'sur' AS region, monto_neto FROM ventas_sur;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap05-ej-3",
+          "title": "Práctica 3: Diseñar un Índice de Cobertura",
+          "difficulty": "Avanzado",
+          "prompt": "Esta consulta corre cada 5 minutos y el plan muestra un Index Seek seguido de miles de Key Lookups:\n`SELECT pedido_id, total FROM ventas.pedidos WHERE tienda_id = @tienda AND creado_en >= @desde;`\nPropón el índice y explica el orden de las columnas.",
+          "hint": "La columna de igualdad va primero en la clave; la de rango después; lo que solo se devuelve va en INCLUDE.",
+          "solutionExplanation": "Con tienda_id primero, el motor salta directo a la tienda; dentro de ella, creado_en está ordenado y el rango se lee seguido. pedido_id y total en INCLUDE eliminan los Key Lookups.",
+          "solutionCode": "CREATE NONCLUSTERED INDEX ix_pedidos_tienda_creado\n  ON ventas.pedidos (tienda_id, creado_en)\n  INCLUDE (pedido_id, total);\n\n-- Verificación: el plan real debe mostrar solo un Index Seek, sin Key Lookup.\n-- SET STATISTICS IO ON; comparar logical reads antes y después.",
           "codeLanguage": "sql"
         }
       ],
@@ -1934,6 +1970,14 @@
           "title": "2. Paradoja de Simpson y Sesgo de Supervivencia",
           "body": "La **Paradoja de Simpson** ocurre cuando una tendencia presente en todos los subgrupos (ej. conversión mejora tanto en móvil como en escritorio) **se invierte** al agregar todos los datos juntos debido a un cambio en la proporción de mezcla (*mix shift*).\n\nEl **sesgo de supervivencia** ocurre al analizar únicamente clientes activos o empresas exitosas ignorando a quienes abandonaron antes de la fecha de corte.",
           "keyTakeaway": "Desagrega siempre tus métricas por segmentos clave (dispositivo, país, cohorte) antes de declarar una mejora o caída global."
+        },
+        {
+          "id": "cap15-sec-3",
+          "title": "3. Comparar Distribuciones entre Grupos con Percentiles",
+          "body": "Comparar dos sucursales solo por el ticket promedio esconde la forma de la distribución: una puede tener la misma media con clientes muy parecidos y otra con muchos tickets pequeños y unos pocos enormes.\n\nPara comparar grupos de forma robusta reporta varios **percentiles** a la vez (p10, mediana, p90) junto con `n`. En T-SQL, `PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY monto) OVER (PARTITION BY sucursal)` calcula la mediana por grupo; como es una función de ventana, devuelve el valor en cada fila y se resume con `DISTINCT`.\n\nEn Python, `groupby(...).quantile([...])` o un diagrama de caja (*boxplot*) por grupo muestra lo mismo de un vistazo. Si los p90 difieren mucho pero las medianas no, la diferencia está en los clientes grandes, no en el cliente típico.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT DISTINCT\n  sucursal,\n  COUNT(*) OVER (PARTITION BY sucursal) AS n,\n  PERCENTILE_CONT(0.10) WITHIN GROUP (ORDER BY monto) OVER (PARTITION BY sucursal) AS p10,\n  PERCENTILE_CONT(0.50) WITHIN GROUP (ORDER BY monto) OVER (PARTITION BY sucursal) AS mediana,\n  PERCENTILE_CONT(0.90) WITHIN GROUP (ORDER BY monto) OVER (PARTITION BY sucursal) AS p90\nFROM ventas.tickets\nWHERE fecha >= '2026-10-01' AND fecha < '2026-11-01';",
+          "keyTakeaway": "Compara grupos con p10, mediana y p90 (y n), no solo con la media."
         }
       ],
       "professionalStandard": {
@@ -1982,6 +2026,16 @@
           "hint": "Usa `.count()`, `.mean()`, `.median()`, `.quantile(0.75) - .quantile(0.25)` y `.quantile(0.95)`.",
           "solutionExplanation": "Encapsular estas 5 cifras estandariza el diagnóstico de cualquier columna numérica.",
           "solutionCode": "import pandas as pd\n\ndef resumen_robusto(s: pd.Series) -> dict[str, float]:\n    limpia = s.dropna()\n    return {\n        \"n\": int(limpia.count()),\n        \"media\": round(float(limpia.mean()), 2),\n        \"mediana\": round(float(limpia.median()), 2),\n        \"iqr\": round(float(limpia.quantile(0.75) - limpia.quantile(0.25)), 2),\n        \"p95\": round(float(limpia.quantile(0.95)), 2),\n    }",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap15-ej-3",
+          "title": "Práctica 3: Mediana y p90 por Grupo en Pandas",
+          "difficulty": "Intermedio",
+          "prompt": "Con un DataFrame `tickets` (columnas `sucursal` y `monto`), construye una tabla con una fila por sucursal y las columnas `n`, `media`, `mediana` y `p90`, ordenada por mediana de mayor a menor.",
+          "hint": "Usa `groupby('sucursal')['monto'].agg(...)` con funciones con nombre; para p90 usa una lambda con `quantile(0.9)`.",
+          "solutionExplanation": "Ver media y mediana lado a lado revela qué sucursales tienen colas largas: cuando la media supera mucho a la mediana, unos pocos tickets grandes inflan el promedio.",
+          "solutionCode": "resumen = (\n    tickets.groupby(\"sucursal\")[\"monto\"]\n    .agg(\n        n=\"size\",\n        media=\"mean\",\n        mediana=\"median\",\n        p90=lambda s: s.quantile(0.9),\n    )\n    .round(2)\n    .sort_values(\"mediana\", ascending=False)\n)\nprint(resumen)",
           "codeLanguage": "python"
         }
       ],
@@ -2054,6 +2108,14 @@
           "codeLanguage": "python",
           "codeSnippet": "import numpy as np\n\ndef bootstrap_ic_mediana(datos: np.ndarray, n_rep: int = 2000, seed: int = 42) -> tuple[float, float]:\n    rng = np.random.default_rng(seed)\n    n = len(datos)\n    medianas = np.empty(n_rep)\n    for i in range(n_rep):\n        muestra = rng.choice(datos, size=n, replace=True)\n        medianas[i] = np.median(muestra)\n    return float(np.percentile(medianas, 2.5)), float(np.percentile(medianas, 97.5))",
           "keyTakeaway": "Fija siempre una semilla (`seed=42`) en simulaciones Bootstrap para garantizar resultados reproducibles."
+        },
+        {
+          "id": "cap16-sec-3",
+          "title": "3. Intervalos para Proporciones Pequeñas y Cómo Comunicarlos",
+          "body": "La fórmula clásica del IC para una proporción (`p ± 1.96·√(p(1−p)/n)`, llamada de Wald) falla con muestras pequeñas o tasas cercanas a 0% o 100%: puede dar límites negativos o un intervalo demasiado estrecho. Para tasas de conversión, devolución o defectos, usa el **intervalo de Wilson**, disponible en `statsmodels`.\n\nAl comunicarlo al negocio:\n- Da el rango en lenguaje simple: \"entre 2.1% y 6.8%, con 95% de confianza\".\n- Indica `n`: el lector debe saber si son 50 o 50,000 casos.\n- No compares grupos solo mirando si los intervalos se solapan; para eso calcula el intervalo de la **diferencia**.\n- Redondea con sentido: un IC de ±3 puntos no justifica reportar dos decimales.",
+          "codeLanguage": "python",
+          "codeSnippet": "from statsmodels.stats.proportion import proportion_confint\n\nconversiones, visitas = 9, 200\nwald = proportion_confint(conversiones, visitas, alpha=0.05, method=\"normal\")\nwilson = proportion_confint(conversiones, visitas, alpha=0.05, method=\"wilson\")\nprint(f\"Tasa: {conversiones / visitas:.1%}\")\nprint(f\"Wald:   {wald[0]:.1%} a {wald[1]:.1%}\")\nprint(f\"Wilson: {wilson[0]:.1%} a {wilson[1]:.1%}\")",
+          "keyTakeaway": "Para proporciones usa Wilson, reporta n y redondea según el ancho del intervalo."
         }
       ],
       "professionalStandard": {
@@ -2102,6 +2164,16 @@
           "hint": "El error estándar es proporcional a `1 / sqrt(n)`.",
           "solutionExplanation": "Para dividir el error entre 2, necesitas multiplicar el tamaño muestral `n` por `2^2 = 4`, es decir, `n = 1,600`.",
           "solutionCode": "# error_nuevo = error_actual / 2  =>  n_nuevo = 4 * n_actual = 1600",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap16-ej-3",
+          "title": "Práctica 3: IC de Wilson por Campaña",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes un DataFrame `campanas` con columnas `campana`, `conversiones` y `visitas`. Agrega las columnas `tasa`, `ic_inf` e `ic_sup` usando el intervalo de Wilson al 95%, y marca con `muestra_chica = True` las campañas con menos de 100 visitas.",
+          "hint": "`proportion_confint` acepta arreglos completos: pásale las columnas directamente.",
+          "solutionExplanation": "Calcular el intervalo por campaña muestra que las tasas altas con pocas visitas tienen rangos amplios, y evita premiar una campaña por suerte.",
+          "solutionCode": "from statsmodels.stats.proportion import proportion_confint\n\ninf, sup = proportion_confint(\n    campanas[\"conversiones\"], campanas[\"visitas\"], alpha=0.05, method=\"wilson\"\n)\ncampanas = campanas.assign(\n    tasa=campanas[\"conversiones\"] / campanas[\"visitas\"],\n    ic_inf=inf,\n    ic_sup=sup,\n    muestra_chica=campanas[\"visitas\"] < 100,\n)\nprint(campanas.sort_values(\"ic_inf\", ascending=False))",
           "codeLanguage": "python"
         }
       ],
@@ -2174,6 +2246,14 @@
           "codeLanguage": "python",
           "codeSnippet": "from scipy.stats import chisquare\n\nobservado = [52100, 47900]\nesperado = [50000, 50000]\n_, p_srm = chisquare(f_obs=observado, f_exp=esperado)\nif p_srm < 0.001:\n    raise ValueError(f\"SRM detectado (p={p_srm:.6f}): revisar instrumentación antes de decidir.\")",
           "keyTakeaway": "Si falla la prueba de SRM (`p < 0.001`), el resultado de negocio del experimento no es confiable."
+        },
+        {
+          "id": "cap17-sec-3",
+          "title": "3. Análisis Final: Lift, IC de la Diferencia y Guardarraíles",
+          "body": "Superada la auditoría de SRM, el análisis de la métrica primaria responde tres preguntas:\n1) **¿Cuánto cambió?** El *lift* absoluto (puntos porcentuales) y relativo (%).\n2) **¿Qué tan seguro es?** El IC 95% de la **diferencia** entre grupos y su p-value (prueba z de dos proporciones).\n3) **¿Rompió algo?** Las **métricas guardarraíl** (tiempo de carga, cancelaciones, tickets de soporte) no deben empeorar más allá del umbral acordado.\n\nLa decisión combina las tres: si el IC de la diferencia está completo por encima de 0, el lift supera el MDE y ningún guardarraíl se rompe, se lanza. Si el IC incluye el 0, el resultado es **no concluyente**, no \"igual\".",
+          "codeLanguage": "python",
+          "codeSnippet": "from statsmodels.stats.proportion import confint_proportions_2indep, proportions_ztest\n\nconv = [2_310, 2_520]          # control, variante\nn = [50_000, 50_000]\ntasa_c, tasa_v = conv[0] / n[0], conv[1] / n[1]\n\nz, p = proportions_ztest(conv[::-1], n[::-1])          # variante vs. control\ninf, sup = confint_proportions_2indep(conv[1], n[1], conv[0], n[0], compare=\"diff\")\nprint(f\"Lift absoluto: {(tasa_v - tasa_c) * 100:.2f} pp  (IC 95%: {inf * 100:.2f} a {sup * 100:.2f})\")\nprint(f\"Lift relativo: {(tasa_v / tasa_c - 1):.1%}  · p-value: {p:.4f}\")",
+          "keyTakeaway": "Decide con el IC de la diferencia, el MDE y los guardarraíles, no solo con el p-value."
         }
       ],
       "professionalStandard": {
@@ -2222,6 +2302,16 @@
           "hint": "Distingue si un efecto estadísticamente detectable es suficientemente grande para pagar su costo.",
           "solutionExplanation": "Con muestras gigantescas, diferencias minúsculas (+0.03 pp) resultan estadísticamente significativas (`p < 0.05`). Por eso se define el MDE previo y se compara el IC del impacto monetario contra el costo de implementación.",
           "solutionCode": "# Regla de decisión:\n# p < alpha  -->  Probablemente no es azar.\n# Lift > MDE -->  Vale la pena el costo operativo/técnico.",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap17-ej-3",
+          "title": "Práctica 3: Decisión con Guardarraíl",
+          "difficulty": "Avanzado",
+          "prompt": "Un experimento de checkout dio: conversión control 4.60% y variante 5.05% (IC 95% de la diferencia: +0.19 a +0.71 pp, MDE acordado 0.30 pp). La métrica guardarraíl `tasa_cancelacion` pasó de 2.10% a 2.65% (IC de la diferencia: +0.30 a +0.80 pp) con un umbral máximo de +0.25 pp. Escribe la recomendación.",
+          "hint": "Revisa por separado la métrica primaria y el guardarraíl; ¿el empeoramiento del guardarraíl supera el umbral con seguridad?",
+          "solutionExplanation": "La primaria mejora de forma significativa y su estimación puntual supera el MDE, pero el guardarraíl empeora con seguridad más allá del umbral (todo su IC está por encima de +0.25 pp). No se lanza; se investiga la causa de las cancelaciones.",
+          "solutionCode": "decision = \"NO LANZAR todavía\"\nmotivo = (\n    \"Conversión +0.45 pp (IC +0.19 a +0.71), por encima del MDE de 0.30 pp, \"\n    \"pero las cancelaciones suben +0.55 pp (IC +0.30 a +0.80): todo el intervalo \"\n    \"supera el umbral de +0.25 pp.\"\n)\nsiguiente_paso = (\n    \"Revisar motivos de cancelación en la variante (¿cobros duplicados? ¿confusión en el \"\n    \"resumen del pedido?), corregir y repetir el experimento.\"\n)\nprint(decision, motivo, siguiente_paso, sep=\"\\n\")",
           "codeLanguage": "python"
         }
       ],
@@ -2294,6 +2384,14 @@
           "codeLanguage": "python",
           "codeSnippet": "import statsmodels.formula.api as smf\n\nmodelo = smf.ols(\"ingresos ~ gasto_ads + precio + C(region)\", data=df).fit()\nprint(modelo.summary())",
           "keyTakeaway": "Revisa siempre los residuos del modelo: si muestran curvatura clara o varianza creciente, la relación no es lineal simple."
+        },
+        {
+          "id": "cap18-sec-3",
+          "title": "3. Diferencias en Diferencias: un Paso hacia lo Causal",
+          "body": "Cuando no puedes hacer un A/B test, a veces existe un **experimento natural**: un cambio que afectó a un grupo y no a otro en una fecha conocida (por ejemplo, una promoción solo en las sucursales del Norte desde el 1 de octubre).\n\nComparar el Norte antes y después confunde la promoción con la estacionalidad; comparar Norte contra Sur confunde la promoción con las diferencias propias de cada zona. **Diferencias en diferencias (DiD)** resta ambas cosas:\n\n`efecto = (Norte_después − Norte_antes) − (Sur_después − Sur_antes)`\n\nEl supuesto clave es de **tendencias paralelas**: sin la promoción, ambas zonas habrían evolucionado igual. Compruébalo graficando los meses previos. En regresión, el efecto es el coeficiente de la interacción `tratado:post`.",
+          "codeLanguage": "python",
+          "codeSnippet": "import statsmodels.formula.api as smf\n\n# df: una fila por sucursal y semana; tratado = 1 si es del Norte; post = 1 desde el 2026-10-01\nmodelo = smf.ols(\"ventas ~ tratado * post\", data=df).fit(\n    cov_type=\"cluster\", cov_kwds={\"groups\": df[\"sucursal_id\"]}\n)\nprint(modelo.params[\"tratado:post\"])          # efecto estimado de la promoción\nprint(modelo.conf_int().loc[\"tratado:post\"])  # IC 95%",
+          "keyTakeaway": "DiD resta el cambio del grupo de control al del tratado; exige tendencias paralelas antes del cambio."
         }
       ],
       "professionalStandard": {
@@ -2342,6 +2440,16 @@
           "hint": "Recuerda la cláusula *ceteris paribus* (manteniendo constantes las demás variables).",
           "solutionExplanation": "Significa que, comparando viviendas en la misma zona y con igual número de habitaciones, cada metro cuadrado adicional se asocia en promedio con +$1,850 en el precio de venta.",
           "solutionCode": "# Interpretación correcta:\n# \"+1,850 por m2 adicional, manteniendo constantes habitaciones y zona.\"",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap18-ej-3",
+          "title": "Práctica 3: Calcular un Efecto con Diferencias en Diferencias",
+          "difficulty": "Intermedio",
+          "prompt": "Ventas promedio semanales por sucursal: Norte (con promoción) pasó de RD$410,000 a RD$468,000; Sur (sin promoción) pasó de RD$395,000 a RD$421,000. Calcula el efecto estimado de la promoción y explica qué supuesto debe cumplirse.",
+          "hint": "Calcula el cambio de cada zona y resta el del Sur al del Norte.",
+          "solutionExplanation": "El Norte creció 58,000, pero 26,000 de ese crecimiento también ocurrió en el Sur sin promoción (estacionalidad, mercado). El efecto atribuible es 32,000 por semana, si antes del cambio ambas zonas seguían tendencias paralelas.",
+          "solutionCode": "norte = 468_000 - 410_000   # +58,000\nsur = 421_000 - 395_000     # +26,000 (lo que habría pasado sin promoción)\nefecto = norte - sur         # +32,000 por sucursal y semana\nprint(f\"Efecto estimado: RD${efecto:,} por semana\")\n# Supuesto: tendencias paralelas. Revisar que Norte y Sur se movían igual\n# en las semanas previas al 2026-10-01.",
           "codeLanguage": "python"
         }
       ],
@@ -2414,6 +2522,14 @@
           "codeLanguage": "python",
           "codeSnippet": "from sklearn.metrics import mean_absolute_error\n\n# Corte cronológico estricto (sin shuffle)\ncorte = \"2026-10-01\"\ntrain = df[df[\"fecha\"] < corte]\ntest = df[df[\"fecha\"] >= corte].copy()\n\n# Baseline estacional: valor de hace 7 días\ntest[\"pred_baseline\"] = df[\"ventas\"].shift(7).loc[test.index]\nmae_baseline = mean_absolute_error(test[\"ventas\"], test[\"pred_baseline\"])",
           "keyTakeaway": "Si tu modelo complejo no supera claramente al baseline estacional en `MAE` o `WAPE`, quédate con el baseline."
+        },
+        {
+          "id": "cap19-sec-3",
+          "title": "3. Índices Estacionales y Descomposición de la Serie",
+          "body": "Antes de pronosticar conviene medir **cuánto pesa cada día de la semana (o mes)** respecto del promedio. El **índice estacional** de un lunes es el promedio de los lunes dividido entre el promedio general: 1.20 significa que un lunes vende 20% más que un día típico.\n\nLos índices sirven para **desestacionalizar** (dividir cada día por su índice) y ver la tendencia limpia, y para construir un pronóstico base: tendencia reciente × índice del día.\n\nPara una descomposición completa, `statsmodels` ofrece **STL**, que separa la serie en tendencia, estacionalidad y residuo. Los picos grandes en el residuo son los días realmente atípicos, una vez quitado el efecto calendario.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\nfrom statsmodels.tsa.seasonal import STL\n\n# serie: pd.Series diaria con índice de fechas, sin huecos\nindice = serie.groupby(serie.index.dayofweek).mean() / serie.mean()\nprint(indice.round(2))   # 0 = lunes ... 6 = domingo\n\ndesestacionalizada = serie / serie.index.dayofweek.map(indice).to_numpy()\n\nres = STL(serie, period=7, robust=True).fit()\natipicos = res.resid[abs(res.resid) > 3 * res.resid.std()]\nprint(atipicos)",
+          "keyTakeaway": "El índice estacional mide el peso de cada periodo; STL separa tendencia, estacionalidad y residuo."
         }
       ],
       "professionalStandard": {
@@ -2462,6 +2578,16 @@
           "hint": "Aplica `.shift(1)` antes de `.rolling(14)` para no incluir el valor anómalo dentro de su propia referencia.",
           "solutionExplanation": "Desplazar 1 día (`.shift(1)`) garantiza que un pico extremo no infle la media y desviación estándar con la que se está evaluando.",
           "solutionCode": "s = df[\"pedidos\"]\nmedia_prev = s.shift(1).rolling(14).mean()\nstd_prev = s.shift(1).rolling(14).std()\ndf[\"es_anomalia\"] = (s - media_prev).abs() > (3 * std_prev)",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap19-ej-3",
+          "title": "Práctica 3: Pronóstico Base con Índice Semanal",
+          "difficulty": "Intermedio",
+          "prompt": "Con una Serie diaria `ventas` (índice de fechas, 12 semanas completas), calcula el índice estacional por día de la semana y pronostica los próximos 7 días como: promedio de las últimas 4 semanas × índice del día.",
+          "hint": "Calcula el índice con todo el histórico; el nivel con `ventas[-28:].mean()`; genera las fechas futuras con `pd.date_range`.",
+          "solutionExplanation": "El pronóstico combina el nivel reciente con el patrón semanal; es un baseline fuerte que cualquier modelo más complejo debe superar.",
+          "solutionCode": "import pandas as pd\n\nindice = ventas.groupby(ventas.index.dayofweek).mean() / ventas.mean()\nnivel = ventas.iloc[-28:].mean()\n\nfuturo = pd.date_range(ventas.index[-1] + pd.Timedelta(days=1), periods=7, freq=\"D\")\npronostico = pd.Series(\n    [nivel * indice[d.dayofweek] for d in futuro], index=futuro, name=\"pronostico\"\n).round(0)\nprint(pronostico)",
           "codeLanguage": "python"
         }
       ],
@@ -3782,7 +3908,8 @@
       "estimatedMinutes": 20,
       "status": "published",
       "objectives": [
-        "Consultar definiciones estandarizadas de grano, fan-out, idempotencia, SCD, SRM, LTV y NDR."
+        "Consultar definiciones estandarizadas de grano, fan-out, idempotencia, SCD, SRM, LTV y NDR.",
+        "Redactar definiciones operativas con fórmula, unidad y ventana antes de publicar una métrica."
       ],
       "theorySections": [
         {
@@ -3832,6 +3959,16 @@
           "solutionExplanation": "(1) Fan-out, (2) Sample Ratio Mismatch (SRM), (3) Idempotencia.",
           "solutionCode": "-- 1 -> Fan-out | 2 -> SRM | 3 -> Idempotencia",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "apa-ej-2",
+          "title": "Práctica 2: Convertir Definiciones Ambiguas en Operativas",
+          "difficulty": "Intermedio",
+          "prompt": "Reescribe estas tres definiciones para el diccionario de métricas, con fórmula, unidad y ventana: (1) \"Retención: clientes que vuelven\"; (2) \"LTV: lo que deja un cliente\"; (3) \"Cliente activo: el que compra seguido\".",
+          "hint": "Cada definición necesita numerador, denominador (o fórmula), la población y el periodo exacto.",
+          "solutionExplanation": "Una definición operativa no deja margen de interpretación: dos analistas que la lean obtienen la misma cifra. Por eso incluye fórmula, población, ventana y unidad.",
+          "solutionCode": "retencion_m1:\n  formula: \"clientes de la cohorte con >= 1 pedido completado en el mes 1 / clientes de la cohorte\"\n  poblacion: \"clientes con primer pedido completado en el mes de la cohorte\"\n  unidad: porcentaje\nltv_12m:\n  formula: \"SUM(margen_contribucion) de los primeros 12 meses / clientes de la cohorte\"\n  base: margen_de_contribucion   # no ingreso bruto\n  unidad: DOP por cliente\ncliente_activo_90d:\n  formula: \">= 1 pedido completado en los últimos 90 días a la fecha de corte\"\n  excluye: \"pedidos cancelados, de prueba (QA) o internos\"",
+          "codeLanguage": "yaml"
         }
       ],
       "exam": [
@@ -3858,6 +3995,18 @@
           ],
           "correctIndex": 1,
           "explanation": "El fan-out ocurre cuando el lado derecho tiene múltiples filas por clave de unión."
+        },
+        {
+          "id": "apa-q3",
+          "question": "¿Qué es un predicado SARGable?",
+          "options": [
+            "Un JOIN que une tablas con la misma clave.",
+            "Un filtro que deja la columna sin funciones.",
+            "Una subconsulta que devuelve un solo valor.",
+            "Una vista que guarda el resultado en disco."
+          ],
+          "correctIndex": 1,
+          "explanation": "SARGable significa que el motor puede usar índices o particiones porque la columna del filtro no está envuelta en una función."
         }
       ]
     },
@@ -3872,7 +4021,8 @@
       "estimatedMinutes": 20,
       "status": "published",
       "objectives": [
-        "Acelerar el trabajo diario con snippets probados y libres de errores comunes."
+        "Acelerar el trabajo diario con snippets probados y libres de errores comunes.",
+        "Rellenar huecos de calendario y comprobar totales al combinar tablas."
       ],
       "theorySections": [
         {
@@ -3926,6 +4076,16 @@
           "solutionExplanation": "Personalizar la plantilla toma 10 segundos y garantiza cero duplicados.",
           "solutionCode": "WITH ranked AS (\n  SELECT *, ROW_NUMBER() OVER (PARTITION BY ticket_id ORDER BY evento_ts DESC, log_id DESC) AS rn\n  FROM soporte_logs\n)\nSELECT * FROM ranked WHERE rn = 1;",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "apb-ej-2",
+          "title": "Práctica 2: Calendario Continuo con Días en Cero",
+          "difficulty": "Intermedio",
+          "prompt": "La tabla `ventas (venta_id, fecha DATE, monto DECIMAL(18,2))` no tiene filas los días sin ventas. Escribe en T-SQL una consulta con el total diario de noviembre de 2026 que muestre los 30 días, con 0 en los días sin ventas.",
+          "hint": "Genera los días con `GENERATE_SERIES(0, 29)` y `DATEADD`; agrega las ventas por día en una CTE y únelas con LEFT JOIN.",
+          "solutionExplanation": "Agregar primero y unir después evita fan-out; el LEFT JOIN desde el calendario garantiza los 30 días y `COALESCE` convierte en 0 los días vacíos.",
+          "solutionCode": "WITH calendario AS (\n  SELECT DATEADD(day, value, CAST('2026-11-01' AS DATE)) AS dia\n  FROM GENERATE_SERIES(0, 29)\n),\nventas_dia AS (\n  SELECT fecha AS dia, SUM(monto) AS total\n  FROM ventas\n  WHERE fecha >= '2026-11-01' AND fecha < '2026-12-01'\n  GROUP BY fecha\n)\nSELECT c.dia, COALESCE(v.total, 0) AS total\nFROM calendario AS c\nLEFT JOIN ventas_dia AS v ON v.dia = c.dia\nORDER BY c.dia;",
+          "codeLanguage": "sql"
         }
       ],
       "exam": [
@@ -3952,6 +4112,18 @@
           ],
           "correctIndex": 2,
           "explanation": "`NULLIF(denominador, 0)` devuelve `NULL` si el denominador es 0, evitando abortar la consulta."
+        },
+        {
+          "id": "apb-q3",
+          "question": "¿Por qué se une el calendario con LEFT JOIN a las ventas diarias?",
+          "options": [
+            "Para eliminar los días que tienen ventas en cero.",
+            "Para sumar dos veces las ventas de cada día.",
+            "Para ordenar las ventas de mayor a menor monto.",
+            "Para conservar los días aunque no tengan ventas."
+          ],
+          "correctIndex": 3,
+          "explanation": "El LEFT JOIN conserva todas las filas del calendario; los días sin ventas quedan con NULL, que se convierte en 0 con COALESCE."
         }
       ]
     },
@@ -3966,7 +4138,8 @@
       "estimatedMinutes": 20,
       "status": "published",
       "objectives": [
-        "Estandarizar la comunicación escrita antes y después de cada análisis o pipeline."
+        "Estandarizar la comunicación escrita antes y después de cada análisis o pipeline.",
+        "Describir un cambio analítico en un Pull Request con impacto en cifras y forma de validarlo."
       ],
       "theorySections": [
         {
@@ -4018,6 +4191,16 @@
           "solutionExplanation": "Definir si se mide por fecha de compra o fecha de devolución evita discrepancias con Contabilidad.",
           "solutionCode": "decision: \"¿Hay que actuar sobre alguna categoría o paquetería con devoluciones anómalas?\"\nmetrica: \"tasa_devolucion_monto = monto_reembolsado / monto_vendido\"\ncorte: \"ordenes completadas entre 2026-10-01 y 2026-10-31 (ventana de devolución 30d)\"\nsegmentos: \"categoria, motivo_devolucion, paqueteria\"",
           "codeLanguage": "yaml"
+        },
+        {
+          "id": "apc-ej-2",
+          "title": "Práctica 2: Descripción de un Pull Request Analítico",
+          "difficulty": "Intermedio",
+          "prompt": "Cambiaste la definición de `ventas_netas` en el modelo `fct_ventas` para restar las devoluciones en la fecha de la venta original (antes se restaban en la fecha de la devolución). Redacta la descripción del Pull Request.",
+          "hint": "Incluye qué cambia, por qué, el impacto en cifras ya publicadas, cómo se validó y quién debe enterarse.",
+          "solutionExplanation": "Un PR analítico debe permitir a quien revisa entender el impacto sobre cifras que otras áreas ya usan, no solo el cambio de código.",
+          "solutionCode": "titulo: \"fct_ventas: devoluciones restadas en la fecha de la venta original\"\nque_cambia: \"ventas_netas = ventas - devoluciones asignadas a fecha_venta\"\npor_que: \"Finanzas reporta margen por mes de venta; la definición anterior movía devoluciones al mes siguiente\"\nimpacto:\n  - \"Octubre 2026: ventas_netas baja 1.8% (RD$412,300)\"\n  - \"Noviembre 2026: sube 0.9% (devoluciones de octubre salen de este mes)\"\nvalidacion:\n  - \"Total anual sin cambios (diferencia RD$0.00)\"\n  - \"Conciliado contra el cierre contable de octubre\"\n  - \"Pruebas: unique y not_null en venta_id; test de totales anuales\"\navisar_a: [\"Finanzas\", \"dueño del tablero comercial\"]",
+          "codeLanguage": "yaml"
         }
       ],
       "exam": [
@@ -4044,6 +4227,18 @@
           ],
           "correctIndex": 2,
           "explanation": "Clarificar definiciones al principio evita tener que rehacer todo el análisis por ambigüedades."
+        },
+        {
+          "id": "apc-q3",
+          "question": "¿Qué debe explicar un Pull Request que cambia la definición de una métrica ya publicada?",
+          "options": [
+            "Solo el nombre de los archivos modificados, porque el código ya explica por sí mismo el cambio.",
+            "La lista completa de consultas que se probaron durante el desarrollo, en orden cronológico.",
+            "El cambio, su motivo, el impacto en las cifras publicadas y cómo se validó la nueva definición.",
+            "Únicamente quién aprobó el cambio, ya que el impacto numérico se revisa después de publicarlo."
+          ],
+          "correctIndex": 2,
+          "explanation": "Quien revisa y quien consume la métrica necesitan saber qué cifras cambian, por qué y cómo se comprobó, antes de publicarlo."
         }
       ]
     }
