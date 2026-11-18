@@ -896,6 +896,14 @@
           "title": "2. Métricas aditivas, semi-aditivas y no aditivas",
           "body": "No todas las columnas numéricas se pueden sumar libremente:\n- **Aditivas**: pueden sumarse a través de todas las dimensiones (ej. `ingresos`, `unidades`).\n- **Semi-aditivas**: se suman por tienda o producto, pero **NO a través del tiempo** (ej. `saldo_inventario`: sumar el stock del lunes + martes + miércoles da un número absurdo; en el tiempo se promedia o se toma el último corte).\n- **No aditivas**: razones o porcentajes (`margen_pct`, `ticket_promedio`), que jamás deben promediarse ni sumarse directamente, sino recalcularse como `SUM(numerador) / SUM(denominador)`.",
           "keyTakeaway": "Guarda siempre los componentes (`numerador` y `denominador`) en la tabla de hechos en lugar de pre-guardar solo porcentajes."
+        },
+        {
+          "id": "cap06-sec-3",
+          "title": "3. Claves Sustitutas y la Dimensión Calendario",
+          "body": "Las dimensiones usan **claves sustitutas** (`cliente_sk`, `producto_sk`): enteros generados por el almacén, distintos de la clave del sistema de origen. Permiten versionar la dimensión (capítulo 7), unir datos de varios sistemas con códigos que chocan y mantener los hechos estables aunque el origen cambie sus identificadores.\n\nLa dimensión más útil de todas es **`dim_fecha`**: una fila por día con año, mes, nombre del mes, semana, día de la semana, si es fin de semana o feriado y el periodo fiscal. Con ella:\n- Los informes muestran meses sin ventas (el calendario manda, no los hechos).\n- Las reglas de calendario (feriados, semanas fiscales) viven en un solo lugar.\n- Nadie recalcula `DATENAME` en cada consulta.\n\nSu clave suele ser un entero `AAAAMMDD` (`20261118`), fácil de leer y de particionar.",
+          "codeLanguage": "sql",
+          "codeSnippet": "WITH dias AS (\n  SELECT DATEADD(day, value, CAST('2026-01-01' AS DATE)) AS fecha\n  FROM GENERATE_SERIES(0, 364)\n)\nSELECT\n  YEAR(fecha) * 10000 + MONTH(fecha) * 100 + DAY(fecha) AS fecha_sk,\n  fecha,\n  YEAR(fecha) AS anio,\n  MONTH(fecha) AS mes,\n  DATEPART(quarter, fecha) AS trimestre,\n  DATEPART(weekday, fecha) AS dia_semana,\n  CASE WHEN DATEPART(weekday, fecha) IN (1, 7) THEN 1 ELSE 0 END AS es_fin_semana\nFROM dias;",
+          "keyTakeaway": "Claves sustitutas para estabilidad y una dim_fecha para que el calendario mande."
         }
       ],
       "professionalStandard": {
@@ -944,6 +952,16 @@
           "hint": "Pregúntate qué pasa si un pedido de 3 ítems se envía en 2 cajas distintas.",
           "solutionExplanation": "El flete pertenece al grano del envío/paquete, no al ítem. Ponerlo en `fct_ventas_items` obligaría a prorratear o duplicar fletes. Separar `fct_envios` mantiene ambos granos puros.",
           "solutionCode": "-- Hecho 1: 1 fila por ítem vendido\n-- dw.fct_ventas_items (venta_item_id, pedido_id, producto_sk, monto_neto)\n-- Hecho 2: 1 fila por paquete enviado\n-- dw.fct_envios (envio_id, pedido_id, transportista_sk, costo_flete)",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap06-ej-3",
+          "title": "Práctica 3: Ventas Mensuales con Meses en Cero",
+          "difficulty": "Intermedio",
+          "prompt": "Con `dw.dim_fecha (fecha_sk, anio, mes)` y `dw.fct_ventas (fecha_sk, producto_sk, ingreso)`, escribe la consulta del ingreso por mes de 2026 que muestre los 12 meses aunque alguno no tenga ventas.",
+          "hint": "Parte de la dimensión calendario, une los hechos con LEFT JOIN y usa COALESCE sobre la suma.",
+          "solutionExplanation": "Partir de dim_fecha garantiza los 12 meses; agrupar después del LEFT JOIN es seguro porque la dimensión tiene una fila por día y cada venta cae en un solo día.",
+          "solutionCode": "SELECT\n  f.anio,\n  f.mes,\n  COALESCE(SUM(v.ingreso), 0) AS ingreso\nFROM dw.dim_fecha AS f\nLEFT JOIN dw.fct_ventas AS v\n  ON v.fecha_sk = f.fecha_sk\nWHERE f.anio = 2026\nGROUP BY f.anio, f.mes\nORDER BY f.mes;",
           "codeLanguage": "sql"
         }
       ],
@@ -1016,6 +1034,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "SELECT\n  p.pedido_id,\n  p.fecha_pedido,\n  v.vendedor_sk,\n  v.region AS region_al_momento_venta,\n  p.monto_neto\nFROM ventas.pedidos AS p\nINNER JOIN dw.dim_vendedor_scd2 AS v\n  ON p.vendedor_id = v.vendedor_id\n AND p.fecha_pedido >= v.valid_from\n AND p.fecha_pedido <  v.valid_to;",
           "keyTakeaway": "Verifica con pruebas que los rangos `[valid_from, valid_to)` de un mismo `natural_id` nunca se solapen ni dejen huecos."
+        },
+        {
+          "id": "cap07-sec-3",
+          "title": "3. Cargar una SCD Tipo 2: Cerrar y Abrir Versiones",
+          "body": "La carga diaria de una SCD Tipo 2 compara el **staging** (foto de hoy del origen) con la **versión vigente** de la dimensión y hace dos movimientos dentro de una transacción:\n1) **Cerrar** la versión vigente de las claves cuyos atributos rastreados cambiaron: `valid_to = fecha_carga`, `is_current = 0`.\n2) **Insertar** una versión nueva para esas claves (y para las claves nuevas) con `valid_from = fecha_carga`, `valid_to = '9999-12-31'`, `is_current = 1`.\n\nPara detectar cambios compara solo los atributos que se rastrean en Tipo 2; los de Tipo 1 (como corregir una falta de ortografía) se sobrescriben en todas las versiones. Ten cuidado con los `NULL`: `a <> b` no es verdadero cuando uno de los dos es `NULL`; usa `EXISTS (SELECT a EXCEPT SELECT b)` o compara con `ISNULL`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "DECLARE @hoy DATE = '2026-11-18';\nBEGIN TRAN;\n\n-- 1) Cerrar versiones cuyo segmento o región cambió\nUPDATE d\nSET valid_to = @hoy, is_current = 0\nFROM dw.dim_cliente_scd2 AS d\nJOIN stg.clientes AS s ON s.cliente_id = d.cliente_id\nWHERE d.is_current = 1\n  AND EXISTS (SELECT s.segmento, s.region EXCEPT SELECT d.segmento, d.region);\n\n-- 2) Insertar versión nueva para clientes sin versión vigente (cambiados o nuevos)\nINSERT INTO dw.dim_cliente_scd2 (cliente_id, segmento, region, valid_from, valid_to, is_current)\nSELECT s.cliente_id, s.segmento, s.region, @hoy, '9999-12-31', 1\nFROM stg.clientes AS s\nWHERE NOT EXISTS (\n  SELECT 1 FROM dw.dim_cliente_scd2 AS d\n  WHERE d.cliente_id = s.cliente_id AND d.is_current = 1\n);\n\nCOMMIT;",
+          "keyTakeaway": "Cerrar lo que cambió e insertar lo que no tiene versión vigente, en una sola transacción."
         }
       ],
       "professionalStandard": {
@@ -1064,6 +1090,16 @@
           "hint": "Agrupa por `cliente_id` contando `CASE WHEN is_current THEN 1 ELSE 0 END` y filtra `HAVING ... <> 1`.",
           "solutionExplanation": "Cualquier resultado distinto de 1 indica un error de carga incremental en la dimensión.",
           "solutionCode": "SELECT\n  cliente_id,\n  SUM(CASE WHEN is_current THEN 1 ELSE 0 END) AS filas_vigentes\nFROM dw.dim_cliente_scd2\nGROUP BY cliente_id\nHAVING SUM(CASE WHEN is_current THEN 1 ELSE 0 END) <> 1;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap07-ej-3",
+          "title": "Práctica 3: Detectar Cambios con NULL Seguros",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta que liste los `cliente_id` cuyo `segmento` en `stg.clientes` difiere del de la versión vigente en `dw.dim_cliente_scd2`, incluyendo los casos donde uno de los dos valores es NULL y el otro no.",
+          "hint": "Una comparación con <> ignora los NULL; usa EXISTS con EXCEPT, que trata dos NULL como iguales y un NULL contra un valor como distintos.",
+          "solutionExplanation": "EXCEPT compara con semántica de conjuntos, donde NULL es igual a NULL. Así un segmento que pasa de NULL a 'Pyme' se detecta como cambio y uno que sigue NULL no.",
+          "solutionCode": "SELECT s.cliente_id, d.segmento AS segmento_anterior, s.segmento AS segmento_nuevo\nFROM stg.clientes AS s\nJOIN dw.dim_cliente_scd2 AS d\n  ON d.cliente_id = s.cliente_id\n AND d.is_current = 1\nWHERE EXISTS (SELECT s.segmento EXCEPT SELECT d.segmento);",
           "codeLanguage": "sql"
         }
       ],
@@ -1134,6 +1170,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "-- Patrón idempotente DELETE + INSERT para reprocesar un día completo\nBEGIN TRANSACTION;\n\nDELETE FROM silver.pedidos_limpios\nWHERE fecha_operativa = '2026-11-10';\n\nWITH ultima_version AS (\n  SELECT\n    pedido_id,\n    cliente_id,\n    fecha_operativa,\n    monto_neto,\n    ROW_NUMBER() OVER (PARTITION BY pedido_id ORDER BY ingested_at DESC) AS rn\n  FROM bronze.pedidos_raw\n  WHERE fecha_operativa = '2026-11-10'\n)\nINSERT INTO silver.pedidos_limpios (pedido_id, cliente_id, fecha_operativa, monto_neto)\nSELECT pedido_id, cliente_id, fecha_operativa, monto_neto\nFROM ultima_version\nWHERE rn = 1;\n\nCOMMIT TRANSACTION;",
           "keyTakeaway": "Diseña cada carga asumiendo que inevitablemente tendrá que re-ejecutarse por fallos o correcciones."
+        },
+        {
+          "id": "cap08-sec-3",
+          "title": "3. Backfills Controlados y Registro de Ejecuciones",
+          "body": "Tarde o temprano tendrás que **reprocesar historia**: se corrigió una regla de negocio, se descubrió un error en el origen o llegaron datos atrasados de un mes completo. Un *backfill* seguro se apoya en lo que ya construiste:\n- La carga está **parametrizada** por rango (`@desde`, `@hasta`), no por \"ayer\" fijo.\n- Cada rango se reemplaza completo (`DELETE` del rango + `INSERT`) dentro de una **transacción**, así nunca queda a medias.\n- Se procesa **por bloques** (por ejemplo, un mes a la vez) para no bloquear tablas ni agotar el log.\n- Cada ejecución deja un registro en una tabla de **bitácora**: rango, filas borradas, filas insertadas, inicio, fin y estado.\n\nLa bitácora responde en segundos \"¿cuándo se recargó octubre y con cuántas filas?\" cuando alguien pregunta por qué cambió una cifra.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE ops.bitacora_cargas (\n  carga_id     INT IDENTITY PRIMARY KEY,\n  tabla        NVARCHAR(100),\n  desde        DATE,\n  hasta        DATE,\n  filas_borradas   INT,\n  filas_insertadas INT,\n  inicio       DATETIME2 DEFAULT SYSUTCDATETIME(),\n  fin          DATETIME2 NULL,\n  estado       NVARCHAR(20) DEFAULT 'en_curso'\n);",
+          "keyTakeaway": "Backfill = rango parametrizado, reemplazo en transacción, por bloques y con bitácora."
         }
       ],
       "professionalStandard": {
@@ -1182,6 +1226,16 @@
           "hint": "Crudo -> Limpio/Tipado -> Agregado para negocio.",
           "solutionExplanation": "(A) es Bronze (dato fiel del origen), (B) es Silver (limpieza y conformado), (C) es Gold (métricas listas para BI).",
           "solutionCode": "-- A -> Bronze: raw_stripe_charges (payload JSON + ingested_at)\n-- B -> Silver: stg_stripe_charges (monto_usd DECIMAL, dedup por charge_id)\n-- C -> Gold:   mart_mrr_mensual (mes, mrr_usd, churn_usd)",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap08-ej-3",
+          "title": "Práctica 3: Recarga Idempotente de un Rango con Bitácora",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe el script T-SQL que recarga `gold.ventas_diarias` para el rango `@desde`–`@hasta` (fin exclusivo) desde `silver.pedidos (fecha_dia, monto)`, dentro de una transacción, y registra en `ops.bitacora_cargas` las filas borradas e insertadas.",
+          "hint": "Guarda @@ROWCOUNT justo después del DELETE y del INSERT; inserta la bitácora antes del COMMIT.",
+          "solutionExplanation": "El DELETE + INSERT del mismo rango hace la carga idempotente; la transacción evita estados intermedios y la bitácora deja trazabilidad de cada recarga.",
+          "solutionCode": "DECLARE @desde DATE = '2026-10-01', @hasta DATE = '2026-11-01';\nDECLARE @borradas INT, @insertadas INT;\n\nBEGIN TRAN;\n\nDELETE FROM gold.ventas_diarias\nWHERE fecha_dia >= @desde AND fecha_dia < @hasta;\nSET @borradas = @@ROWCOUNT;\n\nINSERT INTO gold.ventas_diarias (fecha_dia, pedidos, ingreso)\nSELECT fecha_dia, COUNT(*), SUM(monto)\nFROM silver.pedidos\nWHERE fecha_dia >= @desde AND fecha_dia < @hasta\nGROUP BY fecha_dia;\nSET @insertadas = @@ROWCOUNT;\n\nINSERT INTO ops.bitacora_cargas (tabla, desde, hasta, filas_borradas, filas_insertadas, fin, estado)\nVALUES ('gold.ventas_diarias', @desde, @hasta, @borradas, @insertadas, SYSUTCDATETIME(), 'ok');\n\nCOMMIT;",
           "codeLanguage": "sql"
         }
       ],
@@ -1252,6 +1306,14 @@
           "title": "2. Contratos de Datos (Data Contracts)",
           "body": "Un contrato de datos es un acuerdo explícito entre ingeniería de producto (productores) y analítica (consumidores): especifica nombres de columnas, tipos, valores permitidos, significado de nulos y SLA de actualización. Así evitas que un cambio silencioso en backend rompa los dashboards del lunes.",
           "keyTakeaway": "Versiona los contratos junto con el código para detectar cambios incompatibles antes de llegar a producción."
+        },
+        {
+          "id": "cap09-sec-3",
+          "title": "3. Pruebas de Reconciliación entre Capas",
+          "body": "Las pruebas de unicidad y nulos revisan cada tabla por separado. La **reconciliación** revisa que las capas cuenten la misma historia: los pedidos y el ingreso de Gold deben coincidir con Silver, y Silver con Bronze menos lo que se descartó a propósito (duplicados, pruebas internas).\n\nUna reconciliación útil:\n- Compara **por día** (o por mes), no solo el total: un error en un día se compensa con otro en el total.\n- Usa una **tolerancia** explícita (por ejemplo, 0.5%) cuando hay diferencias legítimas como redondeos.\n- Usa `FULL OUTER JOIN` para detectar días que existen en una capa y faltan en la otra.\n- Corre después de cada carga y **detiene la publicación** si falla.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT\n  COALESCE(s.fecha_dia, g.fecha_dia) AS fecha_dia,\n  s.ingreso AS ingreso_silver,\n  g.ingreso AS ingreso_gold\nFROM (\n  SELECT fecha_dia, SUM(monto) AS ingreso FROM silver.pedidos GROUP BY fecha_dia\n) AS s\nFULL OUTER JOIN gold.ventas_diarias AS g\n  ON g.fecha_dia = s.fecha_dia\nWHERE s.fecha_dia IS NULL OR g.fecha_dia IS NULL\n   OR ABS(s.ingreso - g.ingreso) > 0.005 * NULLIF(ABS(s.ingreso), 0);",
+          "keyTakeaway": "Reconcilia por día, con tolerancia explícita y FULL OUTER JOIN para ver lo que falta."
         }
       ],
       "professionalStandard": {
@@ -1300,6 +1362,16 @@
           "hint": "Usa `LEFT JOIN ... WHERE dim.producto_sk IS NULL` o `NOT EXISTS`.",
           "solutionExplanation": "Este test garantiza que ningún `INNER JOIN` en los reportes esté descartando ventas silenciosamente.",
           "solutionCode": "SELECT DISTINCT f.producto_sk\nFROM dw.fct_ventas_items AS f\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM dw.dim_producto AS d\n  WHERE d.producto_sk = f.producto_sk\n);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap09-ej-3",
+          "title": "Práctica 3: Reconciliar Conteos entre Bronze y Silver",
+          "difficulty": "Intermedio",
+          "prompt": "Bronze (`bronze.pedidos_raw (pedido_id, fecha_dia, es_prueba)`) puede tener duplicados de `pedido_id` y pedidos de prueba. Silver (`silver.pedidos`) debe tener exactamente los pedidos únicos que no son de prueba. Escribe la consulta que muestre, por día, el conteo esperado, el conteo en Silver y la diferencia, solo para los días que no cuadran.",
+          "hint": "El esperado por día es COUNT(DISTINCT pedido_id) de Bronze filtrando es_prueba = 0.",
+          "solutionExplanation": "La regla de negocio (sin duplicados ni pruebas) se aplica al calcular el esperado; si Silver no coincide, la transformación perdió o duplicó pedidos.",
+          "solutionCode": "WITH esperado AS (\n  SELECT fecha_dia, COUNT(DISTINCT pedido_id) AS pedidos\n  FROM bronze.pedidos_raw\n  WHERE es_prueba = 0\n  GROUP BY fecha_dia\n),\nreal AS (\n  SELECT fecha_dia, COUNT(*) AS pedidos\n  FROM silver.pedidos\n  GROUP BY fecha_dia\n)\nSELECT\n  COALESCE(e.fecha_dia, r.fecha_dia) AS fecha_dia,\n  COALESCE(e.pedidos, 0) AS esperado,\n  COALESCE(r.pedidos, 0) AS en_silver,\n  COALESCE(r.pedidos, 0) - COALESCE(e.pedidos, 0) AS diferencia\nFROM esperado AS e\nFULL OUTER JOIN real AS r ON r.fecha_dia = e.fecha_dia\nWHERE COALESCE(e.pedidos, 0) <> COALESCE(r.pedidos, 0)\nORDER BY fecha_dia;",
           "codeLanguage": "sql"
         }
       ],
@@ -1372,6 +1444,14 @@
           "codeLanguage": "python",
           "codeSnippet": "import duckdb\n\nquery = \"\"\"\nSELECT\n  pais,\n  DATE_TRUNC('month', fecha_pedido) AS mes,\n  SUM(monto_neto) AS ingreso_neto\nFROM read_parquet('data/ventas/*.parquet')\nWHERE estado = 'completado'\n  AND fecha_pedido >= DATE '2026-01-01'\nGROUP BY 1, 2\n\"\"\"\nresumen_df = duckdb.sql(query).df()",
           "keyTakeaway": "Filtra y pre-agrega con DuckDB sobre Parquet/CSV antes de materializar DataFrames en Python."
+        },
+        {
+          "id": "cap10-sec-3",
+          "title": "3. Parquet Particionado: Leer Solo lo Necesario",
+          "body": "CSV es cómodo para intercambiar, pero es lento y pesado para analizar: guarda todo como texto, se lee fila por fila y no sabe qué tipo tiene cada columna. **Parquet** es un formato **columnar** y comprimido: guarda los tipos, ocupa varias veces menos y permite leer solo las columnas que pides.\n\nAl **particionar** por carpetas (`anio=2026/mes=11/`), además, los motores como DuckDB o Polars saltan las carpetas que no cumplen el filtro (*partition pruning*). Reglas prácticas:\n- Particiona por la columna con la que **más filtras** (normalmente la fecha).\n- Evita particiones diminutas: miles de archivos de pocos KB son más lentos que uno grande.\n- Convierte a Parquet **una vez** en la capa Bronze o Silver y analiza siempre sobre Parquet.",
+          "codeLanguage": "python",
+          "codeSnippet": "import duckdb\n\n# Convertir un CSV grande a Parquet particionado por año y mes\nduckdb.sql(\"\"\"\n    COPY (\n        SELECT *, year(fecha) AS anio, month(fecha) AS mes\n        FROM read_csv_auto('data/raw/ventas_2026.csv')\n    ) TO 'data/silver/ventas' (FORMAT PARQUET, PARTITION_BY (anio, mes), OVERWRITE_OR_IGNORE)\n\"\"\")\n\n# Leer solo noviembre: DuckDB salta las demás carpetas\nnov = duckdb.sql(\"\"\"\n    SELECT tienda, SUM(monto) AS ingreso\n    FROM read_parquet('data/silver/ventas/*/*/*.parquet', hive_partitioning = true)\n    WHERE anio = 2026 AND mes = 11\n    GROUP BY tienda\n\"\"\").df()",
+          "keyTakeaway": "Parquet columnar y particionado por fecha: se lee solo lo que el filtro necesita."
         }
       ],
       "professionalStandard": {
@@ -1421,6 +1501,16 @@
           "hint": "Usa marcadores `?` en `duckdb.execute(sql, [str(ruta_parquet), pais]).df()`.",
           "solutionExplanation": "Las consultas parametrizadas previenen errores de comillas e inyección SQL mientras mantienen todo el procesamiento columnar.",
           "solutionCode": "from pathlib import Path\nimport duckdb\n\ndef top_clientes(ruta_parquet: Path, pais: str):\n    sql = \"\"\"\n    SELECT cliente_id, SUM(monto_neto) AS gasto_total\n    FROM read_parquet(?)\n    WHERE pais = ?\n    GROUP BY cliente_id\n    ORDER BY gasto_total DESC\n    LIMIT 10\n    \"\"\"\n    return duckdb.execute(sql, [str(ruta_parquet), pais]).df()",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap10-ej-3",
+          "title": "Práctica 3: Comparar Tamaño y Tiempo CSV vs. Parquet",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un script que convierta `data/raw/eventos.csv` a `data/silver/eventos.parquet` con DuckDB e imprima el tamaño de ambos archivos en MB y el tiempo que tarda contar las filas por `evento` en cada formato.",
+          "hint": "Usa `Path.stat().st_size` para el tamaño y `time.perf_counter()` para medir; con DuckDB puedes consultar los dos archivos con la misma consulta.",
+          "solutionExplanation": "Medir en tus propios datos convierte una recomendación general en evidencia: normalmente el Parquet ocupa mucho menos y la agregación corre varias veces más rápido.",
+          "solutionCode": "import time\nfrom pathlib import Path\n\nimport duckdb\n\ncsv = Path(\"data/raw/eventos.csv\")\nparquet = Path(\"data/silver/eventos.parquet\")\nduckdb.sql(f\"COPY (SELECT * FROM read_csv_auto('{csv}')) TO '{parquet}' (FORMAT PARQUET)\")\n\nfor ruta, lector in ((csv, \"read_csv_auto\"), (parquet, \"read_parquet\")):\n    inicio = time.perf_counter()\n    duckdb.sql(f\"SELECT evento, COUNT(*) FROM {lector}('{ruta}') GROUP BY evento\").fetchall()\n    segundos = time.perf_counter() - inicio\n    print(f\"{ruta.suffix}: {ruta.stat().st_size / 1e6:.1f} MB · {segundos:.2f} s\")",
           "codeLanguage": "python"
         }
       ],
@@ -1491,6 +1581,14 @@
           "codeLanguage": "python",
           "codeSnippet": "import pandas as pd\n\ndef normalizar_texto(df: pd.DataFrame) -> pd.DataFrame:\n    out = df.copy()\n    out[\"pais\"] = out[\"pais\"].astype(\"string\").str.strip().str.upper()\n    return out\n\ndef filtrar_montos_validos(df: pd.DataFrame) -> pd.DataFrame:\n    return df.loc[df[\"monto_neto\"].notna() & (df[\"monto_neto\"] >= 0)].copy()\n\ndf_limpio = (\n    df_crudo\n    .pipe(normalizar_texto)\n    .pipe(filtrar_montos_validos)\n)",
           "keyTakeaway": "Cada función en `.pipe()` recibe un DataFrame, no muta el original (`df.copy()`), y devuelve un DataFrame limpio."
+        },
+        {
+          "id": "cap11-sec-3",
+          "title": "3. Estandarizar Texto y Categorías con un Mapa Auditable",
+          "body": "Las columnas de texto capturadas a mano traen variantes del mismo valor: `\"Santo Domingo\"`, `\" sto. dgo\"`, `\"SANTO DOMINGO \"`, `\"Sto Dgo\"`. Si no se estandarizan, una agrupación las cuenta como ciudades distintas.\n\nEl proceso confiable tiene dos capas:\n1) **Normalización mecánica**: quitar espacios, pasar a minúsculas con `casefold()`, eliminar tildes con `unicodedata` y colapsar espacios repetidos.\n2) **Mapa de equivalencias** explícito (un diccionario o una tabla) de la forma normalizada al valor oficial.\n\nLo que no esté en el mapa no se adivina: se marca como `\"SIN_MAPEO\"` y se reporta con su frecuencia para que alguien lo agregue al mapa. Así la limpieza es repetible y cada decisión queda escrita.",
+          "codeLanguage": "python",
+          "codeSnippet": "import re\nimport unicodedata\n\nimport pandas as pd\n\n\ndef normalizar(texto: str) -> str:\n    if pd.isna(texto):\n        return \"\"\n    t = unicodedata.normalize(\"NFKD\", str(texto)).encode(\"ascii\", \"ignore\").decode()\n    t = re.sub(r\"[.\\s]+\", \" \", t.casefold()).strip()\n    return t\n\n\nprint(normalizar(\"  Sto. Dgo \"))   # 'sto dgo'\nprint(normalizar(\"SANTIAGO DE LOS CABALLEROS\"))",
+          "keyTakeaway": "Normaliza mecánicamente, mapea con un diccionario explícito y reporta lo que no mapea."
         }
       ],
       "professionalStandard": {
@@ -1539,6 +1637,16 @@
           "hint": "Ordena por `actualizado_en` ascendente y usa `.drop_duplicates(subset=[\"email\"], keep=\"last\")`.",
           "solutionExplanation": "Ordenar explícitamente antes de `drop_duplicates` hace determinista qué versión del cliente sobrevive.",
           "solutionCode": "import pandas as pd\n\ndef normalizar_email(df: pd.DataFrame) -> pd.DataFrame:\n    out = df.copy()\n    out[\"email\"] = out[\"email\"].astype(\"string\").str.strip().str.lower()\n    return out\n\ndef deduplicar_reciente(df: pd.DataFrame) -> pd.DataFrame:\n    return (\n        df.sort_values(\"actualizado_en\")\n        .drop_duplicates(subset=[\"email\"], keep=\"last\")\n        .reset_index(drop=True)\n    )\n\nclientes_limpios = clientes_df.pipe(normalizar_email).pipe(deduplicar_reciente)",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap11-ej-3",
+          "title": "Práctica 3: Mapa de Ciudades con Reporte de Pendientes",
+          "difficulty": "Intermedio",
+          "prompt": "Usando `normalizar()` de la sección 3, escribe `estandarizar_ciudad(df, mapa)` que agregue la columna `ciudad_std` (valor oficial o \"SIN_MAPEO\") y devuelva también una Serie con las formas normalizadas sin mapeo y cuántas veces aparecen.",
+          "hint": "Aplica normalizar, luego `.map(mapa)` y `fillna(\"SIN_MAPEO\")`; las pendientes salen de filtrar las filas sin mapeo y usar value_counts().",
+          "solutionExplanation": "La función nunca inventa una ciudad: lo desconocido queda visible y cuantificado, y basta con ampliar el mapa para resolverlo en la próxima ejecución.",
+          "solutionCode": "MAPA = {\n    \"santo domingo\": \"Santo Domingo\",\n    \"sto dgo\": \"Santo Domingo\",\n    \"sdq\": \"Santo Domingo\",\n    \"santiago\": \"Santiago\",\n    \"santiago de los caballeros\": \"Santiago\",\n}\n\n\ndef estandarizar_ciudad(df, mapa):\n    forma = df[\"ciudad\"].map(normalizar)\n    salida = df.assign(ciudad_std=forma.map(mapa).fillna(\"SIN_MAPEO\"))\n    pendientes = forma[salida[\"ciudad_std\"] == \"SIN_MAPEO\"].value_counts()\n    return salida, pendientes\n\n\nclientes, pendientes = estandarizar_ciudad(clientes, MAPA)\nprint(pendientes.head(10))",
           "codeLanguage": "python"
         }
       ],
@@ -1611,6 +1719,14 @@
           "codeLanguage": "python",
           "codeSnippet": "import numpy as np\n\ncondiciones = [\n    df[\"dias_retraso\"] <= 0,\n    df[\"dias_retraso\"] <= 3,\n]\netiquetas = [\"a_tiempo\", \"retraso_leve\"]\ndf[\"estado_entrega\"] = np.select(condiciones, etiquetas, default=\"retraso_critico\")\n\nresumen = df.groupby(\"estado_entrega\", as_index=False).agg(\n    total_pedidos=(\"pedido_id\", \"nunique\"),\n    ingreso_neto=(\"monto_neto\", \"sum\"),\n)",
           "keyTakeaway": "Si ves un `for ... iterrows()` o `df.apply(..., axis=1)` para aritmética o condiciones simples, vectorízalo con `np.select` o `np.where`."
+        },
+        {
+          "id": "cap12-sec-3",
+          "title": "3. Formato Largo y Ancho: melt y pivot_table",
+          "body": "Las hojas de cálculo suelen venir en **formato ancho**: una columna por mes (`ene`, `feb`, `mar`...). Es cómodo para leer, pero incómodo para analizar: no puedes filtrar por mes, ni agregar meses nuevos sin cambiar el código.\n\nEl **formato largo** (*tidy*) tiene una fila por observación: `tienda`, `mes`, `ventas`. Con él funcionan `groupby`, los gráficos y las uniones. Las dos operaciones clave:\n- `melt()`: de ancho a largo (despivotar).\n- `pivot_table()`: de largo a ancho para presentar, con una función de agregación explícita.\n\nRegla: **analiza en largo, presenta en ancho**. Y si `pivot_table` encuentra filas repetidas para la misma celda, las agrega con `aggfunc`; usa `pivot()` cuando quieras que falle si hay duplicados.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\n\nancho = pd.DataFrame({\n    \"tienda\": [\"Norte\", \"Sur\"],\n    \"ene\": [120, 90], \"feb\": [130, 85], \"mar\": [125, 99],\n})\n\nlargo = ancho.melt(id_vars=\"tienda\", var_name=\"mes\", value_name=\"ventas\")\nprint(largo)\n\n# De vuelta a ancho para presentar, con total por tienda\npresentacion = largo.pivot_table(index=\"tienda\", columns=\"mes\", values=\"ventas\",\n                                 aggfunc=\"sum\", margins=True, margins_name=\"Total\")\nprint(presentacion)",
+          "keyTakeaway": "Analiza en formato largo y presenta en ancho; melt y pivot_table van y vienen."
         }
       ],
       "professionalStandard": {
@@ -1659,6 +1775,16 @@
           "hint": "Agrega `indicator=True` y filtra `_merge == \"left_only\"`.",
           "solutionExplanation": "`indicator=True` añade la columna `_merge` permitiendo auditar registros sin correspondencia antes de eliminarla.",
           "solutionCode": "cruce = pd.merge(\n    facturas_df,\n    clientes_df[[\"cliente_id\", \"nombre\"]],\n    on=\"cliente_id\",\n    how=\"left\",\n    validate=\"many_to_one\",\n    indicator=True,\n)\nhuerfanos = cruce.loc[cruce[\"_merge\"] == \"left_only\"]",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap12-ej-3",
+          "title": "Práctica 3: Despivotar un Presupuesto y Comparar con lo Real",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes `presupuesto` en formato ancho (`tienda`, `ene`, `feb`, `mar`) y `real` en formato largo (`tienda`, `mes`, `ventas`). Calcula para cada tienda y mes la diferencia `ventas - presupuesto` y el porcentaje de cumplimiento.",
+          "hint": "Despivota el presupuesto con melt, únelo a `real` por tienda y mes con validate=\"one_to_one\" y calcula las columnas.",
+          "solutionExplanation": "Llevar ambas tablas a formato largo permite unirlas por tienda y mes; validate protege contra filas duplicadas en cualquiera de los dos lados.",
+          "solutionCode": "pres_largo = presupuesto.melt(id_vars=\"tienda\", var_name=\"mes\", value_name=\"presupuesto\")\n\ncomparacion = real.merge(pres_largo, on=[\"tienda\", \"mes\"], how=\"left\", validate=\"one_to_one\")\ncomparacion = comparacion.assign(\n    diferencia=comparacion[\"ventas\"] - comparacion[\"presupuesto\"],\n    cumplimiento=(comparacion[\"ventas\"] / comparacion[\"presupuesto\"]).round(3),\n)\nprint(comparacion.sort_values([\"tienda\", \"mes\"]))",
           "codeLanguage": "python"
         }
       ],
@@ -1731,6 +1857,14 @@
           "codeLanguage": "python",
           "codeSnippet": "def extraer_paginas(sesion: requests.Session, base_url: str, token: str) -> list[dict]:\n    registros: list[dict] = []\n    cursor: str | None = None\n    headers = {\"Authorization\": f\"Bearer {token}\"}\n\n    while True:\n        params = {\"limit\": 100}\n        if cursor:\n            params[\"cursor\"] = cursor\n        resp = sesion.get(base_url, headers=headers, params=params, timeout=(5, 30))\n        resp.raise_for_status()\n        data = resp.json()\n        registros.extend(data.get(\"items\", []))\n        cursor = data.get(\"next_cursor\")\n        if not cursor:\n            break\n    return registros",
           "keyTakeaway": "Guarda los tokens de API en variables de entorno (`os.environ`), jamás hardcodeados en el script."
+        },
+        {
+          "id": "cap13-sec-3",
+          "title": "3. Extracción Incremental con Marca de Agua y Secretos",
+          "body": "Descargar todo el histórico de una API cada día es lento, caro y a veces viola sus límites. La extracción **incremental** pide solo lo que cambió desde la última vez, usando una **marca de agua** (*watermark*): la fecha de actualización más reciente que ya procesaste.\n\nEl orden importa:\n1) Leer la marca guardada (si no existe, usar una fecha inicial).\n2) Pedir a la API los registros con `updated_since` igual a la marca, recorriendo todas las páginas.\n3) Guardar los datos en Bronze.\n4) **Solo si todo salió bien**, guardar la nueva marca (la máxima fecha recibida).\n\nSi el paso 2 o 3 falla, la marca no avanza y la próxima ejecución repite el tramo, sin huecos. El token de la API se lee de una variable de entorno, nunca del código ni del notebook.",
+          "codeLanguage": "python",
+          "codeSnippet": "import json\nimport os\nfrom pathlib import Path\n\nMARCA = Path(\"estado/marca_clientes.json\")\nTOKEN = os.environ[\"CRM_TOKEN\"]          # nunca escrito en el código\n\n\ndef leer_marca() -> str:\n    if MARCA.exists():\n        return json.loads(MARCA.read_text())[\"updated_since\"]\n    return \"2026-01-01T00:00:00Z\"\n\n\ndef guardar_marca(valor: str) -> None:\n    MARCA.parent.mkdir(parents=True, exist_ok=True)\n    MARCA.write_text(json.dumps({\"updated_since\": valor}))",
+          "keyTakeaway": "La marca de agua avanza solo después de guardar los datos; el token vive en el entorno."
         }
       ],
       "professionalStandard": {
@@ -1779,6 +1913,16 @@
           "hint": "Usa `datetime.now(timezone.utc).isoformat()` y `ruta.parent.mkdir(parents=True, exist_ok=True)`.",
           "solutionExplanation": "Particionar archivos Bronze por fecha de extracción facilita auditorías y cargas incrementales idempotentes.",
           "solutionCode": "from datetime import datetime, timezone\nfrom pathlib import Path\n\nahora = datetime.now(timezone.utc)\ndf[\"ingested_at_utc\"] = ahora.isoformat()\ndestino = Path(f\"data/bronze/fecha={ahora.date()}/datos.parquet\")\ndestino.parent.mkdir(parents=True, exist_ok=True)\ndf.to_parquet(destino, index=False)",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap13-ej-3",
+          "title": "Práctica 3: Ciclo Incremental Completo",
+          "difficulty": "Avanzado",
+          "prompt": "Usando `leer_marca()` y `guardar_marca()` de la sección 3, y una función ya existente `paginas(sesion, updated_since)` que produce listas de registros (cada uno con `updated_at`), escribe `extraer_incremental(sesion)` que guarde los registros en Bronze con `guardar_bronze(df)` y avance la marca solo al final.",
+          "hint": "Junta todos los registros, guarda, y calcula la nueva marca con el máximo de updated_at; si no llegó nada, no cambies la marca.",
+          "solutionExplanation": "La marca se guarda al final, después de persistir los datos: un fallo intermedio deja la marca intacta y la siguiente ejecución recupera el tramo.",
+          "solutionCode": "import pandas as pd\n\n\ndef extraer_incremental(sesion) -> int:\n    desde = leer_marca()\n    registros = [r for pagina in paginas(sesion, updated_since=desde) for r in pagina]\n    if not registros:\n        print(f\"Sin cambios desde {desde}\")\n        return 0\n    df = pd.json_normalize(registros)\n    guardar_bronze(df)                       # si falla aquí, la marca no avanza\n    guardar_marca(df[\"updated_at\"].max())\n    print(f\"{len(df)} registros nuevos o actualizados desde {desde}\")\n    return len(df)",
           "codeLanguage": "python"
         }
       ],
@@ -1851,6 +1995,14 @@
           "codeLanguage": "python",
           "codeSnippet": "# tests/test_metricas.py\nimport pytest\nfrom src.metricas import calcular_margen_pct\n\ndef test_margen_normal():\n    assert calcular_margen_pct(200.0, 50.0) == 75.0\n\ndef test_margen_ingresos_cero_devuelve_none():\n    assert calcular_margen_pct(0.0, 10.0) is None",
           "keyTakeaway": "Prueba siempre 3 escenarios: caso normal, caso límite (`0`, vacío, empate) y caso inválido."
+        },
+        {
+          "id": "cap14-sec-3",
+          "title": "3. Pruebas Parametrizadas para Cubrir los Bordes",
+          "body": "Cuando una función tiene varios casos borde (denominador cero, valores negativos, nulos), escribir un test por caso repite código. `@pytest.mark.parametrize` corre **la misma prueba con varias entradas** y muestra por separado cuál falló.\n\nBuenas prácticas:\n- Cada caso lleva un `id` legible (`\"denominador_cero\"`), que aparece en el reporte.\n- Incluye casos **normales y de borde** en la misma tabla: la tabla documenta el comportamiento esperado.\n- Para comparar decimales usa `pytest.approx`, nunca `==` con flotantes.\n- Prueba también que los errores esperados ocurren, con `pytest.raises`.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pytest\n\n\ndef tasa_conversion(conversiones: int, visitas: int) -> float | None:\n    if visitas < 0 or conversiones < 0:\n        raise ValueError(\"Los conteos no pueden ser negativos\")\n    if visitas == 0:\n        return None\n    return conversiones / visitas\n\n\n@pytest.mark.parametrize(\n    \"conversiones, visitas, esperado\",\n    [\n        pytest.param(5, 100, 0.05, id=\"normal\"),\n        pytest.param(0, 100, 0.0, id=\"sin_conversiones\"),\n        pytest.param(0, 0, None, id=\"sin_visitas\"),\n        pytest.param(3, 7, 0.428571, id=\"decimal_periodico\"),\n    ],\n)\ndef test_tasa_conversion(conversiones, visitas, esperado):\n    resultado = tasa_conversion(conversiones, visitas)\n    if esperado is None:\n        assert resultado is None\n    else:\n        assert resultado == pytest.approx(esperado, rel=1e-4)",
+          "keyTakeaway": "Una tabla de casos con parametrize documenta y prueba todos los bordes a la vez."
         }
       ],
       "professionalStandard": {
@@ -1900,6 +2052,16 @@
           "hint": "Recuerda que 150 total / 2 pedidos únicos = 75.0 (no 150 / 3 filas = 50.0).",
           "solutionExplanation": "El fixture verifica exactamente que tu función respete el grano de pedido y no el de ítem.",
           "solutionCode": "import pandas as pd\nimport pytest\nfrom src.metricas import calcular_ticket_promedio\n\n@pytest.fixture\ndef ventas_ejemplo() -> pd.DataFrame:\n    return pd.DataFrame({\n        \"pedido_id\": [\"P1\", \"P1\", \"P2\"],\n        \"monto_neto\": [60.0, 40.0, 50.0],\n    })\n\ndef test_ticket_respeta_grano_pedido(ventas_ejemplo: pd.DataFrame):\n    assert calcular_ticket_promedio(ventas_ejemplo) == 75.0",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap14-ej-3",
+          "title": "Práctica 3: Probar que los Errores Ocurren",
+          "difficulty": "Intermedio",
+          "prompt": "Para `tasa_conversion` de la sección 3, escribe un test parametrizado que compruebe que se lanza `ValueError` cuando las conversiones o las visitas son negativas (dos casos con id).",
+          "hint": "Combina @pytest.mark.parametrize con `with pytest.raises(ValueError):`.",
+          "solutionExplanation": "Probar los errores es tan importante como probar los resultados: garantiza que un dato corrupto detiene el proceso en lugar de producir una tasa absurda.",
+          "solutionCode": "import pytest\n\n\n@pytest.mark.parametrize(\n    \"conversiones, visitas\",\n    [\n        pytest.param(-1, 100, id=\"conversiones_negativas\"),\n        pytest.param(5, -10, id=\"visitas_negativas\"),\n    ],\n)\ndef test_tasa_conversion_rechaza_negativos(conversiones, visitas):\n    with pytest.raises(ValueError):\n        tasa_conversion(conversiones, visitas)",
           "codeLanguage": "python"
         }
       ],
