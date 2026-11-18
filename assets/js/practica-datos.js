@@ -1,4 +1,5 @@
-/* NEXUS · Datos de la práctica de SQL: bases de ejemplo (SQLite) y ejercicios.
+/* NEXUS · Datos de la práctica de T-SQL: bases de ejemplo y ejercicios.
+ * Las soluciones están en T-SQL (SQL Server); la consola las traduce con tsql.js y las ejecuta en SQLite.
  * Cada ejercicio se comprueba ejecutando su "solucion" en una copia limpia de la base
  * y comparando el resultado con el de tu consulta (no importan los nombres de las columnas,
  * sí su orden; "orden": true exige además el mismo orden de filas).
@@ -57,7 +58,7 @@ window.PracticaDatos = {
    "id": "t04",
    "base": "tienda",
    "nivel": "basico",
-   "concepto": "NULL y CASE",
+   "concepto": "NULL, CASE e IIF",
    "titulo": "Clientes sin ciudad",
    "enunciado": "Muestra el `nombre` de los clientes que **no tienen ciudad** registrada.",
    "solucion": "SELECT nombre FROM clientes WHERE ciudad IS NULL;",
@@ -79,7 +80,7 @@ window.PracticaDatos = {
    "id": "t06",
    "base": "tienda",
    "nivel": "basico",
-   "concepto": "NULL y CASE",
+   "concepto": "NULL, CASE e IIF",
    "titulo": "Clasificar productos por precio",
    "enunciado": "Para cada producto muestra `nombre` y una clase: **'barato'** si cuesta menos de 20, **'medio'** si cuesta de 20 a 100 (incluidos) y **'caro'** si cuesta más de 100.",
    "solucion": "SELECT nombre, CASE WHEN precio < 20 THEN 'barato' WHEN precio <= 100 THEN 'medio' ELSE 'caro' END FROM productos;",
@@ -115,7 +116,7 @@ window.PracticaDatos = {
    "concepto": "Agregación",
    "titulo": "Clientes frecuentes",
    "enunciado": "Muestra el `nombre` de los clientes con **más de 4 pedidos** (de cualquier estado) y cuántos pedidos tienen.",
-   "solucion": "SELECT c.nombre, COUNT(*) FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.id HAVING COUNT(*) > 4;",
+   "solucion": "SELECT c.nombre, COUNT(*) FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.id, c.nombre HAVING COUNT(*) > 4;",
    "orden": false,
    "pista": "Filtrar después de agrupar se hace con `HAVING`, no con `WHERE`."
   },
@@ -137,9 +138,9 @@ window.PracticaDatos = {
    "concepto": "Fechas y texto",
    "titulo": "Pedidos por mes",
    "enunciado": "Cuenta los pedidos de cada mes con el formato **AAAA-MM** (por ejemplo `2026-01`), ordenados por mes.",
-   "solucion": "SELECT strftime('%Y-%m', fecha) AS mes, COUNT(*) FROM pedidos GROUP BY mes ORDER BY mes;",
+   "solucion": "SELECT FORMAT(fecha, 'yyyy-MM') AS mes, COUNT(*) AS pedidos FROM pedidos GROUP BY FORMAT(fecha, 'yyyy-MM') ORDER BY mes;",
    "orden": true,
-   "pista": "En SQLite: `strftime('%Y-%m', fecha)` o `substr(fecha, 1, 7)`."
+   "pista": "`FORMAT(fecha, 'yyyy-MM')` o `CONVERT(char(7), fecha, 120)`. En T-SQL no puedes agrupar por el alias: repite la expresión en el GROUP BY."
   },
   {
    "id": "t12",
@@ -159,7 +160,7 @@ window.PracticaDatos = {
    "concepto": "Subconsultas y CTE",
    "titulo": "Ticket promedio por país",
    "enunciado": "Calcula el total de cada pedido **no cancelado** (suma de `cantidad * precio_unitario`) y luego el **promedio de esos totales por país** del cliente, redondeado a 2 decimales. Columnas: pais, ticket_promedio.",
-   "solucion": "WITH totales AS (SELECT p.id, p.cliente_id, SUM(d.cantidad * d.precio_unitario) AS total FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY p.id) SELECT c.pais, ROUND(AVG(t.total), 2) FROM totales t JOIN clientes c ON c.id = t.cliente_id GROUP BY c.pais;",
+   "solucion": "WITH totales AS (SELECT p.id, p.cliente_id, SUM(d.cantidad * d.precio_unitario) AS total FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY p.id, p.cliente_id) SELECT c.pais, ROUND(AVG(t.total), 2) AS ticket_promedio FROM totales t JOIN clientes c ON c.id = t.cliente_id GROUP BY c.pais;",
    "orden": false,
    "pista": "Primero un CTE con el total por pedido; después agrupa ese resultado por país. Promediar las líneas de detalle directamente da otro número."
   },
@@ -170,7 +171,7 @@ window.PracticaDatos = {
    "concepto": "Funciones de ventana",
    "titulo": "Producto más vendido por categoría",
    "enunciado": "Para cada categoría muestra el producto con **más unidades vendidas** (pedidos no cancelados) y sus unidades. Si hay empate, gana el de **nombre alfabéticamente menor**. Columnas: categoria, producto, unidades.",
-   "solucion": "WITH u AS (SELECT pr.categoria, pr.nombre, SUM(d.cantidad) AS unidades FROM detalle_pedido d JOIN pedidos p ON p.id = d.pedido_id JOIN productos pr ON pr.id = d.producto_id WHERE p.estado <> 'cancelado' GROUP BY pr.id), r AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY unidades DESC, nombre) AS n FROM u) SELECT categoria, nombre, unidades FROM r WHERE n = 1;",
+   "solucion": "WITH u AS (SELECT pr.categoria, pr.nombre, SUM(d.cantidad) AS unidades FROM detalle_pedido d JOIN pedidos p ON p.id = d.pedido_id JOIN productos pr ON pr.id = d.producto_id WHERE p.estado <> 'cancelado' GROUP BY pr.id, pr.categoria, pr.nombre), r AS (SELECT *, ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY unidades DESC, nombre) AS n FROM u) SELECT categoria, nombre, unidades FROM r WHERE n = 1;",
    "orden": false,
    "pista": "`ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY unidades DESC, nombre)` y quedarte con n = 1."
   },
@@ -181,7 +182,7 @@ window.PracticaDatos = {
    "concepto": "Funciones de ventana",
    "titulo": "Ingreso acumulado por mes",
    "enunciado": "Para cada mes (AAAA-MM) muestra el ingreso del mes de pedidos no cancelados y el **ingreso acumulado** hasta ese mes, ambos redondeados a 2 decimales, ordenados por mes.",
-   "solucion": "WITH m AS (SELECT strftime('%Y-%m', p.fecha) AS mes, SUM(d.cantidad * d.precio_unitario) AS ingreso FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY mes) SELECT mes, ROUND(ingreso, 2), ROUND(SUM(ingreso) OVER (ORDER BY mes), 2) FROM m ORDER BY mes;",
+   "solucion": "WITH m AS (SELECT FORMAT(p.fecha, 'yyyy-MM') AS mes, SUM(d.cantidad * d.precio_unitario) AS ingreso FROM pedidos p JOIN detalle_pedido d ON d.pedido_id = p.id WHERE p.estado <> 'cancelado' GROUP BY FORMAT(p.fecha, 'yyyy-MM')) SELECT mes, ROUND(ingreso, 2) AS ingreso, ROUND(SUM(ingreso) OVER (ORDER BY mes), 2) AS acumulado FROM m ORDER BY mes;",
    "orden": true,
    "pista": "Agrega por mes en un CTE y luego usa `SUM(ingreso) OVER (ORDER BY mes)`."
   },
@@ -189,10 +190,10 @@ window.PracticaDatos = {
    "id": "t16",
    "base": "tienda",
    "nivel": "avanzado",
-   "concepto": "NULL y CASE",
+   "concepto": "NULL, CASE e IIF",
    "titulo": "Cancelaciones por país",
    "enunciado": "Calcula el **porcentaje de pedidos cancelados** por país del cliente (0 a 100, redondeado a 1 decimal). Columnas: pais, pct_cancelados.",
-   "solucion": "SELECT c.pais, ROUND(100.0 * SUM(CASE WHEN p.estado = 'cancelado' THEN 1 ELSE 0 END) / COUNT(*), 1) FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.pais;",
+   "solucion": "SELECT c.pais, ROUND(100.0 * SUM(CASE WHEN p.estado = 'cancelado' THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_cancelados FROM pedidos p JOIN clientes c ON c.id = p.cliente_id GROUP BY c.pais;",
    "orden": false,
    "pista": "Cuenta los cancelados con `SUM(CASE WHEN ... THEN 1 ELSE 0 END)` y multiplica por `100.0` para no hacer división entera."
   },
@@ -216,7 +217,7 @@ window.PracticaDatos = {
    "enunciado": "Muestra `nombre` y `fecha_ingreso` de los empleados que entraron durante **2024**.",
    "solucion": "SELECT nombre, fecha_ingreso FROM empleados WHERE fecha_ingreso >= '2024-01-01' AND fecha_ingreso < '2025-01-01';",
    "orden": false,
-   "pista": "Usa un rango semiabierto: desde el 1 de enero de 2024 y antes del 1 de enero de 2025."
+   "pista": "Usa un rango semiabierto (desde el 1 de enero de 2024 y antes del 1 de enero de 2025) o `YEAR(fecha_ingreso) = 2024`. El rango es mejor en tablas grandes porque puede usar índices."
   },
   {
    "id": "r03",
@@ -225,9 +226,9 @@ window.PracticaDatos = {
    "concepto": "JOIN",
    "titulo": "Salario promedio por departamento",
    "enunciado": "Muestra el **nombre del departamento** y el salario promedio de sus empleados, redondeado a 2 decimales. Solo departamentos con empleados.",
-   "solucion": "SELECT d.nombre, ROUND(AVG(e.salario), 2) FROM empleados e JOIN departamentos d ON d.id = e.departamento_id GROUP BY d.id;",
+   "solucion": "SELECT d.nombre, ROUND(AVG(e.salario * 1.0), 2) AS promedio FROM empleados e JOIN departamentos d ON d.id = e.departamento_id GROUP BY d.id, d.nombre;",
    "orden": false,
-   "pista": "`JOIN` entre empleados y departamentos, luego `GROUP BY`."
+   "pista": "`JOIN` entre empleados y departamentos, luego `GROUP BY d.id, d.nombre`. Ojo: en SQL Server `AVG` de una columna entera devuelve un entero; multiplica por `1.0` para tener decimales."
   },
   {
    "id": "r04",
@@ -255,12 +256,12 @@ window.PracticaDatos = {
    "id": "r06",
    "base": "rrhh",
    "nivel": "intermedio",
-   "concepto": "NULL y CASE",
+   "concepto": "NULL, CASE e IIF",
    "titulo": "Compensación total",
    "enunciado": "Muestra `nombre` y la compensación total = `salario + comision`. Si no tiene comisión cuenta como 0.",
-   "solucion": "SELECT nombre, salario + COALESCE(comision, 0) FROM empleados;",
+   "solucion": "SELECT nombre, salario + ISNULL(comision, 0) AS compensacion FROM empleados;",
    "orden": false,
-   "pista": "Cualquier suma con NULL da NULL. `COALESCE(comision, 0)` lo evita."
+   "pista": "Cualquier suma con NULL da NULL. `ISNULL(comision, 0)` (o `COALESCE`) lo evita."
   },
   {
    "id": "r07",
@@ -280,7 +281,7 @@ window.PracticaDatos = {
    "concepto": "Subconsultas y CTE",
    "titulo": "Por encima del promedio de su área",
    "enunciado": "Muestra `nombre` y `salario` de los empleados que ganan **más que el promedio de su propio departamento**.",
-   "solucion": "SELECT e.nombre, e.salario FROM empleados e WHERE e.salario > (SELECT AVG(x.salario) FROM empleados x WHERE x.departamento_id = e.departamento_id);",
+   "solucion": "SELECT e.nombre, e.salario FROM empleados e WHERE e.salario > (SELECT AVG(x.salario * 1.0) FROM empleados x WHERE x.departamento_id = e.departamento_id);",
    "orden": false,
    "pista": "Subconsulta correlacionada: el promedio se calcula para el departamento de cada fila."
   },
@@ -324,9 +325,9 @@ window.PracticaDatos = {
    "concepto": "Fechas y texto",
    "titulo": "Usuarios activos por día",
    "enunciado": "Cuenta los **usuarios distintos** con algún evento cada día entre el **2026-03-10 y el 2026-03-16** (incluidos). Columnas: dia (AAAA-MM-DD), usuarios. Ordena por día.",
-   "solucion": "SELECT date(fecha) AS dia, COUNT(DISTINCT usuario_id) FROM eventos WHERE date(fecha) BETWEEN '2026-03-10' AND '2026-03-16' GROUP BY dia ORDER BY dia;",
+   "solucion": "SELECT CAST(fecha AS DATE) AS dia, COUNT(DISTINCT usuario_id) AS usuarios FROM eventos WHERE CAST(fecha AS DATE) BETWEEN '2026-03-10' AND '2026-03-16' GROUP BY CAST(fecha AS DATE) ORDER BY dia;",
    "orden": true,
-   "pista": "`date(fecha)` quita la hora. Para no contar dos veces a un usuario usa `COUNT(DISTINCT usuario_id)`."
+   "pista": "`CAST(fecha AS DATE)` quita la hora. Para no contar dos veces a un usuario usa `COUNT(DISTINCT usuario_id)`."
   },
   {
    "id": "a04",
@@ -346,9 +347,9 @@ window.PracticaDatos = {
    "concepto": "Subconsultas y CTE",
    "titulo": "Conversión por canal",
    "enunciado": "Para cada `canal` muestra: usuarios, usuarios que compraron al menos una vez, y la tasa de conversión en % redondeada a 1 decimal.",
-   "solucion": "SELECT u.canal, COUNT(*), SUM(CASE WHEN EXISTS (SELECT 1 FROM eventos e WHERE e.usuario_id = u.id AND e.tipo = 'compra') THEN 1 ELSE 0 END) AS compradores, ROUND(100.0 * SUM(CASE WHEN EXISTS (SELECT 1 FROM eventos e WHERE e.usuario_id = u.id AND e.tipo = 'compra') THEN 1 ELSE 0 END) / COUNT(*), 1) FROM usuarios u GROUP BY u.canal;",
+   "solucion": "WITH c AS (SELECT u.canal, CASE WHEN EXISTS (SELECT 1 FROM eventos e WHERE e.usuario_id = u.id AND e.tipo = 'compra') THEN 1 ELSE 0 END AS compro FROM usuarios u) SELECT canal, COUNT(*) AS usuarios, SUM(compro) AS compradores, ROUND(100.0 * SUM(compro) / COUNT(*), 1) AS conversion FROM c GROUP BY canal;",
    "orden": false,
-   "pista": "Cuidado: si haces JOIN con eventos, un usuario con dos compras se cuenta dos veces. Marca a cada usuario como comprador o no (EXISTS o un CTE con DISTINCT)."
+   "pista": "Cuidado: si haces JOIN con eventos, un usuario con dos compras se cuenta dos veces. Marca a cada usuario como comprador o no en un CTE (con `CASE WHEN EXISTS (...)`) y luego agrupa. SQL Server no deja poner una subconsulta dentro de `SUM`."
   },
   {
    "id": "a06",
@@ -368,9 +369,9 @@ window.PracticaDatos = {
    "concepto": "Funciones de ventana",
    "titulo": "Primera compra de cada usuario",
    "enunciado": "Para cada usuario que compró, muestra `usuario_id`, la fecha de su **primera** compra y el monto de esa compra.",
-   "solucion": "SELECT usuario_id, fecha, monto FROM (SELECT usuario_id, fecha, monto, ROW_NUMBER() OVER (PARTITION BY usuario_id ORDER BY fecha) AS n FROM eventos WHERE tipo = 'compra') WHERE n = 1;",
+   "solucion": "SELECT usuario_id, fecha, monto FROM (SELECT usuario_id, fecha, monto, ROW_NUMBER() OVER (PARTITION BY usuario_id ORDER BY fecha) AS n FROM eventos WHERE tipo = 'compra') AS x WHERE n = 1;",
    "orden": false,
-   "pista": "`ROW_NUMBER()` por usuario ordenado por fecha y te quedas con la fila 1. `MIN(fecha)` solo no basta para traer el monto."
+   "pista": "`ROW_NUMBER()` por usuario ordenado por fecha y te quedas con la fila 1. `MIN(fecha)` solo no basta para traer el monto. En T-SQL la subconsulta del FROM necesita un alias."
   },
   {
    "id": "a08",
@@ -378,10 +379,87 @@ window.PracticaDatos = {
    "nivel": "avanzado",
    "concepto": "Fechas y texto",
    "titulo": "Días hasta la primera compra",
-   "enunciado": "Para cada usuario que compró, muestra `usuario_id` y los **días** entre su `fecha_alta` y su primera compra (número entero, usando solo la fecha sin hora).",
-   "solucion": "SELECT u.id, CAST(julianday(date(MIN(e.fecha))) - julianday(u.fecha_alta) AS INTEGER) FROM usuarios u JOIN eventos e ON e.usuario_id = u.id AND e.tipo = 'compra' GROUP BY u.id;",
+   "enunciado": "Para cada usuario que compró, muestra `usuario_id` y los **días** entre su `fecha_alta` y su primera compra.",
+   "solucion": "SELECT u.id, DATEDIFF(day, u.fecha_alta, MIN(e.fecha)) AS dias FROM usuarios u JOIN eventos e ON e.usuario_id = u.id AND e.tipo = 'compra' GROUP BY u.id, u.fecha_alta;",
    "orden": false,
-   "pista": "En SQLite, `julianday(a) - julianday(b)` da la diferencia en días."
+   "pista": "`DATEDIFF(day, inicio, fin)` cuenta los cambios de día entre dos fechas. Agrupa por usuario para sacar su `MIN(fecha)` de compra."
+  },
+  {
+   "id": "t17",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Consultas y filtros",
+   "titulo": "Los 3 productos más caros",
+   "enunciado": "Muestra `nombre` y `precio` de los **3 productos más caros**, del más caro al más barato.",
+   "solucion": "SELECT TOP (3) nombre, precio FROM productos ORDER BY precio DESC;",
+   "orden": true,
+   "pista": "En T-SQL se limita con `SELECT TOP (3) ...` junto con un `ORDER BY`. `LIMIT` no existe en SQL Server."
+  },
+  {
+   "id": "t18",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Consultas y filtros",
+   "titulo": "Segunda página de clientes",
+   "enunciado": "Ordenando los clientes por `id`, muestra la **segunda página de 5** (clientes 6 a 10): id y nombre.",
+   "solucion": "SELECT id, nombre FROM clientes ORDER BY id OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;",
+   "orden": true,
+   "pista": "`ORDER BY id OFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY`: salta 5 filas y toma las 5 siguientes."
+  },
+  {
+   "id": "t19",
+   "base": "tienda",
+   "nivel": "intermedio",
+   "concepto": "Fechas y texto",
+   "titulo": "Pedidos de cierre de mes",
+   "enunciado": "Muestra `id` y `fecha` de los pedidos hechos en los **últimos 5 días de su mes** (el último día y los cuatro anteriores).",
+   "solucion": "SELECT id, fecha FROM pedidos WHERE DATEDIFF(day, fecha, EOMONTH(fecha)) <= 4;",
+   "orden": false,
+   "pista": "`EOMONTH(fecha)` da el último día del mes. Compara con `DATEDIFF(day, fecha, EOMONTH(fecha))`."
+  },
+  {
+   "id": "t20",
+   "base": "tienda",
+   "nivel": "basico",
+   "concepto": "Fechas y texto",
+   "titulo": "Nombre de pila",
+   "enunciado": "Muestra el `nombre` completo de cada cliente y su **nombre de pila** (la parte antes del primer espacio).",
+   "solucion": "SELECT nombre, LEFT(nombre, CHARINDEX(' ', nombre) - 1) AS pila FROM clientes;",
+   "orden": false,
+   "pista": "`CHARINDEX(' ', nombre)` da la posición del primer espacio; `LEFT(nombre, posición - 1)` corta hasta ahí."
+  },
+  {
+   "id": "r10",
+   "base": "rrhh",
+   "nivel": "basico",
+   "concepto": "Fechas y texto",
+   "titulo": "Años en la empresa",
+   "enunciado": "Muestra `nombre` y cuántos **años de calendario** han pasado desde su `fecha_ingreso` hasta el **2026-11-01**, con `DATEDIFF`.",
+   "solucion": "SELECT nombre, DATEDIFF(year, fecha_ingreso, '2026-11-01') AS anios FROM empleados;",
+   "orden": false,
+   "pista": "`DATEDIFF(year, inicio, fin)` cuenta los cambios de año entre las dos fechas."
+  },
+  {
+   "id": "r11",
+   "base": "rrhh",
+   "nivel": "intermedio",
+   "concepto": "Agregación",
+   "titulo": "El equipo de cada jefe",
+   "enunciado": "Para cada persona que es jefe de alguien, muestra su nombre y la lista de nombres de su equipo **separados por coma y espacio**, en orden alfabético.",
+   "solucion": "SELECT j.nombre, STRING_AGG(e.nombre, ', ') WITHIN GROUP (ORDER BY e.nombre) AS equipo FROM empleados e JOIN empleados j ON j.id = e.jefe_id GROUP BY j.id, j.nombre;",
+   "orden": false,
+   "pista": "`STRING_AGG(e.nombre, ', ') WITHIN GROUP (ORDER BY e.nombre)` une los textos del grupo en orden."
+  },
+  {
+   "id": "a09",
+   "base": "app",
+   "nivel": "basico",
+   "concepto": "NULL, CASE e IIF",
+   "titulo": "Etiqueta de las compras",
+   "enunciado": "Para cada compra muestra `usuario_id`, `monto` y la etiqueta **'alta'** si el monto es 20 o más, o **'baja'** si es menor. Usa `IIF`.",
+   "solucion": "SELECT usuario_id, monto, IIF(monto >= 20, 'alta', 'baja') AS etiqueta FROM eventos WHERE tipo = 'compra';",
+   "orden": false,
+   "pista": "`IIF(condición, valor_si, valor_no)` es un CASE corto de T-SQL."
   }
  ]
 };

@@ -2,21 +2,24 @@
  *
  * Rutas (todas bajo #/practica):
  *   #/practica                              Mi nivel (estadísticas y qué reforzar)
- *   #/practica/sql/ejercicios[/<concepto>]  lista de ejercicios SQL por nivel
- *   #/practica/sql/ej/<id>                  un ejercicio con su consola
- *   #/practica/sql/consola[/<base>]         consola libre
- *   #/practica/sql/reto                     reto SQL del día
- *   #/practica/<idCurso>[/<n>]              módulo n del curso: capítulos con preguntas
+ *   #/practica/sql/ejercicios[/<concepto>]  ejercicios T-SQL por nivel (se muestran dentro de la pestaña Datos)
+ *   #/practica/sql/ej/<id>                  un ejercicio con su consola T-SQL
+ *   #/practica/sql/consola[/<base>]         consola T-SQL libre
+ *   #/practica/sql/reto                     reto T-SQL del día
+ *   #/practica/js/ejercicios[/<concepto>]   ejercicios de JavaScript (pestaña JavaScript)
+ *   #/practica/js/ej/<id> · /js/consola · /js/reto
+ *   #/practica/<idCurso>                    pestaña del curso (Datos abre los ejercicios T-SQL)
+ *   #/practica/<idCurso>/<n>                módulo n del curso: capítulos con preguntas
  *   #/practica/<idCurso>/<n>/<idCap|todo>   práctica de preguntas (en orden: primero las falladas)
  *
  * Todo se guarda en este navegador, clave "nexus:practica":
  * {
  *   version: 1,
  *   preguntas: { "curso|cap|pregunta": { aciertos, fallos, ultima: bool, fecha } },
- *   historial: [{ f, tipo: "p" | "sql", curso, mod, cap, concepto, ref, ok }],   (últimas 3000)
- *   sql:       { [idEjercicio]: { intentos, resuelto, revelado, fecha } },
- *   borradores:{ [idEjercicio | "libre:<base>"]: "consulta" },
- *   reto:      { fecha, id, resuelto },  retosHechos: n
+ *   historial: [{ f, tipo: "p" | "sql" | "js", curso, mod, cap, concepto, ref, ok }],   (últimas 3000)
+ *   sql, js:   { [idEjercicio]: { intentos, resuelto, revelado, fecha } },
+ *   borradores:{ [idEjercicio | "libre:<base>" | "js:libre"]: "código" },
+ *   reto, retoJS: { fecha, id, resuelto },  retosHechos, retosJSHechos: n
  * }
  */
 (function () {
@@ -24,16 +27,24 @@
   const P = window.Progreso;
   const C = window.Cuaderno;
   const D = window.PracticaDatos;
+  const JSD = window.PracticaJS;
+  const T = window.TSQL;
   const CLAVE = "nexus:practica";
   const MAX_HISTORIAL = 3000;
 
   const NIVEL_EJ = { basico: "Básico", intermedio: "Intermedio", avanzado: "Avanzado" };
   const ORDEN_NIVEL = ["basico", "intermedio", "avanzado"];
-  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL y CASE", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana"];
+  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL, CASE e IIF", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana"];
+  const CONCEPTOS_JS = Object.keys(JSD.lecciones);
+  // Datos de cada clase de ejercicio con consola
+  const CLASES = {
+    sql: { lista: () => D.ejercicios, conceptos: CONCEPTOS, reto: "reto", contador: "retosHechos", nombre: "T-SQL", ruta: "#/practica/sql" },
+    js: { lista: () => JSD.ejercicios, conceptos: CONCEPTOS_JS, reto: "retoJS", contador: "retosJSHechos", nombre: "JavaScript", ruta: "#/practica/js" },
+  };
 
   // ---------- Almacenamiento ----------
   function vacio() {
-    return { version: 1, preguntas: {}, historial: [], sql: {}, borradores: {}, reto: null, retosHechos: 0 };
+    return { version: 1, preguntas: {}, historial: [], sql: {}, js: {}, borradores: {}, reto: null, retosHechos: 0, retoJS: null, retosJSHechos: 0 };
   }
   function leer() {
     try {
@@ -69,29 +80,31 @@
     C.registrarActividad();
   }
 
-  // Un ejercicio SQL "cuenta" para tu nivel cuando lo resuelves (acierto)
+  // Un ejercicio (T-SQL o JavaScript) "cuenta" para tu nivel cuando lo resuelves (acierto)
   // o cuando ves la solución sin haberlo resuelto (fallo).
-  function registrarSQL(ej, evento) {
+  function registrarEj(clase, ej, evento) {
+    const K = CLASES[clase];
     return cambiar((d) => {
-      const r = d.sql[ej.id] || { intentos: 0, resuelto: false, revelado: false };
+      const r = d[clase][ej.id] || { intentos: 0, resuelto: false, revelado: false };
       if (evento === "intento") r.intentos++;
       if (evento === "resuelto") {
         r.intentos++;
-        if (r.resueltoHoy !== C.fechaISO() && r.reveladoHoy !== C.fechaISO()) anotar(d, { tipo: "sql", concepto: ej.concepto, ref: ej.id, ok: true });
+        if (r.resueltoHoy !== C.fechaISO() && r.reveladoHoy !== C.fechaISO()) anotar(d, { tipo: clase, concepto: ej.concepto, ref: ej.id, ok: true });
         r.resuelto = true;
         r.resueltoHoy = C.fechaISO();
-        if (d.reto && d.reto.id === ej.id && d.reto.fecha === C.fechaISO() && !d.reto.resuelto) {
-          d.reto.resuelto = true;
-          d.retosHechos = (d.retosHechos || 0) + 1;
+        const reto = d[K.reto];
+        if (reto && reto.id === ej.id && reto.fecha === C.fechaISO() && !reto.resuelto) {
+          reto.resuelto = true;
+          d[K.contador] = (d[K.contador] || 0) + 1;
         }
       }
       if (evento === "revelado") {
-        if (!r.resuelto && r.reveladoHoy !== C.fechaISO()) anotar(d, { tipo: "sql", concepto: ej.concepto, ref: ej.id, ok: false });
+        if (!r.resuelto && r.reveladoHoy !== C.fechaISO()) anotar(d, { tipo: clase, concepto: ej.concepto, ref: ej.id, ok: false });
         r.revelado = true;
         r.reveladoHoy = C.fechaISO();
       }
       r.fecha = new Date().toISOString();
-      d.sql[ej.id] = r;
+      d[clase][ej.id] = r;
       return r;
     });
   }
@@ -99,15 +112,17 @@
   function borrador(clave) { return leer().borradores[clave]; }
   function guardarBorrador(clave, texto) { cambiar((d) => { d.borradores[clave] = texto; }); }
 
-  function retoDeHoy() {
+  function retoDeHoy(clase) {
     const hoy = C.fechaISO();
+    const K = CLASES[clase];
     return cambiar((d) => {
-      if (d.reto && d.reto.fecha === hoy && D.ejercicios.some((e) => e.id === d.reto.id)) return d.reto;
+      const actual = d[K.reto];
+      if (actual && actual.fecha === hoy && K.lista().some((e) => e.id === actual.id)) return actual;
       // El reto del día es el siguiente ejercicio sin resolver en el orden de la lista (por nivel).
-      const lista = ejerciciosOrdenados();
-      const sig = lista.find((e) => !(d.sql[e.id] && d.sql[e.id].resuelto) && (!d.reto || e.id !== d.reto.id)) || lista[Number(hoy.replace(/-/g, "")) % lista.length];
-      d.reto = { fecha: hoy, id: sig.id, resuelto: false };
-      return d.reto;
+      const lista = ejerciciosOrdenados(clase);
+      const sig = lista.find((e) => !(d[clase][e.id] && d[clase][e.id].resuelto) && (!actual || e.id !== actual.id)) || lista[Number(hoy.replace(/-/g, "")) % lista.length];
+      d[K.reto] = { fecha: hoy, id: sig.id, resuelto: false };
+      return d[K.reto];
     });
   }
 
@@ -158,6 +173,16 @@
     return String(mod).replace(/^m[óo]dulo\s*\d+\s*[:·-]\s*/i, "").replace(/^\d+\s*·\s*/, "").replace(/^EXP\s*\d+\s*·\s*/i, "").trim();
   }
 
+  // Nombre breve para las sub-pestañas: "SQL Analítico y Arquitectura…" → "SQL Analítico"
+  function etiquetaCorta(nombre) {
+    let t = nombreCorto(nombre);
+    for (const sep of [" y ", ", ", " para "]) {
+      const i = t.indexOf(sep);
+      if (i >= 6) t = t.slice(0, i);
+    }
+    return t;
+  }
+
   // Módulos del curso con sus capítulos que tienen preguntas disponibles
   function modulosPractica(ctx, curso) {
     return ctx.modulosDe(curso).map(([nombre, caps], i) => {
@@ -176,8 +201,8 @@
     return evaluar(entradas, examen);
   }
 
-  function evaluarConcepto(concepto, d) {
-    return evaluar(d.historial.filter((h) => h.tipo === "sql" && h.concepto === concepto));
+  function evaluarConcepto(concepto, d, clase = "sql") {
+    return evaluar(d.historial.filter((h) => h.tipo === clase && h.concepto === concepto));
   }
 
   // Agrega varias evaluaciones en una (ponderadas por número de respuestas)
@@ -218,6 +243,7 @@
   function baseNueva(SQL, nombre) {
     const db = new SQL.Database();
     db.exec(D.bases[nombre].sql);
+    T.registrar(db);
     return db;
   }
   function baseConsola(SQL, nombre) {
@@ -284,31 +310,41 @@
   }
 
   // ---------- Utilidades de vista ----------
-  function ejerciciosOrdenados() {
-    return [...D.ejercicios].sort((a, b) => ORDEN_NIVEL.indexOf(a.nivel) - ORDEN_NIVEL.indexOf(b.nivel) || CONCEPTOS.indexOf(a.concepto) - CONCEPTOS.indexOf(b.concepto) || a.id.localeCompare(b.id));
+  function ejerciciosOrdenados(clase = "sql") {
+    const K = CLASES[clase];
+    return [...K.lista()].sort((a, b) => ORDEN_NIVEL.indexOf(a.nivel) - ORDEN_NIVEL.indexOf(b.nivel) || K.conceptos.indexOf(a.concepto) - K.conceptos.indexOf(b.concepto) || a.id.localeCompare(b.id));
   }
   const slug = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  const conceptoDeSlug = (s) => CONCEPTOS.find((c) => slug(c) === s) || null;
+  const conceptoDeSlug = (s, lista = CONCEPTOS) => lista.find((c) => slug(c) === s) || null;
+
+  // Las columnas sin alias muestran la expresión: se deshace la traducción para que se vea en T-SQL
+  const nombreColumna = (c) => String(c).replace(/\bT_(\w+)\('(\w+)',\s*/g, "$1($2, ").replace(/\bT_(LEFT|RIGHT)\(/g, "$1(");
 
   function tablaResultado(r, max = 200) {
     if (!r) return "";
     const filas = r.values.slice(0, max);
     return `<div class="tabla-scroll"><table class="tabla-resultado">
-      <thead><tr>${r.columns.map((c) => `<th>${escapar(c)}</th>`).join("")}</tr></thead>
+      <thead><tr>${r.columns.map((c) => `<th>${escapar(nombreColumna(c))}</th>`).join("")}</tr></thead>
       <tbody>${filas.map((f) => `<tr>${f.map((v) => (v === null ? '<td class="nulo">NULL</td>' : `<td class="${typeof v === "number" ? "num-celda" : ""}">${escapar(typeof v === "number" && !Number.isInteger(v) ? String(Math.round(v * 10000) / 10000) : String(v))}</td>`)).join("")}</tr>`).join("")}</tbody>
     </table></div>
     <p class="small muted" style="margin:.4rem 0 0">${r.values.length} ${r.values.length === 1 ? "fila" : "filas"}${r.values.length > max ? ` · se muestran las primeras ${max}` : ""}</p>`;
   }
 
+  // Pestañas principales: Mi nivel, un tema por curso y JavaScript (después de Web)
   function pestanasPrincipales(cursos, activa) {
-    const items = [["nivel", "Mi nivel", "#/practica"], ["sql", "SQL", "#/practica/sql/ejercicios"]];
-    for (const c of cursos) items.push([c.id, c._meta.separador || c.title, `#/practica/${encodeURIComponent(c.id)}`]);
+    const items = [["nivel", "Mi nivel", "#/practica"]];
+    let conJS = false;
+    for (const c of cursos) {
+      items.push([c.id, c._meta.separador || c.title, `#/practica/${encodeURIComponent(c.id)}`]);
+      if (c._meta.tema === "web") { items.push(["js", "JavaScript", "#/practica/js/ejercicios"]); conJS = true; }
+    }
+    if (!conJS) items.push(["js", "JavaScript", "#/practica/js/ejercicios"]);
     return `<nav class="tabs practica-tabs" aria-label="Temas de práctica">${items
       .map(([id, txt, href]) => `<a class="tab ${id === activa ? "activa" : ""}" href="${href}" ${id === activa ? 'aria-current="page"' : ""}>${escapar(txt)}</a>`)
       .join("")}</nav>`;
   }
-  function subpestanas(items, activa, etiqueta) {
-    return `<nav class="subtabs" aria-label="${escapar(etiqueta)}">${items
+  function subpestanas(items, activa, etiqueta, titulo) {
+    return `<nav class="subtabs" aria-label="${escapar(etiqueta)}">${titulo ? `<span class="subtabs-titulo">${escapar(titulo)}</span>` : ""}${items
       .map(([id, txt, href, extra]) => `<a class="subtab ${id === activa ? "activa" : ""}" href="${href}" ${id === activa ? 'aria-current="page"' : ""}>${escapar(txt)}${extra ? ` <span class="cuenta">${escapar(extra)}</span>` : ""}</a>`)
       .join("")}</nav>`;
   }
@@ -321,11 +357,41 @@
     </header>`;
   }
 
+  const cursoDatos = (cursos) => cursos.find((c) => c._meta.tema === "datos") || null;
+
+  // Navegación de la pestaña Datos: T-SQL (ejercicios, consola, reto) y preguntas por módulo
+  function navDatos(ctx, cursos, activa) {
+    const d = leer();
+    const reto = d.reto;
+    const hecho = reto && reto.fecha === C.fechaISO() && reto.resuelto;
+    let html = subpestanas([
+      ["sql-ejercicios", "Ejercicios T-SQL", "#/practica/sql/ejercicios"],
+      ["sql-consola", "Consola T-SQL", "#/practica/sql/consola"],
+      ["sql-reto", "Reto del día", "#/practica/sql/reto", hecho ? "✓" : ""],
+    ], activa, "T-SQL", "T-SQL");
+    const curso = cursoDatos(cursos);
+    if (curso) {
+      const mods = modulosPractica(ctx, curso).filter((m) => m.total);
+      if (mods.length) html += subpestanas(mods.map((m) => [`mod-${m.i}`, etiquetaCorta(m.nombre), `#/practica/${encodeURIComponent(curso.id)}/${m.i}`]), activa, "Preguntas por módulo", "Preguntas");
+    }
+    return `<div class="nav-tema">${html}</div>`;
+  }
+
+  function navJS(activa) {
+    const reto = leer().retoJS;
+    const hecho = reto && reto.fecha === C.fechaISO() && reto.resuelto;
+    return `<div class="nav-tema">${subpestanas([
+      ["ejercicios", "Ejercicios", "#/practica/js/ejercicios"],
+      ["consola", "Consola", "#/practica/js/consola"],
+      ["reto", "Reto del día", "#/practica/js/reto", hecho ? "✓" : ""],
+    ], activa, "Secciones de JavaScript")}</div>`;
+  }
+
   // ======================================================================
   //  Vista principal
   // ======================================================================
   async function vista(ctx, partes) {
-    const cat = await ctx.obtenerCatalogo();
+    await ctx.obtenerCatalogo();
     const todos = await ctx.cursosVisibles();
     const cursos = todos.filter((c) => !c._error);
     ctx.mostrarSidebar(null);
@@ -333,8 +399,10 @@
 
     if (!primero) return vistaNivel(ctx, cursos);
     if (primero === "sql") return vistaSQL(ctx, cursos, resto);
+    if (primero === "js") return vistaJS(ctx, cursos, resto);
     const curso = cursos.find((c) => c.id === primero);
     if (!curso) throw new Error(`No encontré el tema "${primero}" en la práctica.`);
+    if (curso._meta.tema === "datos" && !resto.length) return vistaSQL(ctx, cursos, []);
     return vistaCurso(ctx, cursos, curso, resto);
   }
 
@@ -349,34 +417,57 @@
   }
 
   // ---------------------------- Mi nivel ----------------------------
+  function tablaConceptos(clase, d, evs) {
+    const K = CLASES[clase];
+    return `<table class="tabla-nivel">
+      <thead><tr><th>Concepto</th><th>Nivel</th><th class="col-barra">Puntaje</th><th>Resueltos</th><th>Respuestas</th></tr></thead>
+      <tbody>${evs.map(({ c, ev }) => {
+        const del = K.lista().filter((e) => e.concepto === c);
+        const hechos = del.filter((e) => d[clase][e.id] && d[clase][e.id].resuelto).length;
+        return `<tr><td><a href="${K.ruta}/ejercicios/${slug(c)}">${escapar(c)}</a></td><td>${insignia(ev)}</td><td class="col-barra">${barraNivel(ev)}</td>
+          <td class="num-celda">${hechos}/${del.length}</td><td class="num-celda">${ev.n}</td></tr>`;
+      }).join("")}</tbody>
+    </table>`;
+  }
+
   function vistaNivel(ctx, cursos) {
     ctx.aplicarTema(null, "practica");
     ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica" }, { texto: "Mi nivel" }]);
     document.title = "Mi nivel · Práctica · NEXUS";
     const d = leer();
+    const cursoWeb = cursos.find((c) => c._meta.tema === "web");
 
-    // SQL práctico por concepto
-    const evConceptos = CONCEPTOS.map((c) => ({ c, ev: evaluarConcepto(c, d) }));
-    const evSQL = combinar(evConceptos.map((x) => x.ev));
-    const resueltos = D.ejercicios.filter((e) => d.sql[e.id] && d.sql[e.id].resuelto).length;
+    // Ejercicios con consola por concepto
+    const evSQL = CONCEPTOS.map((c) => ({ c, ev: evaluarConcepto(c, d, "sql") }));
+    const evJS = CONCEPTOS_JS.map((c) => ({ c, ev: evaluarConcepto(c, d, "js") }));
+    const resueltosSQL = D.ejercicios.filter((e) => d.sql[e.id] && d.sql[e.id].resuelto).length;
+    const resueltosJS = JSD.ejercicios.filter((e) => d.js[e.id] && d.js[e.id].resuelto).length;
+    const evTotalJS = combinar(evJS.map((x) => x.ev));
 
-    // Cursos por módulo
+    // Cursos por módulo (Datos incluye además T-SQL)
     const bloques = cursos.map((curso) => {
       const prep = curso._meta && curso._meta.estado === "en-preparacion";
       const mods = modulosPractica(ctx, curso).filter((m) => m.total);
       const evMods = mods.map((m) => ({ m, ev: evaluarModulo(curso, m, d) }));
-      return { curso, prep, evMods, ev: combinar(evMods.map((x) => x.ev)) };
+      const esDatos = curso._meta.tema === "datos";
+      const evs = evMods.map((x) => x.ev).concat(esDatos ? evSQL.map((x) => x.ev) : []);
+      return { curso, prep, evMods, esDatos, ev: combinar(evs) };
     });
 
     // Resumen por tema
-    const resumen = [
-      { nombre: "SQL", sub: `${resueltos}/${D.ejercicios.length} ejercicios resueltos`, ev: evSQL, href: "#/practica/sql/ejercicios", clase: "datos" },
-      ...bloques.map((b) => ({
+    const resumen = [];
+    for (const b of bloques) {
+      const practicados = b.evMods.filter((x) => x.ev.n).length;
+      resumen.push({
         nombre: b.curso._meta.separador || b.curso.title,
-        sub: b.prep || !b.evMods.length ? "En preparación" : `${b.evMods.filter((x) => x.ev.n).length}/${b.evMods.length} subtemas practicados`,
+        sub: b.esDatos
+          ? `${resueltosSQL}/${D.ejercicios.length} ejercicios T-SQL · ${practicados}/${b.evMods.length} subtemas`
+          : b.prep || !b.evMods.length ? "En preparación" : `${practicados}/${b.evMods.length} subtemas practicados`,
         ev: b.ev, href: `#/practica/${encodeURIComponent(b.curso.id)}`, clase: ctx.temaDe(b.curso._meta),
-      })),
-    ];
+      });
+      if (b.curso._meta.tema === "web") resumen.push({ nombre: "JavaScript", sub: `${resueltosJS}/${JSD.ejercicios.length} ejercicios resueltos`, ev: evTotalJS, href: "#/practica/js/ejercicios", clase: "web" });
+    }
+    if (!cursoWeb) resumen.push({ nombre: "JavaScript", sub: `${resueltosJS}/${JSD.ejercicios.length} ejercicios resueltos`, ev: evTotalJS, href: "#/practica/js/ejercicios", clase: "web" });
     const resumenHTML = `<div class="niveles-resumen">${resumen.map((r) => `<a class="nivel-tema ${r.clase}" href="${r.href}">
         <span class="etiqueta">${escapar(r.nombre)}</span>
         ${insignia(r.ev)}
@@ -386,9 +477,19 @@
       </a>`).join("")}</div>`;
 
     // Qué reforzar
+    const nombreDatos = (cursoDatos(cursos) && cursoDatos(cursos)._meta.separador) || "Datos";
     const candidatos = [];
-    for (const { c, ev } of evConceptos) {
-      if (ev.n && ev.puntaje < 70) candidatos.push({ ev, titulo: `SQL · ${c}`, motivo: motivo(ev), accion: `#/practica/sql/ejercicios/${slug(c)}`, txtAccion: "Practicar ejercicios" });
+    for (const { c, ev } of evSQL) {
+      if (ev.n && ev.puntaje < 70) candidatos.push({ ev, titulo: `${nombreDatos} · T-SQL · ${c}`, motivo: motivo(ev), accion: `#/practica/sql/ejercicios/${slug(c)}`, txtAccion: "Practicar ejercicios" });
+    }
+    for (const { c, ev } of evJS) {
+      if (!ev.n || ev.puntaje >= 70) continue;
+      const lec = cursoWeb && JSD.lecciones[c] && cursoWeb.chapters.find((x) => x.id === JSD.lecciones[c]);
+      candidatos.push({
+        ev, titulo: `JavaScript · ${c}`, motivo: motivo(ev),
+        repaso: lec ? { href: `#/curso/${cursoWeb.id}/${lec.id}`, txt: `Repasa ${lec.code || lec.title}` } : null,
+        accion: `#/practica/js/ejercicios/${slug(c)}`, txtAccion: "Practicar ejercicios",
+      });
     }
     for (const b of bloques) {
       for (const { m, ev } of b.evMods) {
@@ -422,38 +523,37 @@
           <p class="small muted">Ya leíste ${x.leidos} ${x.leidos === 1 ? "capítulo" : "capítulos"} de este tema pero aún no lo has practicado.</p>
           <div class="row"><a class="btn" href="${x.href}">Practicar</a></div>
         </li>`).join("")}</ol>`
-      : `<p class="prep-aviso">${d.historial.length ? "¡Vas bien! Ningún tema baja de Avanzado. Sigue practicando para llegar a Profesional." : "Todavía no hay resultados. Resuelve ejercicios en la pestaña SQL o responde preguntas en Datos o Web, y aquí verás qué reforzar."}</p>`;
+      : `<p class="prep-aviso">${d.historial.length ? "¡Vas bien! Ningún tema baja de Avanzado. Sigue practicando para llegar a Profesional." : "Todavía no hay resultados. Resuelve ejercicios de T-SQL en Datos o de JavaScript, o responde preguntas por módulo, y aquí verás qué reforzar."}</p>`;
 
-    // Detalle por curso (libro mayor)
-    const detalleHTML = bloques.map((b) => {
-      const tema = ctx.temaDe(b.curso._meta);
-      if (b.prep || !b.evMods.length) return `<section class="detalle-tema"><h3 class="h-mano">${escapar(b.curso._meta.separador || b.curso.title)}</h3><p class="prep-aviso">Este cuaderno está en preparación: aún no tiene preguntas para practicar.</p></section>`;
-      return `<section class="detalle-tema" aria-label="${escapar(b.curso.title)}">
-        <h3 class="h-mano"><span class="punto-tema ${tema}" aria-hidden="true"></span>${escapar(b.curso._meta.separador || b.curso.title)} <span class="small muted">· ${escapar(b.curso.title)}</span></h3>
-        <table class="tabla-nivel">
-          <thead><tr><th>Subtema</th><th>Nivel</th><th class="col-barra">Puntaje</th><th>Aciertos</th><th>Respuestas</th></tr></thead>
-          <tbody>${b.evMods.map(({ m, ev }) => `<tr>
-            <td><a href="#/practica/${encodeURIComponent(b.curso.id)}/${m.i}">${escapar(m.corto)}</a></td>
-            <td>${insignia(ev)}</td>
-            <td class="col-barra">${barraNivel(ev)}</td>
-            <td class="num-celda">${ev.n ? ev.precision + "%" : "—"}</td>
-            <td class="num-celda">${ev.n}</td></tr>`).join("")}</tbody>
-        </table>
-      </section>`;
-    }).join("");
-
-    const sqlHTML = `<section class="detalle-tema" aria-label="SQL práctico">
-      <h3 class="h-mano"><span class="punto-tema datos" aria-hidden="true"></span>SQL <span class="small muted">· ejercicios de consola por concepto</span></h3>
-      <table class="tabla-nivel">
-        <thead><tr><th>Concepto</th><th>Nivel</th><th class="col-barra">Puntaje</th><th>Resueltos</th><th>Respuestas</th></tr></thead>
-        <tbody>${evConceptos.map(({ c, ev }) => {
-          const del = D.ejercicios.filter((e) => e.concepto === c);
-          const hechos = del.filter((e) => d.sql[e.id] && d.sql[e.id].resuelto).length;
-          return `<tr><td><a href="#/practica/sql/ejercicios/${slug(c)}">${escapar(c)}</a></td><td>${insignia(ev)}</td><td class="col-barra">${barraNivel(ev)}</td>
-            <td class="num-celda">${hechos}/${del.length}</td><td class="num-celda">${ev.n}</td></tr>`;
-        }).join("")}</tbody>
-      </table>
+    // Detalle por tema (libro mayor)
+    const jsHTML = `<section class="detalle-tema" aria-label="JavaScript">
+      <h3 class="h-mano"><span class="punto-tema web" aria-hidden="true"></span>JavaScript <span class="small muted">· ejercicios por concepto</span></h3>
+      ${tablaConceptos("js", d, evJS)}
     </section>`;
+    let detalleHTML = "";
+    for (const b of bloques) {
+      const tema = ctx.temaDe(b.curso._meta);
+      const nombre = b.curso._meta.separador || b.curso.title;
+      if (b.prep || !b.evMods.length) {
+        detalleHTML += `<section class="detalle-tema"><h3 class="h-mano">${escapar(nombre)}</h3><p class="prep-aviso">Este cuaderno está en preparación: aún no tiene preguntas para practicar.</p></section>`;
+      } else {
+        detalleHTML += `<section class="detalle-tema" aria-label="${escapar(b.curso.title)}">
+          <h3 class="h-mano"><span class="punto-tema ${tema}" aria-hidden="true"></span>${escapar(nombre)} <span class="small muted">· ${escapar(b.curso.title)}</span></h3>
+          ${b.esDatos ? `<p class="etiqueta" style="margin:.6rem 0 .3rem">T-SQL · ejercicios de consola por concepto</p>${tablaConceptos("sql", d, evSQL)}<p class="etiqueta" style="margin:1.2rem 0 .3rem">Preguntas por módulo</p>` : ""}
+          <table class="tabla-nivel">
+            <thead><tr><th>Subtema</th><th>Nivel</th><th class="col-barra">Puntaje</th><th>Aciertos</th><th>Respuestas</th></tr></thead>
+            <tbody>${b.evMods.map(({ m, ev }) => `<tr>
+              <td><a href="#/practica/${encodeURIComponent(b.curso.id)}/${m.i}">${escapar(m.corto)}</a></td>
+              <td>${insignia(ev)}</td>
+              <td class="col-barra">${barraNivel(ev)}</td>
+              <td class="num-celda">${ev.n ? ev.precision + "%" : "—"}</td>
+              <td class="num-celda">${ev.n}</td></tr>`).join("")}</tbody>
+          </table>
+        </section>`;
+      }
+      if (b.curso._meta.tema === "web") detalleHTML += jsHTML;
+    }
+    if (!cursoWeb) detalleHTML += jsHTML;
 
     // Margen: preguntas que más fallas + cómo se calcula
     const falladas = [];
@@ -474,7 +574,6 @@
           <span class="small muted">${escapar(x.cap.code || "")} · ${x.r.fallos} ${x.r.fallos === 1 ? "fallo" : "fallos"}${x.r.ultima ? " · ya la acertaste" : ""}</span>
         </li>`).join("")}</ul>`
       : `<p class="nota-mano" style="color:var(--tinta-2)">Aquí aparecerán las preguntas que más se te resisten.</p>`;
-    const totalResp = d.historial.length;
     const margen = `<div class="margen-titulo">Preguntas que más fallas</div>
       ${falladasHTML}
       <div class="nota-adhesiva der" style="margin-top:.5rem">
@@ -482,9 +581,10 @@
         <p style="font-size:1.2rem">Cuenta tus aciertos en la práctica y tu último examen de cada capítulo. Lo reciente pesa más. Para ser Profesional hacen falta ${MIN_PROFESIONAL} respuestas o más.</p>
       </div>
       <div class="margen-pie">
-        <div class="fila"><span>Respuestas de práctica</span><span>${totalResp}</span></div>
-        <div class="fila"><span>Ejercicios SQL resueltos</span><span>${resueltos}/${D.ejercicios.length}</span></div>
-        <div class="fila"><span>Retos del día completados</span><span>${d.retosHechos || 0}</span></div>
+        <div class="fila"><span>Respuestas de práctica</span><span>${d.historial.length}</span></div>
+        <div class="fila"><span>Ejercicios T-SQL resueltos</span><span>${resueltosSQL}/${D.ejercicios.length}</span></div>
+        <div class="fila"><span>Ejercicios JavaScript resueltos</span><span>${resueltosJS}/${JSD.ejercicios.length}</span></div>
+        <div class="fila"><span>Retos del día completados</span><span>${(d.retosHechos || 0) + (d.retosJSHechos || 0)}</span></div>
       </div>`;
 
     marco(ctx, cursos, "nivel", `
@@ -496,7 +596,6 @@
       </section>
       <section style="margin-top:2.2rem" aria-labelledby="tDetalle">
         <h2 class="h-mano" id="tDetalle">Detalle por tema</h2>
-        ${sqlHTML}
         ${detalleHTML}
       </section>`, margen);
   }
@@ -528,14 +627,54 @@
     return t.length > n ? t.slice(0, n - 1) + "…" : t;
   }
 
-  // ---------------------------- SQL ----------------------------
+  // ------------------------ Lista de ejercicios (T-SQL y JS) ------------------------
+  function htmlListaEjercicios(clase, concepto) {
+    const K = CLASES[clase];
+    const d = leer();
+    const lista = ejerciciosOrdenados(clase).filter((e) => !concepto || e.concepto === concepto);
+    const chips = `<div class="chips-filtro" role="group" aria-label="Filtrar por concepto">
+      <a class="chip-btn ${concepto ? "" : "activo"}" href="${K.ruta}/ejercicios" ${concepto ? "" : 'aria-current="true"'}>Todos</a>
+      ${K.conceptos.map((c) => `<a class="chip-btn ${c === concepto ? "activo" : ""}" href="${K.ruta}/ejercicios/${slug(c)}" ${c === concepto ? 'aria-current="true"' : ""}>${escapar(c)}</a>`).join("")}
+    </div>`;
+    const grupos = ORDEN_NIVEL.map((nv) => {
+      const del = lista.filter((e) => e.nivel === nv);
+      if (!del.length) return "";
+      const hechos = del.filter((e) => d[clase][e.id] && d[clase][e.id].resuelto).length;
+      return `<section class="grupo-ej">
+        <div class="modulo-head"><h2 class="h-mano">${NIVEL_EJ[nv]}</h2><span class="small muted">${hechos}/${del.length} resueltos</span></div>
+        <div class="lista-caps">${del.map((e) => {
+          const r = d[clase][e.id];
+          const est = r && r.resuelto ? "aprobado" : r && (r.intentos || r.revelado) ? "leido" : "pendiente";
+          const txt = est === "aprobado" ? "Resuelto" : est === "leido" ? "Intentado" : "Pendiente";
+          return `<a class="cap-row est-${est}" href="${K.ruta}/ej/${e.id}">
+            <span class="est" title="${txt}">${est === "aprobado" ? "✓" : est === "leido" ? "●" : "○"}</span>
+            <span class="cap-code">${escapar(e.id.toUpperCase())}</span>
+            <span class="cap-main"><span class="titulo-cap">${escapar(e.titulo)}</span><span class="small muted">${escapar(e.concepto)}${e.base ? ` · base ${escapar(e.base)}` : ""}</span></span>
+            <span class="cap-side small muted">${txt}</span>
+          </a>`;
+        }).join("")}</div>
+      </section>`;
+    }).join("");
+    return chips + (grupos || '<p class="prep-aviso">No hay ejercicios de este concepto.</p>');
+  }
+
+  function margenNivelClase(clase, titulo) {
+    const d = leer();
+    const ev = combinar(CLASES[clase].conceptos.map((c) => evaluarConcepto(c, d, clase)));
+    return `<div class="margen-titulo">${escapar(titulo)}</div>
+      <div>${insignia(ev)}</div>${barraNivel(ev)}
+      <p class="small muted">${ev.n ? `${ev.precision}% de aciertos en ${ev.n} ejercicios terminados.` : "Resuelve ejercicios para ver tu nivel."}</p>`;
+  }
+
+  // ---------------------------- T-SQL (pestaña Datos) ----------------------------
   async function vistaSQL(ctx, cursos, resto) {
-    const entradaDatos = cursos.map((c) => c._meta).find((m) => m.tema === "datos") || { tema: "datos", cuaderno: "Cuaderno de analista" };
+    const curso = cursoDatos(cursos);
+    const entradaDatos = (curso && curso._meta) || { tema: "datos", cuaderno: "Cuaderno de analista" };
     ctx.aplicarTema(entradaDatos, "practica");
     const [modo = "ejercicios", arg] = resto;
     if (modo === "consola") return vistaConsola(ctx, cursos, arg && D.bases[arg] ? arg : "tienda");
     if (modo === "reto") {
-      const reto = retoDeHoy();
+      const reto = retoDeHoy("sql");
       return vistaEjercicio(ctx, cursos, D.ejercicios.find((e) => e.id === reto.id), true);
     }
     if (modo === "ej") {
@@ -546,61 +685,65 @@
     return vistaListaSQL(ctx, cursos, conceptoDeSlug(arg));
   }
 
-  function subpestanasSQL(activa) {
-    const reto = leer().reto;
-    const hecho = reto && reto.fecha === C.fechaISO() && reto.resuelto;
-    return subpestanas([
-      ["ejercicios", "Ejercicios", "#/practica/sql/ejercicios"],
-      ["consola", "Consola", "#/practica/sql/consola"],
-      ["reto", "Reto del día", "#/practica/sql/reto", hecho ? "✓" : ""],
-    ], activa, "Secciones de SQL");
+  function migasDatos(cursos, ultimo) {
+    const curso = cursoDatos(cursos);
+    const items = [{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: (curso && curso._meta.separador) || "Datos", href: "#/practica/sql/ejercicios" }];
+    return items.concat(ultimo);
   }
+
+  const AYUDA_TSQL = `<details class="ayuda-tsql">
+    <summary>Equivalencias T-SQL</summary>
+    <table class="tabla-nivel">
+      <thead><tr><th>Para…</th><th>En T-SQL</th><th>No uses</th></tr></thead>
+      <tbody>
+        <tr><td>Limitar filas</td><td><code>SELECT TOP (10) …</code></td><td><code>LIMIT 10</code></td></tr>
+        <tr><td>Paginar</td><td><code>ORDER BY id OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY</code></td><td><code>LIMIT … OFFSET</code></td></tr>
+        <tr><td>Fecha y hora actual</td><td><code>GETDATE()</code></td><td><code>NOW()</code></td></tr>
+        <tr><td>Quitar la hora</td><td><code>CAST(fecha AS DATE)</code></td><td><code>date(fecha)</code></td></tr>
+        <tr><td>Año, mes, día</td><td><code>YEAR(f)</code>, <code>MONTH(f)</code>, <code>DATEPART(week, f)</code></td><td><code>strftime</code>, <code>EXTRACT</code></td></tr>
+        <tr><td>Mes como texto</td><td><code>FORMAT(f, 'yyyy-MM')</code></td><td><code>DATE_TRUNC</code>, <code>to_char</code></td></tr>
+        <tr><td>Diferencia de fechas</td><td><code>DATEDIFF(day, inicio, fin)</code></td><td><code>fin - inicio</code>, <code>julianday</code></td></tr>
+        <tr><td>Sumar tiempo</td><td><code>DATEADD(month, 1, f)</code>, <code>EOMONTH(f)</code></td><td><code>INTERVAL</code></td></tr>
+        <tr><td>Valor por defecto</td><td><code>ISNULL(x, 0)</code> o <code>COALESCE</code></td><td><code>IFNULL</code>, <code>NVL</code></td></tr>
+        <tr><td>Condición corta</td><td><code>IIF(cond, a, b)</code></td><td><code>IF()</code></td></tr>
+        <tr><td>Unir textos</td><td><code>a + ' ' + b</code>, <code>CONCAT(a, b)</code></td><td><code>a || b</code></td></tr>
+        <tr><td>Largo y posición</td><td><code>LEN(t)</code>, <code>CHARINDEX(' ', t)</code>, <code>LEFT(t, 3)</code></td><td><code>length</code>, <code>instr</code>, <code>substr</code></td></tr>
+        <tr><td>Lista de un grupo</td><td><code>STRING_AGG(col, ', ') WITHIN GROUP (ORDER BY col)</code></td><td><code>group_concat</code></td></tr>
+        <tr><td>Convertir tipo</td><td><code>CAST(x AS DECIMAL(10,2))</code>, <code>CONVERT(INT, x)</code></td><td><code>x::int</code></td></tr>
+      </tbody>
+    </table>
+    <p class="small muted">Esta consola traduce T-SQL a un motor SQLite que corre en tu navegador. No están disponibles las variables (<code>@x</code>), <code>DECLARE</code>, las tablas temporales (<code>#t</code>), <code>MERGE</code> ni <code>PIVOT</code>. Recuerda que en SQL Server <code>AVG</code> de enteros devuelve un entero: multiplica por <code>1.0</code>.</p>
+  </details>`;
 
   function vistaListaSQL(ctx, cursos, concepto) {
-    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "SQL" }]);
-    document.title = "SQL · Práctica · NEXUS";
-    const d = leer();
-    const lista = ejerciciosOrdenados().filter((e) => !concepto || e.concepto === concepto);
-    const chips = `<div class="chips-filtro" role="group" aria-label="Filtrar por concepto">
-      <a class="chip-btn ${concepto ? "" : "activo"}" href="#/practica/sql/ejercicios" ${concepto ? "" : 'aria-current="true"'}>Todos</a>
-      ${CONCEPTOS.map((c) => `<a class="chip-btn ${c === concepto ? "activo" : ""}" href="#/practica/sql/ejercicios/${slug(c)}" ${c === concepto ? 'aria-current="true"' : ""}>${escapar(c)}</a>`).join("")}
-    </div>`;
-    const grupos = ORDEN_NIVEL.map((nv) => {
-      const del = lista.filter((e) => e.nivel === nv);
-      if (!del.length) return "";
-      const hechos = del.filter((e) => d.sql[e.id] && d.sql[e.id].resuelto).length;
-      return `<section class="grupo-ej">
-        <div class="modulo-head"><h2 class="h-mano">${NIVEL_EJ[nv]}</h2><span class="small muted">${hechos}/${del.length} resueltos</span></div>
-        <div class="lista-caps">${del.map((e, k) => {
-          const r = d.sql[e.id];
-          const est = r && r.resuelto ? "aprobado" : r && (r.intentos || r.revelado) ? "leido" : "pendiente";
-          return `<a class="cap-row est-${est}" href="#/practica/sql/ej/${e.id}">
-            <span class="est" title="${est === "aprobado" ? "Resuelto" : est === "leido" ? "Intentado" : "Pendiente"}">${est === "aprobado" ? "✓" : est === "leido" ? "●" : "○"}</span>
-            <span class="cap-code">${escapar(e.id.toUpperCase())}</span>
-            <span class="cap-main"><span class="titulo-cap">${escapar(e.titulo)}</span><span class="small muted">${escapar(e.concepto)} · base ${escapar(e.base)}</span></span>
-            <span class="cap-side small muted">${est === "aprobado" ? "Resuelto" : est === "leido" ? "Intentado" : "Pendiente"}</span>
-          </a>`;
-        }).join("")}</div>
-      </section>`;
-    }).join("");
-    const ev = combinar(CONCEPTOS.map((c) => evaluarConcepto(c, d)));
-    const margen = `<div class="margen-titulo">Tu SQL</div>
-      <div>${insignia(ev)}</div>${barraNivel(ev)}
-      <p class="small muted">${ev.n ? `${ev.precision}% de aciertos en ${ev.n} ejercicios terminados.` : "Resuelve ejercicios para ver tu nivel."}</p>
+    ctx.setCrumbs(migasDatos(cursos, [{ texto: "Ejercicios T-SQL" }]));
+    document.title = "T-SQL · Práctica · NEXUS";
+    const curso = cursoDatos(cursos);
+    const margen = `${margenNivelClase("sql", "Tu T-SQL")}
       <div class="margen-titulo" style="margin-top:.6rem">Bases de ejemplo</div>
       <ul class="lista-bases">${Object.entries(D.bases).map(([k, b]) => `<li><a href="#/practica/sql/consola/${k}"><strong>${k}</strong></a><span class="small muted">${escapar(b.descripcion)}</span></li>`).join("")}</ul>`;
-    marco(ctx, cursos, "sql", `
-      ${cabecera("práctica · SQL", "Ejercicios de SQL", "Ordenados de básico a avanzado. Abre uno, escribe tu consulta y pulsa <strong>Comprobar</strong>: se compara tu resultado con el esperado.")}
-      ${subpestanasSQL("ejercicios")}
-      ${chips}
-      ${grupos || '<p class="prep-aviso">No hay ejercicios de este concepto.</p>'}`, margen);
+    marco(ctx, cursos, curso ? curso.id : "nivel", `
+      ${cabecera("práctica · Datos", "Ejercicios de T-SQL", "Escribe tus consultas como en SQL Server. Ordenados de básico a avanzado: abre uno, escribe tu consulta y pulsa <strong>Comprobar</strong>.")}
+      ${navDatos(ctx, cursos, "sql-ejercicios")}
+      ${htmlListaEjercicios("sql", concepto)}`, margen);
   }
 
-  // Consola reutilizable (editor + resultado + esquema)
-  function htmlConsola(clave, inicial) {
+  // Tipos que verías en SQL Server para cada columna de las bases de ejemplo
+  function tipoTSQL(columna, tipo) {
+    const t = String(tipo || "").toLowerCase();
+    if (/^fecha/.test(columna)) return columna === "fecha" && t === "text" ? "datetime / date" : "date";
+    if (t === "integer") return /^(activo)$/.test(columna) ? "bit" : "int";
+    if (t === "real") return "decimal(10,2)";
+    if (t === "text") return "nvarchar";
+    return t;
+  }
+
+  // Consola reutilizable (editor + acciones + resultado)
+  function htmlConsola(clave, inicial, lenguaje) {
+    const ph = lenguaje === "js" ? "Escribe tu código… (Ctrl + Enter para ejecutar)" : "Escribe tu consulta T-SQL… (Ctrl + Enter para ejecutar)";
     return `<div class="consola" id="consola">
-      <label class="sr" for="sqlEditor">Consulta SQL</label>
-      <textarea class="sql-editor" id="sqlEditor" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Escribe tu consulta… (Ctrl + Enter para ejecutar)">${escapar(inicial || "")}</textarea>
+      <label class="sr" for="sqlEditor">${lenguaje === "js" ? "Código JavaScript" : "Consulta T-SQL"}</label>
+      <textarea class="sql-editor" id="sqlEditor" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="${ph}">${escapar(inicial || "")}</textarea>
       <div class="row consola-acciones" id="consolaAcciones" data-clave="${escapar(clave)}"></div>
       <div class="salida" id="sqlSalida" aria-live="polite"></div>
     </div>`;
@@ -616,8 +759,8 @@
         n = db.exec(`SELECT COUNT(*) FROM "${t.replace(/"/g, '""')}"`)[0].values[0][0];
       } catch (_) { /* tabla rara: se muestra sin detalle */ }
       return `<div class="esquema-tabla">
-        <button class="esquema-nombre" type="button" data-insertar="SELECT * FROM ${escapar(t)} LIMIT 10;" title="Insertar SELECT * FROM ${escapar(t)}">${escapar(t)} <span class="small muted">${n} filas</span></button>
-        <ul>${cols.map((c) => `<li><span>${escapar(c[1])}</span><span class="tipo-col">${escapar((c[2] || "").toLowerCase())}${c[5] ? " · pk" : ""}</span></li>`).join("")}</ul>
+        <button class="esquema-nombre" type="button" data-insertar="SELECT TOP (10) * FROM ${escapar(t)};" title="Ver las primeras filas de ${escapar(t)}">${escapar(t)} <span class="small muted">${n} filas</span></button>
+        <ul>${cols.map((c) => `<li><span>${escapar(c[1])}</span><span class="tipo-col">${escapar(tipoTSQL(c[1], c[2]))}${c[5] ? " · pk" : ""}</span></li>`).join("")}</ul>
       </div>`;
     }).join("");
   }
@@ -635,23 +778,37 @@
     ed.addEventListener("input", () => { clearTimeout(t); t = setTimeout(() => guardarBorrador(clave, ed.value), 400); });
   }
 
-  function pintarSalida(salida, r) {
+  function avisoDialecto(msgs) {
+    if (!msgs || !msgs.length) return "";
+    return `<div class="feedback aviso"><strong>Esto no es T-SQL</strong><ul>${msgs.map((m) => `<li>${escapar(m)}</li>`).join("")}</ul></div>`;
+  }
+
+  function pintarSalida(salida, r, sql) {
+    const dialecto = sql ? avisoDialecto(T.noEsTSQL(sql)) : "";
+    const avisos = r.avisos && r.avisos.length ? `<div class="feedback aviso">${r.avisos.map((a) => `<p>${escapar(a)}</p>`).join("")}</div>` : "";
     if (r.error) {
-      salida.innerHTML = `<div class="feedback ko"><strong>Error de SQL</strong><p>${escapar(r.error)}</p></div>`;
+      salida.innerHTML = `${dialecto}<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>`;
       return;
     }
     if (!r.ultimo) {
-      salida.innerHTML = `<div class="feedback"><p>La consulta se ejecutó${r.cambios ? ` y cambió ${r.cambios} ${r.cambios === 1 ? "fila" : "filas"}` : ""}, pero no devolvió filas.</p></div>`;
+      salida.innerHTML = `${dialecto}<div class="feedback"><p>La consulta se ejecutó${r.cambios ? ` y cambió ${r.cambios} ${r.cambios === 1 ? "fila" : "filas"}` : ""}, pero no devolvió filas.</p></div>`;
       return;
     }
-    salida.innerHTML = `<div class="salida-cab"><span class="etiqueta">Resultado</span><span class="small muted">${r.ms} ms</span></div>${tablaResultado(r.ultimo)}`;
+    salida.innerHTML = `${dialecto}${avisos}<div class="salida-cab"><span class="etiqueta">Resultado</span><span class="small muted">${r.ms} ms</span></div>${tablaResultado(r.ultimo)}`;
   }
 
+  // Traduce T-SQL y ejecuta; los errores llegan explicados en español
   function intentar(db, sql) {
-    try { return ejecutar(db, sql); } catch (err) { return { error: err.message }; }
+    let tr;
+    try { tr = T.traducir(sql); } catch (_) { tr = { sql, avisos: [] }; }
+    try {
+      return { ...ejecutar(db, tr.sql), avisos: tr.avisos };
+    } catch (err) {
+      return { error: T.explicarError(err.message, sql) };
+    }
   }
 
-  async function prepararMotor(ctx) {
+  async function prepararMotor() {
     const salida = document.getElementById("sqlSalida");
     salida.innerHTML = '<p class="small muted">Cargando el motor SQL…</p>';
     try {
@@ -665,24 +822,26 @@
   }
 
   async function vistaConsola(ctx, cursos, base) {
-    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "SQL", href: "#/practica/sql/ejercicios" }, { texto: "Consola" }]);
-    document.title = "Consola SQL · Práctica · NEXUS";
+    ctx.setCrumbs(migasDatos(cursos, [{ texto: "Consola T-SQL" }]));
+    document.title = "Consola T-SQL · Práctica · NEXUS";
+    const curso = cursoDatos(cursos);
     const clave = `libre:${base}`;
-    const inicial = borrador(clave) ?? `-- Base "${base}". Prueba cualquier consulta:\nSELECT * FROM ${base === "rrhh" ? "empleados" : base === "app" ? "usuarios" : "clientes"} LIMIT 10;`;
+    const tablaInicial = base === "rrhh" ? "empleados" : base === "app" ? "usuarios" : "clientes";
+    const inicial = borrador(clave) ?? `-- Base "${base}". Escribe cualquier consulta T-SQL:\nSELECT TOP (10) * FROM ${tablaInicial};`;
     const margen = `<div class="margen-titulo">Tablas de ${escapar(base)}</div>
-      <p class="small muted" style="margin:0">${escapar(D.bases[base].descripcion)} Toca una tabla para consultarla.</p>
+      <p class="small muted" style="margin:0">${escapar(D.bases[base].descripcion)} Toca una tabla para ver sus primeras filas.</p>
       <div class="esquema" id="esquema"><p class="small muted">Cargando…</p></div>`;
-    marco(ctx, cursos, "sql", `
-      ${cabecera("práctica · SQL", "Consola", "Una base SQLite de verdad dentro de tu navegador. Experimenta sin miedo: si rompes algo, restaura la base.")}
-      ${subpestanasSQL("consola")}
-      ${subpestanas(Object.keys(D.bases).map((k) => [k, k, `#/practica/sql/consola/${k}`]), base, "Base de datos")}
-      ${htmlConsola(clave, inicial)}`, margen);
+    marco(ctx, cursos, curso ? curso.id : "nivel", `
+      ${cabecera("práctica · Datos", "Consola T-SQL", "Escribe como en SQL Server; la consola lo ejecuta en una base que vive en tu navegador. Experimenta sin miedo: si rompes algo, restaura la base.")}
+      ${navDatos(ctx, cursos, "sql-consola")}
+      ${subpestanas(Object.keys(D.bases).map((k) => [k, k, `#/practica/sql/consola/${k}`]), base, "Base de datos", "Base")}
+      ${htmlConsola(clave, inicial, "sql")}
+      ${AYUDA_TSQL}`, margen);
 
-    const acciones = document.getElementById("consolaAcciones");
-    acciones.innerHTML = `<button class="btn cta" type="button" id="btnEjecutar">Ejecutar</button>
+    document.getElementById("consolaAcciones").innerHTML = `<button class="btn cta" type="button" id="btnEjecutar">Ejecutar</button>
       <button class="btn ghost" type="button" id="btnRestaurar">Restaurar base</button>
       <span class="small muted atajo">Ctrl + Enter</span>`;
-    const SQL = await prepararMotor(ctx);
+    const SQL = await prepararMotor();
     if (!SQL) return;
     let db = baseConsola(SQL, base);
     const ed = document.getElementById("sqlEditor");
@@ -691,7 +850,7 @@
     pintarEsquema();
     const correr = () => {
       const r = intentar(db, ed.value);
-      pintarSalida(salida, r);
+      pintarSalida(salida, r, ed.value);
       if (!r.error) pintarEsquema();
     };
     enlazarEditor(ed, correr, clave);
@@ -711,13 +870,31 @@
     });
   }
 
-  async function vistaEjercicio(ctx, cursos, ej, esReto) {
-    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "SQL", href: "#/practica/sql/ejercicios" }, { texto: esReto ? "Reto del día" : ej.titulo }]);
-    document.title = `${ej.titulo} · SQL · NEXUS`;
-    const lista = ejerciciosOrdenados();
+  function cabeceraEjercicio(ej, nota) {
+    return `<article class="ejercicio ej-sql">
+      <div class="ej-head">
+        <div class="row"><span class="pill dif-${ej.nivel === "basico" ? "básico" : ej.nivel === "avanzado" ? "desafío" : "intermedio"}">${NIVEL_EJ[ej.nivel]}</span><span class="pill">${escapar(ej.concepto)}</span>${ej.base ? `<span class="pill">base ${escapar(ej.base)}</span>` : ""}</div>
+        <span class="small muted" id="ejEstado"></span>
+      </div>
+      <p class="enunciado-ej">${enLinea(ej.enunciado)}</p>
+      <p class="small muted" style="margin:0">${nota}</p>
+    </article>`;
+  }
+
+  function pagerEj(clase, ej) {
+    const lista = ejerciciosOrdenados(clase);
     const pos = lista.findIndex((e) => e.id === ej.id);
-    const ant = lista[pos - 1];
-    const sig = lista[pos + 1];
+    return { ant: lista[pos - 1], sig: lista[pos + 1] };
+  }
+  function htmlPager(K, ant, sig) {
+    return `<nav class="pager">${ant ? `<a class="btn ghost" href="${K.ruta}/ej/${ant.id}">← ${escapar(ant.titulo)}</a>` : "<span></span>"}${sig ? `<a class="btn ghost" href="${K.ruta}/ej/${sig.id}">${escapar(sig.titulo)} →</a>` : "<span></span>"}</nav>`;
+  }
+
+  async function vistaEjercicio(ctx, cursos, ej, esReto) {
+    ctx.setCrumbs(migasDatos(cursos, [{ texto: esReto ? "Reto del día" : ej.titulo }]));
+    document.title = `${ej.titulo} · T-SQL · NEXUS`;
+    const curso = cursoDatos(cursos);
+    const { ant, sig } = pagerEj("sql", ej);
     const estado = () => leer().sql[ej.id] || {};
     const reto = esReto ? leer().reto : null;
     const inicial = borrador(ej.id) ?? "";
@@ -725,21 +902,15 @@
     const margen = `<div class="margen-titulo">Tablas de ${escapar(ej.base)}</div>
       <p class="small muted" style="margin:0">${escapar(D.bases[ej.base].descripcion)} Toca una tabla para ver sus primeras filas.</p>
       <div class="esquema" id="esquema"><p class="small muted">Cargando…</p></div>`;
-    marco(ctx, cursos, "sql", `
-      ${cabecera(esReto ? `reto del día · ${C.fechaISO()}` : "práctica · SQL", ej.titulo, null)}
-      ${subpestanasSQL(esReto ? "reto" : "ejercicios")}
-      <article class="ejercicio ej-sql">
-        <div class="ej-head">
-          <div class="row"><span class="pill dif-${ej.nivel === "basico" ? "básico" : ej.nivel === "avanzado" ? "desafío" : "intermedio"}">${NIVEL_EJ[ej.nivel]}</span><span class="pill">${escapar(ej.concepto)}</span><span class="pill">base ${escapar(ej.base)}</span></div>
-          <span class="small muted" id="ejEstado"></span>
-        </div>
-        <p class="enunciado-ej">${enLinea(ej.enunciado)}</p>
-        <p class="small muted" style="margin:0">No importan los nombres de las columnas, sí cuántas son y su orden.${ej.orden ? " El orden de las filas también cuenta." : " El orden de las filas no importa."}</p>
-      </article>
+    marco(ctx, cursos, curso ? curso.id : "nivel", `
+      ${cabecera(esReto ? `reto T-SQL del día · ${C.fechaISO()}` : "práctica · T-SQL", ej.titulo, null)}
+      ${navDatos(ctx, cursos, esReto ? "sql-reto" : "sql-ejercicios")}
+      ${cabeceraEjercicio(ej, `Escríbelo en T-SQL. No importan los nombres de las columnas, sí cuántas son y su orden.${ej.orden ? " El orden de las filas también cuenta." : " El orden de las filas no importa."}`)}
       ${esReto && reto && reto.resuelto ? '<div class="feedback ok"><p><strong>¡Reto de hoy completado!</strong> Mañana tendrás uno nuevo.</p></div>' : ""}
-      ${htmlConsola(ej.id, inicial)}
+      ${htmlConsola(ej.id, inicial, "sql")}
       <div id="ayuda"></div>
-      ${esReto ? "" : `<nav class="pager">${ant ? `<a class="btn ghost" href="#/practica/sql/ej/${ant.id}">← ${escapar(ant.titulo)}</a>` : "<span></span>"}${sig ? `<a class="btn ghost" href="#/practica/sql/ej/${sig.id}">${escapar(sig.titulo)} →</a>` : "<span></span>"}</nav>`}`, margen);
+      ${AYUDA_TSQL}
+      ${esReto ? "" : htmlPager(CLASES.sql, ant, sig)}`, margen);
 
     const pintarEstado = () => {
       const r = estado();
@@ -752,19 +923,25 @@
       <button class="btn ghost" type="button" id="btnSolucion">Ver solución</button>
       <span class="small muted atajo">Ctrl + Enter ejecuta</span>`;
 
-    const SQL = await prepararMotor(ctx);
+    const SQL = await prepararMotor();
     if (!SQL) return;
     const db = baseConsola(SQL, ej.base);
     document.getElementById("esquema").innerHTML = htmlEsquema(SQL, ej.base, db);
     const ed = document.getElementById("sqlEditor");
     const salida = document.getElementById("sqlSalida");
     const ayuda = document.getElementById("ayuda");
-    const correr = () => pintarSalida(salida, intentar(db, ed.value));
+    const correr = () => pintarSalida(salida, intentar(db, ed.value), ed.value);
     enlazarEditor(ed, correr, ej.id);
     document.getElementById("btnEjecutar").onclick = correr;
 
     document.getElementById("btnComprobar").onclick = () => {
       if (!ed.value.trim()) { salida.innerHTML = '<div class="feedback"><p>Escribe una consulta primero.</p></div>'; return; }
+      // Primero: ¿es T-SQL? Lo que solo funciona en esta consola no cuenta como resuelto.
+      const dialecto = T.noEsTSQL(ed.value);
+      if (dialecto.length) {
+        salida.innerHTML = avisoDialecto(dialecto) + '<p class="small muted">Corrígelo para que funcione en SQL Server y vuelve a comprobar.</p>';
+        return;
+      }
       // Se compara en copias limpias de la base, así no influyen los cambios hechos en la consola
       const limpiaT = baseNueva(SQL, ej.base);
       const limpiaE = baseNueva(SQL, ej.base);
@@ -774,7 +951,7 @@
       limpiaE.close();
       if (tuyo.error) { pintarSalida(salida, tuyo); return; }
       const c = comparar(tuyo.ultimo, esperado.ultimo, ej.orden);
-      registrarSQL(ej, c.ok ? "resuelto" : "intento");
+      registrarEj("sql", ej, c.ok ? "resuelto" : "intento");
       pintarEstado();
       salida.innerHTML = `<div class="feedback ${c.ok ? "ok" : "ko"}">
           <strong>${c.ok ? "¡Correcto!" : "Todavía no"}</strong><p>${escapar(c.ok ? (esReto ? "Completaste el reto del día." : "Tu resultado coincide con el esperado.") : c.msg)}</p>
@@ -789,15 +966,13 @@
     document.getElementById("btnSolucion").onclick = () => {
       const r = estado();
       if (!r.resuelto && !confirm("Si ves la solución antes de resolverlo, contará como no resuelto para tu nivel. ¿Verla?")) return;
-      registrarSQL(ej, "revelado");
+      registrarEj("sql", ej, "revelado");
       pintarEstado();
       const esperado = intentar(baseNueva(SQL, ej.base), ej.solucion);
       ayuda.innerHTML = `<div class="solucion">
-        <div class="code"><div class="code-head"><span>solución</span><button class="copy-btn" type="button">Copiar</button></div><pre><code class="language-sql hljs">${escapar(ej.solucion)}</code></pre></div>
+        ${bloqueSolucion(ej.solucion, "sql")}
         <div class="salida-cab"><span class="etiqueta">Resultado esperado</span></div>${tablaResultado(esperado.ultimo, 20)}
       </div>`;
-      const code = ayuda.querySelector("code");
-      if (window.hljs) { try { code.innerHTML = window.hljs.highlight(ej.solucion, { language: "sql" }).value; } catch (_) { /* sin resaltado */ } }
     };
     document.getElementById("esquema").addEventListener("click", (e) => {
       const b = e.target.closest("[data-insertar]");
@@ -806,6 +981,169 @@
       pintarSalida(salida, r);
       salida.scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
+  }
+
+  function bloqueSolucion(codigo, lenguaje) {
+    let html = escapar(codigo);
+    if (window.hljs) { try { html = window.hljs.highlight(codigo, { language: lenguaje === "js" ? "javascript" : "sql" }).value; } catch (_) { /* sin resaltado */ } }
+    return `<div class="code"><div class="code-head"><span>solución</span><button class="copy-btn" type="button">Copiar</button></div><pre><code class="hljs">${html}</code></pre></div>`;
+  }
+
+  // ---------------------------- JavaScript ----------------------------
+  function vistaJS(ctx, cursos, resto) {
+    const web = cursos.find((c) => c._meta.tema === "web");
+    ctx.aplicarTema((web && web._meta) || { tema: "web", cuaderno: "Cuaderno de desarrollador" }, "practica");
+    const [modo = "ejercicios", arg] = resto;
+    if (modo === "consola") return vistaConsolaJS(ctx, cursos);
+    if (modo === "reto") {
+      const reto = retoDeHoy("js");
+      return vistaEjercicioJS(ctx, cursos, JSD.ejercicios.find((e) => e.id === reto.id), true);
+    }
+    if (modo === "ej") {
+      const ej = JSD.ejercicios.find((e) => e.id === arg);
+      if (!ej) throw new Error(`No existe el ejercicio "${arg}".`);
+      return vistaEjercicioJS(ctx, cursos, ej, false);
+    }
+    const concepto = conceptoDeSlug(arg, CONCEPTOS_JS);
+    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "JavaScript" }]);
+    document.title = "JavaScript · Práctica · NEXUS";
+    const lecciones = web
+      ? `<div class="margen-titulo" style="margin-top:.6rem">Lecciones relacionadas</div>
+        <ul class="lista-bases">${CONCEPTOS_JS.map((c) => {
+          const cap = web.chapters.find((x) => x.id === JSD.lecciones[c]);
+          return cap ? `<li><span class="small"><strong>${escapar(c)}</strong></span><a class="small" href="#/curso/${web.id}/${cap.id}">${escapar(cap.code || "")} · ${escapar(cap.title)}</a></li>` : "";
+        }).join("")}</ul>`
+      : "";
+    marco(ctx, cursos, "js", `
+      ${cabecera("práctica · JavaScript", "Ejercicios de JavaScript", "En cada ejercicio escribes una función y pulsas <strong>Comprobar</strong>: se ejecutan pruebas automáticas y ves cuáles pasan.")}
+      ${navJS("ejercicios")}
+      ${htmlListaEjercicios("js", concepto)}`, margenNivelClase("js", "Tu JavaScript") + lecciones);
+  }
+
+  function pintarLogs(r) {
+    const logs = (r.logs || []).map((l) => `<div class="log ${l.tipo}">${escapar(l.texto)}</div>`).join("");
+    return logs ? `<div class="salida-cab"><span class="etiqueta">Consola</span></div><div class="logs">${logs}</div>` : "";
+  }
+
+  async function vistaConsolaJS(ctx, cursos) {
+    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "JavaScript", href: "#/practica/js/ejercicios" }, { texto: "Consola" }]);
+    document.title = "Consola JavaScript · Práctica · NEXUS";
+    const clave = "js:libre";
+    const inicial = borrador(clave) ?? `// Escribe cualquier código y pulsa Ejecutar.\nconst equipos = [\n  { codigo: "B-01", horas: 520 },\n  { codigo: "C-07", horas: 130 },\n];\nconst urgentes = equipos.filter((e) => e.horas >= 500);\nconsole.log("Urgentes:", urgentes);\nurgentes.length;`;
+    marco(ctx, cursos, "js", `
+      ${cabecera("práctica · JavaScript", "Consola", "Lo que imprimas con <code>console.log</code> aparece abajo, junto con el valor de la última línea. El código corre aparte, con un límite de 3 segundos.")}
+      ${navJS("consola")}
+      ${htmlConsola(clave, inicial, "js")}`, `<div class="margen-titulo">Ideas para probar</div>
+        <ul class="lista-falladas">
+          <li><code>[3, 1, 2].sort((a, b) => a - b)</code></li>
+          <li><code>new Date("2026-03-01").getDay()</code></li>
+          <li><code>JSON.stringify({ a: 1, b: [2, 3] })</code></li>
+          <li><code>"Mantenimiento".slice(0, 5).toUpperCase()</code></li>
+          <li><code>0.1 + 0.2</code> (¿por qué no da 0.3?)</li>
+        </ul>`);
+    document.getElementById("consolaAcciones").innerHTML = `<button class="btn cta" type="button" id="btnEjecutar">Ejecutar</button>
+      <button class="btn ghost" type="button" id="btnLimpiar">Limpiar salida</button>
+      <span class="small muted atajo">Ctrl + Enter</span>`;
+    const ed = document.getElementById("sqlEditor");
+    const salida = document.getElementById("sqlSalida");
+    const correr = async () => {
+      salida.innerHTML = '<p class="small muted">Ejecutando…</p>';
+      const r = await window.PracticaJSMotor.ejecutar(ed.value);
+      salida.innerHTML = pintarLogs(r)
+        + (r.error ? `<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>` : "")
+        + (!r.error && r.hayValor ? `<div class="salida-cab"><span class="etiqueta">Valor final</span>${r.ms != null ? `<span class="small muted">${r.ms} ms</span>` : ""}</div><div class="logs"><div class="log valor">${escapar(r.valor)}</div></div>` : "")
+        + (!r.error && !r.hayValor && !(r.logs || []).length ? '<p class="small muted">El código se ejecutó sin mostrar nada. Usa <code>console.log(…)</code> para ver valores.</p>' : "");
+    };
+    enlazarEditor(ed, correr, clave);
+    document.getElementById("btnEjecutar").onclick = correr;
+    document.getElementById("btnLimpiar").onclick = () => { salida.innerHTML = ""; };
+  }
+
+  async function vistaEjercicioJS(ctx, cursos, ej, esReto) {
+    ctx.setCrumbs([{ texto: "Hoy", href: "#/" }, { texto: "Práctica", href: "#/practica" }, { texto: "JavaScript", href: "#/practica/js/ejercicios" }, { texto: esReto ? "Reto del día" : ej.titulo }]);
+    document.title = `${ej.titulo} · JavaScript · NEXUS`;
+    const K = CLASES.js;
+    const { ant, sig } = pagerEj("js", ej);
+    const estado = () => leer().js[ej.id] || {};
+    const reto = esReto ? leer().retoJS : null;
+    const clave = `js:${ej.id}`;
+    const inicial = borrador(clave) ?? ej.plantilla;
+    const web = cursos.find((c) => c._meta.tema === "web");
+    const lec = web && web.chapters.find((x) => x.id === JSD.lecciones[ej.concepto]);
+    const margen = `<div class="margen-titulo">Pruebas</div>
+      <p class="small muted" style="margin:0">Así se va a llamar a tu función. Deben pasar todas.</p>
+      <ul class="lista-pruebas">${ej.pruebas.map((p) => `<li><code>${escapar(p.especial ? `prueba especial de ${ej.funcion}` : `${ej.funcion}(${p.args.map((a) => JSON.stringify(a)).join(", ")})${p.llamar ? `(${p.llamar.map((a) => JSON.stringify(a)).join(", ")})` : ""}`)}</code><span class="small muted">→ ${escapar(JSON.stringify(p.esperado))}</span></li>`).join("")}</ul>
+      ${lec ? `<div class="margen-titulo" style="margin-top:.6rem">Repasa</div><a href="#/curso/${web.id}/${lec.id}">${escapar(lec.code || "")} · ${escapar(lec.title)}</a>` : ""}`;
+    marco(ctx, cursos, "js", `
+      ${cabecera(esReto ? `reto JavaScript del día · ${C.fechaISO()}` : "práctica · JavaScript", ej.titulo, null)}
+      ${navJS(esReto ? "reto" : "ejercicios")}
+      ${cabeceraEjercicio(ej, `Escribe la función <code>${escapar(ej.funcion)}</code>. Puedes usar <code>console.log</code> para depurar; el código se detiene si tarda más de 3 segundos.`)}
+      ${esReto && reto && reto.resuelto ? '<div class="feedback ok"><p><strong>¡Reto de hoy completado!</strong> Mañana tendrás uno nuevo.</p></div>' : ""}
+      ${htmlConsola(clave, inicial, "js")}
+      <div id="ayuda"></div>
+      ${esReto ? "" : htmlPager(K, ant, sig)}`, margen);
+
+    const pintarEstado = () => {
+      const r = estado();
+      document.getElementById("ejEstado").textContent = r.resuelto ? "✓ Resuelto" : r.intentos ? `${r.intentos} ${r.intentos === 1 ? "intento" : "intentos"}` : "Pendiente";
+    };
+    pintarEstado();
+    document.getElementById("consolaAcciones").innerHTML = `<button class="btn cta" type="button" id="btnComprobar">Comprobar</button>
+      <button class="btn" type="button" id="btnEjecutar">Ejecutar</button>
+      <button class="btn ghost" type="button" id="btnPista">Pista</button>
+      <button class="btn ghost" type="button" id="btnSolucion">Ver solución</button>
+      <button class="btn ghost" type="button" id="btnReiniciar">Reiniciar código</button>
+      <span class="small muted atajo">Ctrl + Enter comprueba</span>`;
+    const ed = document.getElementById("sqlEditor");
+    const salida = document.getElementById("sqlSalida");
+    const ayuda = document.getElementById("ayuda");
+
+    const comprobar = async () => {
+      salida.innerHTML = '<p class="small muted">Ejecutando pruebas…</p>';
+      const r = await window.PracticaJSMotor.comprobar(ed.value, ej);
+      if (r.error && !r.pruebas) {
+        salida.innerHTML = `${pintarLogs(r)}<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>`;
+        return;
+      }
+      const pasan = r.pruebas.filter((p) => p.ok).length;
+      const ok = pasan === r.pruebas.length;
+      registrarEj("js", ej, ok ? "resuelto" : "intento");
+      pintarEstado();
+      salida.innerHTML = `<div class="feedback ${ok ? "ok" : "ko"}">
+          <strong>${ok ? "¡Correcto!" : "Todavía no"}</strong><p>${ok ? (esReto ? "Completaste el reto del día." : "Pasaron todas las pruebas.") : `Pasaron ${pasan} de ${r.pruebas.length} pruebas.`}</p>
+          ${ok && sig && !esReto ? `<a class="btn cta" href="${K.ruta}/ej/${sig.id}">Siguiente ejercicio →</a>` : ""}
+        </div>
+        <ul class="resultado-pruebas">${r.pruebas.map((p) => `<li class="${p.ok ? "bien" : "mal"}">
+          <span class="marca">${p.ok ? "✓" : "✗"}</span>
+          <div><code>${escapar(p.entrada)}</code>
+          <div class="small">esperado: <code>${escapar(p.esperado)}</code>${p.error ? ` · <span class="error-prueba">${escapar(p.error)}</span>` : ` · obtenido: <code>${escapar(p.obtenido)}</code>`}</div></div>
+        </li>`).join("")}</ul>${pintarLogs(r)}`;
+      if (ok) C.registrarActividad();
+    };
+    const ejecutarLibre = async () => {
+      salida.innerHTML = '<p class="small muted">Ejecutando…</p>';
+      const r = await window.PracticaJSMotor.ejecutar(ed.value);
+      salida.innerHTML = pintarLogs(r) + (r.error ? `<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>` : !(r.logs || []).length ? '<p class="small muted">Se ejecutó sin mostrar nada. Usa <code>console.log(…)</code> o pulsa Comprobar.</p>' : "");
+    };
+    enlazarEditor(ed, comprobar, clave);
+    document.getElementById("btnComprobar").onclick = comprobar;
+    document.getElementById("btnEjecutar").onclick = ejecutarLibre;
+    document.getElementById("btnPista").onclick = () => {
+      ayuda.innerHTML = `<div class="pista"><strong>Pista</strong><p>${enLinea(ej.pista)}</p></div>`;
+    };
+    document.getElementById("btnReiniciar").onclick = () => {
+      if (ed.value !== ej.plantilla && !confirm("¿Volver al código inicial? Se borrará lo que escribiste.")) return;
+      ed.value = ej.plantilla;
+      guardarBorrador(clave, ed.value);
+      salida.innerHTML = "";
+    };
+    document.getElementById("btnSolucion").onclick = () => {
+      const r = estado();
+      if (!r.resuelto && !confirm("Si ves la solución antes de resolverlo, contará como no resuelto para tu nivel. ¿Verla?")) return;
+      registrarEj("js", ej, "revelado");
+      pintarEstado();
+      ayuda.innerHTML = `<div class="solucion">${bloqueSolucion(ej.solucion, "js")}</div>`;
+    };
   }
 
   // ---------------------------- Cursos ----------------------------
@@ -826,7 +1164,9 @@
     }
     const idx = resto[0] != null && conPreguntas.some((m) => String(m.i) === resto[0]) ? Number(resto[0]) : conPreguntas[0].i;
     const mod = mods[idx];
-    const subtabs = subpestanas(conPreguntas.map((m) => [String(m.i), m.corto, `#/practica/${encodeURIComponent(curso.id)}/${m.i}`]), String(idx), "Subtemas");
+    const subtabs = curso._meta.tema === "datos"
+      ? navDatos(ctx, cursos, `mod-${idx}`)
+      : subpestanas(conPreguntas.map((m) => [String(m.i), etiquetaCorta(m.nombre), `#/practica/${encodeURIComponent(curso.id)}/${m.i}`]), String(idx), "Subtemas");
 
     if (resto[1]) return vistaPreguntas(ctx, cursos, curso, mod, resto[1], subtabs);
 
