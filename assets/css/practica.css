@@ -201,3 +201,14 @@ body[data-tema="web"] .separador.practica { --sep-bg: #E6E8EC; --sep-txt: #14161
   .ej-venn { flex-direction: column; }
   .ej-venn-fig { flex-basis: auto; align-self: center; }
 }
+
+/* Mini página de los ejercicios de DOM */
+.dom-vista { margin-top: 1rem; }
+.dom-vista iframe {
+  display: block;
+  width: 100%;
+  height: 240px;
+  border: 1px solid var(--borde);
+  border-radius: var(--r-md);
+  background: #fff;
+}

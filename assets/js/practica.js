@@ -1029,7 +1029,7 @@
         }).join("")}</ul>`
       : "";
     marco(ctx, cursos, "js", `
-      ${cabecera("práctica · JavaScript", "Ejercicios de JavaScript", "En cada ejercicio escribes una función y pulsas <strong>Comprobar</strong>: se ejecutan pruebas automáticas y ves cuáles pasan.")}
+      ${cabecera("práctica · JavaScript", "Ejercicios de JavaScript", "En cada ejercicio escribes una función (o, en los de DOM, código para una mini página) y pulsas <strong>Comprobar</strong>: se ejecutan pruebas automáticas y ves cuáles pasan.")}
       ${navJS("ejercicios")}
       ${htmlListaEjercicios("js", concepto)}`, margenNivelClase("js", "Tu JavaScript") + lecciones);
   }
@@ -1085,15 +1085,19 @@
     const web = cursos.find((c) => c._meta.tema === "web");
     const lec = web && web.chapters.find((x) => x.id === JSD.lecciones[ej.concepto]);
     const margen = `<div class="margen-titulo">Pruebas</div>
-      <p class="small muted" style="margin:0">Así se va a llamar a tu función. Deben pasar todas.</p>
-      <ul class="lista-pruebas">${ej.pruebas.map((p) => `<li><code>${escapar(p.especial ? `prueba especial de ${ej.funcion}` : `${ej.funcion}(${p.args.map((a) => JSON.stringify(a)).join(", ")})${p.llamar ? `(${p.llamar.map((a) => JSON.stringify(a)).join(", ")})` : ""}`)}</code><span class="small muted">→ ${escapar(JSON.stringify(p.esperado))}</span></li>`).join("")}</ul>
+      <p class="small muted" style="margin:0">${ej.dom ? "Lo que revisan las pruebas en la página. Deben pasar todas." : "Así se va a llamar a tu función. Deben pasar todas."}</p>
+      <ul class="lista-pruebas">${ej.dom ? ej.pruebas.map((p) => `<li><span class="small">${escapar(p.descripcion)}</span></li>`).join("") : ej.pruebas.map((p) => `<li><code>${escapar(p.especial ? `prueba especial de ${ej.funcion}` : `${ej.funcion}(${p.args.map((a) => JSON.stringify(a)).join(", ")})${p.llamar ? `(${p.llamar.map((a) => JSON.stringify(a)).join(", ")})` : ""}`)}</code><span class="small muted">→ ${escapar(JSON.stringify(p.esperado))}</span></li>`).join("")}</ul>
       ${lec ? `<div class="margen-titulo" style="margin-top:.6rem">Repasa</div><a href="#/curso/${web.id}/${lec.id}">${escapar(lec.code || "")} · ${escapar(lec.title)}</a>` : ""}`;
     marco(ctx, cursos, "js", `
       ${cabecera(esReto ? `reto JavaScript del día · ${C.fechaISO()}` : "práctica · JavaScript", ej.titulo, null)}
       ${navJS(esReto ? "reto" : "ejercicios")}
-      ${cabeceraEjercicio(ej, `Escribe la función <code>${escapar(ej.funcion)}</code>. Puedes usar <code>console.log</code> para depurar; el código se detiene si tarda más de 3 segundos.`)}
+      ${cabeceraEjercicio(ej, ej.dom ? "Tu código se ejecuta dentro de la mini página de abajo. Pulsa <strong>Ejecutar</strong> para probarla a mano y <strong>Comprobar</strong> para correr las pruebas." : `Escribe la función <code>${escapar(ej.funcion)}</code>. Puedes usar <code>console.log</code> para depurar; el código se detiene si tarda más de 3 segundos.`)}
       ${esReto && reto && reto.resuelto ? '<div class="feedback ok"><p><strong>¡Reto de hoy completado!</strong> Mañana tendrás uno nuevo.</p></div>' : ""}
       ${htmlConsola(clave, inicial, "js")}
+      ${ej.dom ? `<section class="dom-vista" aria-label="Mini página del ejercicio">
+        <div class="salida-cab"><span class="etiqueta">Mini página</span><span class="small muted">se recarga al pulsar Ejecutar</span></div>
+        <iframe id="domVista" title="Mini página del ejercicio" sandbox="allow-scripts allow-forms"></iframe>
+      </section>` : ""}
       <div id="ayuda"></div>
       ${esReto ? "" : htmlPager(K, ant, sig)}`, margen);
 
@@ -1114,7 +1118,7 @@
 
     const comprobar = async () => {
       salida.innerHTML = '<p class="small muted">Ejecutando pruebas…</p>';
-      const r = await window.PracticaJSMotor.comprobar(ed.value, ej);
+      const r = ej.dom ? await window.PracticaDOM.comprobar(ed.value, ej) : await window.PracticaJSMotor.comprobar(ed.value, ej);
       if (r.error && !r.pruebas) {
         salida.innerHTML = `${pintarLogs(r)}<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>`;
         return;
@@ -1134,7 +1138,18 @@
         </li>`).join("")}</ul>${pintarLogs(r)}`;
       if (ok) C.registrarActividad();
     };
+    const vistaDom = document.getElementById("domVista");
+    const ejecutarDom = () => {
+      const logs = [];
+      salida.innerHTML = '<p class="small muted">La mini página se recargó con tu código. Pruébala abajo.</p>';
+      window.PracticaDOM.vista(vistaDom, ed.value, ej, (l) => {
+        logs.push(l);
+        salida.innerHTML = pintarLogs({ logs }) + logs.filter((x) => x.tipo === "error").slice(0, 1).map((x) => `<div class="feedback ko"><strong>Error</strong><p>${escapar(x.texto)}</p></div>`).join("");
+      });
+    };
+    if (vistaDom) window.PracticaDOM.vista(vistaDom, ej.plantilla, ej);
     const ejecutarLibre = async () => {
+      if (ej.dom) return ejecutarDom();
       salida.innerHTML = '<p class="small muted">Ejecutando…</p>';
       const r = await window.PracticaJSMotor.ejecutar(ed.value);
       salida.innerHTML = pintarLogs(r) + (r.error ? `<div class="feedback ko"><strong>Error</strong><p>${escapar(r.error)}</p></div>` : !(r.logs || []).length ? '<p class="small muted">Se ejecutó sin mostrar nada. Usa <code>console.log(…)</code> o pulsa Comprobar.</p>' : "");

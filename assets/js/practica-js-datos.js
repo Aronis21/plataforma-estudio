@@ -4,6 +4,8 @@
  * de cada prueba; el resultado debe ser igual a "esperado" (comparación profunda; en
  * números con decimales se tolera una diferencia de 0.0001).
  * "leccion" es el capítulo del curso Web donde se explica el concepto.
+ * Los ejercicios con "dom" no piden una función: traen una mini página y sus pruebas
+ * hacen clics, escriben en campos y revisan cómo quedó (ver assets/js/practica-dom.js).
  * Para agregar un ejercicio, copia uno y cambia sus campos.
  */
 window.PracticaJS = {
@@ -16,6 +18,9 @@ window.PracticaJS = {
     "Cadenas de texto": "lec-14",
     "Fechas y números": "lec-15",
     "Errores y validación": "lec-23",
+    "DOM: seleccionar y modificar": "lec-16",
+    "Eventos": "lec-17",
+    "Formularios": "lec-18",
   },
   ejercicios: [
     // ------------------------------ Básico ------------------------------
@@ -321,6 +326,137 @@ window.PracticaJS = {
       pruebas: [{ args: [{ stock: 0, minimo: 5, pedido: true }], esperado: "rojo" }, { args: [{ stock: 3, minimo: 5 }], esperado: "amarillo" }, { args: [{ stock: 5, minimo: 5, pedido: true }], esperado: "azul" }, { args: [{ stock: 9, minimo: 5, pedido: false }], esperado: "verde" }, { args: [{ stock: 5, minimo: 5, pedido: false }], esperado: "amarillo" }],
       solucion: "function semaforo({ stock, minimo, pedido = false }) {\n  if (stock === 0) return \"rojo\";\n  if (stock <= minimo) return pedido ? \"azul\" : \"amarillo\";\n  return \"verde\";\n}",
       pista: "El orden de las condiciones importa: revisa primero el stock en 0. Dentro de \"bajo el mínimo\" decide entre azul y amarillo según `pedido`.",
+    },
+    // ------------------------------ DOM (mini página en un iframe) ------------------------------
+    // "dom" trae la mini página; las pruebas hacen clics/escriben y revisan la página (assets/js/practica-dom.js).
+    {
+      id: "d01", nivel: "basico", concepto: "DOM: seleccionar y modificar", titulo: "Cambiar un título",
+      enunciado: "La página tiene un `<h1 id=\"titulo\">`. Cambia su texto a **Bienvenida a NEXUS**.",
+      dom: { html: '<h1 id="titulo">Hola</h1>\n<p>Primera página.</p>' },
+      plantilla: "// Selecciona el h1 y cambia su texto\n",
+      pruebas: [{ descripcion: "El título dice «Bienvenida a NEXUS»", esperar: { sel: "#titulo", texto: "Bienvenida a NEXUS" } }],
+      solucion: 'document.querySelector("#titulo").textContent = "Bienvenida a NEXUS";',
+      pista: "`document.querySelector(\"#titulo\")` devuelve el elemento; asigna su propiedad `textContent`.",
+    },
+    {
+      id: "d02", nivel: "basico", concepto: "DOM: seleccionar y modificar", titulo: "Marcar todos los avisos",
+      enunciado: "Agrega la clase **importante** a **todos** los párrafos con clase `aviso` (hay tres). No toques el párrafo normal.",
+      dom: { html: '<p class="aviso">Revisa tu correo.</p>\n<p>Texto normal.</p>\n<p class="aviso">Hay una actualización.</p>\n<p class="aviso">Tu sesión vence pronto.</p>' },
+      plantilla: "// Selecciona todos los .aviso y agrégales la clase\n",
+      pruebas: [
+        { descripcion: "Los 3 avisos tienen la clase importante", esperar: { sel: ".aviso.importante", cuenta: 3 } },
+        { descripcion: "Ningún otro párrafo cambió", esperar: { sel: "p.importante:not(.aviso)", cuenta: 0 } },
+      ],
+      solucion: 'document.querySelectorAll(".aviso").forEach((p) => p.classList.add("importante"));',
+      pista: "`querySelectorAll` devuelve una lista: recórrela con `forEach` y usa `classList.add(\"importante\")`.",
+    },
+    {
+      id: "d03", nivel: "basico", concepto: "DOM: seleccionar y modificar", titulo: "Lista desde un arreglo",
+      enunciado: "Ya existe el arreglo `cursos` (con **SQL**, **Python** y **Power BI**). Crea un `<li>` por cada curso dentro de `<ul id=\"lista\">`, en el mismo orden.",
+      dom: { html: '<h2>Mis cursos</h2>\n<ul id="lista"></ul>', datos: 'var cursos = ["SQL", "Python", "Power BI"];' },
+      plantilla: "// cursos ya existe: [\"SQL\", \"Python\", \"Power BI\"]\nconst lista = document.querySelector(\"#lista\");\n",
+      pruebas: [
+        { descripcion: "La lista tiene 3 elementos", esperar: { sel: "#lista li", cuenta: 3 } },
+        { descripcion: "El primero es «SQL»", esperar: { sel: "#lista li:first-child", texto: "SQL" } },
+        { descripcion: "El último es «Power BI»", esperar: { sel: "#lista li:last-child", texto: "Power BI" } },
+      ],
+      solucion: 'const lista = document.querySelector("#lista");\nfor (const curso of cursos) {\n  const li = document.createElement("li");\n  li.textContent = curso;\n  lista.append(li);\n}',
+      pista: "Por cada curso: `document.createElement(\"li\")`, pon su `textContent` y agrégalo con `lista.append(li)`.",
+    },
+    {
+      id: "d04", nivel: "intermedio", concepto: "Eventos", titulo: "Contador con botón",
+      enunciado: "Cada clic en el botón `#mas` debe sumar 1 al número que muestra `<span id=\"cuenta\">` (empieza en 0).",
+      dom: { html: '<button id="mas">+1</button> Clics: <span id="cuenta">0</span>' },
+      plantilla: "const boton = document.querySelector(\"#mas\");\nconst cuenta = document.querySelector(\"#cuenta\");\n// escucha el clic\n",
+      pruebas: [
+        { descripcion: "Sin clics muestra 0", esperar: { sel: "#cuenta", texto: "0" } },
+        { descripcion: "Tras 1 clic muestra 1", acciones: [{ tipo: "click", sel: "#mas" }], esperar: { sel: "#cuenta", texto: "1" } },
+        { descripcion: "Tras 3 clics muestra 3", acciones: [{ tipo: "click", sel: "#mas", veces: 3 }], esperar: { sel: "#cuenta", texto: "3" } },
+      ],
+      solucion: 'const boton = document.querySelector("#mas");\nconst cuenta = document.querySelector("#cuenta");\nlet n = 0;\nboton.addEventListener("click", () => {\n  n++;\n  cuenta.textContent = n;\n});',
+      pista: "Guarda el número en una variable fuera del evento y, dentro de `addEventListener(\"click\", ...)`, súmale 1 y escríbelo en `textContent`.",
+    },
+    {
+      id: "d05", nivel: "intermedio", concepto: "Eventos", titulo: "Mostrar y ocultar un panel",
+      enunciado: "El botón `#alternar` debe ocultar y volver a mostrar el `#panel` poniendo y quitando la clase **oculto** en cada clic.",
+      dom: { html: '<button id="alternar">Mostrar / ocultar</button>\n<div id="panel">Detalles del pedido: 3 productos.</div>' },
+      plantilla: "// Usa classList.toggle\n",
+      pruebas: [
+        { descripcion: "Al inicio el panel se ve", esperar: { sel: "#panel", clase: "oculto", tiene: false } },
+        { descripcion: "Tras 1 clic se oculta", acciones: [{ tipo: "click", sel: "#alternar" }], esperar: { sel: "#panel", clase: "oculto", tiene: true } },
+        { descripcion: "Tras 2 clics se ve otra vez", acciones: [{ tipo: "click", sel: "#alternar", veces: 2 }], esperar: { sel: "#panel", clase: "oculto", tiene: false } },
+      ],
+      solucion: 'const panel = document.querySelector("#panel");\ndocument.querySelector("#alternar").addEventListener("click", () => {\n  panel.classList.toggle("oculto");\n});',
+      pista: "`elemento.classList.toggle(\"oculto\")` pone la clase si no está y la quita si está.",
+    },
+    {
+      id: "d06", nivel: "intermedio", concepto: "Formularios", titulo: "Saludar desde un formulario",
+      enunciado: "Al enviar el formulario `#saludo`, evita que la página se recargue y escribe en `#salida` el texto **Hola, Nombre** usando lo que se escribió en `#nombre` **sin espacios sobrantes**.",
+      dom: { html: '<form id="saludo">\n  <label>Tu nombre <input id="nombre"></label>\n  <button>Saludar</button>\n</form>\n<p id="salida"></p>' },
+      plantilla: "const form = document.querySelector(\"#saludo\");\n// escucha el evento submit\n",
+      pruebas: [
+        { descripcion: "Con «Ana» muestra «Hola, Ana»", acciones: [{ tipo: "escribir", sel: "#nombre", valor: "Ana" }, { tipo: "enviar", sel: "#saludo" }], esperar: { sel: "#salida", texto: "Hola, Ana" } },
+        { descripcion: "Con «  Luis  » muestra «Hola, Luis»", acciones: [{ tipo: "escribir", sel: "#nombre", valor: "  Luis  " }, { tipo: "enviar", sel: "#saludo" }], esperar: { sel: "#salida", texto: "Hola, Luis" } },
+      ],
+      solucion: 'const form = document.querySelector("#saludo");\nform.addEventListener("submit", (event) => {\n  event.preventDefault();\n  const nombre = document.querySelector("#nombre").value.trim();\n  document.querySelector("#salida").textContent = `Hola, ${nombre}`;\n});',
+      pista: "En el evento `submit` llama primero a `event.preventDefault()`; luego lee `input.value.trim()`.",
+    },
+    {
+      id: "d07", nivel: "intermedio", concepto: "Formularios", titulo: "Validar un correo",
+      enunciado: "Al hacer clic en `#validar`: si `#email` **no contiene @**, escribe **Correo no válido** en `#error` y agrega la clase **error** al campo; si lo contiene, deja `#error` vacío y quita la clase.",
+      dom: { html: '<label>Correo <input id="email"></label>\n<button id="validar" type="button">Validar</button>\n<p id="error"></p>' },
+      plantilla: "const email = document.querySelector(\"#email\");\nconst error = document.querySelector(\"#error\");\n",
+      pruebas: [
+        { descripcion: "«ana.gmail.com» muestra el error", acciones: [{ tipo: "escribir", sel: "#email", valor: "ana.gmail.com" }, { tipo: "click", sel: "#validar" }], esperar: { sel: "#error", texto: "Correo no válido" } },
+        { descripcion: "…y marca el campo con la clase error", acciones: [{ tipo: "escribir", sel: "#email", valor: "ana.gmail.com" }, { tipo: "click", sel: "#validar" }], esperar: { sel: "#email", clase: "error", tiene: true } },
+        { descripcion: "Al corregirlo a «ana@gmail.com» se quita el error", acciones: [{ tipo: "escribir", sel: "#email", valor: "ana" }, { tipo: "click", sel: "#validar" }, { tipo: "escribir", sel: "#email", valor: "ana@gmail.com" }, { tipo: "click", sel: "#validar" }], esperar: { sel: "#email", clase: "error", tiene: false } },
+        { descripcion: "…y el mensaje queda vacío", acciones: [{ tipo: "escribir", sel: "#email", valor: "ana" }, { tipo: "click", sel: "#validar" }, { tipo: "escribir", sel: "#email", valor: "ana@gmail.com" }, { tipo: "click", sel: "#validar" }], esperar: { sel: "#error", texto: "" } },
+      ],
+      solucion: 'const email = document.querySelector("#email");\nconst error = document.querySelector("#error");\ndocument.querySelector("#validar").addEventListener("click", () => {\n  const valido = email.value.includes("@");\n  error.textContent = valido ? "" : "Correo no válido";\n  email.classList.toggle("error", !valido);\n});',
+      pista: "`texto.includes(\"@\")` devuelve true o false. `classList.toggle(\"error\", condicion)` pone o quita la clase según la condición.",
+    },
+    {
+      id: "d08", nivel: "avanzado", concepto: "Eventos", titulo: "Filtrar una lista mientras escribes",
+      enunciado: "Mientras se escribe en `#buscar` (evento **input**), oculta con la clase **oculto** los `<li>` de `#productos` que **no contienen** el texto buscado, sin distinguir mayúsculas. Con el buscador vacío se ven todos.",
+      dom: { html: '<input id="buscar" placeholder="Buscar…">\n<ul id="productos">\n  <li>Mouse inalámbrico</li>\n  <li>Teclado mecánico</li>\n  <li>Monitor 24 pulgadas</li>\n  <li>Cable HDMI</li>\n  <li>Mousepad grande</li>\n</ul>' },
+      plantilla: "const buscar = document.querySelector(\"#buscar\");\nconst items = document.querySelectorAll(\"#productos li\");\n",
+      pruebas: [
+        { descripcion: "Con «mouse» se ven 2", acciones: [{ tipo: "escribir", sel: "#buscar", valor: "mouse" }], esperar: { sel: "#productos li:not(.oculto)", cuenta: 2 } },
+        { descripcion: "Con «MONITOR» se ve 1", acciones: [{ tipo: "escribir", sel: "#buscar", valor: "MONITOR" }], esperar: { sel: "#productos li:not(.oculto)", cuenta: 1 } },
+        { descripcion: "Al borrar la búsqueda se ven los 5", acciones: [{ tipo: "escribir", sel: "#buscar", valor: "cable" }, { tipo: "escribir", sel: "#buscar", valor: "" }], esperar: { sel: "#productos li:not(.oculto)", cuenta: 5 } },
+      ],
+      solucion: 'const buscar = document.querySelector("#buscar");\nconst items = document.querySelectorAll("#productos li");\nbuscar.addEventListener("input", () => {\n  const q = buscar.value.trim().toLowerCase();\n  items.forEach((li) => {\n    li.classList.toggle("oculto", !li.textContent.toLowerCase().includes(q));\n  });\n});',
+      pista: "Pasa a minúsculas el texto buscado y el de cada `li`; usa `classList.toggle(\"oculto\", !coincide)`.",
+    },
+    {
+      id: "d09", nivel: "avanzado", concepto: "Eventos", titulo: "Lista de tareas con delegación",
+      enunciado: "Haz que: (1) el botón `#agregar` cree una tarea nueva al final de `#tareas` con el texto de `#nueva` y la misma estructura que las demás (`<li><span class=\"texto\">…</span> <button class=\"borrar\">×</button></li>`), y (2) cualquier botón **.borrar**, incluidos los de tareas nuevas, elimine su `<li>`. Usa **un solo** listener en `#tareas` (delegación).",
+      dom: { html: '<input id="nueva" placeholder="Nueva tarea"> <button id="agregar" type="button">Agregar</button>\n<ul id="tareas">\n  <li><span class="texto">Comprar café</span> <button class="borrar">×</button></li>\n  <li><span class="texto">Llamar al cliente</span> <button class="borrar">×</button></li>\n  <li><span class="texto">Enviar reporte</span> <button class="borrar">×</button></li>\n</ul>' },
+      plantilla: "const tareas = document.querySelector(\"#tareas\");\n// 1) agregar  2) borrar con un solo listener en tareas\n",
+      pruebas: [
+        { descripcion: "Borrar la segunda deja 2 tareas", acciones: [{ tipo: "click", sel: "#tareas li:nth-child(2) .borrar" }], esperar: { sel: "#tareas li", cuenta: 2 } },
+        { descripcion: "Agregar «Leer» crea una cuarta tarea", acciones: [{ tipo: "escribir", sel: "#nueva", valor: "Leer" }, { tipo: "click", sel: "#agregar" }], esperar: { sel: "#tareas li:last-child .texto", texto: "Leer" } },
+        { descripcion: "La tarea nueva también se puede borrar", acciones: [{ tipo: "escribir", sel: "#nueva", valor: "Leer" }, { tipo: "click", sel: "#agregar" }, { tipo: "click", sel: "#tareas li:last-child .borrar" }], esperar: { sel: "#tareas li", cuenta: 3 } },
+      ],
+      solucion: 'const tareas = document.querySelector("#tareas");\nconst nueva = document.querySelector("#nueva");\n\ndocument.querySelector("#agregar").addEventListener("click", () => {\n  const li = document.createElement("li");\n  const texto = document.createElement("span");\n  texto.className = "texto";\n  texto.textContent = nueva.value.trim();\n  const borrar = document.createElement("button");\n  borrar.className = "borrar";\n  borrar.textContent = "×";\n  li.append(texto, " ", borrar);\n  tareas.append(li);\n  nueva.value = "";\n});\n\ntareas.addEventListener("click", (e) => {\n  const boton = e.target.closest(".borrar");\n  if (boton) boton.closest("li").remove();\n});',
+      pista: "En el listener de `#tareas`, usa `e.target.closest(\".borrar\")`: si existe, borra `boton.closest(\"li\")`. Así funciona también con los elementos creados después.",
+    },
+    {
+      id: "d10", nivel: "avanzado", concepto: "DOM: seleccionar y modificar", titulo: "Tabla de ventas con total",
+      enunciado: "Con el arreglo `ventas` (ya existe, objetos con `producto` y `monto`), crea una fila `<tr>` por venta en `#cuerpo` con dos celdas (producto y monto) y escribe en `#total` el texto **Total: 350** (la suma de los montos).",
+      dom: {
+        html: '<table>\n  <thead><tr><th>Producto</th><th>Monto</th></tr></thead>\n  <tbody id="cuerpo"></tbody>\n</table>\n<p id="total"></p>',
+        datos: 'var ventas = [{ producto: "Teclado", monto: 120 }, { producto: "Mouse", monto: 45 }, { producto: "Monitor", monto: 185 }];',
+      },
+      plantilla: "// ventas ya existe: [{ producto: \"Teclado\", monto: 120 }, …]\n",
+      pruebas: [
+        { descripcion: "Hay 3 filas en la tabla", esperar: { sel: "#cuerpo tr", cuenta: 3 } },
+        { descripcion: "Cada fila tiene 2 celdas", esperar: { sel: "#cuerpo td", cuenta: 6 } },
+        { descripcion: "La primera celda es «Teclado»", esperar: { sel: "#cuerpo tr:first-child td:first-child", texto: "Teclado" } },
+        { descripcion: "El total dice «Total: 350»", esperar: { sel: "#total", texto: "Total: 350" } },
+      ],
+      solucion: 'const cuerpo = document.querySelector("#cuerpo");\nlet total = 0;\nfor (const v of ventas) {\n  const tr = document.createElement("tr");\n  for (const valor of [v.producto, v.monto]) {\n    const td = document.createElement("td");\n    td.textContent = valor;\n    tr.append(td);\n  }\n  cuerpo.append(tr);\n  total += v.monto;\n}\ndocument.querySelector("#total").textContent = `Total: ${total}`;',
+      pista: "Recorre `ventas`: por cada una crea un `tr` con dos `td`. Ve sumando `monto` en una variable y al final escribe el total.",
     },
   ],
 };

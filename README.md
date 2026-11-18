@@ -24,7 +24,7 @@ Mi cuaderno personal de estudio (antes "Plataforma de Estudio"): teoría, ejerci
   - **Mi nivel:** tu nivel por tema y subtema (de Principiante a Profesional) según tus aciertos en la práctica y tus exámenes, qué reforzar y las preguntas que más fallas.
   - **Datos:** ejercicios de **T-SQL** (sintaxis de SQL Server) ordenados por nivel y concepto (los de JOIN muestran su diagrama de Venn; incluye JSON con `OPENJSON`), consola T-SQL con las bases `tienda`, `rrhh` y `app`, reto del día y equivalencias; además, preguntas por módulo del curso. La consola traduce T-SQL a SQLite (`tsql.js`) y avisa si escribes algo que no funcionaría en SQL Server.
   - **Web e IA:** una sub-pestaña por módulo; practicas por capítulo o el módulo completo con las preguntas de los exámenes (primero las que fallaste).
-  - **JavaScript:** ejercicios con pruebas automáticas, consola libre y reto del día. El código corre en un hilo aparte con límite de 3 segundos.
+  - **JavaScript:** ejercicios con pruebas automáticas, consola libre y reto del día. El código corre en un hilo aparte con límite de 3 segundos. Los ejercicios de DOM (seleccionar y modificar, eventos, formularios) corren en una mini página aislada que puedes usar a mano.
 - **Repaso espaciado** (`#/repaso`): cada tarjeta vuelve cuando toca recordarla.
 - **Respaldo:** progreso, notas, resaltados, tarjetas y práctica se guardan en el navegador y se descargan/cargan en un solo archivo desde la página Hoy.
 - Un papel por curso (Hoy, Datos, Web, IA) con separadores para cambiar de cuaderno, y diseño adaptado al celular.
@@ -55,6 +55,7 @@ assets/js/tsql.js           Capa de compatibilidad T-SQL: traduce a SQLite y agr
 assets/js/diagramas.js      Diagramas de las lecciones (Venn de JOINs, regresión, matriz de confusión, validación cruzada)
 assets/js/practica-js-datos.js  Ejercicios de JavaScript con sus pruebas
 assets/js/practica-js-motor.js  Ejecuta JavaScript en un Web Worker con tiempo límite
+assets/js/practica-dom.js       Ejercicios de DOM: mini página en un iframe aislado y sus pruebas
 assets/css/practica.css     Estilos de la página Práctica
 assets/vendor/sqljs/        SQLite para el navegador (sql.js 1.10.3, licencia MIT)
 cursos/catalogo.json        Lista de cursos (con su "tema": datos, web o ia, y "estado")
