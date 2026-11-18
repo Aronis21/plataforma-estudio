@@ -34,7 +34,7 @@
 
   const NIVEL_EJ = { basico: "Básico", intermedio: "Intermedio", avanzado: "Avanzado" };
   const ORDEN_NIVEL = ["basico", "intermedio", "avanzado"];
-  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL, CASE e IIF", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana"];
+  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL, CASE e IIF", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana", "JSON"];
   const CONCEPTOS_JS = Object.keys(JSD.lecciones);
   // Datos de cada clase de ejercicio con consola
   const CLASES = {
@@ -710,6 +710,10 @@
         <tr><td>Largo y posición</td><td><code>LEN(t)</code>, <code>CHARINDEX(' ', t)</code>, <code>LEFT(t, 3)</code></td><td><code>length</code>, <code>instr</code>, <code>substr</code></td></tr>
         <tr><td>Lista de un grupo</td><td><code>STRING_AGG(col, ', ') WITHIN GROUP (ORDER BY col)</code></td><td><code>group_concat</code></td></tr>
         <tr><td>Convertir tipo</td><td><code>CAST(x AS DECIMAL(10,2))</code>, <code>CONVERT(INT, x)</code></td><td><code>x::int</code></td></tr>
+        <tr><td>Inicio de mes o semana</td><td><code>DATEFROMPARTS(YEAR(f), MONTH(f), 1)</code>, <code>DATETRUNC(week, f)</code></td><td><code>DATE_TRUNC</code></td></tr>
+        <tr><td>Calendario de días</td><td><code>DATEADD(day, gs.value, '2026-03-01')</code> con <code>GENERATE_SERIES(0, 30) AS gs</code></td><td><code>generate_series</code> con fechas</td></tr>
+        <tr><td>Leer un campo JSON</td><td><code>JSON_VALUE(payload, '$.cliente.pais')</code></td><td><code>payload->>'pais'</code>, <code>json_extract</code></td></tr>
+        <tr><td>Desanidar un arreglo JSON</td><td><code>CROSS APPLY OPENJSON(payload, '$.items') AS i</code> (<code>OUTER APPLY</code> conserva los vacíos)</td><td><code>LATERAL</code>, <code>json_each</code></td></tr>
       </tbody>
     </table>
     <p class="small muted">Esta consola traduce T-SQL a un motor SQLite que corre en tu navegador. No están disponibles las variables (<code>@x</code>), <code>DECLARE</code>, las tablas temporales (<code>#t</code>), <code>MERGE</code> ni <code>PIVOT</code>. Recuerda que en SQL Server <code>AVG</code> de enteros devuelve un entero: multiplica por <code>1.0</code>.</p>
@@ -870,13 +874,23 @@
     });
   }
 
+  // Ejercicios de JOIN: diagrama de Venn del tipo de JOIN junto al enunciado
+  function vennEjercicio(ej) {
+    const D2 = window.Diagramas;
+    const j = ej.venn && D2 && D2.JOINS.find((x) => x.id === ej.venn);
+    if (!j) return `<p class="enunciado-ej">${enLinea(ej.enunciado)}</p>`;
+    const dib = j.zonas.length ? D2.svgVenn(j.zonas, "ej", ["izquierda", "derecha"]) : "";
+    return `<div class="ej-venn"><p class="enunciado-ej">${enLinea(ej.enunciado)}</p>
+      <figure class="ej-venn-fig">${dib}<figcaption><strong>${escapar(j.nombre)}</strong>${j.zonas.length ? "" : " · combina cada fila con cada fila"}</figcaption></figure></div>`;
+  }
+
   function cabeceraEjercicio(ej, nota) {
     return `<article class="ejercicio ej-sql">
       <div class="ej-head">
         <div class="row"><span class="pill dif-${ej.nivel === "basico" ? "básico" : ej.nivel === "avanzado" ? "desafío" : "intermedio"}">${NIVEL_EJ[ej.nivel]}</span><span class="pill">${escapar(ej.concepto)}</span>${ej.base ? `<span class="pill">base ${escapar(ej.base)}</span>` : ""}</div>
         <span class="small muted" id="ejEstado"></span>
       </div>
-      <p class="enunciado-ej">${enLinea(ej.enunciado)}</p>
+      ${vennEjercicio(ej)}
       <p class="small muted" style="margin:0">${nota}</p>
     </article>`;
   }

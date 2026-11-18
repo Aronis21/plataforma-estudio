@@ -10,7 +10,8 @@
  *
  * Cubre: TOP (n), OFFSET … FETCH, ISNULL, IIF, LEN, CHARINDEX, LEFT/RIGHT, CONCAT, + para unir
  * textos, STRING_AGG … WITHIN GROUP, GETDATE, DATEDIFF, DATEADD, DATEPART, DATENAME, DATETRUNC,
- * YEAR/MONTH/DAY, EOMONTH, DATEFROMPARTS, FORMAT, CAST/CONVERT/TRY_CAST, N'texto', [corchetes], GO.
+ * YEAR/MONTH/DAY, EOMONTH, DATEFROMPARTS, FORMAT, CAST/CONVERT/TRY_CAST, N'texto', [corchetes], GO,
+ * JSON_VALUE, JSON_QUERY, ISJSON, CROSS/OUTER APPLY OPENJSON (columnas key, value, type) y GENERATE_SERIES.
  * No cubre: variables (@x), DECLARE, procedimientos, tablas temporales (#t), MERGE, PIVOT.
  */
 (function () {
@@ -175,11 +176,27 @@
     return String(v);
   }
 
+  // JSON: sigue una ruta de SQL Server como '$.cliente.pais' o '$.items[0].sku' (modo lax)
+  function jsonRuta(j, ruta) {
+    if (j === null || j === undefined || ruta === null || ruta === undefined) return undefined;
+    let v;
+    try { v = JSON.parse(String(j)); } catch (e) { return undefined; }
+    const r = String(ruta).trim().replace(/^lax\s+/i, "");
+    if (!r.startsWith("$")) return undefined;
+    const pasos = r.slice(1).match(/\.(?:"[^"]*"|[^.[]+)|\[\d+\]/g) || [];
+    for (const p of pasos) {
+      if (v === null || typeof v !== "object") return undefined;
+      v = p[0] === "[" ? v[Number(p.slice(1, -1))] : v[p.slice(1).replace(/^"|"$/g, "")];
+      if (v === undefined) return undefined;
+    }
+    return v;
+  }
+
   // ---------------------------------------------------------------- funciones en la base
   function registrar(db) {
     // sql.js fija el número de argumentos con fn.length: las funciones con argumentos
     // opcionales se registran una vez por cada cantidad posible.
-    const ARIDADES = { CHARINDEX: [2, 3], EOMONTH: [1, 2], FORMAT: [2, 3] };
+    const ARIDADES = { CHARINDEX: [2, 3], EOMONTH: [1, 2], FORMAT: [2, 3], JSON_QUERY: [1, 2] };
     const envolver = [(fn) => () => fn(), (fn) => (a) => fn(a), (fn) => (a, b) => fn(a, b), (fn) => (a, b, c) => fn(a, b, c)];
     const f = (nombre, fn) => {
       for (const n of ARIDADES[nombre] || [fn.length]) db.create_function(nombre, envolver[n](fn));
@@ -210,6 +227,19 @@
     f("FORMAT", formato);
     f("T_LEFT", (s, n) => (s === null || n === null ? null : String(s).slice(0, Math.max(0, n))));
     f("T_RIGHT", (s, n) => (s === null || n === null ? null : n <= 0 ? "" : String(s).slice(-n)));
+    f("JSON_VALUE", (j, ruta) => {
+      const v = jsonRuta(j, ruta);
+      if (v === undefined || v === null || typeof v === "object") return null;
+      return typeof v === "string" ? v : String(v);
+    });
+    f("JSON_QUERY", (j, ruta) => {
+      const v = jsonRuta(j, ruta === undefined ? "$" : ruta);
+      return v !== null && typeof v === "object" ? JSON.stringify(v) : null;
+    });
+    f("ISJSON", (j) => {
+      if (j === null || j === undefined) return null;
+      try { const v = JSON.parse(String(j)); return v !== null && typeof v === "object" ? 1 : 0; } catch (e) { return 0; }
+    });
     return db;
   }
 
@@ -263,8 +293,9 @@
       while (j < t.length && prof) { if (t[j] === "(") prof++; else if (t[j] === ")") prof--; j++; }
       if (prof) break;
       const dentro = t.slice(re.lastIndex, j - 1);
-      const r = fn(m[1], dentro, t.slice(j));
-      salida += t.slice(ultimo, ini) + r.texto;
+      const antes = t.slice(ultimo, ini);
+      const r = fn(m[1], dentro, t.slice(j), antes);
+      salida += (r.quitarAntes ? antes.slice(0, antes.length - r.quitarAntes) : antes) + (r.prefijo || "") + r.texto;
       ultimo = j + (r.consumir || 0);
       re.lastIndex = ultimo;
     }
@@ -312,6 +343,26 @@
     const { texto: t0, guardados } = enmascarar(sql);
     let t = t0.replace(/^\s*GO\s*;?\s*$/gim, "");
 
+    // CROSS APPLY OPENJSON(x[, ruta]) AS a → JOIN json_each(x[, ruta]) AS a
+    // OUTER APPLY OPENJSON(…) AS a       → LEFT JOIN json_each(…) AS a ON 1 = 1
+    t = reemplazarLlamadas(t, "OPENJSON", (_, dentro, resto, antes) => {
+      const ap = antes.match(/\b(CROSS|OUTER)\s+APPLY\s*$/i);
+      if (!ap) return { texto: `json_each(${dentro})` };
+      const al = resto.match(/^\s+(?:AS\s+)?(?!ON\b|WHERE\b|GROUP\b|ORDER\b|CROSS\b|OUTER\b|LEFT\b|INNER\b|JOIN\b)([A-Za-z_]\w*)/i);
+      const alias = al ? al[1] : "openjson";
+      const izq = ap[1].toUpperCase() === "OUTER" ? "LEFT JOIN" : "JOIN";
+      return {
+        texto: `json_each(${dentro}) AS ${alias}${izq === "LEFT JOIN" ? " ON 1 = 1" : ""}`,
+        consumir: al ? al[0].length : 0,
+        quitarAntes: ap[0].length,
+        prefijo: izq + " ",
+      };
+    });
+    // GENERATE_SERIES(a, b[, paso]) → subconsulta recursiva con la columna value
+    t = reemplazarLlamadas(t, "GENERATE_SERIES", (_, dentro) => {
+      const [ini, fin, paso = "1"] = partirArgs(dentro);
+      return { texto: `(WITH RECURSIVE t_gs(value) AS (SELECT ${ini} UNION ALL SELECT value + (${paso}) FROM t_gs WHERE value + (${paso}) <= ${fin}) SELECT value FROM t_gs)` };
+    });
     // ISNULL(a, b) → COALESCE(a, b); COUNT_BIG → COUNT; CEILING → CEIL
     t = t.replace(/\bISNULL\s*\(/gi, "COALESCE(").replace(/\bCOUNT_BIG\s*\(/gi, "COUNT(").replace(/\bCEILING\s*\(/gi, "CEIL(");
     t = t.replace(/\bLEFT\s*\(/gi, "T_LEFT(").replace(/\bRIGHT\s*\(/gi, "T_RIGHT(");
@@ -385,6 +436,10 @@
     [/\bprintf\s*\(/i, "printf() no existe en T-SQL: usa FORMAT() o CONCAT()."],
     [/\b(TRUE|FALSE)\b/i, "T-SQL no tiene TRUE/FALSE: usa 1 y 0 (tipo BIT)."],
     [/\bRANDOM\s*\(/i, "RANDOM() no existe en T-SQL: usa NEWID() o RAND()."],
+    [/\bjson_extract\s*\(/i, "json_extract() no existe en T-SQL: usa JSON_VALUE(columna, '$.campo')."],
+    [/\bjson_each\s*\(/i, "json_each() es de SQLite: en T-SQL usa CROSS APPLY OPENJSON(columna) o OUTER APPLY OPENJSON(columna)."],
+    [/->>?/, "-> y ->> son de PostgreSQL/MySQL: en T-SQL usa JSON_VALUE(columna, '$.campo')."],
+    [/\bLATERAL\b/i, "LATERAL no existe en T-SQL: usa CROSS APPLY u OUTER APPLY."],
   ];
   function noEsTSQL(sql) {
     const { texto: t } = enmascarar(sql);

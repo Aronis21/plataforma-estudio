@@ -94,12 +94,12 @@
   }
 
   let uid = 0;
-  function svgVenn(zonas, n) {
+  function svgVenn(zonas, n, nombres = ["clientes (c)", "pedidos (p)"]) {
     const on = (z) => zonas.includes(z);
     // Círculos: clientes (A) a la izquierda y pedidos (B) a la derecha
     const ax = 115, bx = 195, cy = 110, r = 70;
     const A = `<circle cx="${ax}" cy="${cy}" r="${r}"/>`, B = `<circle cx="${bx}" cy="${cy}" r="${r}"/>`;
-    return `<svg class="venn" viewBox="0 0 310 190" role="img" aria-label="Diagrama de Venn: clientes a la izquierda, pedidos a la derecha">
+    return `<svg class="venn" viewBox="0 0 310 190" role="img" aria-label="Diagrama de Venn: ${esc(nombres[0])} a la izquierda, ${esc(nombres[1])} a la derecha">
       <defs>
         <clipPath id="vA${n}">${A}</clipPath>
         <mask id="vNoB${n}"><rect width="310" height="190" fill="#fff"/><circle cx="${bx}" cy="${cy}" r="${r}" fill="#000"/></mask>
@@ -114,8 +114,8 @@
       <text x="${(ax + bx) / 2}" y="${cy + 4}" class="venn-etq" text-anchor="middle">ambas</text>
       <text x="${bx + 35}" y="${cy - 2}" class="venn-etq" text-anchor="middle">solo</text>
       <text x="${bx + 35}" y="${cy + 12}" class="venn-etq" text-anchor="middle">pedidos</text>
-      <text x="${ax - 40}" y="22" class="venn-tit" text-anchor="middle">clientes (c)</text>
-      <text x="${bx + 40}" y="22" class="venn-tit" text-anchor="middle">pedidos (p)</text>
+      <text x="${ax - 40}" y="22" class="venn-tit" text-anchor="middle">${esc(nombres[0])}</text>
+      <text x="${bx + 40}" y="22" class="venn-tit" text-anchor="middle">${esc(nombres[1])}</text>
     </svg>`;
   }
 

@@ -189,3 +189,15 @@ body[data-tema="web"] .separador.practica { --sep-bg: #E6E8EC; --sep-txt: #14161
   .consola-acciones .btn { flex: 1 1 auto; }
   .sql-editor { font-size: .88rem; min-height: 150px; }
 }
+
+/* Venn junto al enunciado de los ejercicios de JOIN */
+.ej-venn { display: flex; gap: 1rem; align-items: flex-start; }
+.ej-venn .enunciado-ej { flex: 1 1 auto; min-width: 0; }
+.ej-venn-fig { flex: 0 0 150px; margin: 0; text-align: center; font-size: var(--t-xs); color: var(--tinta-2); }
+.ej-venn-fig .venn { width: 150px; }
+.ej-venn-fig .venn-etq { display: none; }
+.ej-venn-fig .venn-tit { font-size: 20px; }
+@media (max-width: 560px) {
+  .ej-venn { flex-direction: column; }
+  .ej-venn-fig { flex-basis: auto; align-self: center; }
+}
