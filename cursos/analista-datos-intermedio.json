@@ -3143,6 +3143,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "-- Descomposición mensual de drivers de ingreso en una consulta única\nSELECT\n  CAST(DATETRUNC(month, fecha_local) AS DATE) AS mes,\n  COUNT(DISTINCT cliente_id) AS compradores_unicos,\n  COUNT(DISTINCT pedido_id) * 1.0 / NULLIF(COUNT(DISTINCT cliente_id), 0) AS frecuencia,\n  SUM(monto_neto) / NULLIF(COUNT(DISTINCT pedido_id), 0) AS ticket_promedio,\n  SUM(monto_neto) AS ingreso_neto\nFROM ventas.pedidos\nWHERE estado = 'completado'\nGROUP BY CAST(DATETRUNC(month, fecha_local) AS DATE)\nORDER BY 1;",
           "keyTakeaway": "Los árboles de métricas conectan el resultado financiero de dirección con el trabajo diario de producto, marketing y operaciones."
+        },
+        {
+          "id": "cap20-sec-3",
+          "title": "3. Metas, Umbrales de Alerta y Ritmo de Revisión",
+          "body": "Un KPI sin meta es solo un número. Cada KPI del árbol necesita una **ficha** con:\n- **Definición** exacta (fórmula, población, ventana), igual a la del diccionario de métricas.\n- **Meta** basada en evidencia: la línea base reciente, ajustada por estacionalidad y por el plan del área; nunca \"un 20% más porque sí\".\n- **Umbrales** de alerta (verde, amarillo, rojo) para que el tablero diga solo cuándo hay que actuar.\n- **Responsable** con nombre y **frecuencia** de revisión (diaria, semanal, mensual) acorde a lo rápido que cambia.\n\nUn semáforo calculado en SQL, a partir de una tabla de metas, evita que cada tablero invente sus propios umbrales y deja la regla versionada.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT\n  k.kpi,\n  k.valor,\n  m.meta,\n  CASE\n    WHEN k.valor >= m.meta THEN 'verde'\n    WHEN k.valor >= m.umbral_rojo THEN 'amarillo'\n    ELSE 'rojo'\n  END AS estado,\n  m.responsable\nFROM gold.kpi_mensual AS k\nJOIN gold.metas_kpi AS m\n  ON m.kpi = k.kpi AND m.mes = k.mes\nWHERE k.mes = '2026-10-01';",
+          "keyTakeaway": "Meta basada en la línea base, umbrales explícitos y un responsable por KPI."
         }
       ],
       "professionalStandard": {
@@ -3191,6 +3199,16 @@
           "hint": "`Ingreso = Compradores * Frecuencia * Ticket Promedio`.",
           "solutionExplanation": "Matemáticamente, si Compradores (+5%) y Frecuencia (0%) no bajaron, el **Ticket Promedio** tuvo que caer ~19% (por ejemplo, por descuentos agresivos o cambio hacia productos más baratos).",
           "solutionCode": "-- 0.85 = 1.05 * 1.00 * factor_ticket  =>  factor_ticket = 0.8095 (-19.05%)",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap20-ej-3",
+          "title": "Práctica 3: Semáforo para KPIs donde Menos es Mejor",
+          "difficulty": "Intermedio",
+          "prompt": "Algunos KPIs mejoran cuando bajan (tiempo de entrega, tasa de devolución). La tabla `gold.metas_kpi` tiene la columna `sentido` con valores 'mayor_mejor' o 'menor_mejor'. Adapta el semáforo para que funcione con ambos sentidos.",
+          "hint": "Para 'menor_mejor' las comparaciones se invierten: verde si valor <= meta y amarillo si valor <= umbral_rojo.",
+          "solutionExplanation": "Guardar el sentido en la tabla de metas evita fórmulas especiales en cada tablero y hace explícito qué significa \"mejorar\" para cada KPI.",
+          "solutionCode": "SELECT\n  k.kpi, k.valor, m.meta, m.sentido,\n  CASE\n    WHEN m.sentido = 'mayor_mejor' AND k.valor >= m.meta THEN 'verde'\n    WHEN m.sentido = 'mayor_mejor' AND k.valor >= m.umbral_rojo THEN 'amarillo'\n    WHEN m.sentido = 'menor_mejor' AND k.valor <= m.meta THEN 'verde'\n    WHEN m.sentido = 'menor_mejor' AND k.valor <= m.umbral_rojo THEN 'amarillo'\n    ELSE 'rojo'\n  END AS estado\nFROM gold.kpi_mensual AS k\nJOIN gold.metas_kpi AS m ON m.kpi = k.kpi AND m.mes = k.mes\nWHERE k.mes = '2026-10-01';",
           "codeLanguage": "sql"
         }
       ],
@@ -3261,6 +3279,14 @@
           "title": "2. Dónde invertir esfuerzo: Volumen x Caída",
           "body": "No optimices el paso con peor porcentaje si casi nadie llega ahí; multiplica el volumen que entra al paso por la mejora realista de conversión para estimar cuántas conversiones adicionales recuperarás.",
           "keyTakeaway": "Mejorar un 5% un paso temprano con 100,000 usuarios suele valer más que mejorar un 20% un paso final con 500 usuarios."
+        },
+        {
+          "id": "cap21-sec-3",
+          "title": "3. Embudos por Segmento y Tiempo hasta Convertir",
+          "body": "Un embudo total puede verse estable mientras un segmento se derrumba: si la conversión en celular cae y la de computadora sube, el promedio no se mueve. Por eso, una vez construido el embudo estricto, **segméntalo** por dispositivo, canal de adquisición o tipo de cliente con agregación condicional (`COUNT(CASE WHEN ...)`).\n\nLa otra dimensión es el **tiempo**: cuánto tarda la gente entre pasos. La mediana del tiempo de carrito a compra dice si la fricción está en decidir (horas o días) o en el formulario (minutos). Usa la **mediana**, no el promedio: unos pocos usuarios que vuelven semanas después distorsionan la media.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Una fila por usuario con t_ver, t_carrito y t_compra (NULL si no llegó) y su dispositivo\nWITH tiempos AS (\n  SELECT dispositivo, DATEDIFF(minute, t_carrito, t_compra) AS minutos\n  FROM analitica.embudo_usuarios\n  WHERE t_compra IS NOT NULL\n)\nSELECT DISTINCT\n  dispositivo,\n  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY minutos)\n    OVER (PARTITION BY dispositivo) AS mediana_min_carrito_a_compra\nFROM tiempos;",
+          "keyTakeaway": "Segmenta el embudo y mide la mediana del tiempo entre pasos."
         }
       ],
       "professionalStandard": {
@@ -3309,6 +3335,16 @@
           "hint": "Calcula cuántos usuarios adicionales pagan: `20,000 * (0.55 - 0.50)`.",
           "solutionExplanation": "`20,000 * 5% = 1,000` órdenes adicionales * `$40` = **`$40,000` mensuales** extra.",
           "solutionCode": "-- 20000 * (0.55 - 0.50) * 40 = 40,000 USD/mes",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap21-ej-3",
+          "title": "Práctica 3: Embudo Segmentado por Dispositivo",
+          "difficulty": "Intermedio",
+          "prompt": "Con `analitica.embudo_usuarios (usuario_id, dispositivo, t_ver, t_carrito, t_compra)`, donde cada `t_` es NULL si el usuario no llegó a ese paso, calcula por dispositivo cuántos usuarios llegaron a cada paso y las tasas carrito/ver y compra/carrito.",
+          "hint": "Usa COUNT(t_ver), COUNT(t_carrito) y COUNT(t_compra): COUNT ignora los NULL. Protege la división con NULLIF.",
+          "solutionExplanation": "La agregación condicional entrega el embudo de todos los segmentos en una sola pasada, y NULLIF evita errores en segmentos sin tráfico.",
+          "solutionCode": "SELECT\n  dispositivo,\n  COUNT(t_ver) AS vieron,\n  COUNT(t_carrito) AS carrito,\n  COUNT(t_compra) AS compraron,\n  ROUND(100.0 * COUNT(t_carrito) / NULLIF(COUNT(t_ver), 0), 1) AS pct_ver_a_carrito,\n  ROUND(100.0 * COUNT(t_compra) / NULLIF(COUNT(t_carrito), 0), 1) AS pct_carrito_a_compra\nFROM analitica.embudo_usuarios\nGROUP BY dispositivo\nORDER BY vieron DESC;",
           "codeLanguage": "sql"
         }
       ],
@@ -3379,6 +3415,14 @@
           "title": "2. Payback Period y Net Dollar Retention (NDR)",
           "body": "- **CAC Payback (meses)**: cuántos meses tarda el margen mensual de un cliente en recuperar el costo de adquirirlo (`CAC / (ARPU * Margen Bruto %)`).\n- **NDR (*Net Dollar Retention*)**: qué porcentaje del ingreso recurrente de una cohorte sobrevive al cabo de 12 meses contando cancelaciones (*churn*), reducciones (*contraction*) **y** expansiones (*upsells*). Un NDR > 100% indica que la base existente crece sola incluso sin nuevos clientes.",
           "keyTakeaway": "Segmenta siempre CAC y Payback por canal: el promedio global suele ocultar canales muy rentables financiando canales deficitarios."
+        },
+        {
+          "id": "cap22-sec-3",
+          "title": "3. Curvas de Retención por Cohorte",
+          "body": "El LTV y el payback dependen de cuánto tiempo se quedan los clientes, y eso se mide con **cohortes**: grupos de clientes según el mes de su primera compra. Para cada cohorte calculas qué porcentaje sigue comprando en el mes 1, 2, 3... después de entrar.\n\nLeer la matriz de cohortes:\n- Cada **fila** es una cohorte; cada **columna**, los meses desde su entrada.\n- Si las cohortes recientes caen más rápido que las viejas, la calidad de adquisición empeoró.\n- Una curva que se **aplana** indica una base fiel; una que tiende a cero, un negocio que depende de adquirir sin parar.\n\nEl mes 0 siempre es 100%: todos compraron en su mes de entrada.",
+          "codeLanguage": "sql",
+          "codeSnippet": "WITH primera AS (\n  SELECT cliente_id, DATEFROMPARTS(YEAR(MIN(fecha)), MONTH(MIN(fecha)), 1) AS cohorte\n  FROM ventas.pedidos\n  GROUP BY cliente_id\n),\nactividad AS (\n  SELECT DISTINCT p.cliente_id, f.cohorte, DATEDIFF(month, f.cohorte, p.fecha) AS mes_n\n  FROM ventas.pedidos AS p\n  JOIN primera AS f ON f.cliente_id = p.cliente_id\n),\ntamano AS (\n  SELECT cohorte, COUNT(*) AS clientes FROM primera GROUP BY cohorte\n)\nSELECT a.cohorte, a.mes_n, COUNT(*) AS activos,\n       ROUND(100.0 * COUNT(*) / t.clientes, 1) AS pct_retenido\nFROM actividad AS a\nJOIN tamano AS t ON t.cohorte = a.cohorte\nGROUP BY a.cohorte, a.mes_n, t.clientes\nORDER BY a.cohorte, a.mes_n;",
+          "keyTakeaway": "La matriz de cohortes muestra si los clientes nuevos se quedan tanto como los de antes."
         }
       ],
       "professionalStandard": {
@@ -3428,6 +3472,16 @@
           "solutionExplanation": "El **CAC Pagado** real es `$10,000 / 200 = $50` (es el costo marginal para decidir si pones más dinero en Ads). El **CAC Blended** es `$10,000 / 500 = $20`, útil para salud global pero peligroso para optimizar pauta.",
           "solutionCode": "-- CAC Pagado = $10,000 / 200 = $50 (métrica de eficiencia del canal)\n-- CAC Blended = $10,000 / 500 = $20 (métrica global de mezcla)",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "cap22-ej-3",
+          "title": "Práctica 3: LTV y Payback desde la Curva de Retención",
+          "difficulty": "Intermedio",
+          "prompt": "Una cohorte tiene esta retención mensual: `[1.00, 0.62, 0.51, 0.45, 0.41, 0.38, 0.36, 0.35, 0.34, 0.33, 0.32, 0.32]`. El ARPU mensual de un cliente activo es RD$1,500, el margen bruto es 35% y el CAC es RD$1,800. Calcula el LTV a 12 meses sobre margen y el mes en que se recupera el CAC.",
+          "hint": "El margen esperado del mes n por cliente adquirido es retención[n] × ARPU × margen; acumula y busca el primer mes en que supera el CAC.",
+          "solutionExplanation": "Ponderar por la retención da el margen esperado por cliente adquirido, no por cliente fiel. El CAC se recupera en el mes 6 (contando el mes de entrada como 0), y el LTV a 12 meses es de unos RD$2,830, aproximadamente 1.6 veces el CAC.",
+          "solutionCode": "retencion = [1.00, 0.62, 0.51, 0.45, 0.41, 0.38, 0.36, 0.35, 0.34, 0.33, 0.32, 0.32]\narpu, margen, cac = 1_500, 0.35, 1_800\n\nacumulado = 0.0\nmes_payback = None\nfor mes, r in enumerate(retencion):\n    acumulado += r * arpu * margen\n    if mes_payback is None and acumulado >= cac:\n        mes_payback = mes\n\nprint(f\"LTV 12 meses (margen): RD${acumulado:,.0f}\")\nprint(f\"Payback en el mes {mes_payback}\")\nprint(f\"LTV / CAC = {acumulado / cac:.2f}\")",
+          "codeLanguage": "python"
         }
       ],
       "exam": [
@@ -3495,6 +3549,14 @@
           "title": "2. Jerarquía de 3 niveles en la UX de un Tablero",
           "body": "Un tablero saturado con 25 gráficos en una pantalla paraliza al usuario. Organiza cada reporte en tres niveles descendentes:\n1) **Nivel 1 (Resumen / ¿Cómo vamos?)**: 3–5 KPIs clave con variación vs. objetivo o periodo previo.\n2) **Nivel 2 (Diagnóstico / ¿Por qué cambió?)**: tendencias temporales y desglose por los 2–3 drivers principales (canal, categoría, región).\n3) **Nivel 3 (Acción / ¿Dónde intervenir?)**: tabla filtrable o enlace de detalle para equipos operativos.",
           "keyTakeaway": "Diseña cada tablero respondiendo primero qué decisión tomará quien lo abra cada lunes en 30 segundos."
+        },
+        {
+          "id": "cap23-sec-3",
+          "title": "3. Seguridad por Filas y Conjuntos de Datos Certificados",
+          "body": "Cuando el mismo tablero lo usan gerentes de varias regiones, no hagas una copia por región: aplica **seguridad a nivel de fila** (RLS). Cada usuario ve solo las filas que le corresponden, con un solo modelo y una sola definición de las métricas.\n\nEl patrón más mantenible usa una **tabla de permisos** (correo del usuario y región o sucursal que puede ver) dentro del modelo, en lugar de escribir correos en las reglas. Así, dar o quitar acceso es cambiar una fila, no publicar de nuevo el modelo.\n\nA nivel de gobernanza, marca como **certificados** los modelos semánticos que pasaron revisión (definiciones del diccionario, pruebas de calidad, responsable asignado). Los informes nuevos deben construirse sobre esos modelos y no conectarse directo a tablas crudas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Tabla de permisos (en el modelo):\n  seg_permisos(correo, region)\n  ana@empresa.com     | Norte\n  luis@empresa.com    | Sur\n  direccion@empresa.com | *   (ve todo: rol aparte sin filtro)\n\nRegla del rol \"Gerente regional\" sobre dim_region (DAX en Power BI):\n  dim_region[region] IN\n      CALCULATETABLE(VALUES(seg_permisos[region]),\n                     seg_permisos[correo] = USERPRINCIPALNAME())",
+          "keyTakeaway": "Un modelo, una tabla de permisos y reglas por rol; los informes se construyen sobre modelos certificados."
         }
       ],
       "professionalStandard": {
@@ -3544,6 +3606,16 @@
           "solutionExplanation": "Separar resumen, causa raíz y cola operativa evita saturar una sola vista con información contradictoria.",
           "solutionCode": "-- Nivel 1 (Resumen): Tickets creados, SLA cumplido %, CSAT promedio vs. semana anterior.\n-- Nivel 2 (Diagnóstico): Tendencia diaria SLA + Top motivos de contacto con mayor demora.\n-- Nivel 3 (Detalle): Tabla operativa de tickets abiertos >24h con enlace al CRM.",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "cap23-ej-3",
+          "title": "Práctica 3: Diseñar el Acceso a un Tablero de Ventas",
+          "difficulty": "Intermedio",
+          "prompt": "El tablero de ventas lo usan: 6 gerentes de sucursal (cada uno ve solo su sucursal), 2 gerentes regionales (ven las sucursales de su región) y la dirección (ve todo). Diseña la tabla de permisos y los roles necesarios.",
+          "hint": "Piensa en el nivel más bajo de filtro (sucursal) y en cómo una región se traduce en varias sucursales.",
+          "solutionExplanation": "Guardar los permisos al nivel de sucursal cubre los tres casos con una sola regla; la dirección va en un rol sin filtro. Agregar un gerente o cambiar a alguien de región es editar filas, no el modelo.",
+          "solutionCode": "seg_permisos:            # una fila por persona y sucursal permitida\n  columnas: [correo, sucursal_id]\n  ejemplos:\n    - [gerente.naco@empresa.com, 101]\n    - [regional.norte@empresa.com, 201]\n    - [regional.norte@empresa.com, 202]\n    - [regional.norte@empresa.com, 203]\nroles:\n  ventas_restringido:\n    filtro: \"dim_sucursal[sucursal_id] en las sucursales de seg_permisos del usuario conectado\"\n    miembros: [gerentes de sucursal, gerentes regionales]\n  ventas_total:\n    filtro: ninguno\n    miembros: [direccion]\nmantenimiento: \"Altas, bajas y cambios de región = editar seg_permisos; se revisa cada trimestre\"",
+          "codeLanguage": "yaml"
         }
       ],
       "exam": [
@@ -3613,6 +3685,14 @@
           "codeLanguage": "python",
           "codeSnippet": "ax.barh(df[\"categoria\"], df[\"margen_pct\"], color=\"#0056D2\")\nax.set_xlim(0, 100)  # Eje de magnitud desde cero en barras\nax.set_title(\"Electrónica lidera el margen bruto (42%), 14 pp arriba del promedio\", loc=\"left\")\nax.spines[[\"top\", \"right\"]].set_visible(False)",
           "keyTakeaway": "Usa color gris neutro para el contexto y un único color de acento (`#0056D2`) para señalar la categoría o punto clave de tu historia."
+        },
+        {
+          "id": "cap24-sec-3",
+          "title": "3. Color con Intención y Etiquetas Directas",
+          "body": "El color es la herramienta más fuerte para dirigir la mirada, y por eso hay que usarlo poco:\n- Pinta todo en **gris** y resalta en un solo color lo que sostiene el mensaje (la región que cayó, el mes del cambio).\n- No uses el color solo para decorar ni para distinguir 8 categorías: el ojo no las separa. Si necesitas tantas, el gráfico es otro (barras ordenadas o pequeños múltiplos).\n- Piensa en el **daltonismo**: evita rojo contra verde como única diferencia; combínalo con posición, texto o intensidad.\n- Prefiere **etiquetas directas** sobre la leyenda: poner el valor y el nombre junto a la barra ahorra ir y volver a la leyenda.",
+          "codeLanguage": "python",
+          "codeSnippet": "import matplotlib.pyplot as plt\n\nregiones = [\"Este\", \"Sur\", \"Centro\", \"Norte\"]\nvariacion = [7.8, -9.0, 2.1, 13.7]\norden = sorted(zip(variacion, regiones))\nvalores, nombres = zip(*orden)\ncolores = [\"#c2410c\" if v < 0 else \"#b0b0b0\" for v in valores]\n\nfig, ax = plt.subplots(figsize=(6, 3))\nax.barh(nombres, valores, color=colores)\nfor y, v in enumerate(valores):\n    ax.text(v + (0.4 if v >= 0 else -0.4), y, f\"{v:+.1f}%\", va=\"center\",\n            ha=\"left\" if v >= 0 else \"right\")\nax.axvline(0, color=\"#555\", linewidth=1)\nax.set_title(\"El Sur es la única región que cae frente a 2025\", loc=\"left\")\nax.spines[[\"top\", \"right\"]].set_visible(False)\nplt.tight_layout()",
+          "keyTakeaway": "Gris para el contexto, un color para el mensaje y etiquetas junto a los datos."
         }
       ],
       "professionalStandard": {
@@ -3661,6 +3741,16 @@
           "hint": "Evalúa si usar barras desde 0 o gráfico de línea/pendiente con anotación explícita de escala.",
           "solutionExplanation": "En barras, siempre se parte de 0 (o de la base mínima real 1 en escala Likert si se aclara, aunque 0 sigue siendo el estándar en barras). Si la variación fina importa, usa un gráfico de línea con rango acotado y etiqueta explícita de la variación (+0.2 pts / +4.5%).",
           "solutionCode": "# Barras -> eje desde 0.\n# Líneas -> puede enfocarse en el rango relevante si el título aclara la escala y variación real.",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "cap24-ej-3",
+          "title": "Práctica 3: Rediseñar un Gráfico con un Solo Color de Énfasis",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes la tasa de devolución mensual de 2026 (`meses`, `tasa`) y en agosto cambió el proveedor de envíos. Haz un gráfico de líneas en gris, resalta los meses desde agosto en otro color, marca el cambio con una línea vertical rotulada y escribe un título que diga la conclusión.",
+          "hint": "Dibuja la serie completa en gris y encima solo el tramo desde agosto; usa `axvline` y `text` para rotular el cambio.",
+          "solutionExplanation": "El contraste entre el tramo gris y el resaltado, más la línea del cambio, cuenta la historia sin leyenda; el título deja la conclusión explícita.",
+          "solutionCode": "import matplotlib.pyplot as plt\n\nmeses = [\"ene\", \"feb\", \"mar\", \"abr\", \"may\", \"jun\", \"jul\", \"ago\", \"sep\", \"oct\"]\ntasa = [3.1, 3.0, 3.2, 3.1, 2.9, 3.0, 3.1, 4.4, 4.9, 5.2]\nx = range(len(meses))\ncorte = meses.index(\"ago\")\n\nfig, ax = plt.subplots(figsize=(7, 3))\nax.plot(x, tasa, color=\"#b0b0b0\", linewidth=2)\nax.plot(list(x)[corte - 1:], tasa[corte - 1:], color=\"#c2410c\", linewidth=2.5)\nax.axvline(corte - 0.5, color=\"#555\", linestyle=\"--\", linewidth=1)\nax.text(corte - 0.4, max(tasa), \"Nuevo proveedor\", va=\"top\")\nax.set_xticks(list(x), meses)\nax.set_ylim(0, 6)\nax.set_ylabel(\"% de pedidos devueltos\")\nax.set_title(\"Las devoluciones subieron de 3% a 5% desde el cambio de proveedor\", loc=\"left\")\nax.spines[[\"top\", \"right\"]].set_visible(False)\nplt.tight_layout()",
           "codeLanguage": "python"
         }
       ],
@@ -3731,6 +3821,14 @@
           "title": "2. Checklist de Code Review Analítico",
           "body": "Al revisar el PR de un compañero (o el tuyo propio antes de pedir revisión), verifica cuatro puntos:\n1) **Grano y Fan-Out**: ¿Está documentado el grano y verificada la cardinalidad de los JOINs?\n2) **Reglas y filtros**: ¿Los filtros de exclusión (`estado`, `es_prueba`) son explícitos y consistentes con la capa semántica?\n3) **Reconciliación**: ¿El autor verificó que los totales antes y después cuadran?\n4) **Pruebas y estilo**: ¿Tiene tests automatizados y carece de credenciales o `SELECT *`?",
           "keyTakeaway": "El Code Review analítico busca proteger la exactitud del negocio y compartir contexto en el equipo, no criticar personas."
+        },
+        {
+          "id": "cap25-sec-3",
+          "title": "3. Conflictos y Cómo Deshacer sin Miedo",
+          "body": "Dos situaciones asustan al empezar con Git, y ambas tienen una salida ordenada:\n\n**Conflictos al integrar**: ocurren cuando tú y otra persona cambiaron las mismas líneas. Git marca el archivo con `<<<<<<<`, `=======` y `>>>>>>>`. Abres el archivo, decides el contenido correcto (a veces una mezcla de ambos), borras las marcas, vuelves a correr las pruebas y haces commit. Integrar `main` en tu rama a menudo mantiene los conflictos pequeños.\n\n**Deshacer**:\n- Cambios sin commit en un archivo: `git restore archivo.sql`.\n- Un commit que **ya está en main** (compartido): `git revert <sha>`, que crea un commit nuevo que deshace el anterior sin reescribir la historia de nadie.\n- `git reset --hard` borra trabajo y reescribe la historia: úsalo solo en tu rama local, nunca en una rama compartida.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Traer lo último de main a tu rama y resolver conflictos temprano\ngit switch feat/kpi-retencion\ngit fetch origin\ngit merge origin/main          # si hay conflicto: editar, quitar marcas, probar\ngit add models/fct_retencion.sql\ngit commit\n\n# Descartar cambios locales de un archivo que aún no tiene commit\ngit restore models/stg_pedidos.sql\n\n# Deshacer un commit que ya está en main, sin reescribir la historia\ngit revert 3f9c2ab",
+          "keyTakeaway": "Integra main seguido; en ramas compartidas se deshace con revert, nunca con reset."
         }
       ],
       "professionalStandard": {
@@ -3779,6 +3877,16 @@
           "hint": "Piensa en revisar 4,000 líneas de JSON base64 en un PR vs. extraer código a `.py` o limpiar outputs.",
           "solutionExplanation": "Las salidas embebidas generan diffs ilegibles y filtran muestras de datos sensibles. Se mitiga moviendo la lógica estable a módulos `.py` o limpiando outputs con herramientas como `nbstripout`.",
           "solutionCode": "# Instalar filtro automático para limpiar salidas de notebooks al hacer commit:\nnbstripout --install",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "cap25-ej-3",
+          "title": "Práctica 3: Revertir un Cambio que Rompió un KPI",
+          "difficulty": "Intermedio",
+          "prompt": "Ayer se fusionó en `main` el commit `a1b2c3d`, que cambió el cálculo de `ingreso_neto`, y hoy el tablero muestra cifras incorrectas. Varias personas ya trabajan sobre `main`. Escribe los comandos para deshacer ese cambio de forma segura y explica por qué no usas `git reset`.",
+          "hint": "Crea una rama para el arreglo, usa revert y abre un Pull Request como con cualquier cambio.",
+          "solutionExplanation": "git revert crea un commit nuevo que deshace a1b2c3d; la historia compartida queda intacta y el arreglo pasa por revisión. git reset reescribiría la historia que los demás ya descargaron y les causaría conflictos.",
+          "solutionCode": "git switch main\ngit pull\ngit switch -c fix/revertir-ingreso-neto\ngit revert a1b2c3d          # crea un commit que deshace el cambio\ngit push -u origin fix/revertir-ingreso-neto\n# Abrir el Pull Request: \"Revierte a1b2c3d: ingreso_neto incorrecto en el tablero\"\n# No usar git reset: reescribe la historia que otras personas ya tienen en main.",
           "codeLanguage": "bash"
         }
       ],
@@ -3851,6 +3959,14 @@
           "codeLanguage": "yaml",
           "codeSnippet": "version: 2\nmodels:\n  - name: stg_pedidos\n    description: \"Pedidos deduplicados y tipados en zona horaria operativa (1 fila por pedido_id).\"\n    columns:\n      - name: pedido_id\n        tests: [unique, not_null]\n      - name: estado\n        tests:\n          - accepted_values:\n              values: ['completado', 'pendiente', 'cancelado', 'reembolsado']",
           "keyTakeaway": "`dbt build` ejecuta primero el modelo e inmediatamente sus tests; si un test falla, bloquea la propagación hacia los modelos Gold dependientes."
+        },
+        {
+          "id": "cap26-sec-3",
+          "title": "3. Modelos Incrementales y Frescura de las Fuentes",
+          "body": "Reconstruir una tabla de hechos de cientos de millones de filas cada noche se vuelve lento y caro. En dbt, un modelo **incremental** procesa solo lo nuevo: la primera vez construye todo y, en las siguientes, la condición dentro de `is_incremental()` filtra las filas recientes y las combina con la tabla existente usando la `unique_key`.\n\nAplica lo aprendido sobre idempotencia y eventos tardíos: el filtro incremental debe incluir una **ventana de revisión** (por ejemplo, los últimos 3 días), para recoger los registros que llegan tarde.\n\nAntes de construir, conviene saber si los datos de origen están al día. Con **source freshness** declaras cuánto retraso es aceptable y dbt avisa o falla cuando una fuente no se actualizó.",
+          "codeLanguage": "sql",
+          "codeSnippet": "{{ config(materialized='incremental', unique_key='pago_id') }}\n\nSELECT pago_id, pedido_id, monto, estado, actualizado_en\nFROM {{ ref('stg_pagos') }}\n{% if is_incremental() %}\n  -- ventana de revisión de 3 días para pagos que se confirman tarde\n  WHERE actualizado_en >= DATEADD(day, -3, (SELECT MAX(actualizado_en) FROM {{ this }}))\n{% endif %}",
+          "keyTakeaway": "Incremental con unique_key y ventana de revisión; freshness avisa si la fuente se atrasó."
         }
       ],
       "professionalStandard": {
@@ -3900,6 +4016,16 @@
           "solutionExplanation": "Mantener `stg_*` como espejo limpio, renombrado y tipado 1:1 de cada tabla origen permite reutilizarlos en múltiples `int_*` y `marts/*` sin duplicar reglas de limpieza.",
           "solutionCode": "-- Capa 1: source('raw', 'orders') -> stg_orders (tipado, renombres, UTC)\n-- Capa 2: int_orders_enriched (joins/lógica intermedia)\n-- Capa 3: fct_orders (tabla de hechos final para BI)",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "cap26-ej-3",
+          "title": "Práctica 3: Declarar la Frescura de una Fuente",
+          "difficulty": "Intermedio",
+          "prompt": "Declara en `sources.yml` la fuente `crm` con la tabla `clientes`, cuya columna `_cargado_en` indica cuándo llegó cada fila. Debe avisar si los datos tienen más de 12 horas y fallar si tienen más de 24.",
+          "hint": "Usa `loaded_at_field` y el bloque `freshness` con `warn_after` y `error_after`.",
+          "solutionExplanation": "Con freshness declarada, `dbt source freshness` detecta una fuente atrasada antes de publicar un tablero con datos viejos.",
+          "solutionCode": "version: 2\n\nsources:\n  - name: crm\n    schema: bronze\n    tables:\n      - name: clientes\n        loaded_at_field: _cargado_en\n        freshness:\n          warn_after: {count: 12, period: hour}\n          error_after: {count: 24, period: hour}",
+          "codeLanguage": "yaml"
         }
       ],
       "exam": [
@@ -3969,6 +4095,14 @@
           "codeLanguage": "sql",
           "codeSnippet": "-- Paso 1 de auditoría integral: reconciliar grano pedido vs. cupones y margen por canal\nWITH cupones_ped AS (\n  SELECT pedido_id, SUM(descuento) AS descuento_total\n  FROM silver.cupones\n  GROUP BY pedido_id\n),\npedidos_auditoria AS (\n  SELECT\n    p.pedido_id,\n    p.canal,\n    CAST(DATETRUNC(month, p.fecha_operativa) AS DATE) AS mes,\n    p.ingreso_neto - COALESCE(c.descuento_total, 0) - p.costo_directo AS margen_contribucion,\n    p.ingreso_neto\n  FROM silver.pedidos AS p\n  LEFT JOIN cupones_ped AS c ON p.pedido_id = c.pedido_id\n  WHERE p.estado = 'completado' AND p.es_prueba = 0\n)\nSELECT\n  mes,\n  canal,\n  COUNT(*) AS pedidos,\n  ROUND(SUM(margen_contribucion) * 100.0 / NULLIF(SUM(ingreso_neto), 0), 2) AS margen_pct\nFROM pedidos_auditoria\nGROUP BY mes, canal\nORDER BY 1, 2;",
           "keyTakeaway": "Tu valor diferencial como Analista Intermedio es conectar el código impecable con una decisión de negocio defendible con evidencia."
+        },
+        {
+          "id": "cap27-sec-3",
+          "title": "3. La Presentación Ejecutiva: del Hallazgo a la Decisión",
+          "body": "El análisis técnico puede ser impecable y aun así no cambiar ninguna decisión si se presenta mal. Para el comité, usa cinco piezas en este orden:\n1) **La respuesta** en una frase: \"El margen no cayó por el nuevo checkout; cayó porque cambió la mezcla de canales\".\n2) **La evidencia mínima**: un gráfico que muestre el margen estable dentro de cada canal y el cambio de peso entre canales.\n3) **La recomendación** con su impacto estimado y su rango.\n4) **Riesgos y supuestos**: qué podría hacer que la conclusión cambie.\n5) **Próximos pasos**: quién hace qué y qué métrica se vigila.\n\nPrepara un **anexo** con la metodología, las consultas y las pruebas, y anticipa las tres preguntas difíciles que te harán. Si te preguntan algo que no sabes, comprométete a responder con datos en una fecha concreta.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Diapositiva 1  Respuesta: el margen cae por mezcla de canales, no por el checkout\nDiapositiva 2  Margen por canal estable (Orgánico 38%, Paid Social 18%) + peso de cada canal\nDiapositiva 3  Recomendación: mantener checkout; revisar presupuesto de Paid Social\nDiapositiva 4  Riesgos: estacionalidad de Q4 y cambio de precios en la competencia\nDiapositiva 5  Próximos pasos: Marketing ajusta pujas; Datos vigila margen por canal semanal\nAnexo         Consultas, pruebas de calidad y conciliación con Finanzas",
+          "keyTakeaway": "Primero la respuesta, luego la evidencia mínima, la recomendación, los riesgos y los pasos."
         }
       ],
       "professionalStandard": {
@@ -4018,6 +4152,16 @@
           "solutionExplanation": "Incluir SQL/Python versionado en Git, pruebas de reconciliación aprobadas, definiciones de métricas con guardarraíles y plan de seguimiento post-decisión.",
           "solutionCode": "-- 1. Código reproducible en rama revisada (SQL + Python)\n-- 2. Reconciliación contra fuente financiera oficial + checks de calidad\n-- 3. Definición explícita de métricas, exclusiones e IC 95%\n-- 4. Recomendación accionable + métrica guardarraíl a monitorear en 14 días",
           "codeLanguage": "sql"
+        },
+        {
+          "id": "cap27-ej-3",
+          "title": "Práctica 3: Escribir el Resumen Ejecutivo del Caso",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el TL;DR de 3 líneas para el CFO sobre el caso integrador: el margen bajó de 34% a 29% porque Paid Social (18% de margen) pasó del 20% al 45% del volumen, mientras el margen de cada canal no cambió.",
+          "hint": "Línea 1: la respuesta; línea 2: la evidencia; línea 3: la recomendación con la acción concreta.",
+          "solutionExplanation": "El resumen responde la pregunta del CFO (¿apagar el checkout?) en la primera línea, da la evidencia que lo sostiene y propone la acción que sí atiende la causa.",
+          "solutionCode": "1. El nuevo checkout no es la causa: el margen de cada canal se mantuvo (Orgánico 38%, Paid Social 18%).\n2. El margen total bajó de 34% a 29% porque Paid Social pasó del 20% al 45% de las ventas (efecto mezcla).\n3. Recomendación: mantener el checkout y revisar la inversión en Paid Social por campaña, con meta de margen mínimo por canal.",
+          "codeLanguage": "plaintext"
         }
       ],
       "exam": [
