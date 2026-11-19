@@ -73,7 +73,40 @@
     return html;
   }
 
-  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown", javascript: "JavaScript", html: "HTML", css: "CSS", json: "JSON", typescript: "TypeScript", plaintext: "Configuración" };
+  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown", javascript: "JavaScript", html: "HTML", css: "CSS", json: "JSON", typescript: "TypeScript", plaintext: "Configuración", dax: "DAX", powerquery: "Power Query (M)" };
+
+  // DAX y Power Query (M) no vienen en el build de highlight.js: se registran aquí de forma ligera.
+  if (window.hljs && !window.hljs.getLanguage("dax")) {
+    window.hljs.registerLanguage("dax", () => ({
+      name: "DAX",
+      case_insensitive: true,
+      keywords: { keyword: "VAR RETURN EVALUATE DEFINE MEASURE ORDER BY ASC DESC IN NOT AND OR", literal: "TRUE FALSE BLANK" },
+      contains: [
+        { className: "comment", begin: /--|\/\//, end: /$/ },
+        { className: "comment", begin: /\/\*/, end: /\*\// },
+        { className: "string", begin: /"/, end: /"/, contains: [{ begin: /""/ }] },
+        { className: "attr", begin: /'[^']+'/ },
+        { className: "variable", begin: /\[[^\]]+\]/ },
+        { className: "title", begin: /\b[A-Z][A-Z0-9.]*(?=\s*\()/ },
+        { className: "number", begin: /\b\d+(\.\d+)?\b/ },
+      ],
+    }));
+  }
+  if (window.hljs && !window.hljs.getLanguage("powerquery")) {
+    window.hljs.registerLanguage("powerquery", () => ({
+      name: "Power Query M",
+      keywords: { keyword: "let in each if then else try otherwise as type and or not null true false", literal: "null true false" },
+      contains: [
+        { className: "comment", begin: /\/\//, end: /$/ },
+        { className: "comment", begin: /\/\*/, end: /\*\// },
+        { className: "string", begin: /"/, end: /"/, contains: [{ begin: /""/ }] },
+        { className: "meta", begin: /#(date|datetime|duration|table|"[^"]*")/ },
+        { className: "variable", begin: /\[[^\]]+\]/ },
+        { className: "title", begin: /\b[A-Z][A-Za-z]*\.[A-Za-z.]+(?=\s*\()/ },
+        { className: "number", begin: /\b\d+(\.\d+)?\b/ },
+      ],
+    }));
+  }
 
   function bloqueCodigo(codigo, lenguaje) {
     if (!codigo) return "";

@@ -19,6 +19,23 @@
       "publicado": true
     },
     {
+      "id": "power-bi-dax",
+      "archivo": "power-bi-dax.json",
+      "tema": "datos",
+      "separador": "Power BI",
+      "cuaderno": "Cuaderno de BI",
+      "categoria": "Datos y Analítica",
+      "etiquetas": [
+        "Power BI",
+        "DAX",
+        "Power Query",
+        "Modelado",
+        "T-SQL"
+      ],
+      "color": "#D9A400",
+      "publicado": true
+    },
+    {
       "id": "programacion-desarrollo-web",
       "archivo": "programacion-desarrollo-web.json",
       "tema": "web",

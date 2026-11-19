@@ -1,0 +1,1834 @@
+{
+  "id": "power-bi-dax",
+  "title": "Power BI y DAX",
+  "subtitle": "De SQL Server al tablero publicado: Power Query, modelo estrella, DAX a fondo, diseño de informes, rendimiento y seguridad por filas.",
+  "level": "Intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "pbi-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1: Preparar los datos",
+      "title": "Power BI de punta a punta: Desktop, servicio y flujo de trabajo",
+      "subtitle": "Qué hace cada pieza de Power BI y cómo viaja un dato desde SQL Server hasta el tablero que ve la gerencia.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Distinguir Power BI Desktop, el servicio de Power BI y la app móvil, y saber qué se hace en cada uno.",
+        "Describir las cuatro etapas del trabajo: obtener, modelar, calcular y publicar.",
+        "Reconocer el modelo de ejemplo del curso: la tienda con ventas, productos, clientes, tiendas y calendario."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-01-sec-1",
+          "title": "1. Las piezas de Power BI",
+          "body": "Power BI no es un solo programa, es una familia de herramientas que se reparten el trabajo:\n- **Power BI Desktop**: la aplicación gratuita de Windows donde se construye todo. Aquí te conectas a los datos, los limpias con **Power Query**, armas el **modelo**, escribes las medidas en **DAX** y diseñas las páginas del informe. El resultado es un archivo `.pbix` (o una carpeta `.pbip` si trabajas con control de versiones).\n- **Servicio de Power BI** (app.powerbi.com): la parte en la nube. Ahí publicas, compartes, programas la actualización de los datos, das permisos y armas **apps** para los usuarios finales.\n- **Power BI Mobile**: la app para ver informes en el teléfono, con un diseño de página propio para pantallas pequeñas.\n\nAl publicar, un `.pbix` se separa en dos objetos del servicio: el **modelo semántico** (antes llamado *conjunto de datos*: tablas, relaciones y medidas) y el **informe** (las páginas con visuales). Varios informes pueden usar el mismo modelo semántico, y esa es la base de una capa única de métricas.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Power BI Desktop (.pbix)              Servicio de Power BI\n┌─────────────────────────┐           ┌──────────────────────────────┐\n│ Power Query  → limpiar  │  Publicar │ Modelo semántico  (datos+DAX)│\n│ Modelo       → conectar │ ────────► │ Informe          (páginas)   │\n│ DAX          → calcular │           │ Apps, permisos, actualización│\n│ Informe      → mostrar  │           └──────────────────────────────┘\n└─────────────────────────┘",
+          "keyTakeaway": "Desktop es el taller; el servicio es la vitrina que comparte y actualiza."
+        },
+        {
+          "id": "pbi-01-sec-2",
+          "title": "2. El flujo de trabajo en cuatro etapas",
+          "body": "Todo proyecto de Power BI recorre las mismas etapas, y cada capítulo de este curso cubre una:\n1) **Obtener y transformar** (Power Query, lenguaje M): conectar a SQL Server, Excel o una API, quitar columnas, corregir tipos y combinar tablas. Capítulos 2 y 3.\n2) **Modelar**: relacionar las tablas en forma de estrella, crear la tabla de calendario y decidir qué columnas se ocultan. Capítulos 4 y 5.\n3) **Calcular** (DAX): escribir medidas como Ventas, Margen % o Ventas del año anterior. Capítulos 6 a 10.\n4) **Informar y publicar**: diseñar páginas claras, cuidar el rendimiento, proteger los datos con seguridad por filas y programar la actualización. Capítulos 11 y 12.\n\nUn error frecuente es saltar directo a la etapa 4 con una tabla gigante de Excel. Funciona con pocos datos, pero cada medida se vuelve más difícil y el archivo crece. Invertir tiempo en las etapas 1 y 2 hace que DAX sea sencillo.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "SQL Server ─┐\nExcel ──────┼─► Power Query ─► Modelo estrella ─► Medidas DAX ─► Informe ─► Servicio\nAPI ────────┘     (M)          (relaciones)        (cálculos)     (visuales)  (compartir)",
+          "keyTakeaway": "Primero datos limpios y un buen modelo; los cálculos y los gráficos vienen después."
+        },
+        {
+          "id": "pbi-01-sec-3",
+          "title": "3. El caso del curso: la tienda",
+          "body": "Durante todo el curso trabajaremos con la base de datos `Tienda` en **SQL Server**. Tiene una tabla de hechos con cada línea de venta y cuatro tablas de dimensiones que describen esas ventas.\n\nEn Power BI esas tablas se llamarán `Ventas`, `Producto`, `Cliente`, `Sucursal` y `Calendario`. Las medidas base que usaremos en muchos capítulos son:\n- `[Ventas]`: suma de cantidad por precio menos descuento.\n- `[Costo]`: suma de cantidad por costo unitario.\n- `[Margen]` y `[Margen %]`.\n\nTodo el SQL del curso está escrito en **T-SQL**, el dialecto de SQL Server, porque es la fuente más común de Power BI en las empresas. Puedes practicar las consultas en la pestaña Datos de la página Práctica.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Esquema de la base Tienda (SQL Server)\nCREATE TABLE dbo.DimProducto (\n    ProductoID   INT PRIMARY KEY,\n    Producto     NVARCHAR(100),\n    Subcategoria NVARCHAR(50),\n    Categoria    NVARCHAR(50),\n    CostoUnit    DECIMAL(10,2)\n);\nCREATE TABLE dbo.DimCliente (ClienteID INT PRIMARY KEY, Cliente NVARCHAR(100), Ciudad NVARCHAR(50), Segmento NVARCHAR(20));\nCREATE TABLE dbo.DimSucursal (SucursalID INT PRIMARY KEY, Sucursal NVARCHAR(50), Region NVARCHAR(30));\nCREATE TABLE dbo.FactVentas (\n    VentaID     BIGINT PRIMARY KEY,\n    FechaVenta  DATE,\n    ProductoID  INT REFERENCES dbo.DimProducto(ProductoID),\n    ClienteID   INT REFERENCES dbo.DimCliente(ClienteID),\n    SucursalID  INT REFERENCES dbo.DimSucursal(SucursalID),\n    Cantidad    INT,\n    PrecioUnit  DECIMAL(10,2),\n    Descuento   DECIMAL(10,2)\n);",
+          "keyTakeaway": "Una tabla de hechos con números y varias dimensiones que la describen: ese es el punto de partida."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo organizar un proyecto de Power BI desde el primer día.",
+        "rules": [
+          "Conéctate a la fuente original (SQL Server) en lugar de a exportaciones de Excel que alguien copia a mano.",
+          "Guarda el proyecto como .pbip si lo vas a versionar con Git; el .pbix es un archivo binario difícil de comparar.",
+          "Un modelo semántico compartido por varios informes es mejor que diez .pbix con la misma lógica copiada.",
+          "Nombra tablas y medidas en lenguaje de negocio: Ventas, Cliente, [Margen %], no FACT_VTA_01.",
+          "Documenta en una página oculta de dónde viene cada tabla y quién es responsable de la fuente."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Proyecto Ventas/\n├── Ventas.pbip              ← abre el proyecto en Desktop\n├── Ventas.SemanticModel/    ← tablas, relaciones y medidas (texto, versionable)\n├── Ventas.Report/           ← páginas y visuales\n└── README.md                ← fuente, responsable, frecuencia de actualización"
+      },
+      "comparison": {
+        "scenario": "El jefe pide un tablero de ventas por sucursal para mañana.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "1. Exportar desde SQL Server a ventas_marzo.xlsx\n2. Abrir Power BI, cargar el Excel tal cual (40 columnas)\n3. Crear gráficos directamente sobre la tabla\n4. El mes siguiente: repetir el paso 1 a mano",
+        "juniorFlaws": [
+          "El informe depende de una exportación manual que alguien olvidará hacer.",
+          "Una sola tabla plana con 40 columnas hace que cada cálculo sea más difícil y el archivo pese más.",
+          "No hay medidas reutilizables: cada gráfico suma la columna a su manera."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "1. Conectar Power BI directo a SQL Server (base Tienda)\n2. En Power Query: solo las columnas necesarias, tipos correctos\n3. Modelo estrella: Ventas + Producto, Cliente, Sucursal, Calendario\n4. Medidas DAX: [Ventas], [Margen %]\n5. Publicar y programar la actualización diaria",
+        "intermediateBenefits": [
+          "Los datos se actualizan solos cada día desde la fuente.",
+          "El modelo estrella permite filtrar por cualquier dimensión sin fórmulas nuevas.",
+          "Las medidas se reutilizan en todos los visuales y dan siempre el mismo número."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "pbi-01-ej-1",
+          "title": "Práctica 1: Ubica cada tarea",
+          "difficulty": "Básico",
+          "prompt": "Indica si cada tarea se hace en Power BI Desktop o en el servicio de Power BI: (a) escribir una medida DAX, (b) programar la actualización diaria, (c) quitar columnas en Power Query, (d) dar acceso a un compañero, (e) crear la relación entre Ventas y Producto.",
+          "hint": "Piensa en qué se construye (Desktop) y qué se comparte o se automatiza (servicio).",
+          "solutionExplanation": "Construir el modelo y el informe es trabajo de Desktop. Compartir, dar permisos y automatizar la actualización ocurre en el servicio.",
+          "solutionCode": "(a) Desktop   - las medidas son parte del modelo\n(b) Servicio  - la actualización programada vive en la nube\n(c) Desktop   - Power Query está en Desktop\n(d) Servicio  - permisos de área de trabajo o de la app\n(e) Desktop   - vista de modelo",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-01-ej-2",
+          "title": "Práctica 2: Explora la tabla de hechos",
+          "difficulty": "Básico",
+          "prompt": "Escribe una consulta T-SQL que muestre las 10 primeras ventas de 2025 con su importe calculado (Cantidad * PrecioUnit - Descuento), ordenadas de mayor a menor importe.",
+          "hint": "Usa TOP (10), filtra por un rango de fechas y ordena por la expresión del importe.",
+          "solutionExplanation": "Filtrar con un rango de fechas (>= y <) permite usar índices sobre FechaVenta; YEAR(FechaVenta) = 2025 obligaría a calcular el año fila por fila.",
+          "solutionCode": "SELECT TOP (10)\n    VentaID,\n    FechaVenta,\n    Cantidad * PrecioUnit - Descuento AS Importe\nFROM dbo.FactVentas\nWHERE FechaVenta >= '2025-01-01'\n  AND FechaVenta <  '2026-01-01'\nORDER BY Importe DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-01-ej-3",
+          "title": "Práctica 3: Dibuja el flujo del proyecto",
+          "difficulty": "Intermedio",
+          "prompt": "Un área de compras guarda sus pedidos en SQL Server y sus presupuestos en un Excel de SharePoint. Describe las cuatro etapas del proyecto de Power BI para compararlos, nombrando qué tablas tendrías al final.",
+          "hint": "Piensa en qué tabla tiene los números (hechos) y cuáles describen (dimensiones).",
+          "solutionExplanation": "Hay dos tablas de hechos con granos distintos (pedido y presupuesto mensual) que comparten las dimensiones Proveedor y Calendario.",
+          "solutionCode": "1. Obtener: SQL Server (Pedidos, Proveedor) + Excel en SharePoint (Presupuesto)\n2. Modelar: hechos Pedidos y Presupuesto; dimensiones Proveedor y Calendario\n            compartidas por ambas tablas de hechos\n3. Calcular: [Compras], [Presupuesto], [Desvío %] = DIVIDE([Compras] - [Presupuesto], [Presupuesto])\n4. Publicar: actualización diaria con puerta de enlace para SQL Server",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-01-q1",
+          "question": "¿Qué se crea en el servicio de Power BI al publicar un archivo .pbix?",
+          "options": [
+            "Un modelo semántico y un informe que lo usa",
+            "Un libro de Excel con las medidas DAX",
+            "Solo una imagen estática de cada una de sus páginas",
+            "Una copia completa de la base de datos de SQL Server"
+          ],
+          "correctIndex": 0,
+          "explanation": "Al publicar, el .pbix se separa en el modelo semántico (datos, relaciones y medidas) y el informe (páginas). Otros informes pueden reutilizar ese mismo modelo."
+        },
+        {
+          "id": "pbi-01-q2",
+          "question": "¿En qué etapa del flujo se usa principalmente Power Query?",
+          "options": [
+            "Al escribir medidas como Margen %",
+            "Al dar permisos a los usuarios finales",
+            "Al diseñar los colores y las fuentes de cada página",
+            "Al obtener y transformar los datos de origen"
+          ],
+          "correctIndex": 3,
+          "explanation": "Power Query (lenguaje M) es la etapa de obtener y transformar: conectar, limpiar y combinar antes de cargar al modelo."
+        },
+        {
+          "id": "pbi-01-q3",
+          "question": "¿Por qué conviene conectarse directo a SQL Server en vez de a un Excel exportado?",
+          "options": [
+            "Excel no admite más de cien filas de datos",
+            "Power BI no sabe leer archivos de Excel de SharePoint",
+            "La actualización se programa sin pasos manuales",
+            "SQL Server dibuja los gráficos del informe más rápido"
+          ],
+          "correctIndex": 2,
+          "explanation": "Una conexión a la fuente original permite programar la actualización en el servicio; una exportación manual depende de que alguien la repita."
+        }
+      ]
+    },
+    {
+      "id": "pbi-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1: Preparar los datos",
+      "title": "Power Query: conectar a SQL Server, limpiar y plegar consultas",
+      "subtitle": "Traer solo lo necesario, con los tipos correctos, dejando que SQL Server haga el trabajo pesado.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Conectarse a SQL Server desde Power Query y elegir entre importar tablas o escribir una consulta T-SQL.",
+        "Aplicar los pasos de limpieza más comunes: quitar columnas, cambiar tipos, filtrar filas y reemplazar valores.",
+        "Explicar qué es el plegado de consultas y comprobar si un paso se pliega con Ver consulta nativa."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-02-sec-1",
+          "title": "1. Conectarse a SQL Server",
+          "body": "En Desktop: **Obtener datos → SQL Server**. Pide dos datos obligatorios, el **servidor** y la **base de datos**, y luego el modo de conexión (**Importar** o **DirectQuery**, que veremos en el capítulo 12).\n\nDespués aparece el **Navegador** con las tablas y vistas. Lo recomendable es marcar las tablas, pulsar **Transformar datos** (no *Cargar*) y limpiar en el editor de Power Query.\n\nCada clic en Power Query se guarda como un **paso aplicado**, y cada paso es una línea de código en lenguaje **M**. Puedes verlo todo en **Editor avanzado**. Así, la limpieza se repite sola en cada actualización: no hay que volver a hacerla a mano.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "let\n    Origen    = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Ventas    = Origen{[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    Columnas  = Table.SelectColumns(Ventas,\n                  {\"VentaID\", \"FechaVenta\", \"ProductoID\", \"ClienteID\",\n                   \"SucursalID\", \"Cantidad\", \"PrecioUnit\", \"Descuento\"}),\n    Desde2023 = Table.SelectRows(Columnas, each [FechaVenta] >= #date(2023, 1, 1))\nin\n    Desde2023",
+          "keyTakeaway": "Cada clic es un paso de M que se repite en cada actualización."
+        },
+        {
+          "id": "pbi-02-sec-2",
+          "title": "2. Los pasos de limpieza que más usarás",
+          "body": "Casi toda tabla pasa por los mismos arreglos:\n- **Elegir columnas** (no quitarlas una a una): si mañana la tabla trae columnas nuevas, no entran sin que lo decidas.\n- **Cambiar tipo**: fecha como `date`, importes como número decimal fijo (`Currency.Type`), códigos como texto. Un tipo mal puesto rompe relaciones y ordenamientos.\n- **Filtrar filas**: quitar pruebas, anulaciones o años que no se analizan.\n- **Reemplazar valores** y **Recortar** (`Text.Trim`): \"Santo Domingo \" con espacio y \"Santo Domingo\" son dos ciudades distintas para el modelo.\n- **Quitar duplicados** en las dimensiones: una clave repetida impide la relación de uno a varios.\n\nRevisa siempre la **calidad de columna** y la **distribución de columna** (menú Vista): te dicen el porcentaje de errores, vacíos y valores únicos.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "let\n    Origen   = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Cliente  = Origen{[Schema = \"dbo\", Item = \"DimCliente\"]}[Data],\n    Tipos    = Table.TransformColumnTypes(Cliente,\n                 {{\"ClienteID\", Int64.Type}, {\"Cliente\", type text},\n                  {\"Ciudad\", type text}, {\"Segmento\", type text}}),\n    Recorte  = Table.TransformColumns(Tipos, {{\"Ciudad\", Text.Trim, type text}}),\n    SinVacio = Table.ReplaceValue(Recorte, null, \"Sin segmento\",\n                 Replacer.ReplaceValue, {\"Segmento\"}),\n    Unicos   = Table.Distinct(SinVacio, {\"ClienteID\"})\nin\n    Unicos",
+          "keyTakeaway": "Tipos correctos, textos recortados y claves únicas evitan la mayoría de los errores del modelo."
+        },
+        {
+          "id": "pbi-02-sec-3",
+          "title": "3. El plegado de consultas",
+          "body": "Cuando la fuente es una base de datos, Power Query intenta **traducir tus pasos a T-SQL** y enviar una sola consulta a SQL Server. Eso se llama **plegado de consultas** (*query folding*). Si se pliega, SQL Server filtra y agrupa con sus índices y solo viajan las filas finales.\n\nPara comprobarlo, haz clic derecho sobre un paso: si **Ver consulta nativa** está activo, el paso se pliega. Los indicadores de paso del editor muestran lo mismo con un icono.\n\nPasos que suelen plegarse: elegir columnas, filtrar, ordenar, agrupar, combinar tablas de la misma base. Pasos que suelen **romper** el plegado: agregar una columna de índice, usar funciones de texto avanzadas o combinar con un Excel. A partir del primer paso que no se pliega, todo lo demás se hace en tu equipo.\n\nRegla práctica: pon primero los pasos que se pliegan (columnas y filtros) y al final los que no.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Lo que Power Query envía a SQL Server cuando los pasos\n-- \"Elegir columnas\" y \"Filtrar desde 2023\" se pliegan:\nselect [_].[VentaID],\n       [_].[FechaVenta],\n       [_].[ProductoID],\n       [_].[Cantidad],\n       [_].[PrecioUnit]\nfrom [dbo].[FactVentas] as [_]\nwhere [_].[FechaVenta] >= convert(date, '2023-01-01')",
+          "keyTakeaway": "Si un paso se pliega, el trabajo lo hace SQL Server; ordena los pasos para plegar el mayor tiempo posible."
+        },
+        {
+          "id": "pbi-02-sec-4",
+          "title": "4. Consulta nativa: cuándo escribir el T-SQL tú mismo",
+          "body": "En **Opciones avanzadas** del conector puedes pegar una **instrucción SQL**. Es útil cuando la lógica ya existe en SQL o es difícil de expresar con clics.\n\nPero tiene un costo: los pasos que agregues después **no se pliegan** (salvo que actives `EnableFolding`), y la lógica queda escondida dentro de un texto. La alternativa más limpia es pedir al equipo de datos una **vista** en SQL Server (`CREATE VIEW`) y conectarte a ella como si fuera una tabla: se pliega, se versiona en la base y otros la pueden reutilizar.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Mejor que pegar la consulta en Power Query: una vista en la base\nCREATE OR ALTER VIEW rpt.VentasLimpias\nAS\nSELECT v.VentaID,\n       v.FechaVenta,\n       v.ProductoID,\n       v.ClienteID,\n       v.SucursalID,\n       v.Cantidad,\n       v.PrecioUnit,\n       ISNULL(v.Descuento, 0) AS Descuento\nFROM dbo.FactVentas AS v\nWHERE v.Anulada = 0;",
+          "keyTakeaway": "Para lógica SQL compleja, una vista en la base es mejor que una consulta pegada en Power Query."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas de Power Query para un modelo que se actualiza rápido y sin sorpresas.",
+        "rules": [
+          "Elige columnas con Table.SelectColumns en lugar de quitar las que sobran.",
+          "Define el tipo de cada columna una vez, cerca del inicio, y no lo cambies varias veces.",
+          "Coloca los filtros y la selección de columnas antes de los pasos que rompen el plegado.",
+          "Revisa Ver consulta nativa en el último paso que debería plegarse.",
+          "Renombra los pasos con nombres que expliquen qué hacen: Desde2023, no Filas filtradas 3.",
+          "Desactiva la carga de las consultas intermedias que solo sirven de apoyo."
+        ],
+        "codeLanguage": "powerquery",
+        "referenceCode": "let\n    Origen     = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Ventas     = Origen{[Schema = \"rpt\", Item = \"VentasLimpias\"]}[Data],\n    Columnas   = Table.SelectColumns(Ventas, {\"VentaID\", \"FechaVenta\", \"ProductoID\",\n                   \"ClienteID\", \"SucursalID\", \"Cantidad\", \"PrecioUnit\", \"Descuento\"}),\n    Desde2023  = Table.SelectRows(Columnas, each [FechaVenta] >= #date(2023, 1, 1)),\n    Tipos      = Table.TransformColumnTypes(Desde2023, {{\"FechaVenta\", type date},\n                   {\"Cantidad\", Int64.Type}, {\"PrecioUnit\", Currency.Type},\n                   {\"Descuento\", Currency.Type}})\nin\n    Tipos"
+      },
+      "comparison": {
+        "scenario": "La tabla de ventas tarda 20 minutos en actualizarse.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "let\n    Origen   = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Ventas   = Origen{[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    Indice   = Table.AddIndexColumn(Ventas, \"Fila\", 1, 1),\n    Filtrado = Table.SelectRows(Indice, each [FechaVenta] >= #date(2023, 1, 1)),\n    SinCols  = Table.RemoveColumns(Filtrado, {\"Notas\", \"Usuario\"})\nin\n    SinCols",
+        "juniorFlaws": [
+          "La columna de índice va primero y rompe el plegado: se descargan todas las filas de todos los años.",
+          "El filtro de fecha se aplica en el equipo, después de traer millones de filas.",
+          "Quitar columnas deja pasar cualquier columna nueva que agreguen en la base."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "let\n    Origen    = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Ventas    = Origen{[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    Columnas  = Table.SelectColumns(Ventas, {\"VentaID\", \"FechaVenta\", \"ProductoID\",\n                  \"ClienteID\", \"SucursalID\", \"Cantidad\", \"PrecioUnit\", \"Descuento\"}),\n    Desde2023 = Table.SelectRows(Columnas, each [FechaVenta] >= #date(2023, 1, 1))\n    // Sin columna de índice: VentaID ya identifica cada fila\nin\n    Desde2023",
+        "intermediateBenefits": [
+          "Todos los pasos se pliegan: SQL Server filtra con su índice de fecha.",
+          "Solo viajan las columnas y los años que se analizan.",
+          "La columna de índice sobraba porque la tabla ya tiene clave."
+        ],
+        "codeLanguage": "powerquery"
+      },
+      "exercises": [
+        {
+          "id": "pbi-02-ej-1",
+          "title": "Práctica 1: Limpia la dimensión Producto",
+          "difficulty": "Básico",
+          "prompt": "Escribe la consulta M que lea dbo.DimProducto, deje solo ProductoID, Producto, Subcategoria y Categoria, ponga los tipos correctos y recorte espacios en Categoria.",
+          "hint": "Usa Table.SelectColumns, Table.TransformColumnTypes y Table.TransformColumns con Text.Trim.",
+          "solutionExplanation": "Elegir columnas y cambiar tipos se pliega; Text.Trim también se traduce a T-SQL (LTRIM/RTRIM) en SQL Server.",
+          "solutionCode": "let\n    Origen   = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Producto = Origen{[Schema = \"dbo\", Item = \"DimProducto\"]}[Data],\n    Columnas = Table.SelectColumns(Producto, {\"ProductoID\", \"Producto\", \"Subcategoria\", \"Categoria\"}),\n    Tipos    = Table.TransformColumnTypes(Columnas, {{\"ProductoID\", Int64.Type},\n                 {\"Producto\", type text}, {\"Subcategoria\", type text}, {\"Categoria\", type text}}),\n    Recorte  = Table.TransformColumns(Tipos, {{\"Categoria\", Text.Trim, type text}})\nin\n    Recorte",
+          "codeLanguage": "powerquery"
+        },
+        {
+          "id": "pbi-02-ej-2",
+          "title": "Práctica 2: Crea la vista de origen",
+          "difficulty": "Intermedio",
+          "prompt": "El equipo te pide que la lógica de \"ventas válidas\" viva en SQL Server. Escribe en T-SQL la vista rpt.VentasMensuales con el mes (primer día del mes), la sucursal y el importe total, solo para ventas no anuladas.",
+          "hint": "DATEFROMPARTS(YEAR(f), MONTH(f), 1) da el primer día del mes. Agrupa por esas dos columnas.",
+          "solutionExplanation": "Power Query se conecta a la vista como si fuera una tabla, el plegado sigue funcionando y la regla de negocio queda en un solo lugar.",
+          "solutionCode": "CREATE OR ALTER VIEW rpt.VentasMensuales\nAS\nSELECT DATEFROMPARTS(YEAR(v.FechaVenta), MONTH(v.FechaVenta), 1) AS Mes,\n       v.SucursalID,\n       SUM(v.Cantidad * v.PrecioUnit - ISNULL(v.Descuento, 0))   AS Importe\nFROM dbo.FactVentas AS v\nWHERE v.Anulada = 0\nGROUP BY DATEFROMPARTS(YEAR(v.FechaVenta), MONTH(v.FechaVenta), 1),\n         v.SucursalID;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-02-ej-3",
+          "title": "Práctica 3: Reordena para plegar",
+          "difficulty": "Avanzado",
+          "prompt": "Estos pasos no se pliegan desde el segundo: Origen, AgregarIndice, CambiarTipo, FiltrarAnio, ElegirColumnas. Reescribe la consulta para que se plieguen todos los posibles y explica qué paso quedaría al final.",
+          "hint": "La columna de índice es la que rompe el plegado. ¿Hace falta? Si sí, ¿dónde molesta menos?",
+          "solutionExplanation": "Al mover el índice al final, SQL Server recibe una consulta con columnas, filtro y tipos; solo el índice se calcula en el equipo, sobre las filas ya filtradas.",
+          "solutionCode": "let\n    Origen         = Sql.Database(\"srv-datos\", \"Tienda\"),\n    Ventas         = Origen{[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    ElegirColumnas = Table.SelectColumns(Ventas, {\"VentaID\", \"FechaVenta\", \"Cantidad\", \"PrecioUnit\"}),\n    FiltrarAnio    = Table.SelectRows(ElegirColumnas, each [FechaVenta] >= #date(2025, 1, 1)),\n    CambiarTipo    = Table.TransformColumnTypes(FiltrarAnio, {{\"PrecioUnit\", Currency.Type}}),\n    // Último: rompe el plegado, pero ya solo afecta a las filas de 2025\n    AgregarIndice  = Table.AddIndexColumn(CambiarTipo, \"Fila\", 1, 1)\nin\n    AgregarIndice",
+          "codeLanguage": "powerquery"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-02-q1",
+          "question": "¿Qué significa que un paso de Power Query se pliegue?",
+          "options": [
+            "Que se convierte en una medida DAX del modelo",
+            "Que se traduce a una consulta que ejecuta la fuente",
+            "Que se guarda en caché para la siguiente sesión",
+            "Que se oculta en la lista de pasos aplicados del editor"
+          ],
+          "correctIndex": 1,
+          "explanation": "Plegar es traducir los pasos al lenguaje de la fuente (T-SQL en SQL Server) para que la base haga el trabajo y solo viajen los resultados."
+        },
+        {
+          "id": "pbi-02-q2",
+          "question": "¿Cómo compruebas rápidamente si un paso se pliega?",
+          "options": [
+            "Revisando si la columna tiene el tipo de texto",
+            "Contando cuántas filas muestra la vista previa del editor",
+            "Con clic derecho, viendo si Ver consulta nativa está activo",
+            "Abriendo el archivo .pbix con el Bloc de notas de Windows 11"
+          ],
+          "correctIndex": 2,
+          "explanation": "Si Ver consulta nativa está disponible en ese paso, Power Query generó una consulta para la fuente. Los indicadores de paso muestran lo mismo."
+        },
+        {
+          "id": "pbi-02-q3",
+          "question": "¿Por qué conviene elegir columnas en vez de quitar las que sobran?",
+          "options": [
+            "Las columnas nuevas de la fuente no entran sin control",
+            "Elegir columnas convierte los textos en números decimales",
+            "Quitar columnas no está disponible para SQL Server",
+            "Quitar columnas borra también los datos en la base"
+          ],
+          "correctIndex": 0,
+          "explanation": "Table.SelectColumns fija la lista exacta. Con Table.RemoveColumns, cualquier columna que agreguen mañana en la base llegaría al modelo sin que lo decidas."
+        }
+      ]
+    },
+    {
+      "id": "pbi-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 1: Preparar los datos",
+      "title": "Lenguaje M: anexar, combinar, parámetros y funciones propias",
+      "subtitle": "Unir varias fuentes y reutilizar la lógica de Power Query sin copiar y pegar pasos.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Diferenciar anexar (apilar filas) de combinar (unir columnas por una clave) y elegir el tipo de combinación.",
+        "Crear parámetros para el servidor, la base y fechas de corte, y usarlos en las consultas.",
+        "Escribir una función propia en M e invocarla sobre una lista de archivos o valores."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-03-sec-1",
+          "title": "1. Anexar: apilar tablas con las mismas columnas",
+          "body": "**Anexar consultas** pone las filas de una tabla debajo de las de otra. Es el equivalente a `UNION ALL` en T-SQL.\n\nCaso típico: cada sucursal envía un Excel mensual con las mismas columnas, o hay una tabla de ventas históricas y otra del año en curso. Las columnas se emparejan **por nombre**: si en un archivo se llama `Importe` y en otro `Monto`, quedarán dos columnas con vacíos. Por eso conviene renombrar antes de anexar.\n\nPara muchos archivos en una carpeta usa el conector **Carpeta** (o **Carpeta de SharePoint**): combina todos los archivos con una sola consulta y suma los nuevos que lleguen sin tocar nada.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "let\n    Historico = Sql.Database(\"srv-datos\", \"Tienda\"){[Schema = \"dbo\", Item = \"VentasHistorico\"]}[Data],\n    Actual    = Sql.Database(\"srv-datos\", \"Tienda\"){[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    Todas     = Table.Combine({Historico, Actual})\nin\n    Todas\n\n-- Equivalente en T-SQL:\n-- SELECT * FROM dbo.VentasHistorico\n-- UNION ALL\n-- SELECT * FROM dbo.FactVentas;",
+          "keyTakeaway": "Anexar apila filas y empareja columnas por nombre: renombra antes."
+        },
+        {
+          "id": "pbi-03-sec-2",
+          "title": "2. Combinar: traer columnas de otra tabla",
+          "body": "**Combinar consultas** une dos tablas por una o varias columnas clave, como un `JOIN`. Power Query crea una columna con tablas anidadas que luego **expandes** para elegir qué columnas traer.\n\nLos tipos de combinación son los mismos que en SQL:\n- **Externa izquierda** (`LEFT JOIN`): todas las filas de la primera tabla. Es la más usada.\n- **Interna** (`INNER JOIN`): solo las que coinciden.\n- **Anti izquierda**: filas de la primera sin pareja en la segunda. Perfecta para encontrar ventas con un producto que no existe en el catálogo.\n\nOjo: en un modelo estrella **no** hace falta combinar Ventas con Producto para traer la categoría. Eso lo resuelve una relación en el modelo (capítulo 4). Combina en Power Query cuando necesitas aplanar una dimensión (por ejemplo Subcategoría dentro de Producto) o comparar dos fuentes.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "let\n    Producto     = Sql.Database(\"srv-datos\", \"Tienda\"){[Schema = \"dbo\", Item = \"DimProducto\"]}[Data],\n    Subcategoria = Sql.Database(\"srv-datos\", \"Tienda\"){[Schema = \"dbo\", Item = \"DimSubcategoria\"]}[Data],\n    Combinada    = Table.NestedJoin(Producto, {\"SubcategoriaID\"},\n                     Subcategoria, {\"SubcategoriaID\"},\n                     \"Sub\", JoinKind.LeftOuter),\n    Expandida    = Table.ExpandTableColumn(Combinada, \"Sub\",\n                     {\"Subcategoria\", \"Categoria\"})\nin\n    Expandida",
+          "keyTakeaway": "Combinar es un JOIN; úsalo para aplanar dimensiones o comparar fuentes, no para reemplazar relaciones."
+        },
+        {
+          "id": "pbi-03-sec-3",
+          "title": "3. Parámetros: un solo lugar para lo que cambia",
+          "body": "Un **parámetro** es un valor con nombre que usan varias consultas: el servidor, la base de datos, una fecha de inicio o una ruta de carpeta. Se crean en **Administrar parámetros**.\n\nVentajas:\n- Pasar de la base de pruebas a la de producción cambia **un** valor, no veinte consultas.\n- En el servicio se pueden modificar sin abrir Desktop.\n- Los parámetros `RangeStart` y `RangeEnd` (tipo fecha y hora, con ese nombre exacto) son los que pide la **actualización incremental**: Power BI los usa para traer solo las particiones nuevas.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "// Parámetros (Administrar parámetros):\n//   Servidor   = \"srv-datos\"      (texto)\n//   BaseDatos  = \"Tienda\"         (texto)\n//   RangeStart = #datetime(2025, 1, 1, 0, 0, 0)\n//   RangeEnd   = #datetime(2026, 1, 1, 0, 0, 0)\nlet\n    Origen = Sql.Database(Servidor, BaseDatos),\n    Ventas = Origen{[Schema = \"dbo\", Item = \"FactVentas\"]}[Data],\n    Rango  = Table.SelectRows(Ventas, each\n               [FechaHoraVenta] >= RangeStart and [FechaHoraVenta] < RangeEnd)\nin\n    Rango",
+          "keyTakeaway": "Todo lo que cambia entre entornos va en un parámetro."
+        },
+        {
+          "id": "pbi-03-sec-4",
+          "title": "4. Funciones propias en M",
+          "body": "Cuando repites los mismos pasos sobre varios archivos o tablas, conviértelos en una **función**. En M una función se escribe `(parametro as tipo) as tipo => expresión`.\n\nLuego la invocas con **Agregar columna → Invocar función personalizada**, una vez por fila. El conector Carpeta hace exactamente esto: crea una función de ejemplo y la aplica a cada archivo.\n\nElementos de M que vale la pena conocer:\n- `let ... in`: define pasos con nombre y devuelve el último.\n- `each [Columna]` es un atajo de `(_) => _[Columna]`.\n- `try ... otherwise`: valor de respaldo si algo falla (una fecha mal escrita, por ejemplo).\n- M distingue mayúsculas y minúsculas: `Table.selectrows` no existe.",
+          "codeLanguage": "powerquery",
+          "codeSnippet": "// Función: limpia un archivo de ventas de sucursal\n(archivo as binary) as table =>\nlet\n    Libro    = Excel.Workbook(archivo, true),\n    Hoja     = Libro{[Item = \"Ventas\", Kind = \"Sheet\"]}[Data],\n    Columnas = Table.SelectColumns(Hoja, {\"Fecha\", \"Producto\", \"Cantidad\", \"Importe\"}),\n    Tipos    = Table.TransformColumnTypes(Columnas, {{\"Fecha\", type date},\n                 {\"Cantidad\", Int64.Type}, {\"Importe\", Currency.Type}}),\n    SinError = Table.RemoveRowsWithErrors(Tipos, {\"Fecha\"})\nin\n    SinError",
+          "keyTakeaway": "Si copias los mismos pasos dos veces, conviértelos en función."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo combinar fuentes en Power Query sin perder el control.",
+        "rules": [
+          "Renombra columnas para que coincidan antes de anexar.",
+          "Combina por claves del mismo tipo; un número contra un texto no encuentra parejas.",
+          "Usa una combinación anti izquierda para auditar claves huérfanas.",
+          "Servidor, base de datos y rutas siempre como parámetros.",
+          "Envuelve en una función la lógica que se repite por archivo o por tabla.",
+          "Desactiva la carga de las consultas de apoyo (funciones, ejemplos, tablas intermedias)."
+        ],
+        "codeLanguage": "powerquery",
+        "referenceCode": "// Auditoría: ventas con producto que no existe en el catálogo\nlet\n    Huerfanas = Table.NestedJoin(Ventas, {\"ProductoID\"},\n                  Producto, {\"ProductoID\"},\n                  \"P\", JoinKind.LeftAnti),\n    Resumen   = Table.Group(Huerfanas, {\"ProductoID\"},\n                  {{\"Filas\", each Table.RowCount(_), Int64.Type}})\nin\n    Resumen"
+      },
+      "comparison": {
+        "scenario": "Hay 12 archivos mensuales de ventas de sucursales en una carpeta.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Enero   = Excel.Workbook(File.Contents(\"C:\\Ventas\\enero.xlsx\"), true){0}[Data]\nFebrero = Excel.Workbook(File.Contents(\"C:\\Ventas\\febrero.xlsx\"), true){0}[Data]\n...      (12 consultas copiadas, cada una con sus pasos)\nTodas   = Table.Combine({Enero, Febrero, Marzo, ...})",
+        "juniorFlaws": [
+          "Doce consultas iguales: un cambio hay que repetirlo doce veces.",
+          "Las rutas son de una computadora personal; en el servicio no funcionan.",
+          "Cuando llegue el archivo de enero del año siguiente hay que crear otra consulta."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "let\n    Carpeta  = SharePoint.Files(SitioVentas, [ApiVersion = 15]),\n    Archivos = Table.SelectRows(Carpeta, each [Extension] = \".xlsx\"),\n    Limpios  = Table.AddColumn(Archivos, \"Datos\", each fnLimpiarVentas([Content])),\n    Todas    = Table.Combine(Limpios[Datos])\nin\n    Todas",
+        "intermediateBenefits": [
+          "Una sola función con la limpieza, aplicada a cada archivo.",
+          "Los archivos nuevos entran solos en la siguiente actualización.",
+          "SharePoint funciona en el servicio sin puerta de enlace."
+        ],
+        "codeLanguage": "powerquery"
+      },
+      "exercises": [
+        {
+          "id": "pbi-03-ej-1",
+          "title": "Práctica 1: Anexa dos años",
+          "difficulty": "Básico",
+          "prompt": "Tienes las consultas Ventas2024 y Ventas2025, pero en la primera la columna se llama Monto y en la segunda Importe. Escribe el M que las apile con una sola columna Importe.",
+          "hint": "Renombra antes de Table.Combine con Table.RenameColumns.",
+          "solutionExplanation": "Si no renombras, el resultado tendría Monto e Importe como columnas separadas, cada una con vacíos en la mitad de las filas.",
+          "solutionCode": "let\n    V24       = Table.RenameColumns(Ventas2024, {{\"Monto\", \"Importe\"}}),\n    Todas     = Table.Combine({V24, Ventas2025})\nin\n    Todas",
+          "codeLanguage": "powerquery"
+        },
+        {
+          "id": "pbi-03-ej-2",
+          "title": "Práctica 2: Encuentra productos huérfanos en T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Antes de armar el modelo, valida en SQL Server cuántas filas de FactVentas tienen un ProductoID que no existe en DimProducto. Es la misma idea que una combinación anti izquierda.",
+          "hint": "NOT EXISTS es la forma más clara de un anti-join en T-SQL.",
+          "solutionExplanation": "Si hay huérfanos, en Power BI esas ventas aparecerán bajo un producto (En blanco). Es mejor corregirlo en la fuente o agregar un miembro \"Desconocido\" a la dimensión.",
+          "solutionCode": "SELECT v.ProductoID,\n       COUNT(*) AS Filas\nFROM dbo.FactVentas AS v\nWHERE NOT EXISTS (\n    SELECT 1\n    FROM dbo.DimProducto AS p\n    WHERE p.ProductoID = v.ProductoID\n)\nGROUP BY v.ProductoID\nORDER BY Filas DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-03-ej-3",
+          "title": "Práctica 3: Escribe una función de fechas",
+          "difficulty": "Avanzado",
+          "prompt": "Algunos archivos traen la fecha como texto \"31/12/2025\" y otros como fecha. Escribe una función fnAFecha que reciba un valor cualquiera y devuelva una fecha, o null si no se puede convertir.",
+          "hint": "Usa Value.Is para saber si ya es fecha y try ... otherwise para el texto con cultura es-ES.",
+          "solutionExplanation": "try ... otherwise evita que un solo valor mal escrito haga fallar toda la actualización; las filas con null se pueden revisar luego.",
+          "solutionCode": "(valor as any) as nullable date =>\n    if valor = null then null\n    else if Value.Is(valor, type date) then valor\n    else if Value.Is(valor, type datetime) then DateTime.Date(valor)\n    else try Date.FromText(Text.From(valor), [Culture = \"es-ES\"]) otherwise null",
+          "codeLanguage": "powerquery"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-03-q1",
+          "question": "¿Qué operación de Power Query equivale a UNION ALL en T-SQL?",
+          "options": [
+            "Combinar consultas por una columna clave",
+            "Anexar consultas, que apila las filas",
+            "Dinamizar los valores de una columna",
+            "Agrupar por la columna de la fecha"
+          ],
+          "correctIndex": 1,
+          "explanation": "Anexar (Table.Combine) pone las filas de una tabla debajo de las de otra, igual que UNION ALL."
+        },
+        {
+          "id": "pbi-03-q2",
+          "question": "¿Qué combinación usarías para listar ventas cuyo producto no está en el catálogo?",
+          "options": [
+            "Anti derecha, desde Ventas hacia Cliente",
+            "Interna, desde Ventas hacia Producto",
+            "Anti izquierda, desde Ventas hacia Producto",
+            "Externa completa entre las tablas Ventas y Producto"
+          ],
+          "correctIndex": 2,
+          "explanation": "La anti izquierda devuelve las filas de la primera tabla sin pareja en la segunda: justo las ventas huérfanas."
+        },
+        {
+          "id": "pbi-03-q3",
+          "question": "¿Para qué sirven los parámetros RangeStart y RangeEnd?",
+          "options": [
+            "Para elegir la página inicial del informe",
+            "Para limitar las filas que ve cada usuario",
+            "Para ordenar las fechas del calendario",
+            "Para configurar la actualización incremental"
+          ],
+          "correctIndex": 3,
+          "explanation": "La actualización incremental exige dos parámetros de fecha y hora con esos nombres exactos para traer solo las particiones nuevas."
+        }
+      ]
+    },
+    {
+      "id": "pbi-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2: Modelar",
+      "title": "Modelo estrella: relaciones, cardinalidad y dirección del filtro",
+      "subtitle": "La forma del modelo decide si DAX será sencillo o una pelea constante.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Organizar las tablas en un modelo estrella con una tabla de hechos y dimensiones alrededor.",
+        "Configurar relaciones de uno a varios con la cardinalidad y la dirección de filtro correctas.",
+        "Reconocer los problemas de la dirección bidireccional y de las relaciones de varios a varios."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-04-sec-1",
+          "title": "1. Hechos y dimensiones",
+          "body": "Un **modelo estrella** tiene una tabla de **hechos** en el centro y **dimensiones** alrededor:\n- La tabla de **hechos** (`Ventas`) tiene una fila por evento: cada línea vendida. Guarda claves (`ProductoID`, `ClienteID`, `SucursalID`, `FechaVenta`) y números que se suman (`Cantidad`, `PrecioUnit`). Es larga y estrecha.\n- Las **dimensiones** (`Producto`, `Cliente`, `Sucursal`, `Calendario`) describen el quién, qué, dónde y cuándo. Tienen una fila por elemento y las columnas por las que se filtra y agrupa: categoría, ciudad, región, mes. Son cortas y anchas.\n\nAntes de nada define el **grano** de la tabla de hechos: \"una fila por línea de venta\". Si mezclas granos (líneas y totales de factura en la misma tabla), las sumas se duplican.\n\nPower BI está optimizado para esta forma. El motor VertiPaq comprime muy bien las columnas de pocas filas distintas, y las medidas DAX se escriben una vez y funcionan con cualquier filtro.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- La dimensión Producto aplanada para Power BI (una vista en SQL Server)\nCREATE OR ALTER VIEW rpt.Producto\nAS\nSELECT p.ProductoID,\n       p.Producto,\n       s.Subcategoria,\n       c.Categoria\nFROM dbo.DimProducto     AS p\nJOIN dbo.DimSubcategoria AS s ON s.SubcategoriaID = p.SubcategoriaID\nJOIN dbo.DimCategoria    AS c ON c.CategoriaID    = s.CategoriaID;\n-- Copo de nieve (3 tablas) → una sola dimensión: menos relaciones, DAX más simple",
+          "keyTakeaway": "Hechos con números y claves en el centro; dimensiones planas alrededor."
+        },
+        {
+          "id": "pbi-04-sec-2",
+          "title": "2. Relaciones: cardinalidad y dirección del filtro",
+          "body": "Una **relación** une una columna de una dimensión con la misma clave en la tabla de hechos. En la vista de modelo se dibuja con un **1** del lado de la dimensión y un `*` del lado de los hechos: es una relación de **uno a varios**.\n\nLa **dirección del filtro** indica hacia dónde viaja un filtro. Con dirección **única**, el filtro va de la dimensión (lado 1) a los hechos (lado varios): si eliges *Categoría = Bebidas*, la tabla Ventas se reduce a las filas de bebidas, y todas las medidas se recalculan.\n\nLo que no pasa con dirección única: un filtro en `Producto` **no** llega a `Cliente`. Pasa a través de `Ventas` solo en el sentido de las flechas. Para saber \"cuántos clientes compraron bebidas\" no hace falta cambiar la relación: basta con contar clientes **sobre la tabla de hechos**, por ejemplo `DISTINCTCOUNT(Ventas[ClienteID])`.\n\nUsa el diagrama para ver cómo viaja el filtro con cada configuración.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Con relaciones de dirección única, estas dos medidas responden a\n-- cualquier filtro de Producto, Cliente, Sucursal o Calendario:\nVentas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )\n\nClientes con compra =\nDISTINCTCOUNT ( Ventas[ClienteID] )",
+          "keyTakeaway": "Uno a varios y dirección única: el filtro baja de la dimensión a los hechos.",
+          "diagram": {
+            "type": "modelo-estrella"
+          }
+        },
+        {
+          "id": "pbi-04-sec-3",
+          "title": "3. Bidireccional y varios a varios: úsalos con cuidado",
+          "body": "La dirección **ambas** (bidireccional) deja que el filtro también suba de los hechos a la dimensión. Parece cómoda, pero:\n- Crea **caminos ambiguos**: si hay dos rutas entre tablas, Power BI desactiva una relación o da resultados inesperados.\n- Hace más lento el modelo, porque cada filtro se propaga por más tablas.\n- Las segmentaciones empiezan a filtrarse entre sí de formas difíciles de explicar.\n\nSi solo una medida la necesita, actívala dentro de la medida con `CROSSFILTER` y deja la relación en dirección única.\n\nUna relación **varios a varios** aparece cuando ninguna de las dos columnas es única (por ejemplo, un presupuesto por *Categoría* y *Mes* contra la dimensión Producto, que tiene muchas filas por categoría). Funciona, pero es mejor crear una pequeña dimensión `Categoria` con valores únicos y relacionar ambas tablas de hechos con ella.\n\nLas relaciones **inactivas** (línea punteada) existen pero no filtran salvo que una medida las active con `USERELATIONSHIP`. Son la forma correcta de manejar una segunda fecha, como la fecha de envío.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Contar productos vendidos al cliente filtrado, sin volver bidireccional la relación\nProductos comprados =\nCALCULATE (\n    DISTINCTCOUNT ( Producto[ProductoID] ),\n    CROSSFILTER ( Ventas[ProductoID], Producto[ProductoID], BOTH )\n)\n\n-- Usar la relación inactiva Ventas[FechaEnvio] → Calendario[Fecha]\nVentas por fecha de envío =\nCALCULATE ( [Ventas], USERELATIONSHIP ( Ventas[FechaEnvio], Calendario[Fecha] ) )",
+          "keyTakeaway": "Deja las relaciones en dirección única y activa lo excepcional dentro de la medida."
+        },
+        {
+          "id": "pbi-04-sec-4",
+          "title": "4. Lo que se ve y lo que se oculta",
+          "body": "Un modelo bien hecho se lee como un menú para el usuario del informe:\n- **Oculta las claves** (`ProductoID`, `ClienteID`) y las columnas numéricas de la tabla de hechos: nadie debería arrastrar `PrecioUnit` a un gráfico; para eso existen las medidas.\n- Configura **Ordenar por columna** para que los meses salgan en orden de calendario y no alfabético.\n- Agrupa las medidas en **carpetas de presentación** o en una tabla vacía llamada `_Medidas`.\n- Desactiva **Fecha y hora automáticas** (Opciones → Carga de datos): crea una tabla de fechas oculta por cada columna de fecha y engorda el modelo. Usaremos una tabla Calendario propia (capítulo 5).\n- Marca la categoría de datos de las columnas geográficas (Ciudad, País) para que los mapas las entiendan.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Lista de campos que ve el usuario después de ordenar el modelo:\n\n_Medidas      [Ventas] [Costo] [Margen] [Margen %] [Clientes con compra]\nCalendario    Año · Trimestre · Mes · Fecha\nCliente       Cliente · Ciudad · Segmento\nProducto      Categoria · Subcategoria · Producto\nSucursal      Region · Sucursal\nVentas        (todo oculto: solo claves y números de base)",
+          "keyTakeaway": "Si el usuario ve claves y columnas sueltas, el modelo no está terminado."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas de modelado que siguen los equipos de BI.",
+        "rules": [
+          "Una tabla de hechos por proceso de negocio y por grano; las dimensiones se comparten entre ellas.",
+          "Relaciones de uno a varios y de dirección única por defecto.",
+          "Aplana los copos de nieve en una sola dimensión cuando sea posible.",
+          "Claves enteras para las relaciones; evita relacionar por textos largos.",
+          "Oculta claves y columnas de base de la tabla de hechos; expón medidas.",
+          "Desactiva Fecha y hora automáticas y usa una tabla de calendario propia."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "            Calendario\n                │1\n                ▼*\nProducto 1──► Ventas ◄──1 Cliente\n                ▲*\n                │1\n             Sucursal\n\nTodas las relaciones: uno a varios, dirección única (dimensión → hechos)"
+      },
+      "comparison": {
+        "scenario": "El informe muestra el mismo total de ventas para todos los segmentos de cliente.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Modelo:\n  Ventas  (ClienteNombre texto)  *──*  Cliente (Cliente)   dirección: ambas\n  Ventas  (ProductoID)           *──1  Producto            dirección: ambas\n  Presupuesto (Categoria)        *──*  Producto (Categoria) dirección: ambas",
+        "juniorFlaws": [
+          "Relacionar por el nombre del cliente falla con homónimos y textos mal escritos.",
+          "Tres relaciones bidireccionales crean caminos ambiguos y Power BI desactiva alguna.",
+          "El varios a varios con Presupuesto multiplica los filtros de forma difícil de seguir."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Modelo:\n  Cliente[ClienteID]   1──*  Ventas[ClienteID]         dirección: única\n  Producto[ProductoID] 1──*  Ventas[ProductoID]        dirección: única\n  Categoria[Categoria] 1──*  Producto[Categoria]       dirección: única\n  Categoria[Categoria] 1──*  Presupuesto[Categoria]    dirección: única",
+        "intermediateBenefits": [
+          "Claves enteras únicas en las dimensiones.",
+          "Todas las relaciones de uno a varios y dirección única: un solo camino posible.",
+          "La dimensión Categoria conecta Ventas y Presupuesto sin varios a varios."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "pbi-04-ej-1",
+          "title": "Práctica 1: Clasifica las tablas",
+          "difficulty": "Básico",
+          "prompt": "Tienes estas tablas: Pedidos (una fila por línea de pedido), Proveedor, Almacen, Calendario, Producto y Devoluciones (una fila por línea devuelta). Indica cuáles son hechos, cuáles dimensiones y qué dimensiones comparten las dos tablas de hechos.",
+          "hint": "Los hechos registran eventos con cantidades; las dimensiones describen.",
+          "solutionExplanation": "Pedidos y Devoluciones son dos procesos con su propio grano. Comparten Producto, Almacen y Calendario, así que se pueden comparar en el mismo visual.",
+          "solutionCode": "Hechos:       Pedidos, Devoluciones\nDimensiones:  Proveedor, Almacen, Calendario, Producto\nCompartidas:  Producto, Almacen, Calendario\nSolo Pedidos: Proveedor (las devoluciones no lo registran)",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-04-ej-2",
+          "title": "Práctica 2: Comprueba que la clave es única",
+          "difficulty": "Intermedio",
+          "prompt": "Power BI no te deja crear una relación de uno a varios porque dice que DimCliente tiene valores duplicados. Escribe la consulta T-SQL que liste los ClienteID repetidos y cuántas veces aparecen.",
+          "hint": "GROUP BY con HAVING COUNT(*) > 1.",
+          "solutionExplanation": "El lado 1 de la relación necesita valores únicos. Corrige los duplicados en la fuente o con Quitar duplicados en Power Query antes de relacionar.",
+          "solutionCode": "SELECT ClienteID,\n       COUNT(*) AS Veces\nFROM dbo.DimCliente\nGROUP BY ClienteID\nHAVING COUNT(*) > 1\nORDER BY Veces DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-04-ej-3",
+          "title": "Práctica 3: Cuenta clientes por categoría sin bidireccional",
+          "difficulty": "Avanzado",
+          "prompt": "El gerente quiere una tabla con Categoria y el número de clientes distintos que compraron en cada una. La relación Producto → Ventas → Cliente es de dirección única. Escribe la medida sin cambiar las relaciones.",
+          "hint": "El filtro de Categoria llega hasta Ventas. ¿Qué columna de Ventas identifica al cliente?",
+          "solutionExplanation": "No hace falta que el filtro llegue a la tabla Cliente: Ventas ya tiene la columna ClienteID filtrada por categoría.",
+          "solutionCode": "Clientes con compra =\nDISTINCTCOUNT ( Ventas[ClienteID] )\n\n-- Alternativa si necesitas contar sobre la dimensión Cliente:\nClientes con compra (dim) =\nCALCULATE ( COUNTROWS ( Cliente ), Ventas )",
+          "codeLanguage": "dax"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-04-q1",
+          "question": "¿Qué describe mejor a una tabla de dimensiones?",
+          "options": [
+            "Pocas filas, con atributos para filtrar y agrupar",
+            "Solo claves sin ningún atributo de texto",
+            "Muchas filas, con importes y cantidades de cada venta",
+            "Una copia de la tabla de hechos agrupada por mes"
+          ],
+          "correctIndex": 0,
+          "explanation": "Las dimensiones describen el quién, qué, dónde y cuándo; tienen una fila por elemento y columnas como Categoría, Ciudad o Mes."
+        },
+        {
+          "id": "pbi-04-q2",
+          "question": "Con dirección de filtro única entre Producto y Ventas, ¿qué ocurre al filtrar una categoría?",
+          "options": [
+            "Ventas se reduce a las filas de esa categoría",
+            "Cliente se reduce a los que compraron esa categoría",
+            "Producto se reduce a los productos vendidos",
+            "No pasa nada hasta activar el filtro cruzado"
+          ],
+          "correctIndex": 0,
+          "explanation": "El filtro viaja del lado 1 (Producto) al lado varios (Ventas). No sube hacia otras dimensiones como Cliente."
+        },
+        {
+          "id": "pbi-04-q3",
+          "question": "¿Cómo usas una segunda fecha, como la de envío, sin crear caminos ambiguos?",
+          "options": [
+            "Una copia de Calendario sin relación alguna",
+            "Combinar Ventas con Calendario en Power Query",
+            "Relación inactiva activada con USERELATIONSHIP",
+            "Segunda relación activa y bidireccional"
+          ],
+          "correctIndex": 2,
+          "explanation": "Solo una relación puede estar activa entre dos tablas. La segunda queda inactiva y la medida la activa con USERELATIONSHIP cuando la necesita."
+        }
+      ]
+    },
+    {
+      "id": "pbi-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2: Modelar",
+      "title": "Tabla de calendario, columnas calculadas y medidas",
+      "subtitle": "La dimensión de fechas que hace posible la inteligencia de tiempo, y la diferencia que más confunde al empezar con DAX.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Crear una tabla de calendario completa con DAX o con T-SQL y marcarla como tabla de fechas.",
+        "Explicar cuándo usar una columna calculada y cuándo una medida.",
+        "Escribir las medidas base del curso: Ventas, Costo, Margen y Margen %."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-05-sec-1",
+          "title": "1. Por qué una tabla de calendario propia",
+          "body": "Las funciones de inteligencia de tiempo de DAX (acumulado del año, año anterior) necesitan una tabla de fechas con **una fila por día, sin huecos**, desde el primer día del primer año hasta el último día del último año.\n\nLa tabla de hechos no sirve: los días sin ventas no aparecen. Por eso se crea una dimensión `Calendario` y se relaciona con `Ventas[FechaVenta]`.\n\nDespués hay que **marcarla como tabla de fechas** (clic derecho en la tabla → *Marcar como tabla de fechas*) eligiendo la columna `Fecha`. Así DAX sabe qué columna usar y deja de crear tablas automáticas.\n\nColumnas habituales: Año, Número de mes, Mes (nombre), Año-Mes, Trimestre, Día de la semana, y marcas como *Es laborable* o *Es mes cerrado*.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Calendario =\nVAR Inicio = DATE ( YEAR ( MIN ( Ventas[FechaVenta] ) ), 1, 1 )\nVAR Fin    = DATE ( YEAR ( MAX ( Ventas[FechaVenta] ) ), 12, 31 )\nRETURN\n    ADDCOLUMNS (\n        CALENDAR ( Inicio, Fin ),\n        \"Año\",        YEAR ( [Date] ),\n        \"Mes num\",    MONTH ( [Date] ),\n        \"Mes\",        FORMAT ( [Date], \"mmm\" ),\n        \"Año-Mes\",    FORMAT ( [Date], \"yyyy-mm\" ),\n        \"Trimestre\",  \"T\" & QUARTER ( [Date] ),\n        \"Día semana\", WEEKDAY ( [Date], 2 )   -- 1 = lunes\n    )",
+          "keyTakeaway": "Una fila por día, años completos, marcada como tabla de fechas."
+        },
+        {
+          "id": "pbi-05-sec-2",
+          "title": "2. El calendario desde SQL Server",
+          "body": "Si la empresa ya tiene una dimensión de fechas en el almacén de datos, úsala: así todos los informes comparten los mismos feriados, semanas fiscales y nombres de mes.\n\nEn T-SQL puedes generar los días con `GENERATE_SERIES` (SQL Server 2022 o posterior) y guardarlos en una tabla o vista. Configura en Power BI **Ordenar por columna** para que `Mes` se ordene por `MesNum`; si no, abril saldrá antes que enero.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Calendario 2023-2026 en T-SQL (SQL Server 2022+)\nCREATE OR ALTER VIEW rpt.Calendario\nAS\nSELECT d.Fecha,\n       YEAR(d.Fecha)                         AS Anio,\n       MONTH(d.Fecha)                        AS MesNum,\n       FORMAT(d.Fecha, 'MMM', 'es-ES')       AS Mes,\n       CONCAT('T', DATEPART(QUARTER, d.Fecha)) AS Trimestre,\n       DATEPART(ISO_WEEK, d.Fecha)           AS SemanaISO,\n       CASE WHEN DATEPART(WEEKDAY, d.Fecha) IN (1, 7) THEN 0 ELSE 1 END AS EsLaborable\nFROM (\n    SELECT DATEADD(DAY, s.value, CAST('2023-01-01' AS date)) AS Fecha\n    FROM GENERATE_SERIES(0, DATEDIFF(DAY, '2023-01-01', '2026-12-31')) AS s\n) AS d;\n-- Ojo: DATEPART(WEEKDAY) depende de SET DATEFIRST; 1 y 7 son domingo y sábado\n-- con la configuración por defecto en inglés (DATEFIRST 7).",
+          "keyTakeaway": "Si existe una dimensión de fechas corporativa, reutilízala."
+        },
+        {
+          "id": "pbi-05-sec-3",
+          "title": "3. Columna calculada o medida",
+          "body": "Es la pregunta más importante del inicio de DAX:\n- Una **columna calculada** se evalúa **una vez por fila** al actualizar el modelo y **se guarda**. Ocupa memoria. Sirve para **filtrar, agrupar o relacionar**: un rango de edad, una categoría de precio, una clave compuesta.\n- Una **medida** **no se guarda**: se calcula en el momento, para cada celda del visual, según los filtros activos. Sirve para **agregar**: totales, promedios, porcentajes.\n\nPrueba rápida: si lo vas a poner en el eje, en las filas o en una segmentación, es una columna. Si lo vas a poner en *Valores*, es una medida.\n\nUn error clásico es calcular un porcentaje como columna: `Margen % = (Precio - Costo) / Precio` fila por fila y luego **sumar** los porcentajes. El total sale 3 500 %. Un cociente se calcula como medida, dividiendo totales.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Columna calculada (tabla Producto): sirve para agrupar\nRango de precio =\nSWITCH (\n    TRUE (),\n    Producto[PrecioLista] < 20,  \"Económico\",\n    Producto[PrecioLista] < 100, \"Medio\",\n    \"Premium\"\n)\n\n-- Medida: se recalcula con cada filtro\nVentas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )",
+          "keyTakeaway": "Columna para filtrar y agrupar; medida para agregar."
+        },
+        {
+          "id": "pbi-05-sec-4",
+          "title": "4. Las medidas base del curso",
+          "body": "Conviene construir unas pocas medidas **base** y apoyar todas las demás sobre ellas. Si mañana cambia la definición de Ventas (por ejemplo, restar impuestos), se cambia en un solo lugar.\n\nUsa siempre `DIVIDE` en vez del operador `/`: devuelve vacío (o el valor alternativo que indiques) cuando el divisor es cero, en lugar de un error o infinito.\n\nY da **formato** a cada medida en la cinta (moneda, porcentaje, decimales): el formato viaja con la medida a todos los visuales.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ventas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )\n\nCosto =\nSUMX ( Ventas, Ventas[Cantidad] * RELATED ( Producto[CostoUnit] ) )\n\nMargen =\n[Ventas] - [Costo]\n\nMargen % =\nDIVIDE ( [Margen], [Ventas] )\n\nUnidades =\nSUM ( Ventas[Cantidad] )",
+          "keyTakeaway": "Pocas medidas base, y todas las demás construidas encima de ellas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir y organizar las primeras medidas.",
+        "rules": [
+          "Medidas en una tabla o carpeta propia, con formato definido.",
+          "Nunca uses columnas implícitas (arrastrar una columna numérica a Valores); crea la medida.",
+          "Referencia una medida sin el nombre de tabla: [Ventas]. Una columna siempre con su tabla: Ventas[Cantidad].",
+          "DIVIDE para cualquier cociente.",
+          "Columnas calculadas solo cuando se necesitan para filtrar, agrupar o relacionar.",
+          "Calendario con años completos, marcado como tabla de fechas, con Mes ordenado por MesNum."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "-- Convención de nombres\nVentas[Cantidad]   -- columna: siempre con el nombre de la tabla\n[Ventas]           -- medida: siempre sin tabla\n\nMargen % =\nDIVIDE ( [Margen], [Ventas] )        -- formato: porcentaje, 1 decimal"
+      },
+      "comparison": {
+        "scenario": "Calcular el margen porcentual por categoría.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "-- Columna calculada en Ventas\nMargen % fila =\n( Ventas[PrecioUnit] - RELATED ( Producto[CostoUnit] ) ) / Ventas[PrecioUnit]\n\n-- En el visual: Suma de Margen % fila  → 3 512 %",
+        "juniorFlaws": [
+          "Sumar porcentajes no tiene sentido: el total crece con el número de filas.",
+          "La columna se guarda para millones de filas y ocupa memoria sin necesidad.",
+          "El operador / falla si algún precio es cero."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Margen % =\nDIVIDE ( [Margen], [Ventas] )\n\n-- En el visual: Margen % por categoría y en el total → 38,4 %",
+        "intermediateBenefits": [
+          "El cociente se hace con los totales del contexto de cada celda.",
+          "El total general es correcto sin fórmulas especiales.",
+          "No ocupa memoria y DIVIDE maneja los ceros."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-05-ej-1",
+          "title": "Práctica 1: Columnas del calendario",
+          "difficulty": "Básico",
+          "prompt": "Agrega a la tabla Calendario (creada con CALENDAR) una columna calculada Año-Trimestre con el formato 2025-T3 y otra EsFinDeSemana con VERDADERO para sábado y domingo.",
+          "hint": "WEEKDAY(fecha, 2) devuelve 6 y 7 para sábado y domingo.",
+          "solutionExplanation": "Son columnas porque se usarán para agrupar y filtrar; se calculan una vez por día, así que ocupan muy poco.",
+          "solutionCode": "Año-Trimestre =\nCalendario[Año] & \"-T\" & QUARTER ( Calendario[Date] )\n\nEsFinDeSemana =\nWEEKDAY ( Calendario[Date], 2 ) >= 6",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-05-ej-2",
+          "title": "Práctica 2: ¿Columna o medida?",
+          "difficulty": "Intermedio",
+          "prompt": "Decide si cada cálculo debe ser columna calculada o medida y explica por qué: (a) ticket promedio, (b) grupo de edad del cliente, (c) número de pedidos, (d) clave Sucursal-Producto para relacionar con un presupuesto, (e) porcentaje de descuento sobre el total.",
+          "hint": "¿Se usa para agrupar o filtrar, o para agregar en Valores?",
+          "solutionExplanation": "Los cálculos que agregan o dividen totales dependen de los filtros, así que son medidas. Los que clasifican cada fila o sirven de clave son columnas.",
+          "solutionCode": "(a) Medida  : DIVIDE([Ventas], [Pedidos])\n(b) Columna : clasifica a cada cliente; va en el eje o en una segmentación\n(c) Medida  : DISTINCTCOUNT(Ventas[PedidoID])\n(d) Columna : se necesita para crear la relación\n(e) Medida  : DIVIDE(SUM(Ventas[Descuento]), [Ventas brutas])",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-05-ej-3",
+          "title": "Práctica 3: Medidas base de devoluciones",
+          "difficulty": "Intermedio",
+          "prompt": "Existe la tabla Devoluciones con Cantidad e ImporteDevuelto, relacionada con Producto y Calendario. Escribe las medidas Devoluciones, Ventas netas (Ventas menos Devoluciones) y Tasa de devolución.",
+          "hint": "Reutiliza [Ventas]. La tasa es devoluciones sobre ventas.",
+          "solutionExplanation": "Cada medida se apoya en otra. Si la definición de Ventas cambia, Ventas netas y la tasa se actualizan solas.",
+          "solutionCode": "Devoluciones =\nSUM ( Devoluciones[ImporteDevuelto] )\n\nVentas netas =\n[Ventas] - [Devoluciones]\n\nTasa de devolución =\nDIVIDE ( [Devoluciones], [Ventas] )",
+          "codeLanguage": "dax"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-05-q1",
+          "question": "¿Qué condición debe cumplir una tabla para marcarla como tabla de fechas?",
+          "options": [
+            "Una fila por cada venta con su fecha y su hora exactas",
+            "Una fila por día, sin huecos y con fechas únicas",
+            "Solo los días en los que hubo alguna venta",
+            "Una columna de texto con el nombre de cada mes"
+          ],
+          "correctIndex": 1,
+          "explanation": "La tabla de fechas necesita días consecutivos y únicos. Los días sin ventas también deben existir para que la inteligencia de tiempo funcione."
+        },
+        {
+          "id": "pbi-05-q2",
+          "question": "¿Cuándo es correcto usar una columna calculada?",
+          "options": [
+            "Cuando el resultado se usa para filtrar o agrupar",
+            "Cuando el resultado es un porcentaje del total",
+            "Cuando el resultado se muestra en una tarjeta",
+            "Cuando el resultado cambia con cada segmentación"
+          ],
+          "correctIndex": 0,
+          "explanation": "Las columnas se calculan una vez por fila y se guardan; sirven en ejes, filas y segmentaciones. Los cálculos que dependen de filtros son medidas."
+        },
+        {
+          "id": "pbi-05-q3",
+          "question": "¿Por qué se recomienda DIVIDE en lugar del operador /?",
+          "options": [
+            "Devuelve vacío o un valor alternativo si el divisor es cero",
+            "Convierte automáticamente el resultado en un porcentaje",
+            "Redondea siempre el resultado a dos decimales",
+            "Es la única forma de dividir dos medidas entre sí dentro de DAX"
+          ],
+          "correctIndex": 0,
+          "explanation": "DIVIDE maneja la división por cero sin errores y permite un tercer argumento como resultado alternativo."
+        }
+      ]
+    },
+    {
+      "id": "pbi-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 3: DAX",
+      "title": "Contexto de fila y contexto de filtro",
+      "subtitle": "Los dos conceptos que explican por qué una fórmula DAX da el número que da.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es el contexto de filtro y de dónde viene en un visual.",
+        "Explicar qué es el contexto de fila y en qué situaciones existe.",
+        "Usar RELATED y RELATEDTABLE para moverse por las relaciones dentro de un contexto de fila."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-06-sec-1",
+          "title": "1. El contexto de filtro",
+          "body": "Cada celda de un visual es un cálculo distinto. Si pones `[Ventas]` en una matriz con `Categoria` en filas y `Año` en columnas, la celda *Bebidas · 2025* calcula `[Ventas]` con dos filtros activos: `Producto[Categoria] = \"Bebidas\"` y `Calendario[Año] = 2025`. Ese conjunto de filtros es el **contexto de filtro**.\n\nEl contexto de filtro viene de:\n- Las filas, columnas y ejes del propio visual.\n- Las **segmentaciones** y los filtros del panel (de visual, de página y de informe).\n- El **filtrado cruzado** al hacer clic en otro visual.\n- Las funciones `CALCULATE` y `CALCULATETABLE` (capítulo 7).\n\nLos filtros se aplican a las dimensiones y viajan por las relaciones hasta la tabla de hechos. La medida no sabe nada del visual: solo ve las filas de `Ventas` que sobreviven a esos filtros. Por eso la misma fórmula sirve para todas las celdas, incluida la fila de total, donde solo queda el filtro del año.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- La misma medida en cada celda; cambia el contexto de filtro\nVentas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )\n\n-- Celda Bebidas · 2025  → filtros: Categoria = \"Bebidas\", Año = 2025\n-- Total de la columna   → filtros: Año = 2025\n-- Total general         → sin filtros (salvo segmentaciones)",
+          "keyTakeaway": "Cada celda calcula la medida con los filtros que la rodean."
+        },
+        {
+          "id": "pbi-06-sec-2",
+          "title": "2. El contexto de fila",
+          "body": "El **contexto de fila** significa \"estoy en esta fila concreta\". Existe en dos situaciones:\n1) En una **columna calculada**: la fórmula se evalúa una vez por fila de la tabla, y `Ventas[Cantidad]` es el valor de esa fila.\n2) Dentro de un **iterador** (`SUMX`, `AVERAGEX`, `FILTER`, `ADDCOLUMNS`...): la función recorre una tabla fila por fila.\n\nFuera de esas situaciones no hay fila actual. Por eso esta medida da error: `Medida = Ventas[Cantidad] * Ventas[PrecioUnit]`. DAX pregunta \"¿la cantidad de qué fila?\". La solución es un iterador: `SUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] )`.\n\nPunto clave: el contexto de fila **no filtra**. En una columna calculada, `SUM ( Ventas[Cantidad] )` devuelve el total de toda la tabla en cada fila, no la cantidad de la fila. Convertir el contexto de fila en filtro es trabajo de `CALCULATE` (capítulo 7).",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Columna calculada en Ventas: contexto de fila\nImporte linea =\nVentas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento]\n\n-- Columna calculada en Ventas: el contexto de fila NO filtra\nTotal tabla =\nSUM ( Ventas[Cantidad] )        -- mismo número en todas las filas\n\n-- Medida: necesita un iterador para tener filas\nVentas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )",
+          "keyTakeaway": "El contexto de fila da acceso a los valores de una fila, pero no filtra nada."
+        },
+        {
+          "id": "pbi-06-sec-3",
+          "title": "3. RELATED y RELATEDTABLE",
+          "body": "Dentro de un contexto de fila puedes moverte por las relaciones:\n- `RELATED ( Producto[CostoUnit] )` desde una fila de **Ventas** (lado varios) trae el valor de la fila relacionada en **Producto** (lado uno). Es como un `LEFT JOIN` que trae una columna.\n- `RELATEDTABLE ( Ventas )` desde una fila de **Producto** (lado uno) devuelve las filas de Ventas de ese producto. Sirve para contar o sumar.\n\n`RELATED` solo funciona hacia el lado uno. Si lo usas al revés da error, porque un producto tiene muchas ventas y DAX no sabe cuál elegir.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Medida: costo usando el costo unitario del producto de cada fila\nCosto =\nSUMX ( Ventas, Ventas[Cantidad] * RELATED ( Producto[CostoUnit] ) )\n\n-- Columna calculada en Producto: cuántas líneas de venta tiene\nLineas vendidas =\nCOUNTROWS ( RELATEDTABLE ( Ventas ) )",
+          "keyTakeaway": "RELATED sube al lado uno; RELATEDTABLE baja al lado varios."
+        },
+        {
+          "id": "pbi-06-sec-4",
+          "title": "4. Leer una fórmula con los dos contextos",
+          "body": "Ante un resultado extraño, hazte siempre dos preguntas:\n1) **¿Qué filtros llegan a esta celda?** Mira filas, columnas, segmentaciones y filtros del panel.\n2) **¿Hay alguna fila actual?** Solo si estás en una columna calculada o dentro de un iterador.\n\nEjemplo: en una matriz por `Sucursal`, la medida `Ticket promedio = AVERAGEX ( VALUES ( Ventas[PedidoID] ), [Ventas] )` recorre los pedidos **visibles en esa sucursal** (contexto de filtro) y, para cada pedido (contexto de fila), calcula `[Ventas]`. Que `[Ventas]` dé el importe *de ese pedido* y no el total se debe a la transición de contexto que verás en el siguiente capítulo.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- La celda \"Sucursal Norte · 2025\" equivale a este T-SQL:\nSELECT SUM(v.Cantidad * v.PrecioUnit - v.Descuento) AS Ventas\nFROM dbo.FactVentas  AS v\nJOIN dbo.DimSucursal AS s ON s.SucursalID = v.SucursalID\nWHERE s.Sucursal = 'Norte'                -- filtro de las filas del visual\n  AND v.FechaVenta >= '2025-01-01'        -- filtro de la columna Año\n  AND v.FechaVenta <  '2026-01-01';",
+          "keyTakeaway": "Dos preguntas: qué filtros hay y si existe una fila actual."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos para razonar sobre contextos.",
+        "rules": [
+          "Escribe agregaciones como medidas; las columnas calculadas no responden a las segmentaciones.",
+          "Si una medida necesita valores por fila, usa un iterador (SUMX, AVERAGEX).",
+          "Usa RELATED solo desde el lado varios hacia el lado uno.",
+          "Prueba cada medida en una matriz con varias dimensiones y revisa también el total.",
+          "Cuando un número no cuadre, escribe en papel los filtros que llegan a esa celda."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "-- Medida de prueba: muestra qué filtros llegan a cada celda\nFiltros activos =\nVAR Cat = IF ( ISFILTERED ( Producto[Categoria] ), CONCATENATEX ( VALUES ( Producto[Categoria] ), Producto[Categoria], \", \" ), \"todas\" )\nVAR Anio = IF ( ISFILTERED ( Calendario[Año] ), CONCATENATEX ( VALUES ( Calendario[Año] ), Calendario[Año], \", \" ), \"todos\" )\nRETURN \"Categoría: \" & Cat & \" | Año: \" & Anio"
+      },
+      "comparison": {
+        "scenario": "Calcular el porcentaje de cada línea sobre las ventas de su producto en una columna.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "-- Columna calculada en Ventas\n% del producto =\nDIVIDE (\n    Ventas[Cantidad] * Ventas[PrecioUnit],\n    SUM ( Ventas[Cantidad] )            -- ¿suma de qué?\n)",
+        "juniorFlaws": [
+          "El contexto de fila no filtra: SUM devuelve la cantidad de toda la tabla en cada fila.",
+          "Además divide un importe entre una cantidad: unidades distintas."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Columna calculada en Ventas\n% del producto =\nVAR ImporteFila = Ventas[Cantidad] * Ventas[PrecioUnit]\nVAR ProductoFila = Ventas[ProductoID]\nVAR ImporteProducto =\n    SUMX (\n        FILTER ( Ventas, Ventas[ProductoID] = ProductoFila ),\n        Ventas[Cantidad] * Ventas[PrecioUnit]\n    )\nRETURN DIVIDE ( ImporteFila, ImporteProducto )",
+        "intermediateBenefits": [
+          "La variable guarda el producto de la fila actual antes de iterar de nuevo.",
+          "FILTER limita la tabla a las ventas de ese producto.",
+          "Numerador y denominador están en la misma unidad (importe)."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-06-ej-1",
+          "title": "Práctica 1: Identifica el contexto",
+          "difficulty": "Básico",
+          "prompt": "Para cada fórmula indica si se evalúa con contexto de fila, de filtro o ambos: (a) la columna calculada Producto[Margen unit] = Producto[Precio] - Producto[CostoUnit]; (b) la medida Unidades = SUM(Ventas[Cantidad]) en una tarjeta; (c) la expresión dentro de SUMX(Ventas, Ventas[Cantidad] * Ventas[PrecioUnit]) usada en una matriz.",
+          "hint": "Las columnas calculadas tienen fila; las medidas tienen filtros; los iteradores dentro de medidas tienen ambos.",
+          "solutionExplanation": "Dentro de SUMX hay contexto de fila (la fila que recorre) y también el contexto de filtro de la celda, que limita qué filas se recorren.",
+          "solutionCode": "(a) Contexto de fila (columna calculada; no hay filtros del visual)\n(b) Contexto de filtro (los de la tarjeta y las segmentaciones)\n(c) Ambos: el filtro de la celda decide las filas; SUMX crea el contexto de fila",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-06-ej-2",
+          "title": "Práctica 2: Arregla la medida que da error",
+          "difficulty": "Intermedio",
+          "prompt": "La medida Ingreso bruto = Ventas[Cantidad] * Ventas[PrecioUnit] da el error \"no se puede determinar un valor único\". Explica por qué y corrígela.",
+          "hint": "Una medida no tiene fila actual.",
+          "solutionExplanation": "Sin contexto de fila, DAX no sabe de qué fila tomar Cantidad y PrecioUnit. SUMX crea ese contexto y suma el resultado de cada fila.",
+          "solutionCode": "Ingreso bruto =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-06-ej-3",
+          "title": "Práctica 3: Del filtro al T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Una matriz tiene Region en filas, Mes en columnas y una segmentación Segmento = \"Empresa\". Escribe el T-SQL equivalente a la celda Region = 'Caribe', Mes = marzo de 2025 para la medida Unidades.",
+          "hint": "Cada filtro del contexto se vuelve una condición en el WHERE, usando los JOIN a las dimensiones.",
+          "solutionExplanation": "Así funciona el motor: los filtros de las dimensiones viajan por las relaciones y reducen las filas de la tabla de hechos.",
+          "solutionCode": "SELECT SUM(v.Cantidad) AS Unidades\nFROM dbo.FactVentas  AS v\nJOIN dbo.DimSucursal AS s ON s.SucursalID = v.SucursalID\nJOIN dbo.DimCliente  AS c ON c.ClienteID  = v.ClienteID\nWHERE s.Region   = 'Caribe'\n  AND c.Segmento = 'Empresa'\n  AND v.FechaVenta >= '2025-03-01'\n  AND v.FechaVenta <  '2025-04-01';",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-06-q1",
+          "question": "En una matriz, ¿qué determina el contexto de filtro de una celda?",
+          "options": [
+            "Los valores de su fila, su columna y los filtros activos",
+            "El número total de filas de la tabla de hechos",
+            "La posición de la medida en la lista de campos del panel",
+            "El orden en que se crearon las relaciones"
+          ],
+          "correctIndex": 0,
+          "explanation": "Cada celda filtra por los valores de su fila y columna, más segmentaciones, filtros del panel y filtrado cruzado."
+        },
+        {
+          "id": "pbi-06-q2",
+          "question": "¿Qué devuelve SUM(Ventas[Cantidad]) en una columna calculada de Ventas?",
+          "options": [
+            "La cantidad acumulada desde la primera fila hasta la actual",
+            "La cantidad total de la tabla en cada una de las filas",
+            "La cantidad de la fila en la que se evalúa",
+            "Un error, porque SUM no admite columnas de una tabla de hechos"
+          ],
+          "correctIndex": 1,
+          "explanation": "El contexto de fila no filtra. SUM agrega toda la columna, así que el resultado se repite en cada fila."
+        },
+        {
+          "id": "pbi-06-q3",
+          "question": "¿Desde qué tabla se usa RELATED(Producto[CostoUnit])?",
+          "options": [
+            "Desde Calendario, aunque no tenga una relación",
+            "Desde Ventas, el lado varios de la relación",
+            "Desde Producto, el lado uno de la relación",
+            "Desde cualquier tabla del modelo semántico"
+          ],
+          "correctIndex": 1,
+          "explanation": "RELATED sigue la relación desde el lado varios hacia el lado uno, donde hay un único valor que traer."
+        }
+      ]
+    },
+    {
+      "id": "pbi-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3: DAX",
+      "title": "CALCULATE y la transición de contexto",
+      "subtitle": "La función más importante de DAX: cambia los filtros antes de calcular.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Usar CALCULATE para agregar, reemplazar o quitar filtros de una medida.",
+        "Elegir entre filtros simples, ALL, REMOVEFILTERS, ALLEXCEPT y KEEPFILTERS.",
+        "Explicar la transición de contexto y por qué una medida dentro de un iterador se comporta distinto."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-07-sec-1",
+          "title": "1. Qué hace CALCULATE",
+          "body": "`CALCULATE ( expresión, filtro1, filtro2, ... )` hace tres cosas en orden:\n1) Toma el contexto de filtro actual de la celda.\n2) Aplica los filtros que le pasas. Un filtro sobre una columna **reemplaza** cualquier filtro existente sobre esa misma columna; los filtros sobre otras columnas se mantienen.\n3) Evalúa la expresión en ese nuevo contexto.\n\nPor eso `Ventas Bebidas = CALCULATE ( [Ventas], Producto[Categoria] = \"Bebidas\" )` muestra lo mismo en todas las filas de una matriz por categoría: el filtro de la fila (`Lácteos`, `Limpieza`...) se reemplaza por *Bebidas*. Pero sigue respetando el año, la sucursal y cualquier segmentación.\n\nLos filtros se combinan con **Y**. Para un **O** entre valores de la misma columna usa `IN`: `Producto[Categoria] IN { \"Bebidas\", \"Lácteos\" }`.\n\nEn el diagrama puedes comparar las variantes sobre la misma matriz.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ventas Bebidas =\nCALCULATE ( [Ventas], Producto[Categoria] = \"Bebidas\" )\n\nVentas Bebidas y Lácteos =\nCALCULATE ( [Ventas], Producto[Categoria] IN { \"Bebidas\", \"Lácteos\" } )\n\nVentas Empresa Norte =\nCALCULATE (\n    [Ventas],\n    Cliente[Segmento] = \"Empresa\",       -- se combinan con Y\n    Sucursal[Region]  = \"Norte\"\n)",
+          "keyTakeaway": "CALCULATE cambia los filtros y después calcula; un filtro reemplaza al de la misma columna.",
+          "diagram": {
+            "type": "calculate-contexto"
+          }
+        },
+        {
+          "id": "pbi-07-sec-2",
+          "title": "2. Quitar filtros: ALL, REMOVEFILTERS y ALLEXCEPT",
+          "body": "Para calcular porcentajes del total necesitas el denominador **sin** algunos filtros:\n- `REMOVEFILTERS ( Producto )` o `ALL ( Producto )` dentro de CALCULATE quitan todos los filtros de la tabla Producto. `REMOVEFILTERS` es más legible y solo sirve para eso.\n- `REMOVEFILTERS ( Producto[Categoria] )` quita solo el filtro de esa columna.\n- `ALLEXCEPT ( Producto, Producto[Categoria] )` quita todos los filtros de Producto **excepto** el de categoría. Útil para \"% dentro de su categoría\".\n- `ALLSELECTED ( Producto )` vuelve a los filtros que eligió el usuario fuera del visual (segmentaciones), ignorando solo los de las filas del visual. Ideal para que el porcentaje sume 100 % en lo que se ve.\n\n`ALL` además se usa como **función de tabla** (`ALL ( Producto[Categoria] )` devuelve todas las categorías). `REMOVEFILTERS` no: solo funciona como modificador de CALCULATE.",
+          "codeLanguage": "dax",
+          "codeSnippet": "% del total =\nDIVIDE ( [Ventas], CALCULATE ( [Ventas], REMOVEFILTERS ( Producto ) ) )\n\n% del total visible =\nDIVIDE ( [Ventas], CALCULATE ( [Ventas], ALLSELECTED ( Producto ) ) )\n\n% dentro de la categoría =\nDIVIDE (\n    [Ventas],\n    CALCULATE ( [Ventas], ALLEXCEPT ( Producto, Producto[Categoria] ) )\n)",
+          "keyTakeaway": "REMOVEFILTERS quita, ALLEXCEPT conserva una columna y ALLSELECTED respeta las segmentaciones."
+        },
+        {
+          "id": "pbi-07-sec-3",
+          "title": "3. KEEPFILTERS: sumar un filtro sin reemplazar",
+          "body": "A veces no quieres reemplazar el filtro de la celda sino **cruzarlo**. `KEEPFILTERS` hace que el nuevo filtro se combine con el existente (intersección).\n\nCon `CALCULATE ( [Ventas], Producto[Categoria] = \"Bebidas\" )` la fila *Lácteos* muestra las ventas de bebidas. Con `CALCULATE ( [Ventas], KEEPFILTERS ( Producto[Categoria] = \"Bebidas\" ) )` la fila *Lácteos* queda **vacía** (no hay productos que sean a la vez lácteos y bebidas) y solo la fila *Bebidas* tiene valor. Es lo que la mayoría de usuarios espera ver.\n\nUn filtro con una condición sobre **varias columnas** (`Ventas[Cantidad] * Ventas[PrecioUnit] > 1000`) no se puede escribir directamente: usa `FILTER` sobre las columnas necesarias, preferiblemente envuelto en `KEEPFILTERS`.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ventas solo Bebidas =\nCALCULATE ( [Ventas], KEEPFILTERS ( Producto[Categoria] = \"Bebidas\" ) )\n\nVentas de líneas grandes =\nCALCULATE (\n    [Ventas],\n    KEEPFILTERS (\n        FILTER (\n            ALL ( Ventas[Cantidad], Ventas[PrecioUnit] ),\n            Ventas[Cantidad] * Ventas[PrecioUnit] > 1000\n        )\n    )\n)",
+          "keyTakeaway": "KEEPFILTERS cruza el filtro nuevo con el de la celda en lugar de reemplazarlo."
+        },
+        {
+          "id": "pbi-07-sec-4",
+          "title": "4. La transición de contexto",
+          "body": "Cuando `CALCULATE` se ejecuta dentro de un **contexto de fila**, convierte esa fila en un **filtro**. Eso es la **transición de contexto**.\n\nY hay un detalle importante: **toda referencia a una medida lleva un CALCULATE invisible**. Escribir `[Ventas]` es como escribir `CALCULATE ( SUMX ( ... ) )`. Por eso:\n- En una columna calculada de `Cliente`, `Total cliente = [Ventas]` da las ventas **de ese cliente** (la fila se convirtió en filtro). En cambio `SUMX ( Ventas, ... )` sin CALCULATE daría el total de toda la tabla.\n- En `AVERAGEX ( VALUES ( Cliente[ClienteID] ), [Ventas] )`, cada cliente recorrido se convierte en filtro y `[Ventas]` devuelve lo de ese cliente.\n\nDos cuidados:\n- La transición filtra por **todas las columnas** de la fila. Si la tabla tiene filas duplicadas, cada una ve la suma de todas sus copias.\n- Es costosa sobre tablas grandes. Itera sobre columnas con pocos valores (`VALUES ( Cliente[ClienteID] )`) y no sobre la tabla de hechos completa.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Columna calculada en Cliente\nVentas del cliente =\n[Ventas]                         -- transición: la fila se vuelve filtro\n\nVentas sin transición =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] - Ventas[Descuento] )\n-- → total de toda la tabla en cada cliente\n\n-- Medida: promedio de ventas por cliente\nVenta media por cliente =\nAVERAGEX ( VALUES ( Cliente[ClienteID] ), [Ventas] )",
+          "keyTakeaway": "Una medida dentro de un iterador convierte cada fila en filtro."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para escribir CALCULATE de forma predecible.",
+        "rules": [
+          "Usa filtros simples sobre columnas (Tabla[Col] = valor) siempre que puedas, no FILTER sobre tablas completas.",
+          "Usa REMOVEFILTERS cuando solo quieres quitar filtros; deja ALL para cuando necesitas una tabla.",
+          "Envuelve en KEEPFILTERS los filtros que deben respetar lo que el usuario seleccionó.",
+          "No filtres la tabla de hechos completa con FILTER(Ventas, ...): filtra columnas.",
+          "Recuerda que [Medida] dentro de un iterador provoca transición de contexto.",
+          "Comprueba cada medida en las filas, en los totales y con alguna segmentación activa."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "% del total de categorías =\nVAR VentasCelda = [Ventas]\nVAR VentasTodas =\n    CALCULATE ( [Ventas], REMOVEFILTERS ( Producto[Categoria] ) )\nRETURN\n    DIVIDE ( VentasCelda, VentasTodas )"
+      },
+      "comparison": {
+        "scenario": "Ventas de los productos de la categoría Bebidas en un informe con segmentación por marca.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Ventas Bebidas =\nCALCULATE (\n    [Ventas],\n    FILTER ( ALL ( Producto ), Producto[Categoria] = \"Bebidas\" )\n)",
+        "juniorFlaws": [
+          "ALL(Producto) borra también el filtro de marca de la segmentación: el número no cambia al elegir una marca.",
+          "FILTER recorre la tabla completa de productos; es más lento que un filtro de columna.",
+          "Es difícil de leer: no se ve qué filtros se quieren conservar."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Ventas Bebidas =\nCALCULATE (\n    [Ventas],\n    KEEPFILTERS ( Producto[Categoria] = \"Bebidas\" )\n)",
+        "intermediateBenefits": [
+          "Solo toca la columna Categoria; la marca elegida sigue filtrando.",
+          "Con KEEPFILTERS las demás categorías quedan vacías, como espera el usuario.",
+          "Es más corto, más rápido y se entiende de un vistazo."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-07-ej-1",
+          "title": "Práctica 1: Participación de cada región",
+          "difficulty": "Básico",
+          "prompt": "Escribe la medida % ventas región que, en una tabla por Sucursal[Region], muestre la participación de cada región en el total de ventas de todas las regiones.",
+          "hint": "El denominador es [Ventas] sin el filtro de la región.",
+          "solutionExplanation": "REMOVEFILTERS sobre la columna quita solo el filtro de región; si hay una segmentación de año, se respeta en numerador y denominador.",
+          "solutionCode": "% ventas región =\nDIVIDE (\n    [Ventas],\n    CALCULATE ( [Ventas], REMOVEFILTERS ( Sucursal[Region] ) )\n)",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-07-ej-2",
+          "title": "Práctica 2: Tickets grandes",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la medida Ventas tickets grandes con las ventas de los pedidos cuyo importe total supera 500, respetando cualquier filtro que tenga la celda.",
+          "hint": "Itera sobre VALUES(Ventas[PedidoID]) y usa [Ventas] para obtener el importe de cada pedido (transición de contexto).",
+          "solutionExplanation": "FILTER recorre los pedidos visibles; dentro, [Ventas] se evalúa para cada pedido gracias a la transición. El resultado se usa como filtro de CALCULATE.",
+          "solutionCode": "Ventas tickets grandes =\nCALCULATE (\n    [Ventas],\n    FILTER ( VALUES ( Ventas[PedidoID] ), [Ventas] > 500 )\n)",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-07-ej-3",
+          "title": "Práctica 3: Comprueba en T-SQL",
+          "difficulty": "Avanzado",
+          "prompt": "Valida la medida anterior en SQL Server: calcula en T-SQL las ventas de pedidos con importe mayor a 500 durante 2025.",
+          "hint": "Agrupa primero por pedido en una CTE, filtra con HAVING o WHERE y suma después.",
+          "solutionExplanation": "Comparar el resultado de DAX con una consulta independiente en la fuente es la forma profesional de validar una medida nueva.",
+          "solutionCode": "WITH Pedidos AS (\n    SELECT v.PedidoID,\n           SUM(v.Cantidad * v.PrecioUnit - v.Descuento) AS Importe\n    FROM dbo.FactVentas AS v\n    WHERE v.FechaVenta >= '2025-01-01'\n      AND v.FechaVenta <  '2026-01-01'\n    GROUP BY v.PedidoID\n)\nSELECT SUM(Importe) AS VentasTicketsGrandes\nFROM Pedidos\nWHERE Importe > 500;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-07-q1",
+          "question": "En una matriz por categoría, ¿qué muestra CALCULATE([Ventas], Producto[Categoria] = \"Bebidas\")?",
+          "options": [
+            "El total de todas las categorías en cada fila",
+            "Las ventas de cada fila sumadas a las de Bebidas",
+            "Las ventas de Bebidas en cada fila de la matriz",
+            "Un valor solo en la fila Bebidas y vacío en el resto"
+          ],
+          "correctIndex": 2,
+          "explanation": "El filtro sobre Categoria reemplaza al de la fila, así que todas las filas muestran Bebidas. Con KEEPFILTERS solo la fila Bebidas tendría valor."
+        },
+        {
+          "id": "pbi-07-q2",
+          "question": "¿Qué función usarías para que un porcentaje respete las segmentaciones pero no las filas del visual?",
+          "options": [
+            "RELATED sobre la columna de la segmentación",
+            "REMOVEFILTERS sobre la tabla completa de hechos",
+            "ALLSELECTED sobre la tabla o columna de las filas",
+            "KEEPFILTERS sobre la columna de las filas"
+          ],
+          "correctIndex": 2,
+          "explanation": "ALLSELECTED restaura los filtros que vienen de fuera del visual, como las segmentaciones, e ignora los de sus propias filas."
+        },
+        {
+          "id": "pbi-07-q3",
+          "question": "¿Qué es la transición de contexto?",
+          "options": [
+            "Copiar los filtros de una página del informe a otra",
+            "Cambiar una columna calculada por una medida",
+            "Convertir la fila actual en un filtro al usar CALCULATE",
+            "Pasar un filtro de una dimensión a la tabla de hechos de ventas"
+          ],
+          "correctIndex": 2,
+          "explanation": "Dentro de un contexto de fila, CALCULATE (explícito o el implícito de una medida) transforma esa fila en un filtro sobre todas sus columnas."
+        }
+      ]
+    },
+    {
+      "id": "pbi-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3: DAX",
+      "title": "Iteradores, funciones de tabla y variables",
+      "subtitle": "SUMX, FILTER, VALUES, ADDCOLUMNS y VAR: las herramientas para cálculos fila por fila sin perder rendimiento.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Usar iteradores (SUMX, AVERAGEX, MAXX, COUNTX) cuando el cálculo necesita valores de cada fila.",
+        "Construir tablas virtuales con FILTER, VALUES, SUMMARIZE y ADDCOLUMNS dentro de una medida.",
+        "Escribir medidas legibles y eficientes con VAR y RETURN."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-08-sec-1",
+          "title": "1. Agregadores e iteradores",
+          "body": "DAX tiene dos familias de funciones de agregación:\n- **Agregadores** (`SUM`, `AVERAGE`, `MIN`, `MAX`, `COUNTROWS`, `DISTINCTCOUNT`): trabajan sobre **una columna**. `SUM ( Ventas[Cantidad] )`.\n- **Iteradores** (`SUMX`, `AVERAGEX`, `MINX`, `MAXX`, `COUNTX`, `CONCATENATEX`, `RANKX`): reciben **una tabla y una expresión**. Recorren la tabla, evalúan la expresión en cada fila y luego agregan los resultados.\n\n`SUM ( Ventas[Cantidad] )` es en realidad un atajo de `SUMX ( Ventas, Ventas[Cantidad] )`, así que no hay diferencia de velocidad entre ellos. La pregunta no es \"¿SUM o SUMX?\" sino **qué tabla iteras**: recorrer `Ventas` (millones de filas) con una expresión pesada es caro; recorrer `VALUES ( Cliente[ClienteID] )` (miles) es barato.\n\nEl **nivel** al que iteras cambia el resultado: un promedio por línea de venta no es lo mismo que un promedio por pedido o por cliente.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Promedio por línea de venta\nImporte medio por línea =\nAVERAGEX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] )\n\n-- Promedio por pedido (ticket medio): itera pedidos, no líneas\nTicket medio =\nAVERAGEX ( VALUES ( Ventas[PedidoID] ), [Ventas] )\n\n-- Mayor venta diaria del período\nMejor día =\nMAXX ( VALUES ( Calendario[Fecha] ), [Ventas] )",
+          "keyTakeaway": "Elige con cuidado la tabla que recorres: define el nivel del cálculo y su costo."
+        },
+        {
+          "id": "pbi-08-sec-2",
+          "title": "2. Funciones que devuelven tablas",
+          "body": "Muchas funciones devuelven **tablas virtuales** que solo existen mientras se calcula la medida. Se usan como primer argumento de un iterador o como filtro de CALCULATE:\n- `VALUES ( Columna )`: los valores distintos visibles en el contexto actual (más un posible valor en blanco por claves huérfanas).\n- `DISTINCT ( Columna )`: igual, pero sin la fila en blanco extra.\n- `FILTER ( Tabla, condición )`: las filas que cumplen la condición. Itera, así que úsalo sobre tablas pequeñas.\n- `SUMMARIZE ( Tabla, Col1, Col2 )`: las combinaciones existentes de esas columnas, como un `GROUP BY` sin agregados.\n- `ADDCOLUMNS ( Tabla, \"Nombre\", expresión )`: agrega columnas calculadas a una tabla virtual. Para agregar valores a un `SUMMARIZE`, usa `ADDCOLUMNS` encima (no las columnas extra de `SUMMARIZE`).\n- `TOPN ( n, Tabla, Expresión )`: las n primeras filas según una expresión.\n\nPuedes ver el resultado de cualquier tabla virtual creando una **tabla calculada** de prueba o en la **vista de consultas DAX** con `EVALUATE`.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Vista de consultas DAX: probar una tabla virtual\nEVALUATE\nTOPN (\n    5,\n    ADDCOLUMNS (\n        VALUES ( Producto[Producto] ),\n        \"@Ventas\", [Ventas],\n        \"@Margen %\", [Margen %]\n    ),\n    [@Ventas], DESC\n)\nORDER BY [@Ventas] DESC",
+          "keyTakeaway": "Las funciones de tabla crean tablas temporales que alimentan iteradores y filtros."
+        },
+        {
+          "id": "pbi-08-sec-3",
+          "title": "3. Variables: VAR y RETURN",
+          "body": "Las **variables** guardan un valor o una tabla con nombre dentro de la medida:\n- **Legibilidad**: cada paso tiene un nombre que explica qué es.\n- **Rendimiento**: una variable se calcula **una sola vez**, aunque la uses varias veces.\n- **Depuración**: cambia el `RETURN` por el nombre de una variable para ver su valor intermedio.\n\nDetalle clave: una variable se evalúa **en el contexto donde se define**, y después es constante. Si defines `VAR v = [Ventas]` fuera de un CALCULATE y luego escribes `CALCULATE ( v, ... )`, el filtro no cambia nada: `v` ya tiene su valor. Ese comportamiento es útil para guardar \"el valor de la fila actual\" antes de iterar de nuevo.\n\nPor convención, muchos equipos ponen `_` o `@` delante de los nombres de variables y de las columnas de tablas virtuales para distinguirlas de las columnas del modelo.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Crecimiento vs año anterior % =\nVAR _Actual   = [Ventas]\nVAR _Anterior = CALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )\nVAR _Cambio   = _Actual - _Anterior\nRETURN\n    IF ( NOT ISBLANK ( _Anterior ), DIVIDE ( _Cambio, _Anterior ) )",
+          "keyTakeaway": "Las variables se calculan una vez, en el contexto donde se definen."
+        },
+        {
+          "id": "pbi-08-sec-4",
+          "title": "4. Iteradores en T-SQL, para entenderlos",
+          "body": "Si vienes de SQL, un iterador sobre una tabla virtual se parece mucho a una subconsulta agrupada. El ticket medio de DAX (`AVERAGEX ( VALUES ( Ventas[PedidoID] ), [Ventas] )`) equivale a agrupar por pedido y luego promediar.\n\nEsta equivalencia también es una buena herramienta de **validación**: cuando escribas una medida compleja, calcula el mismo número en T-SQL para un filtro concreto y compara.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Ticket medio de 2025 en T-SQL (equivale a AVERAGEX(VALUES(PedidoID), [Ventas]))\nWITH PorPedido AS (\n    SELECT v.PedidoID,\n           SUM(v.Cantidad * v.PrecioUnit - v.Descuento) AS Importe\n    FROM dbo.FactVentas AS v\n    WHERE v.FechaVenta >= '2025-01-01'\n      AND v.FechaVenta <  '2026-01-01'\n    GROUP BY v.PedidoID\n)\nSELECT AVG(Importe) AS TicketMedio\nFROM PorPedido;",
+          "keyTakeaway": "Iterar sobre VALUES(columna) es como agrupar por esa columna y luego agregar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir medidas con iteradores que se mantengan rápidas.",
+        "rules": [
+          "Itera sobre la columna o tabla más pequeña que dé el nivel correcto (VALUES de una clave).",
+          "Evita FILTER sobre la tabla de hechos completa; filtra columnas.",
+          "Guarda en variables cualquier resultado que uses más de una vez.",
+          "Nombra variables y columnas virtuales con un prefijo (_ o @).",
+          "Prueba las tablas virtuales con EVALUATE en la vista de consultas DAX.",
+          "Valida los resultados nuevos contra una consulta T-SQL en la fuente."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "Clientes recurrentes =\nVAR _Clientes =\n    ADDCOLUMNS (\n        VALUES ( Ventas[ClienteID] ),\n        \"@Pedidos\", CALCULATE ( DISTINCTCOUNT ( Ventas[PedidoID] ) )\n    )\nRETURN\n    COUNTROWS ( FILTER ( _Clientes, [@Pedidos] >= 2 ) )"
+      },
+      "comparison": {
+        "scenario": "Contar los productos con margen negativo.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Productos con pérdida =\nCOUNTROWS (\n    FILTER (\n        Ventas,\n        CALCULATE ( [Margen] ) < 0\n    )\n)",
+        "juniorFlaws": [
+          "Itera millones de líneas de venta y hace transición de contexto en cada una.",
+          "Cuenta líneas de venta, no productos: un producto con 300 líneas cuenta 300 veces.",
+          "Si hay líneas idénticas, la transición mezcla sus valores."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Productos con pérdida =\nCOUNTROWS (\n    FILTER (\n        VALUES ( Producto[ProductoID] ),\n        [Margen] < 0\n    )\n)",
+        "intermediateBenefits": [
+          "Recorre solo los productos visibles: miles de filas, no millones.",
+          "Cuenta productos, que es lo que se preguntó.",
+          "[Margen] se evalúa por producto gracias a la transición de contexto."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-08-ej-1",
+          "title": "Práctica 1: Venta media diaria",
+          "difficulty": "Básico",
+          "prompt": "Escribe la medida Venta media diaria que promedie las ventas por día del período filtrado, contando solo los días con ventas.",
+          "hint": "Itera sobre los días visibles del calendario. AVERAGEX ignora los resultados en blanco.",
+          "solutionExplanation": "Los días sin ventas devuelven un valor en blanco y AVERAGEX no los cuenta. Si quisieras incluirlos como cero, sumarías y dividirías entre el número de días.",
+          "solutionCode": "Venta media diaria =\nAVERAGEX ( VALUES ( Calendario[Fecha] ), [Ventas] )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-08-ej-2",
+          "title": "Práctica 2: Top 3 productos en texto",
+          "difficulty": "Intermedio",
+          "prompt": "Crea la medida Top 3 productos que devuelva un texto con los tres productos más vendidos del contexto actual, separados por coma, por ejemplo \"Café 1 kg, Leche, Arroz\".",
+          "hint": "TOPN para la tabla y CONCATENATEX para unir los nombres, ordenando por las ventas.",
+          "solutionExplanation": "TOPN devuelve los tres productos; CONCATENATEX los une respetando el orden indicado. Sirve para títulos dinámicos y tooltips.",
+          "solutionCode": "Top 3 productos =\nVAR _Top =\n    TOPN ( 3, VALUES ( Producto[Producto] ), [Ventas], DESC )\nRETURN\n    CONCATENATEX ( _Top, Producto[Producto], \", \", [Ventas], DESC )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-08-ej-3",
+          "title": "Práctica 3: Clientes que compran en varias categorías",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe la medida Clientes multicategoría que cuente los clientes con compras en al menos 3 categorías distintas dentro del contexto actual. Luego escribe el T-SQL para validarla en 2025.",
+          "hint": "Itera VALUES(Ventas[ClienteID]) y, por cliente, cuenta categorías con CALCULATE(DISTINCTCOUNT(Producto[Categoria])).",
+          "solutionExplanation": "El CALCULATE dentro del iterador provoca la transición de contexto: cada cliente se convierte en filtro antes de contar sus categorías.",
+          "solutionCode": "Clientes multicategoría =\nCOUNTROWS (\n    FILTER (\n        VALUES ( Ventas[ClienteID] ),\n        CALCULATE ( DISTINCTCOUNT ( Producto[Categoria] ) ) >= 3\n    )\n)\n\n-- Validación en T-SQL\n-- SELECT COUNT(*) FROM (\n--     SELECT v.ClienteID\n--     FROM dbo.FactVentas AS v\n--     JOIN rpt.Producto  AS p ON p.ProductoID = v.ProductoID\n--     WHERE v.FechaVenta >= '2025-01-01' AND v.FechaVenta < '2026-01-01'\n--     GROUP BY v.ClienteID\n--     HAVING COUNT(DISTINCT p.Categoria) >= 3\n-- ) AS c;",
+          "codeLanguage": "dax"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-08-q1",
+          "question": "¿Qué diferencia a SUMX de SUM?",
+          "options": [
+            "SUMX solo admite columnas de la tabla Calendario",
+            "SUMX evalúa una expresión en cada fila de una tabla",
+            "SUMX ignora los filtros de las segmentaciones",
+            "SUMX devuelve una tabla en lugar de un número"
+          ],
+          "correctIndex": 1,
+          "explanation": "SUM agrega una sola columna; SUMX recorre una tabla, evalúa una expresión por fila y suma los resultados."
+        },
+        {
+          "id": "pbi-08-q2",
+          "question": "Si defines VAR v = [Ventas] y luego escribes CALCULATE(v, Producto[Categoria] = \"Bebidas\"), ¿qué obtienes?",
+          "options": [
+            "Un error porque CALCULATE no admite variables",
+            "Las ventas de la categoría Bebidas solamente",
+            "El total de ventas sin ningún filtro aplicado",
+            "El mismo valor de v, porque ya estaba calculado"
+          ],
+          "correctIndex": 3,
+          "explanation": "Una variable se evalúa donde se define y después es constante; el filtro posterior de CALCULATE no la cambia."
+        },
+        {
+          "id": "pbi-08-q3",
+          "question": "¿Por qué es mejor FILTER(VALUES(Producto[ProductoID]), ...) que FILTER(Ventas, ...) para contar productos?",
+          "options": [
+            "VALUES quita los filtros de las segmentaciones",
+            "Recorre muchas menos filas y cuenta productos",
+            "Ventas no se puede usar dentro de FILTER",
+            "FILTER solo funciona con columnas de texto"
+          ],
+          "correctIndex": 1,
+          "explanation": "Iterar la clave del producto recorre miles de filas en lugar de millones y el resultado está al nivel correcto: productos, no líneas de venta."
+        }
+      ]
+    },
+    {
+      "id": "pbi-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3: DAX",
+      "title": "Inteligencia de tiempo",
+      "subtitle": "Acumulados, comparaciones con el año anterior y medias móviles sobre la tabla de calendario.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Calcular acumulados del mes, trimestre y año con TOTALYTD, DATESYTD y DATESMTD.",
+        "Comparar períodos con SAMEPERIODLASTYEAR, DATEADD y PARALLELPERIOD.",
+        "Construir medias móviles y manejar períodos incompletos sin engañar al lector."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-09-sec-1",
+          "title": "1. Requisitos y acumulados",
+          "body": "Las funciones de inteligencia de tiempo **reemplazan el filtro de fechas** de la celda por otro conjunto de fechas. Para funcionar necesitan la tabla `Calendario` del capítulo 5: días completos, marcada como tabla de fechas y relacionada con la tabla de hechos. Usa siempre `Calendario[Fecha]` en estas funciones, nunca la fecha de la tabla de hechos.\n\nAcumulados (desde el inicio del período hasta la fecha de la celda):\n- `TOTALYTD ( [Ventas], Calendario[Fecha] )`: acumulado del año.\n- `CALCULATE ( [Ventas], DATESYTD ( Calendario[Fecha] ) )`: lo mismo, más flexible porque admite otros filtros.\n- `DATESMTD` y `DATESQTD`: mes y trimestre.\n\nPara **años fiscales**, indica la fecha de cierre: `DATESYTD ( Calendario[Fecha], \"30/6\" )` acumula de julio a junio.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ventas acumuladas año =\nCALCULATE ( [Ventas], DATESYTD ( Calendario[Fecha] ) )\n\nVentas acumuladas mes =\nCALCULATE ( [Ventas], DATESMTD ( Calendario[Fecha] ) )\n\nVentas acumuladas año fiscal =\nCALCULATE ( [Ventas], DATESYTD ( Calendario[Fecha], \"30/6\" ) )",
+          "keyTakeaway": "Las funciones de tiempo cambian qué fechas filtran la celda; necesitan un buen calendario."
+        },
+        {
+          "id": "pbi-09-sec-2",
+          "title": "2. Comparar con períodos anteriores",
+          "body": "- `SAMEPERIODLASTYEAR ( Calendario[Fecha] )`: las mismas fechas, un año antes.\n- `DATEADD ( Calendario[Fecha], -1, MONTH )`: desplaza las fechas visibles el número de intervalos que indiques (`DAY`, `MONTH`, `QUARTER`, `YEAR`).\n- `PARALLELPERIOD ( Calendario[Fecha], -1, YEAR )`: devuelve el **período completo** anterior. En una celda de marzo devuelve todo el año anterior, no marzo.\n- `PREVIOUSMONTH`, `PREVIOUSYEAR`: el mes o año completo anterior.\n\nCon la medida del año anterior construye las variaciones: diferencia absoluta y porcentaje. Usa variables y `DIVIDE`, y devuelve vacío si no hay datos del año anterior para no mostrar un \"crecimiento infinito\".",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ventas año anterior =\nCALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )\n\nVentas mes anterior =\nCALCULATE ( [Ventas], DATEADD ( Calendario[Fecha], -1, MONTH ) )\n\nVariación vs AA % =\nVAR _Actual = [Ventas]\nVAR _AA     = [Ventas año anterior]\nRETURN\n    IF ( NOT ISBLANK ( _AA ) && NOT ISBLANK ( _Actual ), DIVIDE ( _Actual - _AA, _AA ) )",
+          "keyTakeaway": "SAMEPERIODLASTYEAR y DATEADD desplazan las fechas visibles; PARALLELPERIOD toma el período entero."
+        },
+        {
+          "id": "pbi-09-sec-3",
+          "title": "3. Medias móviles",
+          "body": "Una **media móvil** suaviza el ruido de los datos diarios o mensuales. `DATESINPERIOD ( Calendario[Fecha], fecha_final, -3, MONTH )` devuelve los días de los tres meses que terminan en `fecha_final`.\n\nPara una media mensual de 3 meses, divide las ventas de ese rango entre el número de meses con ventas. Si divides siempre entre 3, los primeros meses del histórico se verán artificialmente bajos.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Media móvil 3 meses =\nVAR _Ultima = MAX ( Calendario[Fecha] )\nVAR _Rango  = DATESINPERIOD ( Calendario[Fecha], _Ultima, -3, MONTH )\nVAR _Meses  =\n    CALCULATETABLE ( VALUES ( Calendario[Año-Mes] ), _Rango )\nRETURN\n    AVERAGEX ( _Meses, CALCULATE ( [Ventas], _Rango ) )\n-- AVERAGEX ignora los meses sin ventas (en blanco)",
+          "keyTakeaway": "La media móvil promedia una ventana de fechas que termina en la celda actual."
+        },
+        {
+          "id": "pbi-09-sec-4",
+          "title": "4. Períodos incompletos y fechas futuras",
+          "body": "Dos trampas habituales:\n- **Mes en curso**: comparar noviembre con 18 días contra noviembre completo del año anterior siempre da una caída. Compara el mismo número de días (*hasta la misma fecha*) o muestra solo meses cerrados.\n- **Fechas futuras**: el calendario llega hasta el 31 de diciembre, así que el acumulado del año repite el último valor en los meses sin ventas y la línea del gráfico sigue plana hasta diciembre.\n\nSolución: una columna en el calendario que marque las fechas con datos y que las medidas respeten.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Columna calculada en Calendario\nTiene ventas =\nCalendario[Fecha] <= MAX ( Ventas[FechaVenta] )\n\n-- Acumulado que se detiene en la última fecha con datos\nVentas acumuladas año =\nIF (\n    MIN ( Calendario[Fecha] ) <= CALCULATE ( MAX ( Ventas[FechaVenta] ), REMOVEFILTERS () ),\n    CALCULATE ( [Ventas], DATESYTD ( Calendario[Fecha] ) )\n)\n\n-- Año anterior comparable: mismas fechas, solo hasta la última con datos\nVentas AA comparable =\nCALCULATE (\n    [Ventas],\n    CALCULATETABLE (\n        SAMEPERIODLASTYEAR ( Calendario[Fecha] ),\n        Calendario[Tiene ventas] = TRUE ()\n    )\n)",
+          "keyTakeaway": "Compara períodos equivalentes y no dibujes datos donde todavía no los hay."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo montar las medidas de tiempo de un informe.",
+        "rules": [
+          "Un calendario completo, marcado como tabla de fechas y relacionado con cada tabla de hechos.",
+          "Usa siempre Calendario[Fecha] en las funciones de tiempo, nunca la columna de fecha de la tabla de hechos.",
+          "Construye las medidas en capas: [Ventas] → [Ventas año anterior] → [Variación vs AA %].",
+          "Marca en el calendario las fechas con datos y úsala para cortar acumulados y comparaciones.",
+          "Escribe en el título o en un tooltip qué período se compara."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "Ventas AA =\nCALCULATE ( [Ventas], SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )\n\nVariación vs AA =\nIF ( NOT ISBLANK ( [Ventas AA] ), [Ventas] - [Ventas AA] )\n\nVariación vs AA % =\nDIVIDE ( [Variación vs AA], [Ventas AA] )"
+      },
+      "comparison": {
+        "scenario": "El acumulado del año sale igual que las ventas del mes.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Ventas acumuladas =\nTOTALYTD ( [Ventas], Ventas[FechaVenta] )\n\n-- En el visual: eje con Calendario[Mes]\n-- Calendario NO está marcado como tabla de fechas",
+        "juniorFlaws": [
+          "Usa la fecha de la tabla de hechos, que solo tiene días con ventas.",
+          "El filtro del eje viene de Calendario, pero la función trabaja sobre otra columna.",
+          "Sin marcar la tabla de fechas, DAX no puede garantizar días completos."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Ventas acumuladas =\nTOTALYTD ( [Ventas], Calendario[Fecha] )\n\n-- Calendario marcado como tabla de fechas (columna Fecha)\n-- Relación Calendario[Fecha] 1──* Ventas[FechaVenta]",
+        "intermediateBenefits": [
+          "La función usa la columna de fechas del calendario, que es la que filtra el visual.",
+          "Al marcar la tabla de fechas, DAX conoce los días completos de cada año.",
+          "El acumulado crece mes a mes como se espera."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-09-ej-1",
+          "title": "Práctica 1: Acumulado y año anterior",
+          "difficulty": "Básico",
+          "prompt": "Escribe las medidas Ventas acumuladas año y Ventas acumuladas año anterior para un gráfico de líneas que compare los dos años mes a mes.",
+          "hint": "Combina DATESYTD con SAMEPERIODLASTYEAR, o reutiliza la primera medida.",
+          "solutionExplanation": "Reutilizar la medida del acumulado y desplazar el contexto con SAMEPERIODLASTYEAR evita repetir lógica.",
+          "solutionCode": "Ventas acumuladas año =\nCALCULATE ( [Ventas], DATESYTD ( Calendario[Fecha] ) )\n\nVentas acumuladas año anterior =\nCALCULATE ( [Ventas acumuladas año], SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-09-ej-2",
+          "title": "Práctica 2: Comparación mensual en T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Valida tus medidas de tiempo: escribe un T-SQL que devuelva, por mes de 2025, las ventas, las ventas del mismo mes de 2024 y la variación porcentual.",
+          "hint": "Agrupa por mes en una CTE y usa LAG con desplazamiento de 12 meses, o un JOIN de la CTE consigo misma.",
+          "solutionExplanation": "LAG(…, 12) sobre una serie mensual sin huecos equivale a SAMEPERIODLASTYEAR a nivel de mes. NULLIF evita la división por cero.",
+          "solutionCode": "WITH Mensual AS (\n    SELECT DATEFROMPARTS(YEAR(FechaVenta), MONTH(FechaVenta), 1) AS Mes,\n           SUM(Cantidad * PrecioUnit - Descuento)                AS Ventas\n    FROM dbo.FactVentas\n    WHERE FechaVenta >= '2024-01-01' AND FechaVenta < '2026-01-01'\n    GROUP BY DATEFROMPARTS(YEAR(FechaVenta), MONTH(FechaVenta), 1)\n)\nSELECT Mes,\n       Ventas,\n       LAG(Ventas, 12) OVER (ORDER BY Mes) AS VentasAA,\n       (Ventas - LAG(Ventas, 12) OVER (ORDER BY Mes))\n         / NULLIF(LAG(Ventas, 12) OVER (ORDER BY Mes), 0) AS VariacionPct\nFROM Mensual\nORDER BY Mes\nOFFSET 12 ROWS;   -- muestra solo 2025",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-09-ej-3",
+          "title": "Práctica 3: Últimos 12 meses",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe la medida Ventas 12 meses móviles que sume las ventas de los 12 meses que terminan en la última fecha visible, y devuelva vacío si no hay 12 meses completos de historia.",
+          "hint": "DATESINPERIOD con -12 MONTH. Compara la primera fecha de la ventana con la primera venta del modelo.",
+          "solutionExplanation": "Sin la comprobación, los primeros 11 meses del histórico mostrarían sumas parciales que parecen caídas.",
+          "solutionCode": "Ventas 12 meses móviles =\nVAR _Ultima  = MAX ( Calendario[Fecha] )\nVAR _Ventana = DATESINPERIOD ( Calendario[Fecha], _Ultima, -12, MONTH )\nVAR _Inicio  = MINX ( _Ventana, Calendario[Fecha] )\nVAR _Primera = CALCULATE ( MIN ( Ventas[FechaVenta] ), REMOVEFILTERS () )\nRETURN\n    IF ( _Inicio >= _Primera, CALCULATE ( [Ventas], _Ventana ) )",
+          "codeLanguage": "dax"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-09-q1",
+          "question": "¿Qué columna se debe pasar a DATESYTD o SAMEPERIODLASTYEAR?",
+          "options": [
+            "La columna de texto con el nombre de cada mes",
+            "Cualquier columna numérica con el año",
+            "La fecha de la tabla de hechos de ventas",
+            "La columna Fecha de la tabla de calendario"
+          ],
+          "correctIndex": 3,
+          "explanation": "Las funciones de tiempo necesitan la columna de fechas de un calendario completo y marcado, que es la que filtra los visuales."
+        },
+        {
+          "id": "pbi-09-q2",
+          "question": "En una celda de marzo de 2025, ¿qué devuelve PARALLELPERIOD(Calendario[Fecha], -1, YEAR)?",
+          "options": [
+            "Las fechas de enero a marzo de 2024",
+            "Todas las fechas del año 2024 completo",
+            "Las fechas de marzo de 2025 menos un día",
+            "Solo las fechas de marzo de 2024"
+          ],
+          "correctIndex": 1,
+          "explanation": "PARALLELPERIOD devuelve el período completo del nivel indicado (YEAR), a diferencia de SAMEPERIODLASTYEAR, que devuelve las mismas fechas desplazadas."
+        },
+        {
+          "id": "pbi-09-q3",
+          "question": "¿Por qué comparar el mes en curso con el mismo mes completo del año anterior engaña?",
+          "options": [
+            "DAX no puede filtrar dos años a la vez",
+            "Las medidas de tiempo ignoran los filtros",
+            "El año anterior siempre tiene más productos",
+            "Se comparan menos días contra un mes entero"
+          ],
+          "correctIndex": 3,
+          "explanation": "Un mes a medias siempre parece una caída frente a un mes completo. Hay que comparar hasta la misma fecha o mostrar solo meses cerrados."
+        }
+      ]
+    },
+    {
+      "id": "pbi-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 3: DAX",
+      "title": "Patrones avanzados: rankings, ABC, parámetros de campo y grupos de cálculo",
+      "subtitle": "Patrones reutilizables que aparecen en casi todos los informes de negocio.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Calcular rankings con RANKX y con RANK, controlando empates y totales.",
+        "Clasificar productos o clientes en un análisis ABC con el acumulado de Pareto.",
+        "Dar flexibilidad al usuario con parámetros de campo y reducir medidas repetidas con grupos de cálculo."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-10-sec-1",
+          "title": "1. Rankings con RANKX y RANK",
+          "body": "`RANKX ( tabla, expresión )` evalúa la expresión para cada fila de la tabla y devuelve la posición del valor actual.\n\nPuntos a cuidar:\n- La tabla debe ignorar el filtro de la fila del visual: `ALLSELECTED ( Producto[Producto] )` (respeta las segmentaciones) o `ALL ( Producto[Producto] )`.\n- Los **empates**: el argumento `DENSE` da 1, 2, 2, 3; `SKIP` (por defecto) da 1, 2, 2, 4.\n- La fila de **total** también recibe un ranking (normalmente 1). Ocúltalo con `ISINSCOPE`.\n\nLa función `RANK` (más reciente) funciona como las funciones de ventana de SQL y permite desempatar por varias columnas con `ORDERBY`.",
+          "codeLanguage": "dax",
+          "codeSnippet": "Ranking producto =\nIF (\n    ISINSCOPE ( Producto[Producto] ),\n    RANKX ( ALLSELECTED ( Producto[Producto] ), [Ventas], , DESC, DENSE )\n)\n\n-- Con RANK: desempata por margen\nRanking producto (RANK) =\nIF (\n    ISINSCOPE ( Producto[Producto] ),\n    RANK (\n        DENSE,\n        ALLSELECTED ( Producto[Producto] ),\n        ORDERBY ( [Ventas], DESC, [Margen], DESC )\n    )\n)",
+          "keyTakeaway": "Ranking sobre la lista sin el filtro de la fila, con empates definidos y sin valor en el total."
+        },
+        {
+          "id": "pbi-10-sec-2",
+          "title": "2. Análisis ABC (Pareto)",
+          "body": "El **análisis ABC** clasifica los productos según su aporte: los **A** suman el primer 80 % de las ventas, los **B** el siguiente 15 % y los **C** el 5 % restante. Suele mostrar que unos pocos productos generan casi todo.\n\nPasos:\n1) Ventas de cada producto.\n2) **Acumulado ordenado**: la suma de las ventas de todos los productos que venden igual o más que el actual.\n3) Porcentaje acumulado sobre el total.\n4) Clase según los cortes 80 % y 95 %.\n\nComo medida, el resultado responde a los filtros (un producto puede ser A en una región y C en otra). Si necesitas usarlo en un eje o una segmentación, calcúlalo como columna calculada en `Producto` o, mejor, en SQL Server.",
+          "codeLanguage": "dax",
+          "codeSnippet": "% acumulado Pareto =\nVAR _VentasProd = [Ventas]\nVAR _Productos  =\n    ADDCOLUMNS ( ALLSELECTED ( Producto[Producto] ), \"@V\", [Ventas] )\nVAR _Acumulado  = SUMX ( FILTER ( _Productos, [@V] >= _VentasProd ), [@V] )\nVAR _Total      = SUMX ( _Productos, [@V] )\nRETURN\n    IF ( ISINSCOPE ( Producto[Producto] ), DIVIDE ( _Acumulado, _Total ) )\n\nClase ABC =\nVAR _p = [% acumulado Pareto]\nRETURN\n    SWITCH ( TRUE (), ISBLANK ( _p ), BLANK (), _p <= 0.80, \"A\", _p <= 0.95, \"B\", \"C\" )",
+          "keyTakeaway": "ABC = ordenar, acumular y cortar en 80 % y 95 %."
+        },
+        {
+          "id": "pbi-10-sec-3",
+          "title": "3. El mismo ABC en T-SQL",
+          "body": "Cuando la clase ABC debe ser fija (por ejemplo, la política de inventario se define cada trimestre), calcúlala en SQL Server y cárgala como columna de `Producto`. Las funciones de ventana de T-SQL lo resuelven en una consulta.",
+          "codeLanguage": "sql",
+          "codeSnippet": "WITH VentasProducto AS (\n    SELECT v.ProductoID,\n           SUM(v.Cantidad * v.PrecioUnit - v.Descuento) AS Ventas\n    FROM dbo.FactVentas AS v\n    WHERE v.FechaVenta >= DATEADD(MONTH, -12, CAST(GETDATE() AS date))\n    GROUP BY v.ProductoID\n), Acumulado AS (\n    SELECT ProductoID,\n           Ventas,\n           SUM(Ventas) OVER (ORDER BY Ventas DESC, ProductoID\n                             ROWS UNBOUNDED PRECEDING) * 1.0\n             / SUM(Ventas) OVER ()                      AS PctAcumulado\n    FROM VentasProducto\n)\nSELECT ProductoID,\n       Ventas,\n       PctAcumulado,\n       CASE WHEN PctAcumulado <= 0.80 THEN 'A'\n            WHEN PctAcumulado <= 0.95 THEN 'B'\n            ELSE 'C' END AS ClaseABC\nFROM Acumulado\nORDER BY Ventas DESC;",
+          "keyTakeaway": "Si la clase debe ser estable, calcúlala en la fuente y úsala como columna."
+        },
+        {
+          "id": "pbi-10-sec-4",
+          "title": "4. Parámetros de campo y grupos de cálculo",
+          "body": "**Parámetros de campo** (Modelado → Nuevo parámetro → Campos): crean una tabla con una lista de medidas o columnas. Al ponerla en una segmentación, el usuario elige qué se muestra en el gráfico: *Ventas*, *Margen* o *Unidades*; o el eje: *Categoría*, *Región* o *Segmento*. Un solo visual reemplaza a varios.\n\n**Grupos de cálculo**: en lugar de escribir *Ventas AA*, *Margen AA*, *Unidades AA*, *Ventas YTD*, *Margen YTD*... (medidas × variantes), escribes las variantes **una vez** como elementos de cálculo que se aplican a cualquier medida. Dentro, `SELECTEDMEASURE ()` representa la medida que está en el visual.\n\nSe crean en la vista de modelo de Desktop (o con Tabular Editor). Cuida el **formato**: un elemento como *Variación %* debe mostrarse como porcentaje aunque la medida original sea moneda; para eso existe la *cadena de formato dinámico* del elemento.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Grupo de cálculo \"Tiempo\", columna \"Variante\"\n-- Elemento: Actual\nSELECTEDMEASURE ()\n\n-- Elemento: Acumulado año\nCALCULATE ( SELECTEDMEASURE (), DATESYTD ( Calendario[Fecha] ) )\n\n-- Elemento: Año anterior\nCALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )\n\n-- Elemento: Variación % (cadena de formato dinámico: \"0.0%\")\nVAR _Act = SELECTEDMEASURE ()\nVAR _AA  = CALCULATE ( SELECTEDMEASURE (), SAMEPERIODLASTYEAR ( Calendario[Fecha] ) )\nRETURN DIVIDE ( _Act - _AA, _AA )",
+          "keyTakeaway": "Parámetros de campo dan opciones al usuario; grupos de cálculo evitan multiplicar medidas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo aplicar estos patrones sin complicar el modelo.",
+        "rules": [
+          "Define el comportamiento del ranking en empates y en el total antes de escribirlo.",
+          "Usa ALLSELECTED en rankings y Pareto para que respondan a las segmentaciones.",
+          "Si una clasificación debe usarse como eje o filtro estable, calcúlala en la fuente.",
+          "Usa grupos de cálculo cuando tengas la misma variante para tres o más medidas.",
+          "Configura cadenas de formato dinámico en los elementos que cambian la unidad.",
+          "Documenta en la descripción de cada medida qué patrón aplica."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "Top N ventas =\nVAR _N = SELECTEDVALUE ( 'Parámetro Top'[Valor], 10 )\nVAR _Rk = [Ranking producto]\nRETURN\n    IF ( NOT ISBLANK ( _Rk ) && _Rk <= _N, [Ventas] )"
+      },
+      "comparison": {
+        "scenario": "Ranking de productos en una matriz con segmentación por región.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Ranking =\nRANKX ( Producto, [Ventas] )",
+        "juniorFlaws": [
+          "Producto tiene el filtro de la fila: cada producto se compara solo consigo mismo y todos salen 1.",
+          "No define el comportamiento en empates.",
+          "La fila de total muestra un ranking que no significa nada."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Ranking =\nIF (\n    ISINSCOPE ( Producto[Producto] ),\n    RANKX ( ALLSELECTED ( Producto[Producto] ), [Ventas], , DESC, DENSE )\n)",
+        "intermediateBenefits": [
+          "ALLSELECTED compara contra todos los productos visibles y respeta la región elegida.",
+          "DENSE deja los empates claros (1, 2, 2, 3).",
+          "ISINSCOPE deja vacío el total."
+        ],
+        "codeLanguage": "dax"
+      },
+      "exercises": [
+        {
+          "id": "pbi-10-ej-1",
+          "title": "Práctica 1: Top 5 clientes",
+          "difficulty": "Básico",
+          "prompt": "Escribe una medida Ventas top 5 clientes que muestre las ventas solo de los 5 clientes con más ventas en la selección actual y vacío para el resto, para usarla en una tabla por cliente.",
+          "hint": "Calcula el ranking del cliente con RANKX sobre ALLSELECTED(Cliente[Cliente]).",
+          "solutionExplanation": "La medida devuelve vacío para los clientes fuera del top y Power BI oculta las filas en blanco.",
+          "solutionCode": "Ventas top 5 clientes =\nVAR _Rk =\n    RANKX ( ALLSELECTED ( Cliente[Cliente] ), [Ventas], , DESC )\nRETURN\n    IF ( ISINSCOPE ( Cliente[Cliente] ) && _Rk <= 5, [Ventas] )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-10-ej-2",
+          "title": "Práctica 2: Cuenta productos clase A",
+          "difficulty": "Intermedio",
+          "prompt": "Usando la medida Clase ABC, escribe la medida Productos A que cuente cuántos productos son clase A en el contexto actual (por ejemplo, por región).",
+          "hint": "Itera los productos con FILTER sobre VALUES y evalúa [Clase ABC] para cada uno. ¿Qué devuelve ISINSCOPE dentro del iterador?",
+          "solutionExplanation": "Dentro del iterador no hay un producto en el eje, así que ISINSCOPE devuelve falso y la clase saldría vacía. Hay que calcular el Pareto sin depender de ISINSCOPE.",
+          "solutionCode": "Productos A =\nVAR _Productos =\n    ADDCOLUMNS ( VALUES ( Producto[Producto] ), \"@V\", [Ventas] )\nVAR _Total = SUMX ( _Productos, [@V] )\nRETURN\n    COUNTROWS (\n        FILTER (\n            _Productos,\n            VAR _v = [@V]\n            RETURN DIVIDE ( SUMX ( FILTER ( _Productos, [@V] >= _v ), [@V] ), _Total ) <= 0.80\n        )\n    )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-10-ej-3",
+          "title": "Práctica 3: Diseña un grupo de cálculo",
+          "difficulty": "Avanzado",
+          "prompt": "Tu modelo tiene las medidas Ventas, Margen y Unidades, y te piden para cada una: Actual, Mes anterior, Variación vs mes anterior y Acumulado año. Escribe los cuatro elementos del grupo de cálculo y di cuántas medidas te ahorras.",
+          "hint": "Usa SELECTEDMEASURE() y DATEADD(…, -1, MONTH).",
+          "solutionExplanation": "Sin grupo de cálculo harían falta 3 × 4 = 12 medidas (9 nuevas). Con él, son 3 medidas base y 4 elementos que sirven también para cualquier medida futura.",
+          "solutionCode": "-- Actual\nSELECTEDMEASURE ()\n\n-- Mes anterior\nCALCULATE ( SELECTEDMEASURE (), DATEADD ( Calendario[Fecha], -1, MONTH ) )\n\n-- Variación vs mes anterior\nVAR _Act = SELECTEDMEASURE ()\nVAR _Ant = CALCULATE ( SELECTEDMEASURE (), DATEADD ( Calendario[Fecha], -1, MONTH ) )\nRETURN IF ( NOT ISBLANK ( _Ant ), _Act - _Ant )\n\n-- Acumulado año\nCALCULATE ( SELECTEDMEASURE (), DATESYTD ( Calendario[Fecha] ) )",
+          "codeLanguage": "dax"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-10-q1",
+          "question": "¿Por qué RANKX(Producto, [Ventas]) devuelve 1 en todas las filas de una matriz por producto?",
+          "options": [
+            "RANKX ordena siempre de menor a mayor si no se le indica el orden",
+            "Hace falta una relación bidireccional entre Producto y Ventas",
+            "La tabla conserva el filtro de la fila y solo tiene un producto",
+            "La medida Ventas no se puede usar dentro de RANKX"
+          ],
+          "correctIndex": 2,
+          "explanation": "Cada fila filtra Producto a un solo elemento; hay que usar ALL o ALLSELECTED para comparar contra la lista completa."
+        },
+        {
+          "id": "pbi-10-q2",
+          "question": "En un análisis ABC clásico, ¿qué productos son clase A?",
+          "options": [
+            "Los primeros cien productos ordenados por nombre",
+            "Los que tienen el mayor margen porcentual de todos",
+            "Los que venden por encima del promedio de la tienda",
+            "Los que suman el primer 80 % de las ventas acumuladas"
+          ],
+          "correctIndex": 3,
+          "explanation": "Se ordenan los productos de mayor a menor venta y se acumula su porcentaje; los que caen hasta el 80 % son A."
+        },
+        {
+          "id": "pbi-10-q3",
+          "question": "¿Qué representa SELECTEDMEASURE() dentro de un elemento de cálculo?",
+          "options": [
+            "La medida con más dependencias de todo el modelo semántico",
+            "La medida marcada como favorita en la vista de modelo",
+            "La primera medida creada en la tabla de medidas",
+            "La medida que está colocada en el visual en ese momento"
+          ],
+          "correctIndex": 3,
+          "explanation": "Los elementos de un grupo de cálculo se aplican a cualquier medida; SELECTEDMEASURE() es la medida que el visual está evaluando."
+        }
+      ]
+    },
+    {
+      "id": "pbi-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 4: Informar y publicar",
+      "title": "Diseño de informes: visuales, interacciones, detalles y marcadores",
+      "subtitle": "Páginas que responden una pregunta de negocio en segundos y dejan explorar sin perderse.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Organizar una página de informe con jerarquía visual: KPIs arriba, tendencia y detalle debajo.",
+        "Elegir el visual adecuado para cada pregunta y configurar las interacciones entre visuales.",
+        "Usar obtención de detalles (drill-through), tooltips de página, títulos dinámicos y marcadores."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-11-sec-1",
+          "title": "1. Una página, una pregunta",
+          "body": "Cada página debe responder **una pregunta** clara, por ejemplo \"¿Cómo van las ventas de este mes frente al plan?\". Una estructura que funciona:\n1) **Fila superior**: 3 a 5 tarjetas con los KPI principales y su comparación (vs año anterior o vs plan).\n2) **Centro**: la tendencia (gráfico de líneas por mes) y el desglose principal (barras por región o categoría).\n3) **Abajo o en otra página**: el detalle en tabla, para quien necesita los números exactos.\n4) **Segmentaciones** en un solo lugar (arriba o en un panel lateral), siempre en la misma posición en todas las páginas.\n\nLectura en **Z**: la vista va de arriba a la izquierda hacia abajo a la derecha, así que lo más importante va arriba a la izquierda. Usa un **tema** (archivo JSON) para colores y fuentes en lugar de formatear visual por visual.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"name\": \"Tienda corporativo\",\n  \"dataColors\": [\"#1F4E79\", \"#2E86C1\", \"#85C1E9\", \"#F39C12\", \"#7F8C8D\"],\n  \"good\": \"#1E8449\",\n  \"bad\": \"#C0392B\",\n  \"neutral\": \"#7F8C8D\",\n  \"textClasses\": {\n    \"title\":  { \"fontFace\": \"Segoe UI Semibold\", \"fontSize\": 14 },\n    \"label\":  { \"fontFace\": \"Segoe UI\", \"fontSize\": 10 }\n  }\n}",
+          "keyTakeaway": "KPIs arriba, tendencia y desglose al centro, detalle al final; un tema para todo."
+        },
+        {
+          "id": "pbi-11-sec-2",
+          "title": "2. Elegir el visual",
+          "body": "El visual depende de la pregunta, no de lo vistoso:\n- **Comparar categorías**: barras horizontales ordenadas de mayor a menor. Los nombres largos se leen mejor.\n- **Evolución en el tiempo**: líneas (o columnas si son pocos períodos). El tiempo siempre en el eje horizontal.\n- **Parte de un todo**: barras apiladas al 100 % o, con 2 o 3 partes como máximo, un anillo.\n- **Un número clave**: tarjeta, con la comparación al lado.\n- **Relación entre dos medidas**: dispersión (por ejemplo, ventas frente a margen % por producto).\n- **Detalle exacto**: tabla o matriz, con formato condicional moderado.\n\nEvita gráficos 3D, tartas con muchas porciones y ejes que no empiezan en cero en las barras. Y limita la página a unos 6 u 8 visuales: cada visual es al menos una consulta al modelo.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Medida de color para formato condicional (valor del campo)\nColor variación =\nVAR _v = [Variación vs AA %]\nRETURN\n    SWITCH (\n        TRUE (),\n        ISBLANK ( _v ), \"#7F8C8D\",\n        _v >= 0,        \"#1E8449\",\n        \"#C0392B\"\n    )",
+          "keyTakeaway": "Barras para comparar, líneas para el tiempo, tarjetas para un número, tablas para el detalle."
+        },
+        {
+          "id": "pbi-11-sec-3",
+          "title": "3. Interacciones y obtención de detalles",
+          "body": "Por defecto, al hacer clic en un visual, los demás se **filtran o resaltan**. En *Formato → Editar interacciones* decides, para cada par de visuales, si filtra, resalta o no hace nada. Por ejemplo, la tarjeta del total anual no debería cambiar al hacer clic en un mes.\n\nLa **obtención de detalles** (*drill-through*) lleva a una página de detalle con el filtro del elemento elegido. Se configura en la página de destino, arrastrando el campo (por ejemplo `Producto[Producto]`) a *Obtener detalles*. Desde cualquier visual que tenga ese campo, clic derecho → *Obtener detalles* → página. Power BI agrega un botón de volver.\n\nLos **tooltips de página** son páginas pequeñas (tamaño *Información sobre herramientas*) que aparecen al pasar el ratón: ideales para mostrar la tendencia de un producto sin salir del gráfico.\n\nLas **jerarquías** (Año → Trimestre → Mes) permiten *explorar en profundidad* con las flechas del visual.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Título dinámico para la página de detalle de producto\nTítulo detalle =\nVAR _Prod = SELECTEDVALUE ( Producto[Producto], \"Varios productos\" )\nVAR _Anio = SELECTEDVALUE ( Calendario[Año] )\nRETURN\n    \"Detalle de \" & _Prod & IF ( NOT ISBLANK ( _Anio ), \" · \" & _Anio )\n\n-- En el visual: Formato → Título → fx → Valor del campo → [Título detalle]",
+          "keyTakeaway": "Controla qué filtra a qué y usa páginas de detalle en lugar de llenar una página de visuales."
+        },
+        {
+          "id": "pbi-11-sec-4",
+          "title": "4. Marcadores, botones y navegación",
+          "body": "Un **marcador** guarda el estado de una página: filtros, segmentaciones, visuales visibles u ocultos y orden de clasificación. Con marcadores y **botones** puedes:\n- Alternar entre dos vistas (gráfico o tabla) en el mismo espacio, mostrando y ocultando visuales en el panel **Selección**.\n- Crear un botón **Restablecer filtros**.\n- Montar una navegación entre páginas con botones de tipo *Navegación de página*.\n\nAl crear un marcador, desmarca *Datos* si solo quieres cambiar la visibilidad de los visuales sin tocar los filtros del usuario.\n\nPara el **diseño móvil** (Vista → Diseño móvil), arrastra solo los visuales esenciales en vertical: KPIs y la tendencia. El detalle queda para la pantalla grande.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Panel Selección (página Resumen)\n├── grpGrafico      ← visible en el marcador \"Ver gráfico\"\n│   └── Ventas por mes (líneas)\n├── grpTabla        ← visible en el marcador \"Ver tabla\"\n│   └── Ventas por mes (matriz)\n└── Botones\n    ├── btnGrafico  → acción: marcador \"Ver gráfico\"\n    └── btnTabla    → acción: marcador \"Ver tabla\"\n\nMarcadores: \"Ver gráfico\" y \"Ver tabla\" con la casilla Datos desmarcada",
+          "keyTakeaway": "Marcadores y botones dan vistas alternativas sin multiplicar páginas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista de revisión antes de publicar un informe.",
+        "rules": [
+          "Cada página tiene un título que dice qué pregunta responde.",
+          "Los KPI muestran su comparación (vs año anterior o vs plan) con el período explícito.",
+          "Segmentaciones en la misma posición en todas las páginas, con un botón para restablecer.",
+          "Interacciones revisadas: los totales de referencia no cambian al hacer clic en el detalle.",
+          "Máximo 6 a 8 visuales por página; el detalle va en páginas de obtención de detalles.",
+          "Texto alternativo en cada visual y orden de tabulación revisado para accesibilidad.",
+          "Diseño móvil creado para las páginas que se consultan desde el teléfono."
+        ],
+        "codeLanguage": "dax",
+        "referenceCode": "-- Subtítulo dinámico que explica la comparación\nSubtítulo KPI =\nVAR _Max = CALCULATE ( MAX ( Ventas[FechaVenta] ), REMOVEFILTERS () )\nRETURN\n    \"Acumulado al \" & FORMAT ( _Max, \"d \\de mmmm\" )\n        & \" frente al mismo período de \" & ( YEAR ( _Max ) - 1 )"
+      },
+      "comparison": {
+        "scenario": "Página principal del informe de ventas para gerencia.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "Página \"Ventas\" (1 sola página):\n- 14 visuales: 3 tartas de 12 porciones, 2 medidores, 1 mapa,\n  5 tarjetas sin comparación, 3 tablas con 20 columnas\n- 9 segmentaciones repartidas por toda la página\n- Colores elegidos a mano en cada visual",
+        "juniorFlaws": [
+          "No responde a ninguna pregunta: el lector no sabe dónde mirar.",
+          "Las tartas con muchas porciones no permiten comparar.",
+          "Las tarjetas sin comparación no dicen si el número es bueno o malo.",
+          "14 visuales y 9 segmentaciones hacen la página lenta."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "Página \"Resumen\": ¿Cómo vamos frente al año anterior?\n- 4 tarjetas: Ventas, Margen %, Clientes, Ticket medio (cada una con Var vs AA)\n- Líneas: Ventas y Ventas AA por mes\n- Barras: Ventas por región, ordenadas\n- 3 segmentaciones arriba: Año, Región, Categoría\nPágina \"Detalle de producto\" (obtención de detalles por Producto)\nTema JSON corporativo para colores y fuentes",
+        "intermediateBenefits": [
+          "La pregunta está en el título y los KPI responden con su comparación.",
+          "Tendencia y desglose se leen en segundos.",
+          "El detalle no satura: se llega a él con obtener detalles.",
+          "Pocas consultas por página: carga rápida."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "pbi-11-ej-1",
+          "title": "Práctica 1: Elige el visual",
+          "difficulty": "Básico",
+          "prompt": "Indica el visual más adecuado para cada pregunta: (a) ¿Qué 10 productos venden más? (b) ¿Cómo evolucionan las ventas en los últimos 24 meses? (c) ¿Cuánto vendimos este año y cuánto cambió frente al anterior? (d) ¿Los productos que más venden son los de mayor margen? (e) ¿Cuál es el importe exacto por sucursal y mes?",
+          "hint": "Piensa en comparar, tiempo, número clave, relación y detalle.",
+          "solutionExplanation": "Cada pregunta tiene una forma natural de mostrarse; elegirla bien reduce el tiempo de lectura.",
+          "solutionCode": "(a) Barras horizontales ordenadas, con filtro Top N = 10\n(b) Gráfico de líneas, meses en el eje horizontal\n(c) Tarjeta con [Ventas] y [Variación vs AA %]\n(d) Dispersión: X = [Ventas], Y = [Margen %], detalle = Producto\n(e) Matriz: Sucursal en filas, Mes en columnas",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-11-ej-2",
+          "title": "Práctica 2: Título dinámico con filtros",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la medida Título ventas que muestre \"Ventas · Todas las regiones\" si no hay filtro de región, \"Ventas · Norte\" si hay una sola región y \"Ventas · 3 regiones\" si hay varias.",
+          "hint": "Usa ISFILTERED, HASONEVALUE o SELECTEDVALUE y COUNTROWS(VALUES(...)).",
+          "solutionExplanation": "Los títulos dinámicos evitan malentendidos cuando se comparten capturas del informe con filtros aplicados.",
+          "solutionCode": "Título ventas =\nVAR _n = COUNTROWS ( VALUES ( Sucursal[Region] ) )\nRETURN\n    \"Ventas · \"\n        & SWITCH (\n            TRUE (),\n            NOT ISFILTERED ( Sucursal[Region] ), \"Todas las regiones\",\n            _n = 1, SELECTEDVALUE ( Sucursal[Region] ),\n            _n & \" regiones\"\n        )",
+          "codeLanguage": "dax"
+        },
+        {
+          "id": "pbi-11-ej-3",
+          "title": "Práctica 3: Diseña la navegación",
+          "difficulty": "Intermedio",
+          "prompt": "Diseña las páginas de un informe de compras para un jefe de compras: qué pregunta responde cada página, qué visuales lleva y qué página es de obtención de detalles. Máximo 4 páginas.",
+          "hint": "Empieza por la pregunta general y baja hasta el proveedor y el producto.",
+          "solutionExplanation": "Una estructura de resumen → desglose → detalle con obtención de detalles mantiene cada página simple y permite llegar al dato exacto.",
+          "solutionCode": "1. Resumen: ¿Cómo va el gasto frente al presupuesto?\n   Tarjetas (Compras, Presupuesto, Desvío %), líneas por mes, barras por categoría\n2. Proveedores: ¿Quién concentra el gasto y quién cumple plazos?\n   Barras top 10 proveedores, dispersión gasto vs % entregas a tiempo\n3. Detalle de proveedor (obtención de detalles por Proveedor)\n   Tarjetas del proveedor, líneas por mes, tabla de pedidos abiertos\n4. Tooltip de producto: mini línea de precio unitario de 12 meses",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-11-q1",
+          "question": "¿Qué visual es más adecuado para comparar ventas entre 15 categorías?",
+          "options": [
+            "Medidor con el objetivo de cada categoría",
+            "Mapa de calor con colores por categoría",
+            "Barras horizontales ordenadas de mayor a menor",
+            "Gráfico circular con una porción por categoría"
+          ],
+          "correctIndex": 2,
+          "explanation": "Las barras ordenadas permiten comparar longitudes con precisión y leer nombres largos; una tarta con 15 porciones no se puede comparar."
+        },
+        {
+          "id": "pbi-11-q2",
+          "question": "¿Para qué sirve la obtención de detalles (drill-through)?",
+          "options": [
+            "Para cambiar el orden de las columnas de una tabla o matriz",
+            "Para exportar los datos del visual a un archivo CSV",
+            "Para bajar de año a trimestre y luego a mes dentro del mismo visual",
+            "Para ir a una página de detalle filtrada por el elemento elegido"
+          ],
+          "correctIndex": 3,
+          "explanation": "La obtención de detalles lleva a otra página con el filtro del elemento elegido. Bajar de año a trimestre en el mismo visual es explorar en profundidad."
+        },
+        {
+          "id": "pbi-11-q3",
+          "question": "Al crear un marcador que solo alterna entre un gráfico y una tabla, ¿qué conviene desmarcar?",
+          "options": [
+            "La opción Datos, para no fijar los filtros del usuario",
+            "La opción Mostrar, para ocultar el propio marcador",
+            "La opción Página actual, para aplicarlo al informe",
+            "La opción Visual actual, para guardar todas las páginas"
+          ],
+          "correctIndex": 0,
+          "explanation": "Si el marcador guarda los datos, al usarlo se restablecen las segmentaciones del momento en que se creó. Sin Datos, solo cambia la visibilidad."
+        }
+      ]
+    },
+    {
+      "id": "pbi-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 4: Informar y publicar",
+      "title": "Rendimiento, seguridad por filas y publicación",
+      "subtitle": "Un modelo rápido, que cada usuario vea solo sus datos y que se actualice solo.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Elegir entre los modos Importar, DirectQuery y compuesto según el volumen y la latencia necesaria.",
+        "Diagnosticar visuales lentos con el Analizador de rendimiento y reducir el tamaño del modelo.",
+        "Configurar seguridad por filas (RLS) estática y dinámica, y publicar con actualización programada."
+      ],
+      "theorySections": [
+        {
+          "id": "pbi-12-sec-1",
+          "title": "1. Modos de almacenamiento",
+          "body": "- **Importar**: los datos se copian al modelo, comprimidos en memoria por el motor **VertiPaq**. Es el modo más rápido y admite todo DAX. Los datos son los de la última actualización.\n- **DirectQuery**: el modelo no guarda datos; cada visual envía consultas T-SQL a SQL Server en el momento. Útil con tablas enormes o cuando se necesitan datos casi en tiempo real. Es más lento, depende de la base y algunas funciones DAX están limitadas.\n- **Compuesto**: mezcla los dos. Por ejemplo, las dimensiones en modo *Dual* y la tabla de hechos en DirectQuery, con una **tabla de agregados** importada que responde a la mayoría de los visuales.\n- **Direct Lake** (Microsoft Fabric): lee archivos Delta del lago de datos casi tan rápido como Importar.\n\nRegla práctica: empieza con **Importar**. Pasa a DirectQuery o compuesto solo si el volumen o la frescura lo exigen, y entonces optimiza la base con índices (por ejemplo, un índice columnar en la tabla de hechos).",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Si una tabla va en DirectQuery, prepara SQL Server para las consultas de Power BI:\n-- un índice columnar acelera mucho las agregaciones sobre la tabla de hechos.\nCREATE NONCLUSTERED COLUMNSTORE INDEX NCCI_FactVentas\nON dbo.FactVentas (FechaVenta, ProductoID, ClienteID, SucursalID,\n                   Cantidad, PrecioUnit, Descuento);\n\n-- Tabla de agregados para un modelo compuesto (se importa en Power BI)\nSELECT DATEFROMPARTS(YEAR(FechaVenta), MONTH(FechaVenta), 1) AS Mes,\n       ProductoID,\n       SucursalID,\n       SUM(Cantidad)                         AS Unidades,\n       SUM(Cantidad * PrecioUnit - Descuento) AS Ventas\nINTO rpt.VentasMesProducto\nFROM dbo.FactVentas\nGROUP BY DATEFROMPARTS(YEAR(FechaVenta), MONTH(FechaVenta), 1), ProductoID, SucursalID;",
+          "keyTakeaway": "Importar por defecto; DirectQuery o compuesto cuando el volumen o la frescura lo exigen."
+        },
+        {
+          "id": "pbi-12-sec-2",
+          "title": "2. Diagnosticar y optimizar",
+          "body": "**Analizador de rendimiento** (Vista → Analizador de rendimiento): graba mientras interactúas y muestra, por visual, el tiempo de **consulta DAX**, de **representación visual** y de **otros**. Si el tiempo está en la consulta, copia la consulta y analízala en **DAX Studio** o en la vista de consultas DAX.\n\nLas mejoras con más impacto, en orden:\n1) **Menos columnas y filas**: quita columnas que nadie usa (sobre todo identificadores únicos, como `VentaID` o fechas con hora). VertiPaq comprime por columna, y una columna con millones de valores distintos ocupa mucho.\n2) **Tipos y cardinalidad**: separa fecha y hora en dos columnas; redondea decimales que no aportan.\n3) **Modelo estrella** y relaciones de dirección única.\n4) **DAX**: variables, filtros por columna en vez de `FILTER` sobre tablas, iterar claves en vez de la tabla de hechos.\n5) **Páginas**: menos visuales, y pocas tablas con muchas columnas.\n\n**VertiPaq Analyzer** (en DAX Studio) muestra cuánto ocupa cada tabla y columna: el primer lugar donde mirar si el archivo pesa demasiado.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Vista de consultas DAX: qué columnas tienen más valores distintos\nEVALUATE\nSELECTCOLUMNS (\n    INFO.STORAGETABLECOLUMNS (),\n    \"Tabla\",   [TABLE_ID],\n    \"Columna\", [COLUMN_ID],\n    \"Bytes diccionario\", [DICTIONARY_SIZE]\n)\nORDER BY [Bytes diccionario] DESC\n-- Si VentaID o una fecha con hora aparecen arriba y no se usan, quítalas en Power Query.",
+          "keyTakeaway": "Mide antes de optimizar; casi siempre gana quitar columnas de alta cardinalidad."
+        },
+        {
+          "id": "pbi-12-sec-3",
+          "title": "3. Seguridad por filas (RLS)",
+          "body": "La **seguridad por filas** limita qué filas ve cada usuario con el mismo informe. Se define en Desktop (Modelado → *Administrar roles*) con una expresión DAX que filtra una tabla, y en el servicio se asignan personas o grupos a cada rol.\n\n- **Estática**: un rol por región, con `Sucursal[Region] = \"Norte\"`. Sencillo, pero con 20 regiones son 20 roles.\n- **Dinámica**: un solo rol que usa `USERPRINCIPALNAME ()` (el correo de quien abre el informe) y una tabla de permisos que relaciona correos con regiones. Las altas y bajas se gestionan en la tabla, no en el modelo. Oculta la tabla de permisos y agrega en el mismo rol el filtro `Permisos[Correo] = USERPRINCIPALNAME ()` para que nadie vea los permisos de otros.\n\nEl filtro de RLS se propaga por las relaciones como cualquier otro: si filtras `Sucursal`, la tabla `Ventas` queda filtrada. Prueba cada rol con **Ver como** en Desktop y en el servicio.\n\nImportante: RLS solo aplica a los usuarios con permiso de **Visor**. Los miembros, colaboradores y administradores del área de trabajo ven todos los datos.",
+          "codeLanguage": "dax",
+          "codeSnippet": "-- Tabla Permisos (desde SQL Server, sin relaciones): Correo | Region\n-- Rol \"Por región\", filtro DAX sobre la tabla Sucursal:\nSucursal[Region]\n    IN CALCULATETABLE (\n        VALUES ( Permisos[Region] ),\n        Permisos[Correo] = USERPRINCIPALNAME ()\n    )",
+          "keyTakeaway": "RLS dinámica: un rol, una tabla de permisos y USERPRINCIPALNAME()."
+        },
+        {
+          "id": "pbi-12-sec-4",
+          "title": "4. Publicar y actualizar",
+          "body": "Pasos para poner el informe en producción:\n1) **Publicar** desde Desktop a un **área de trabajo** del equipo (no a *Mi área de trabajo*).\n2) **Credenciales y puerta de enlace**: SQL Server en la red de la empresa necesita una **puerta de enlace de datos local** (*on-premises data gateway*) para que el servicio llegue a la base. Las fuentes en la nube (Azure SQL, SharePoint) no la necesitan.\n3) **Actualización programada**: en la configuración del modelo semántico, elige horarios (hasta 8 al día con Pro, 48 con Premium o Fabric) y activa el aviso por correo si falla.\n4) **Actualización incremental** para tablas grandes: con los parámetros `RangeStart` y `RangeEnd` (capítulo 3), Power BI solo actualiza las particiones recientes.\n5) **Distribuir** con una **app** del área de trabajo: los usuarios ven una navegación limpia y no tocan el contenido en desarrollo.\n6) **Etiquetas de confidencialidad** y **certificación** del modelo semántico para que se sepa qué es oficial.\n\nPara equipos con varios entornos, las **canalizaciones de implementación** copian el contenido de Desarrollo a Prueba y a Producción cambiando parámetros como el servidor.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Desktop ──Publicar──► Área de trabajo \"Ventas [Dev]\"\n                         │  canalización de implementación\n                         ▼\n                      Área de trabajo \"Ventas [Prod]\"\n                         │  modelo semántico: actualización 06:00 y 13:00\n                         │  puerta de enlace → srv-datos (SQL Server)\n                         │  RLS: rol \"Por región\" → grupo \"Ventas-Regionales\"\n                         ▼\n                      App \"Ventas\" → usuarios con permiso de Visor",
+          "keyTakeaway": "Área de trabajo compartida, puerta de enlace, actualización programada y una app para los usuarios."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista de control antes de pasar un informe a producción.",
+        "rules": [
+          "Modo de almacenamiento justificado; Importar por defecto.",
+          "Sin columnas de alta cardinalidad que no se usan; fecha y hora separadas.",
+          "Analizador de rendimiento sin visuales por encima de 2 a 3 segundos.",
+          "RLS probada con Ver como para cada rol, y usuarios finales con permiso de Visor.",
+          "Puerta de enlace con las credenciales de una cuenta de servicio, no de una persona.",
+          "Actualización programada con aviso de fallo a un buzón del equipo.",
+          "Modelo semántico certificado o promocionado y documentado."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Cuenta de servicio de solo lectura para la puerta de enlace (SQL Server)\nCREATE LOGIN svc_powerbi WITH PASSWORD = '<<definir en el gestor de secretos>>';\nUSE Tienda;\nCREATE USER svc_powerbi FOR LOGIN svc_powerbi;\nALTER ROLE db_datareader ADD MEMBER svc_powerbi;\n-- Mejor aún: conceder SELECT solo sobre el esquema rpt\n-- GRANT SELECT ON SCHEMA::rpt TO svc_powerbi;"
+      },
+      "comparison": {
+        "scenario": "Cada jefe regional debe ver solo las ventas de su región.",
+        "juniorLabel": "Error de junior",
+        "juniorCode": "- Se crea una copia del .pbix por región, cada una con un filtro de página\n- Se comparten los 20 archivos desde \"Mi área de trabajo\"\n- Los jefes reciben permiso de Miembro para poder ver el informe\n- La conexión a SQL Server usa el usuario personal del analista",
+        "juniorFlaws": [
+          "20 copias: cada cambio hay que repetirlo 20 veces.",
+          "Un filtro de página no es seguridad: se puede quitar.",
+          "Con permiso de Miembro, RLS no se aplicaría de todos modos.",
+          "Si el analista cambia su contraseña o deja la empresa, la actualización falla."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "- Un solo modelo con RLS dinámica: Permisos[Correo] = USERPRINCIPALNAME()\n- Publicado en el área de trabajo \"Ventas [Prod]\" del equipo\n- Los jefes acceden por la app con permiso de Visor\n- La puerta de enlace usa la cuenta de servicio svc_powerbi",
+        "intermediateBenefits": [
+          "Un solo informe que mantener.",
+          "La seguridad está en el modelo y no se puede saltar desde el informe.",
+          "Las altas y bajas se hacen en la tabla de permisos.",
+          "La actualización no depende de una persona."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "pbi-12-ej-1",
+          "title": "Práctica 1: Elige el modo de almacenamiento",
+          "difficulty": "Básico",
+          "prompt": "Indica el modo más adecuado y por qué: (a) 2 millones de filas de ventas, informe diario de gerencia; (b) 3 000 millones de filas de lecturas de sensores que se consultan por día y máquina; (c) un tablero de pedidos que debe mostrar los últimos 5 minutos.",
+          "hint": "Importar es el más rápido; DirectQuery da frescura; compuesto combina con agregados.",
+          "solutionExplanation": "El volumen y la frescura necesaria deciden el modo. Para la mayoría de informes de negocio basta con Importar y actualizaciones programadas.",
+          "solutionCode": "(a) Importar: cabe de sobra en memoria y una actualización diaria es suficiente.\n(b) Compuesto: agregados por día y máquina importados; detalle en DirectQuery.\n(c) DirectQuery (o compuesto con la tabla de pedidos recientes en DirectQuery),\n    con índices adecuados en SQL Server.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "pbi-12-ej-2",
+          "title": "Práctica 2: Tabla de permisos en T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Crea en SQL Server la tabla rpt.PermisosRegion (Correo, Region) con clave primaria compuesta, inserta dos ejemplos y escribe la consulta que Power BI importará solo con los permisos vigentes (sin FechaBaja o con FechaBaja futura).",
+          "hint": "La clave primaria compuesta evita duplicados; filtra con FechaBaja IS NULL OR FechaBaja > hoy.",
+          "solutionExplanation": "Mantener la tabla en la base permite que Recursos Humanos o TI gestionen accesos sin abrir Power BI. La consulta deja fuera los permisos dados de baja.",
+          "solutionCode": "CREATE TABLE rpt.PermisosRegion (\n    Correo    NVARCHAR(256) NOT NULL,\n    Region    NVARCHAR(30)  NOT NULL,\n    FechaBaja DATE          NULL,\n    CONSTRAINT PK_PermisosRegion PRIMARY KEY (Correo, Region)\n);\n\nINSERT INTO rpt.PermisosRegion (Correo, Region)\nVALUES (N'jefa.norte@tienda.com', N'Norte'),\n       (N'jefe.caribe@tienda.com', N'Caribe');\n\nSELECT Correo, Region\nFROM rpt.PermisosRegion\nWHERE FechaBaja IS NULL\n   OR FechaBaja > CAST(GETDATE() AS date);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "pbi-12-ej-3",
+          "title": "Práctica 3: Optimiza un modelo pesado",
+          "difficulty": "Avanzado",
+          "prompt": "Un modelo de 1,8 GB tarda 12 segundos en la página principal. VertiPaq Analyzer muestra que las columnas más pesadas son Ventas[VentaID], Ventas[FechaHoraVenta] y Ventas[Comentario]. El Analizador de rendimiento muestra una tabla con 25 columnas y una medida con FILTER(Ventas, ...). Propón cinco cambios ordenados por impacto.",
+          "hint": "Piensa en cardinalidad, columnas que nadie usa, separar fecha y hora, y en el DAX y la página.",
+          "solutionExplanation": "Las columnas de alta cardinalidad sin uso suelen ser la mayor parte del tamaño. Luego vienen la medida que itera la tabla de hechos y el visual que pide demasiadas columnas.",
+          "solutionCode": "1. Quitar Ventas[VentaID] y Ventas[Comentario] en Power Query (no se usan en visuales).\n2. Separar FechaHoraVenta en FechaVenta (date) y Hora (redondeada a la hora o quitada).\n3. Reescribir la medida: filtrar columnas con KEEPFILTERS en lugar de FILTER(Ventas, ...).\n4. Reducir la tabla de 25 columnas a las necesarias y mover el detalle a una\n   página de obtención de detalles.\n5. Activar la actualización incremental para no recargar todo el histórico.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "pbi-12-q1",
+          "question": "¿Qué modo de almacenamiento conviene usar por defecto en un informe de negocio?",
+          "options": [
+            "DirectQuery, porque siempre muestra datos al segundo",
+            "Compuesto, porque no necesita puerta de enlace",
+            "Dual, porque evita configurar actualizaciones",
+            "Importar, porque es el más rápido y admite todo DAX"
+          ],
+          "correctIndex": 3,
+          "explanation": "Importar comprime los datos en memoria con VertiPaq y da el mejor rendimiento. Los demás modos se eligen cuando el volumen o la frescura lo exigen."
+        },
+        {
+          "id": "pbi-12-q2",
+          "question": "¿Qué función devuelve el correo del usuario en una regla de RLS dinámica?",
+          "options": [
+            "USERPRINCIPALNAME, que se compara con la tabla de permisos",
+            "SELECTEDVALUE, que lee la segmentación de usuario de la página",
+            "USERELATIONSHIP, que activa la relación del usuario conectado",
+            "LOOKUPVALUE, que busca el correo en el servicio"
+          ],
+          "correctIndex": 0,
+          "explanation": "USERPRINCIPALNAME() devuelve la identidad de quien abre el informe; la regla filtra la tabla de permisos con ese valor."
+        },
+        {
+          "id": "pbi-12-q3",
+          "question": "¿Para quién NO se aplica la seguridad por filas en un área de trabajo?",
+          "options": [
+            "Para los usuarios que acceden desde la app móvil de Power BI",
+            "Para administradores, miembros y colaboradores del área",
+            "Para los usuarios que exportan los datos del visual a Excel",
+            "Para los usuarios con permiso de Visor en la app"
+          ],
+          "correctIndex": 1,
+          "explanation": "RLS se aplica a quienes tienen permiso de Visor. Los roles con permisos de edición en el área de trabajo ven todos los datos."
+        }
+      ]
+    }
+  ]
+}

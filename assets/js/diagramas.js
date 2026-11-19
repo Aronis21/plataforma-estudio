@@ -271,6 +271,159 @@
     </figure>`;
   }
 
+
+  // ---------------------------------------------------------------------------
+  // 5. Modelo estrella: cómo viaja un filtro por las relaciones (interactivo)
+  // ---------------------------------------------------------------------------
+  const ESTRELLA = {
+    dims: {
+      Producto: { x: 52, y: 120, clave: "p", filas: { P1: "Café · Bebidas", P2: "Jugo · Bebidas", P3: "Leche · Lácteos", P4: "Queso · Lácteos" } },
+      Cliente: { x: 308, y: 120, clave: "c", filas: { C1: "Ana", C2: "Beto", C3: "Carla", C4: "Darío" } },
+      Calendario: { x: 180, y: 30, clave: "m", filas: { Ene: "Enero", Feb: "Febrero" } },
+      Sucursal: { x: 180, y: 210, clave: "s", filas: { S1: "Norte", S2: "Sur" } },
+    },
+    ventas: [
+      { p: "P1", c: "C1", s: "S1", m: "Ene" }, { p: "P3", c: "C1", s: "S1", m: "Feb" },
+      { p: "P2", c: "C2", s: "S2", m: "Ene" }, { p: "P4", c: "C2", s: "S2", m: "Ene" },
+      { p: "P1", c: "C3", s: "S1", m: "Ene" }, { p: "P3", c: "C3", s: "S2", m: "Feb" },
+      { p: "P4", c: "C1", s: "S2", m: "Feb" }, { p: "P3", c: "C2", s: "S1", m: "Ene" },
+    ],
+    filtros: {
+      Producto: { texto: 'Producto[Categoria] = "Bebidas"', ok: (k) => k === "P1" || k === "P2" },
+      Cliente: { texto: 'Cliente[Cliente] = "Ana"', ok: (k) => k === "C1" },
+      Calendario: { texto: 'Calendario[Mes] = "Enero"', ok: (k) => k === "Ene" },
+      Sucursal: { texto: 'Sucursal[Region] = "Norte"', ok: (k) => k === "S1" },
+    },
+  };
+
+  function estadoEstrella(origen, bidi) {
+    const E = ESTRELLA, f = E.filtros[origen], kOrigen = E.dims[origen].clave;
+    const ventas = E.ventas.filter((v) => f.ok(v[kOrigen]));
+    const visibles = {};
+    for (const [nom, d] of Object.entries(E.dims)) {
+      const total = Object.keys(d.filas).length;
+      let n = total;
+      if (nom === origen) n = Object.keys(d.filas).filter(f.ok).length;
+      else if (bidi) n = new Set(ventas.map((v) => v[d.clave])).size;
+      visibles[nom] = { n, total };
+    }
+    return { ventas: ventas.length, totalVentas: E.ventas.length, visibles };
+  }
+
+  function svgEstrella(origen, bidi) {
+    const E = ESTRELLA, st = estadoEstrella(origen, bidi);
+    const cx = 180, cy = 120, w = 92, h = 40;
+    let lineas = "", cajas = "";
+    for (const [nom, d] of Object.entries(E.dims)) {
+      const activa = nom === origen || bidi;
+      // Flecha en el punto medio: de la dimensión hacia Ventas; con "ambas", otra de Ventas hacia la dimensión
+      const mx = (d.x + cx) / 2, my = (d.y + cy) / 2;
+      const ang = Math.atan2(cy - d.y, cx - d.x) * (180 / Math.PI);
+      const punta = (a, desp, on) => `<path class="flecha ${on ? "on" : ""}" d="M -7 -6 L 6 0 L -7 6 z" transform="translate(${mx} ${my}) rotate(${a}) translate(${desp} 0)"/>`;
+      lineas += `<line class="rel ${activa ? "on" : ""}" x1="${d.x}" y1="${d.y}" x2="${cx}" y2="${cy}"/>
+        ${punta(ang, bidi ? 8 : 0, nom === origen)}${bidi ? punta(ang + 180, 8, nom !== origen) : ""}`;
+      const v = st.visibles[nom];
+      const filtrada = v.n < v.total;
+      cajas += `<g class="tabla-nodo ${nom === origen ? "origen" : filtrada ? "filtrada" : ""}">
+        <rect x="${d.x - w / 2}" y="${d.y - h / 2}" width="${w}" height="${h}" rx="6"/>
+        <text x="${d.x}" y="${d.y - 3}" text-anchor="middle" class="t-nom">${esc(nom)}</text>
+        <text x="${d.x}" y="${d.y + 12}" text-anchor="middle" class="t-n">${v.n} de ${v.total} filas</text>
+      </g>`;
+    }
+    cajas += `<g class="tabla-nodo hechos ${st.ventas < st.totalVentas ? "filtrada" : ""}">
+      <rect x="${cx - w / 2}" y="${cy - h / 2}" width="${w}" height="${h}" rx="6"/>
+      <text x="${cx}" y="${cy - 3}" text-anchor="middle" class="t-nom">Ventas</text>
+      <text x="${cx}" y="${cy + 12}" text-anchor="middle" class="t-n">${st.ventas} de ${st.totalVentas} filas</text>
+    </g>`;
+    return `<svg class="dg-svg dg-estrella" viewBox="0 0 360 240" role="img" aria-label="Modelo estrella: Ventas en el centro y Producto, Cliente, Calendario y Sucursal alrededor; el filtro sobre ${esc(origen)} deja ${st.ventas} de ${st.totalVentas} filas de Ventas">${lineas}${cajas}</svg>`;
+  }
+
+  function textoEstrella(origen, bidi) {
+    const st = estadoEstrella(origen, bidi);
+    const otras = Object.keys(ESTRELLA.dims).filter((n) => n !== origen);
+    const detalle = bidi
+      ? `Con dirección <strong>ambas</strong>, el filtro también sube desde Ventas: ${otras.map((n) => `${esc(n)} queda en ${st.visibles[n].n} de ${st.visibles[n].total}`).join(", ")}. Las segmentaciones empiezan a filtrarse entre sí.`
+      : `Con dirección <strong>única</strong>, el filtro baja de ${esc(origen)} a Ventas y se detiene ahí: ${otras.map(esc).join(", ")} siguen completas. Para contar, por ejemplo, clientes con compra, cuenta sobre Ventas: <code>DISTINCTCOUNT ( Ventas[ClienteID] )</code>.`;
+    return `<p><strong>Filtro:</strong> <code>${esc(ESTRELLA.filtros[origen].texto)}</code> → Ventas pasa de ${st.totalVentas} a ${st.ventas} filas, y todas las medidas se calculan sobre esas filas.</p><p>${detalle}</p>`;
+  }
+
+  function htmlEstrella() {
+    const origen = "Producto", bidi = false;
+    return `<figure class="diagrama" data-diagrama="modelo-estrella" data-origen="${origen}" data-bidi="0">
+      <div class="dg-botones" role="group" aria-label="Elige qué tabla filtrar">
+        ${Object.keys(ESTRELLA.dims).map((n) => `<button type="button" class="dg-btn" data-origen="${n}" aria-pressed="${n === origen}">Filtrar ${esc(n)}</button>`).join("")}
+      </div>
+      <div class="dg-botones" role="group" aria-label="Dirección del filtro cruzado">
+        <button type="button" class="dg-btn" data-bidi="0" aria-pressed="true">Dirección única</button>
+        <button type="button" class="dg-btn" data-bidi="1" aria-pressed="false">Dirección ambas</button>
+      </div>
+      <div class="dg-panel-e" aria-live="polite">${svgEstrella(origen, bidi)}<div class="dg-explica">${textoEstrella(origen, bidi)}</div></div>
+      <figcaption>Cada relación es de uno (dimensión) a varios (Ventas). Las flechas muestran hacia dónde viaja el filtro; en color, las tablas que quedan filtradas.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 6. CALCULATE: cómo cambia el contexto de filtro de cada celda (interactivo)
+  // ---------------------------------------------------------------------------
+  const CATEGORIAS = [["Bebidas", 420], ["Lácteos", 310], ["Limpieza", 180], ["Panadería", 90]];
+  const TOTAL_CAT = CATEGORIAS.reduce((a, c) => a + c[1], 0);
+  const CALC = [
+    {
+      id: "base", nombre: "[Ventas]", dax: "Ventas =\nSUMX ( Ventas, Ventas[Cantidad] * Ventas[PrecioUnit] )",
+      fila: (cat) => [`Categoria = "${cat}"`], valor: (cat, v) => v, total: () => TOTAL_CAT,
+      texto: "Sin CALCULATE: cada celda usa el filtro de su fila. El total no tiene filtro de categoría.",
+    },
+    {
+      id: "reemplaza", nombre: "Filtro simple", dax: 'Ventas Bebidas =\nCALCULATE ( [Ventas], Producto[Categoria] = "Bebidas" )',
+      fila: () => ['Categoria = "Bebidas"'], valor: () => 420, total: () => 420,
+      texto: "El filtro nuevo sobre Categoria reemplaza al de la fila: todas las filas, y también el total, muestran Bebidas.",
+    },
+    {
+      id: "keep", nombre: "KEEPFILTERS", dax: 'Ventas solo Bebidas =\nCALCULATE ( [Ventas], KEEPFILTERS ( Producto[Categoria] = "Bebidas" ) )',
+      fila: (cat) => [`Categoria = "${cat}"`, 'Categoria = "Bebidas"'], valor: (cat, v) => (cat === "Bebidas" ? v : null), total: () => 420,
+      texto: "KEEPFILTERS cruza el filtro nuevo con el de la fila. Solo Bebidas cumple las dos condiciones; las demás filas quedan vacías.",
+    },
+    {
+      id: "remove", nombre: "REMOVEFILTERS", dax: "Ventas todas las categorías =\nCALCULATE ( [Ventas], REMOVEFILTERS ( Producto[Categoria] ) )",
+      fila: () => ["(sin filtro de categoría)"], valor: () => TOTAL_CAT, total: () => TOTAL_CAT,
+      texto: "REMOVEFILTERS quita el filtro de la fila: cada celda muestra el total de todas las categorías. Es el denominador de un porcentaje.",
+    },
+    {
+      id: "pct", nombre: "% del total", dax: "% del total =\nDIVIDE (\n    [Ventas],\n    CALCULATE ( [Ventas], REMOVEFILTERS ( Producto[Categoria] ) )\n)",
+      fila: (cat) => [`numerador: Categoria = "${cat}"`, "denominador: sin filtro"], valor: (cat, v) => v / TOTAL_CAT, total: () => 1, pct: true,
+      texto: "Combina las dos ideas: el numerador conserva el filtro de la fila y el denominador lo quita.",
+    },
+  ];
+
+  function panelCalc(c, sel) {
+    const fmt = (v) => (v === null ? "" : c.pct ? Math.round(v * 1000) / 10 + " %" : String(v));
+    const filaSel = CATEGORIAS.find((x) => x[0] === sel);
+    const filas = CATEGORIAS.map(([cat, v]) => `<tr class="${cat === sel ? "marca" : ""}" data-cat="${esc(cat)}" tabindex="0" role="button" aria-label="Ver el contexto de la fila ${esc(cat)}"><td>${esc(cat)}</td><td>${v}</td><td>${fmt(c.valor(cat, v))}</td></tr>`).join("");
+    return `<div class="dg-calc">
+        <table class="dg-tabla dg-calc-tabla" aria-label="Matriz por categoría">
+          <thead><tr><th>Categoria</th><th>[Ventas]</th><th>${esc(c.nombre)}</th></tr></thead>
+          <tbody>${filas}<tr class="total"><td>Total</td><td>${TOTAL_CAT}</td><td>${fmt(c.total())}</td></tr></tbody>
+        </table>
+        <div class="dg-explica">
+          <pre class="dg-sql"><code>${esc(c.dax)}</code></pre>
+          <p class="dg-ctx"><strong>Fila ${esc(sel)}</strong> · contexto antes: <code>Categoria = "${esc(sel)}"</code>, <code>Año = 2025</code><br>
+          contexto con la medida: ${c.fila(filaSel[0]).map((t) => `<code>${esc(t)}</code>`).join(" y ")}, <code>Año = 2025</code></p>
+          <p>${esc(c.texto)} El filtro de la segmentación (Año = 2025) se conserva siempre.</p>
+        </div>
+      </div>`;
+  }
+
+  function htmlCalculate() {
+    const c0 = CALC[0];
+    return `<figure class="diagrama" data-diagrama="calculate-contexto" data-calc="${c0.id}" data-cat="Lácteos">
+      <div class="dg-botones" role="group" aria-label="Elige la medida">
+        ${CALC.map((c) => `<button type="button" class="dg-btn" data-calc="${c.id}" aria-pressed="${c === c0}">${esc(c.nombre)}</button>`).join("")}
+      </div>
+      <div class="dg-panel-k" aria-live="polite">${panelCalc(c0, "Lácteos")}</div>
+      <figcaption>Una matriz por categoría con una segmentación Año = 2025. Elige una medida y toca una fila para ver cómo CALCULATE cambia su contexto de filtro.</figcaption>
+    </figure>`;
+  }
+
   // ---------------------------------------------------------------------------
   // 5. Ciclo de vida de un componente React (curso TypeScript y React)
   // ---------------------------------------------------------------------------
@@ -330,6 +483,8 @@
     "matriz-confusion": htmlConfusion,
     "validacion-cruzada": htmlValidacion,
     "ciclo-vida-react": htmlCicloVida,
+    "modelo-estrella": htmlEstrella,
+    "calculate-contexto": htmlCalculate,
   };
 
   function html(spec) {
@@ -372,7 +527,47 @@
         fig.querySelector(".dg-panel-fase").innerHTML = panelFase(f);
       });
     });
+    (raiz || document).querySelectorAll('[data-diagrama="modelo-estrella"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-origen], [data-bidi]");
+        if (!b || b === fig) return;
+        if (b.dataset.origen) fig.dataset.origen = b.dataset.origen;
+        if (b.dataset.bidi) fig.dataset.bidi = b.dataset.bidi;
+        fig.querySelectorAll("button[data-origen]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.origen === fig.dataset.origen)));
+        fig.querySelectorAll("button[data-bidi]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.bidi === fig.dataset.bidi)));
+        const bidi = fig.dataset.bidi === "1";
+        fig.querySelector(".dg-panel-e").innerHTML = svgEstrella(fig.dataset.origen, bidi) + `<div class="dg-explica">${textoEstrella(fig.dataset.origen, bidi)}</div>`;
+      });
+    });
+    (raiz || document).querySelectorAll('[data-diagrama="calculate-contexto"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      const pintar = () => {
+        const c = CALC.find((x) => x.id === fig.dataset.calc);
+        fig.querySelectorAll("button[data-calc]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.calc === c.id)));
+        fig.querySelector(".dg-panel-k").innerHTML = panelCalc(c, fig.dataset.cat);
+      };
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-calc]");
+        const tr = e.target.closest("tr[data-cat]");
+        if (b) fig.dataset.calc = b.dataset.calc;
+        else if (tr) fig.dataset.cat = tr.dataset.cat;
+        else return;
+        pintar();
+      });
+      fig.addEventListener("keydown", (e) => {
+        const tr = e.target.closest("tr[data-cat]");
+        if (!tr || (e.key !== "Enter" && e.key !== " ")) return;
+        e.preventDefault();
+        fig.dataset.cat = tr.dataset.cat;
+        pintar();
+        const nueva = fig.querySelector(`tr[data-cat="${CSS.escape(tr.dataset.cat)}"]`);
+        if (nueva) nueva.focus();
+      });
+    });
   }
 
-  window.Diagramas = { html, activar, svgVenn, JOINS, filasJoin, ajusteLineal, REG, CLIENTES_CHURN };
+  window.Diagramas = { html, activar, ESTRELLA, estadoEstrella, CALC, svgVenn, JOINS, filasJoin, ajusteLineal, REG, CLIENTES_CHURN };
 })();

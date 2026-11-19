@@ -161,3 +161,33 @@
 .dg-paso.dom { background: var(--superficie-2); }
 .dg-paso.efecto { background: color-mix(in srgb, var(--ok) 22%, transparent); }
 .dg-paso.limpieza { background: color-mix(in srgb, var(--ko) 18%, transparent); }
+/* Modelo estrella */
+.dg-panel-e { display: grid; grid-template-columns: minmax(240px, 1.1fr) 1fr; gap: 1rem; align-items: center; }
+.dg-panel-e > * { min-width: 0; }
+.dg-estrella .rel { stroke: var(--borde); stroke-width: 2; }
+.dg-estrella .rel.on { stroke: var(--tinta-2); }
+.dg-estrella .flecha { fill: var(--borde); }
+.dg-estrella .flecha.on { fill: var(--ko); }
+.dg-estrella .tabla-nodo rect { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1.5; }
+.dg-estrella .tabla-nodo.hechos rect { stroke-width: 2.5; }
+.dg-estrella .tabla-nodo.filtrada rect { fill: color-mix(in srgb, var(--cta-bg) 55%, var(--superficie)); }
+.dg-estrella .tabla-nodo.origen rect { fill: var(--cta-bg); stroke: var(--tinta); }
+.dg-estrella .t-nom { font: 600 12px var(--f-ui); fill: var(--tinta); }
+.dg-estrella .t-n { font: 10.5px var(--f-mono); fill: var(--tinta); }
+.dg-explica code, .dg-ctx code { font-family: var(--f-mono); font-size: var(--t-xs); background: var(--code-bg); padding: 0 .25rem; border-radius: 3px; }
+
+/* CALCULATE */
+.dg-calc { display: grid; grid-template-columns: minmax(220px, auto) 1fr; gap: 1rem; align-items: start; }
+.dg-calc > * { min-width: 0; }
+.dg-calc-tabla td:nth-child(n+2), .dg-calc-tabla th:nth-child(n+2) { text-align: right; }
+.dg-calc-tabla td:last-child { font-weight: 600; }
+.dg-calc-tabla tr[data-cat] { cursor: pointer; }
+.dg-calc-tabla tr[data-cat]:focus-visible { outline: 2px solid var(--mano); outline-offset: -2px; }
+.dg-calc-tabla tr.total td { font-weight: 700; border-top: 2px solid var(--tinta-2); }
+.dg-ctx { line-height: 1.8; }
+
+@media (max-width: 700px) {
+  .dg-panel-e, .dg-calc { grid-template-columns: 1fr; }
+  .dg-estrella { max-width: 360px; }
+}
+.dg-estrella .tabla-nodo.origen text { fill: var(--cta-txt); }
