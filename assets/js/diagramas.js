@@ -870,6 +870,131 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Flujos por pasos: ciclo petición/respuesta HTTP y autenticación JWT
+  // ---------------------------------------------------------------------------
+  // Cada paso marca un actor activo y, si hay, una flecha [desde, hasta].
+  const JWT_EJEMPLO = {
+    h: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+    p: "eyJzdWIiOjQyLCJyb2wiOiJlZGl0b3IiLCJleHAiOjE3OTUwMDAwMDB9",
+    s: "Xq3l7gq0c1oYp4nN0yq8Jt0r6mB0cR2v3Zx9w1kQe5A",
+  };
+  const FLUJOS = {
+    "ciclo-http": {
+      actores: ["Cliente", "Middlewares", "Ruta", "SQL Server"],
+      aria: "Ciclo de una petición HTTP: cliente, middlewares de Express, ruta y base de datos",
+      pie: "Recorre los pasos: la petición entra por la izquierda, atraviesa los middlewares en orden, la ruta habla con la base de datos y la respuesta vuelve por el mismo camino.",
+      pasos: [
+        {
+          corto: "1 · Petición", activo: 0, flecha: [0, 1],
+          texto: "El navegador o la app arma una petición: método, ruta, cabeceras y, si hace falta, un cuerpo JSON. Viaja por la red hasta el puerto donde escucha tu servidor.",
+          codigo: 'POST /api/v1/tareas HTTP/1.1\nHost: api.miapp.com\nContent-Type: application/json\nAuthorization: Bearer eyJhbGciOi...\n\n{ "titulo": "Preparar informe", "prioridad": 2 }',
+        },
+        {
+          corto: "2 · Middlewares", activo: 1, flecha: null,
+          texto: "Express pasa la petición por cada middleware en el orden en que los registraste: registrar la petición en el log, convertir el JSON en req.body y comprobar el token. Cualquiera puede cortar el camino y responder (por ejemplo, 401).",
+          codigo: "app.use(registrarPeticion);\napp.use(express.json());\napp.use('/api/v1/tareas', autenticar, rutasTareas);",
+        },
+        {
+          corto: "3 · Ruta", activo: 2, flecha: [2, 3],
+          texto: "La ruta que coincide con POST /tareas valida los datos y llama a la base de datos con una consulta parametrizada. Nunca arma el SQL pegando texto del usuario.",
+          codigo: "router.post('/', async (req, res) => {\n  const datos = validarTarea(req.body);\n  const tarea = await crearTarea(req.usuario.id, datos);\n  res.status(201).json(tarea);\n});",
+        },
+        {
+          corto: "4 · Base de datos", activo: 3, flecha: [3, 2],
+          texto: "SQL Server ejecuta el INSERT y, con OUTPUT INSERTED, devuelve la fila recién creada con su id y su fecha en la misma operación.",
+          codigo: "INSERT INTO dbo.tareas (usuario_id, titulo, prioridad)\nOUTPUT INSERTED.tarea_id, INSERTED.titulo, INSERTED.creada_en\nVALUES (@usuarioId, @titulo, @prioridad);",
+        },
+        {
+          corto: "5 · Respuesta", activo: 0, flecha: [2, 0],
+          texto: "La ruta responde con el código de estado correcto (201 Created) y el recurso en JSON. El cliente lee primero el código y después el cuerpo.",
+          codigo: 'HTTP/1.1 201 Created\nContent-Type: application/json\nLocation: /api/v1/tareas/318\n\n{ "tareaId": 318, "titulo": "Preparar informe", "creadaEn": "2026-11-18T14:05:00Z" }',
+        },
+      ],
+    },
+    "flujo-jwt": {
+      actores: ["Cliente", "API", "Base de datos"],
+      aria: "Flujo de autenticación con JWT entre el cliente, la API y la base de datos",
+      pie: "La base de datos solo se consulta al iniciar sesión. Después, la API confía en la firma del token: si alguien cambia una sola letra del contenido, la firma deja de coincidir.",
+      pasos: [
+        {
+          corto: "1 · Login", activo: 0, flecha: [0, 1],
+          texto: "El usuario envía su correo y su contraseña, siempre por HTTPS. Es el único momento en que la contraseña viaja.",
+          codigo: 'POST /api/v1/auth/login\nContent-Type: application/json\n\n{ "email": "ana@empresa.com", "contrasena": "••••••••" }',
+        },
+        {
+          corto: "2 · Verificar", activo: 2, flecha: [1, 2],
+          texto: "La API busca al usuario por correo y compara la contraseña con el hash guardado usando bcrypt. Si algo no coincide, responde 401 con un mensaje genérico.",
+          codigo: "SELECT usuario_id, hash_contrasena, rol\nFROM dbo.usuarios\nWHERE email = @email AND activo = 1;\n\n-- en Node:\nconst ok = await bcrypt.compare(contrasena, fila.hash_contrasena);",
+        },
+        {
+          corto: "3 · Firmar", activo: 1, flecha: [1, 0],
+          texto: "La API firma un token con su clave secreta y se lo devuelve al cliente. El token tiene tres partes separadas por puntos: cabecera, contenido y firma.",
+          codigo: "const token = jwt.sign({ sub: 42, rol: 'editor' }, process.env.JWT_SECRETO, { expiresIn: '15m' });",
+          token: true,
+        },
+        {
+          corto: "4 · Usar", activo: 0, flecha: [0, 1],
+          texto: "En cada petición siguiente, el cliente envía el token en la cabecera Authorization. No vuelve a mandar la contraseña.",
+          codigo: "GET /api/v1/tareas\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIs...",
+        },
+        {
+          corto: "5 · Comprobar", activo: 1, flecha: null,
+          texto: "El middleware verifica la firma y la fecha de vencimiento. Si todo está bien, guarda el usuario en req.usuario y la ruta sabe quién es y qué rol tiene sin ir a la base de datos.",
+          codigo: "const datos = jwt.verify(token, process.env.JWT_SECRETO, { algorithms: ['HS256'] });\nreq.usuario = { id: datos.sub, rol: datos.rol };\nnext();",
+        },
+        {
+          corto: "6 · Rechazar", activo: 0, flecha: [1, 0],
+          texto: "Si el token venció, falta o fue alterado, jwt.verify lanza un error y la API responde 401. Si el token es válido pero el rol no alcanza, responde 403.",
+          codigo: 'HTTP/1.1 401 Unauthorized\n\n{ "error": { "codigo": "TOKEN_INVALIDO", "mensaje": "Inicia sesión de nuevo." } }',
+        },
+      ],
+    },
+  };
+
+  function svgFlujo(tipo, i) {
+    const f = FLUJOS[tipo], paso = f.pasos[i], n = f.actores.length;
+    const W = 360, H = 110, gap = 14, bw = (W - gap * (n - 1)) / n, by = 54, bh = 44;
+    const cx = (k) => k * (bw + gap) + bw / 2;
+    const cajas = f.actores.map((a, k) => `<g class="dg-actor${k === paso.activo ? " activo" : ""}">
+        <rect x="${k * (bw + gap)}" y="${by}" width="${bw}" height="${bh}" rx="8"/>
+        <text x="${cx(k)}" y="${by + bh / 2 + 4}" text-anchor="middle">${esc(a)}</text></g>`).join("");
+    let flecha = "";
+    if (paso.flecha) {
+      const [a, b] = paso.flecha, dir = b > a ? 1 : -1;
+      const x1 = cx(a) + dir * (bw / 2 - 6), x2 = cx(b) - dir * (bw / 2 - 6);
+      const y = dir > 0 ? 22 : 38;
+      flecha = `<path class="fl-flecha" d="M${x1} ${by} L${x1} ${y} L${x2} ${y} L${x2} ${by - 4}"/>
+        <path class="fl-punta" d="M${x2 - 5} ${by - 11} L${x2} ${by - 2} L${x2 + 5} ${by - 11} Z"/>`;
+    }
+    return `<svg class="dg-svg dg-flujo" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(f.aria)}. Paso ${i + 1}: ${esc(paso.corto)}">${flecha}${cajas}</svg>`;
+  }
+
+  function panelFlujo(tipo, i) {
+    const f = FLUJOS[tipo], paso = f.pasos[i];
+    const token = paso.token
+      ? `<p class="dg-jwt"><span class="jwt-h">${JWT_EJEMPLO.h}</span>.<span class="jwt-p">${JWT_EJEMPLO.p}</span>.<span class="jwt-s">${JWT_EJEMPLO.s}</span></p>
+         <div class="dg-leyenda"><span><i class="jwt-h"></i>cabecera: algoritmo</span><span><i class="jwt-p"></i>contenido: sub, rol, exp</span><span><i class="jwt-s"></i>firma con la clave secreta</span></div>`
+      : "";
+    return `${svgFlujo(tipo, i)}
+      <div class="dg-explica dg-paso-flujo">
+        <p><strong>Paso ${i + 1} de ${f.pasos.length}.</strong> ${esc(paso.texto)}</p>
+        <pre class="dg-sql"><code>${esc(paso.codigo)}</code></pre>
+        ${token}
+      </div>`;
+  }
+
+  function htmlFlujo(tipo) {
+    const f = FLUJOS[tipo];
+    return `<figure class="diagrama dg-flujos" data-diagrama="${tipo}" data-flujo="${tipo}">
+      <div class="dg-botones" role="group" aria-label="Pasos del flujo">
+        ${f.pasos.map((p, i) => `<button type="button" class="dg-btn" data-paso="${i}" aria-pressed="${i === 0}">${esc(p.corto)}</button>`).join("")}
+      </div>
+      <div class="dg-panel-f" aria-live="polite">${panelFlujo(tipo, 0)}</div>
+      <figcaption>${esc(f.pie)}</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
@@ -887,6 +1012,8 @@
     "pipeline-cicd": htmlPipeline,
     boosting: htmlBoosting,
     "validacion-temporal": htmlTemporal,
+    "ciclo-http": () => htmlFlujo("ciclo-http"),
+    "flujo-jwt": () => htmlFlujo("flujo-jwt"),
   };
 
   function html(spec) {
@@ -907,6 +1034,7 @@
       });
     });
     activarDag(raiz);
+    activarFlujos(raiz);
     (raiz || document).querySelectorAll('[data-diagrama="venn-joins"]').forEach((fig) => {
       if (fig.dataset.listo) return;
       fig.dataset.listo = "1";
@@ -999,6 +1127,20 @@
         if (!b) return;
         fig.querySelectorAll("[data-ventana]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
         fig.querySelector(".dg-panel-t").innerHTML = panelTemporal(b.dataset.ventana);
+      });
+    });
+  }
+
+  function activarFlujos(raiz) {
+    (raiz || document).querySelectorAll("[data-flujo]").forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      const tipo = fig.dataset.flujo;
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-paso]");
+        if (!b) return;
+        fig.querySelectorAll("[data-paso]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-f").innerHTML = panelFlujo(tipo, Number(b.dataset.paso));
       });
     });
   }

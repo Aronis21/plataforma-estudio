@@ -251,3 +251,16 @@
 .dg-explica-b { margin: .6rem 0 0; line-height: 1.5; }
 .dg-svg .b-hueco, .dg-leyenda .b-hueco { fill: color-mix(in srgb, var(--tinta-2) 35%, transparent); background: color-mix(in srgb, var(--tinta-2) 35%, transparent); }
 .dg-svg .b-nada { fill: none; stroke: var(--borde); stroke-width: 1; }
+
+/* Flujos por pasos (ciclo-http, flujo-jwt) */
+.dg-flujo { max-width: 520px; margin-bottom: .8rem; }
+.dg-flujo .dg-actor rect { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1.5; transition: fill .2s; }
+.dg-flujo .dg-actor text { font: 600 11px var(--f-ui); fill: var(--tinta); }
+.dg-flujo .dg-actor.activo rect { fill: color-mix(in srgb, var(--cta-bg) 70%, transparent); stroke: var(--tinta); stroke-width: 2; }
+.dg-flujo .fl-flecha { fill: none; stroke: var(--mano); stroke-width: 2.5; stroke-linejoin: round; }
+.dg-flujo .fl-punta { fill: var(--mano); }
+.dg-paso-flujo p { margin: 0 0 .6rem; line-height: 1.5; }
+.dg-jwt { font-family: var(--f-mono); font-size: var(--t-xs); word-break: break-all; margin: 0 0 .4rem; }
+.dg-jwt .jwt-h, .dg-leyenda .jwt-h { color: var(--ko); background: color-mix(in srgb, var(--ko) 14%, transparent); }
+.dg-jwt .jwt-p, .dg-leyenda .jwt-p { color: var(--mano); background: color-mix(in srgb, var(--mano) 14%, transparent); }
+.dg-jwt .jwt-s, .dg-leyenda .jwt-s { color: var(--ok); background: color-mix(in srgb, var(--ok) 16%, transparent); }

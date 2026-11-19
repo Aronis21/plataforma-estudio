@@ -1,0 +1,1858 @@
+{
+  "id": "backend-apis",
+  "title": "Back-end y APIs con bases de datos",
+  "subtitle": "Construye APIs REST con Node.js y Express, conectadas a SQL Server con T-SQL, con autenticación, pruebas y despliegue.",
+  "level": "Intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "be-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1 · Node.js como servidor",
+      "title": "Qué es un back-end y cómo habla HTTP",
+      "subtitle": "Cliente, servidor y base de datos; peticiones, respuestas y códigos de estado.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Explicar qué hace un back-end y por qué no todo puede vivir en el navegador.",
+        "Leer las partes de una petición y de una respuesta HTTP.",
+        "Elegir el método y el código de estado adecuados para cada situación.",
+        "Probar un servidor desde la terminal con curl."
+      ],
+      "theorySections": [
+        {
+          "id": "be-01-sec-1",
+          "title": "1. Tres piezas: cliente, servidor y base de datos",
+          "body": "Una aplicación web moderna casi siempre tiene tres piezas:\n- El **cliente** (front-end): la página en el navegador o la app del teléfono. Muestra datos y recoge lo que escribe el usuario.\n- El **servidor** (back-end): un programa que escucha peticiones, aplica las reglas del negocio y decide qué responder.\n- La **base de datos**: guarda la información de forma permanente y compartida entre todos los usuarios.\n\n¿Por qué no hacerlo todo en el navegador? Porque el código del cliente **lo puede ver y cambiar cualquiera**. Las claves de la base de datos, los precios reales, quién puede borrar qué y los cálculos de dinero tienen que vivir en el servidor, donde el usuario no llega.\n\nEn este curso construirás una **API**: un back-end que no devuelve páginas, sino datos en JSON que cualquier cliente (web, móvil, otra empresa) puede usar. Usa los botones del diagrama para seguir una petición completa.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Cliente (navegador / app)\n   │  POST /api/v1/tareas  { \"titulo\": \"Preparar informe\" }\n   ▼\nServidor (Node.js + Express)  → valida, aplica reglas, decide\n   │  INSERT INTO dbo.tareas ...\n   ▼\nBase de datos (SQL Server)    → guarda y devuelve la fila\n   │\n   ▼\nRespuesta: 201 Created  { \"tareaId\": 318, ... }",
+          "keyTakeaway": "El back-end guarda los secretos y las reglas; el cliente solo pide y muestra.",
+          "diagram": {
+            "type": "ciclo-http"
+          }
+        },
+        {
+          "id": "be-01-sec-2",
+          "title": "2. Anatomía de una petición y una respuesta",
+          "body": "HTTP es un protocolo de **texto**: el cliente envía una petición y el servidor contesta con una respuesta.\n\nUna **petición** tiene:\n1) Una línea inicial con el **método** (`GET`, `POST`...), la **ruta** (`/api/v1/tareas?estado=abierta`) y la versión.\n2) **Cabeceras**: pares `Nombre: valor` con información extra, como `Content-Type` (qué formato trae el cuerpo) o `Authorization` (quién eres).\n3) Una línea en blanco y, opcionalmente, el **cuerpo** (por ejemplo, un JSON).\n\nUna **respuesta** tiene una línea con el **código de estado** (`200 OK`, `404 Not Found`), sus cabeceras y el cuerpo.\n\nLo que va después de `?` en la ruta es la **query string**: filtros y opciones (`?estado=abierta&pagina=2`). Los datos que crean o cambian algo van en el **cuerpo**, no en la URL.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "GET /api/v1/tareas?estado=abierta HTTP/1.1\nHost: api.miapp.com\nAccept: application/json\nAuthorization: Bearer eyJhbGciOi...\n\n---------------------------------------------\n\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\nContent-Length: 87\n\n[ { \"tareaId\": 12, \"titulo\": \"Revisar contrato\", \"estado\": \"abierta\" } ]",
+          "keyTakeaway": "Método + ruta dicen qué quieres; cabeceras dicen cómo; el cuerpo trae los datos."
+        },
+        {
+          "id": "be-01-sec-3",
+          "title": "3. Métodos y códigos de estado",
+          "body": "Los **métodos** expresan la intención:\n- `GET` lee. No cambia nada, así que se puede repetir sin miedo.\n- `POST` crea algo nuevo o dispara una acción.\n- `PUT` reemplaza un recurso completo; `PATCH` cambia solo algunos campos.\n- `DELETE` borra.\n\n`GET`, `PUT` y `DELETE` son **idempotentes**: repetirlos deja el mismo resultado. `POST` no lo es: dos `POST` iguales pueden crear dos registros.\n\nLos **códigos de estado** se agrupan por la primera cifra:\n- **2xx** éxito: `200 OK`, `201 Created`, `204 No Content`.\n- **3xx** redirección: `301`, `304 Not Modified`.\n- **4xx** error del cliente: `400` datos mal formados, `401` no autenticado, `403` sin permiso, `404` no existe, `409` conflicto.\n- **5xx** error del servidor: `500` fallo interno, `503` servicio no disponible.\n\nEl cliente decide qué hacer leyendo **primero el código**. Por eso un error nunca debe responder `200`.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Situación                                  Método   Código\n----------------------------------------   ------   ----------------\nListar las tareas                          GET      200 OK\nCrear una tarea                            POST     201 Created\nCambiar solo el estado de una tarea        PATCH    200 OK\nBorrar una tarea                           DELETE   204 No Content\nPedir la tarea 999, que no existe          GET      404 Not Found\nEnviar un título vacío                     POST     400 Bad Request\nLlamar sin iniciar sesión                  GET      401 Unauthorized\nUn editor intenta borrar un usuario        DELETE   403 Forbidden\nSe cae la conexión con la base de datos    GET      500 / 503",
+          "keyTakeaway": "El código de estado es la primera respuesta: 2xx bien, 4xx culpa del cliente, 5xx culpa del servidor."
+        },
+        {
+          "id": "be-01-sec-4",
+          "title": "4. Probar desde la terminal con curl",
+          "body": "No necesitas una página para hablar con un servidor. **curl** viene instalado en Windows, macOS y Linux y envía peticiones desde la terminal.\n\nOpciones que usarás todo el curso:\n- `-i` muestra las cabeceras de la respuesta, no solo el cuerpo.\n- `-X POST` cambia el método.\n- `-H \"Nombre: valor\"` agrega una cabecera.\n- `-d '...'` envía un cuerpo.\n\nPrueba con una API pública de ejemplo como `jsonplaceholder.typicode.com`, que devuelve datos falsos y acepta peticiones sin registrarte. En Windows PowerShell, escribe `curl.exe` para usar el curl real.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# Leer un recurso y ver las cabeceras\ncurl -i https://jsonplaceholder.typicode.com/todos/1\n\n# Crear un recurso enviando JSON\ncurl -i -X POST https://jsonplaceholder.typicode.com/todos \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"title\": \"Preparar informe\", \"completed\": false}'\n\n# Pedir algo que no existe: fíjate en el código 404\ncurl -i https://jsonplaceholder.typicode.com/todos/99999",
+          "keyTakeaway": "curl -i es tu lupa: muestra exactamente lo que respondió el servidor."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo comunicar el resultado de cada petición.",
+        "rules": [
+          "Usa el método que expresa la intención: GET nunca cambia datos.",
+          "Responde siempre con el código de estado que corresponde; un error nunca es 200.",
+          "Envía y recibe JSON con la cabecera Content-Type: application/json.",
+          "Los datos para crear o cambiar algo van en el cuerpo, no en la URL.",
+          "Ningún secreto (claves, reglas de precios, permisos) vive en el código del cliente."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "POST /api/v1/tareas            → 201 Created + Location: /api/v1/tareas/318\nGET  /api/v1/tareas/318        → 200 OK\nGET  /api/v1/tareas/999        → 404 Not Found\nPOST /api/v1/tareas (sin título) → 400 Bad Request + detalle del error"
+      },
+      "comparison": {
+        "scenario": "Una app móvil pide un pedido que no existe y debe mostrar un aviso.",
+        "juniorLabel": "Así no",
+        "juniorCode": "HTTP/1.1 200 OK\nContent-Type: application/json\n\n{ \"ok\": false, \"error\": \"No encontrado\" }",
+        "juniorFlaws": [
+          "El código 200 dice que todo salió bien; el cliente tiene que leer el cuerpo para descubrir que no.",
+          "Las herramientas de monitoreo cuentan esta respuesta como un éxito.",
+          "Cada cliente tiene que conocer el campo \"ok\" inventado por esta API."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "HTTP/1.1 404 Not Found\nContent-Type: application/json\n\n{ \"error\": { \"codigo\": \"PEDIDO_NO_EXISTE\", \"mensaje\": \"El pedido 999 no existe.\" } }",
+        "intermediateBenefits": [
+          "El código ya dice qué pasó, sin leer el cuerpo.",
+          "Los registros y alertas distinguen errores de éxitos.",
+          "El cuerpo añade un código estable y un mensaje para mostrar."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "be-01-ej-1",
+          "title": "Práctica 1: Leer una petición",
+          "difficulty": "Básico",
+          "prompt": "Para la petición del bloque de solución (antes de mirarla, escribe la tuya de memoria), identifica: método, ruta, query string, dos cabeceras y el cuerpo. Explica por qué es POST y no GET.",
+          "hint": "La línea en blanco separa las cabeceras del cuerpo.",
+          "solutionExplanation": "Método: POST. Ruta: /api/v1/clientes/7/notas. Query: ?notificar=true. Cabeceras: Content-Type y Authorization. Cuerpo: el JSON con la nota. Es POST porque crea una nota nueva; GET solo debe leer.",
+          "solutionCode": "POST /api/v1/clientes/7/notas?notificar=true HTTP/1.1\nHost: api.miapp.com\nContent-Type: application/json\nAuthorization: Bearer eyJhbGciOi...\n\n{ \"texto\": \"Llamar el lunes para renovar\", \"privada\": true }",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "be-01-ej-2",
+          "title": "Práctica 2: Elegir el código",
+          "difficulty": "Básico",
+          "prompt": "Escribe el código de estado para cada caso: (a) se borró una tarea; (b) se pidió /usuarios/abc cuando el id debe ser un número; (c) se registró un correo que ya existe; (d) un usuario sin sesión pide su perfil; (e) se creó un cliente; (f) el servidor lanzó una excepción no prevista.",
+          "hint": "Piensa primero si fue éxito, culpa del cliente o culpa del servidor.",
+          "solutionExplanation": "204 porque no hay nada que devolver; 400 porque el dato está mal formado; 409 porque choca con algo que ya existe; 401 porque falta autenticarse; 201 porque se creó un recurso; 500 porque es un fallo interno.",
+          "solutionCode": "(a) 204 No Content\n(b) 400 Bad Request\n(c) 409 Conflict\n(d) 401 Unauthorized\n(e) 201 Created\n(f) 500 Internal Server Error",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "be-01-ej-3",
+          "title": "Práctica 3: Explorar una API con curl",
+          "difficulty": "Intermedio",
+          "prompt": "Con curl y jsonplaceholder.typicode.com: lista los comentarios del post 1 usando la query string postId=1, cambia solo el título del todo 5 con PATCH y borra el post 3. Anota el código de estado de cada respuesta.",
+          "hint": "Para la query string escribe la URL entre comillas, porque & y ? tienen significado en la terminal.",
+          "solutionExplanation": "El listado responde 200 con un arreglo; el PATCH responde 200 con el recurso cambiado; el DELETE responde 200 en esta API de prueba (muchas APIs reales responden 204).",
+          "solutionCode": "curl -i \"https://jsonplaceholder.typicode.com/comments?postId=1\"\n\ncurl -i -X PATCH https://jsonplaceholder.typicode.com/todos/5 \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"title\": \"Título nuevo\"}'\n\ncurl -i -X DELETE https://jsonplaceholder.typicode.com/posts/3",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-01-q1",
+          "question": "Un usuario sin sesión iniciada pide GET /api/v1/perfil. ¿Qué código debe responder la API?",
+          "options": [
+            "401 Unauthorized",
+            "407 Proxy Authentication Required",
+            "403 Forbidden",
+            "404 Not Found"
+          ],
+          "correctIndex": 0,
+          "explanation": "401 significa que falta autenticarse. 403 se usa cuando sí sabemos quién es, pero no tiene permiso."
+        },
+        {
+          "id": "be-01-q2",
+          "question": "¿Por qué las reglas de precios y las claves de la base de datos deben vivir en el back-end?",
+          "options": [
+            "Porque el servidor responde más rápido que el navegador del usuario",
+            "Porque JavaScript en el navegador no puede leer archivos JSON",
+            "Porque el navegador no puede hacer cálculos con decimales grandes",
+            "Porque el código del cliente lo puede leer y cambiar cualquier usuario"
+          ],
+          "correctIndex": 3,
+          "explanation": "Todo lo que se envía al navegador queda a la vista del usuario, que puede modificarlo antes de enviarlo."
+        },
+        {
+          "id": "be-01-q3",
+          "question": "¿Qué método es idempotente y además no cambia datos?",
+          "options": [
+            "POST",
+            "PATCH",
+            "GET",
+            "DELETE"
+          ],
+          "correctIndex": 2,
+          "explanation": "GET solo lee. DELETE también es idempotente, pero sí cambia datos; POST y PATCH no son seguros para repetir."
+        }
+      ]
+    },
+    {
+      "id": "be-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1 · Node.js como servidor",
+      "title": "Node.js y npm",
+      "subtitle": "JavaScript fuera del navegador: módulos, paquetes, async/await y variables de entorno.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es Node.js y por qué no hay que bloquear el hilo principal.",
+        "Crear un proyecto con npm y entender package.json y package-lock.json.",
+        "Organizar el código en módulos con import y export.",
+        "Guardar configuración y secretos en variables de entorno."
+      ],
+      "theorySections": [
+        {
+          "id": "be-02-sec-1",
+          "title": "1. Qué es Node.js",
+          "body": "**Node.js** ejecuta JavaScript fuera del navegador, directamente en tu computadora o en un servidor. Usa el mismo motor (V8) que Chrome, pero en lugar de `document` y `window` te da acceso a archivos, red y procesos.\n\nNode trabaja con **un solo hilo** y un **bucle de eventos**: cuando pides algo lento (leer un archivo, consultar la base de datos), Node no se queda esperando; sigue atendiendo otras peticiones y vuelve cuando el resultado está listo. Así un solo proceso atiende miles de conexiones.\n\nLa consecuencia práctica: **nunca bloquees el hilo**. Un cálculo pesado o una función `...Sync` dentro de una ruta detiene a *todos* los usuarios mientras dura.\n\nInstala la versión **LTS** desde nodejs.org y comprueba con `node -v`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// hola.js — ejecútalo con: node hola.js\nimport { readFile } from \"node:fs/promises\";\n\nconsole.log(\"Node\", process.version);\n\n// No bloquea: Node sigue libre mientras el disco responde\nconst texto = await readFile(\"./notas.txt\", \"utf8\");\nconsole.log(\"El archivo tiene\", texto.length, \"caracteres\");",
+          "keyTakeaway": "Node atiende a muchos usuarios a la vez solo si ninguna operación bloquea el hilo."
+        },
+        {
+          "id": "be-02-sec-2",
+          "title": "2. npm y package.json",
+          "body": "**npm** es el gestor de paquetes de Node. Con `npm init -y` creas `package.json`, la ficha de tu proyecto:\n- `dependencies`: paquetes que la app necesita para funcionar (`express`, `mssql`).\n- `devDependencies`: solo para desarrollar y probar (`supertest`), se instalan con `-D`.\n- `scripts`: atajos que corres con `npm run nombre`.\n- `\"type\": \"module\"`: activa la sintaxis `import`/`export`.\n\n`npm install` crea la carpeta `node_modules` (nunca se sube a Git) y `package-lock.json`, que fija las versiones exactas para que todos instalen lo mismo. **El lock sí se sube a Git.**\n\nLas versiones siguen **SemVer**: `MAYOR.MENOR.PARCHE`. `^5.1.0` acepta 5.x pero no 6.0, porque un cambio de versión mayor puede romper tu código.",
+          "codeLanguage": "json",
+          "codeSnippet": "{\n  \"name\": \"api-tareas\",\n  \"version\": \"1.0.0\",\n  \"type\": \"module\",\n  \"scripts\": {\n    \"dev\": \"node --watch --env-file=.env src/servidor.js\",\n    \"start\": \"node src/servidor.js\",\n    \"test\": \"node --test\"\n  },\n  \"dependencies\": {\n    \"express\": \"^5.1.0\",\n    \"mssql\": \"^11.0.1\"\n  },\n  \"devDependencies\": {\n    \"supertest\": \"^7.1.0\"\n  }\n}",
+          "keyTakeaway": "package.json describe el proyecto; package-lock.json garantiza que todos instalen lo mismo."
+        },
+        {
+          "id": "be-02-sec-3",
+          "title": "3. Módulos y async/await",
+          "body": "Un back-end crece rápido, así que se divide en **módulos**: un archivo por responsabilidad. Lo que un archivo `export`a, otro lo `import`a. Los módulos de Node se importan con el prefijo `node:` (`node:fs`, `node:path`).\n\nCasi todo en un servidor es **asíncrono**: la base de datos, la red, los archivos. Con `async/await` el código se lee de arriba abajo:\n- Una función `async` siempre devuelve una promesa.\n- `await` espera el resultado sin bloquear el hilo.\n- Los errores se capturan con `try/catch`, igual que en código normal.\n\nSi necesitas varias cosas independientes, lánzalas a la vez con `Promise.all` en lugar de esperar una tras otra.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/utilidades/dinero.js\nexport function formatearMonto(valor, moneda = \"DOP\") {\n  return new Intl.NumberFormat(\"es-DO\", { style: \"currency\", currency: moneda }).format(valor);\n}\n\n// src/servicios/resumen.js\nimport { formatearMonto } from \"../utilidades/dinero.js\";\nimport { totalVentas, totalGastos } from \"./reportes.js\";\n\nexport async function resumenDelMes(mes) {\n  try {\n    // Las dos consultas corren a la vez\n    const [ventas, gastos] = await Promise.all([totalVentas(mes), totalGastos(mes)]);\n    return { ventas: formatearMonto(ventas), balance: formatearMonto(ventas - gastos) };\n  } catch (error) {\n    throw new Error(`No se pudo calcular el resumen de ${mes}`, { cause: error });\n  }\n}",
+          "keyTakeaway": "Un archivo por responsabilidad, async/await para lo lento y Promise.all para lo independiente."
+        },
+        {
+          "id": "be-02-sec-4",
+          "title": "4. Variables de entorno y el archivo .env",
+          "body": "La configuración que **cambia entre tu computadora y producción** (puerto, servidor de base de datos, claves) no se escribe en el código. Se lee de **variables de entorno** con `process.env.NOMBRE`.\n\nEn desarrollo se guardan en un archivo `.env`. Desde Node 20.6 no hace falta ningún paquete: `node --env-file=.env` lo carga solo.\n\nReglas de oro:\n- `.env` va en `.gitignore` y **nunca** se sube a Git.\n- Sube en cambio un `.env.ejemplo` con los nombres y valores falsos, para que otros sepan qué configurar.\n- Lee y valida la configuración **una sola vez** al arrancar; si falta algo, el servidor debe detenerse con un mensaje claro.",
+          "codeLanguage": "bash",
+          "codeSnippet": "# .env  (no se sube a Git)\nPUERTO=3000\nDB_SERVIDOR=localhost\nDB_NOMBRE=TareasDB\nDB_USUARIO=api_tareas\nDB_CONTRASENA=cambia-esto-en-tu-equipo\nJWT_SECRETO=una-cadena-larga-y-aleatoria\n\n# .gitignore\nnode_modules/\n.env\n\n# Arrancar cargando el .env\nnode --env-file=.env src/servidor.js",
+          "keyTakeaway": "Los secretos viven en variables de entorno; el repositorio solo guarda un .env.ejemplo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo organizar un proyecto Node desde el primer día.",
+        "rules": [
+          "Usa la versión LTS de Node y anótala en package.json (campo engines).",
+          "Sube package-lock.json a Git y nunca subas node_modules ni .env.",
+          "Instala las herramientas de prueba como devDependencies (-D).",
+          "Nunca uses funciones ...Sync dentro de una ruta.",
+          "Centraliza la configuración en un módulo que valide las variables al arrancar."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "// src/config.js — se importa una vez y falla temprano\nconst requeridas = [\"PUERTO\", \"DB_SERVIDOR\", \"DB_NOMBRE\", \"DB_USUARIO\", \"DB_CONTRASENA\", \"JWT_SECRETO\"];\nconst faltan = requeridas.filter((n) => !process.env[n]);\nif (faltan.length) {\n  console.error(\"Faltan variables de entorno:\", faltan.join(\", \"));\n  process.exit(1);\n}\n\nexport const config = {\n  puerto: Number(process.env.PUERTO),\n  db: {\n    server: process.env.DB_SERVIDOR,\n    database: process.env.DB_NOMBRE,\n    user: process.env.DB_USUARIO,\n    password: process.env.DB_CONTRASENA,\n  },\n  jwtSecreto: process.env.JWT_SECRETO,\n};"
+      },
+      "comparison": {
+        "scenario": "Conectar la API a la base de datos de la empresa.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// src/db.js\nexport const configDb = {\n  server: \"sql-prod.empresa.local\",\n  user: \"sa\",\n  password: \"Empresa2026!\",\n  database: \"Ventas\",\n};",
+        "juniorFlaws": [
+          "La contraseña queda en el historial de Git para siempre, aunque luego se borre.",
+          "Para cambiar de servidor (desarrollo o producción) hay que editar el código.",
+          "Usa la cuenta sa, que tiene control total del servidor."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// src/db.js\nimport { config } from \"./config.js\";\n\nexport const configDb = {\n  ...config.db,                 // viene de variables de entorno\n  options: { encrypt: true },\n};\n\n// .env.ejemplo (este sí se sube)\n// DB_USUARIO=api_ventas   ← usuario con permisos mínimos",
+        "intermediateBenefits": [
+          "Ningún secreto queda en el repositorio.",
+          "El mismo código corre en desarrollo y producción cambiando solo el entorno.",
+          "La API usa una cuenta con solo los permisos que necesita."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-02-ej-1",
+          "title": "Práctica 1: Tu primer proyecto",
+          "difficulty": "Básico",
+          "prompt": "Crea una carpeta api-tareas, inicializa el proyecto, activa los módulos ES, instala express y supertest (este como dependencia de desarrollo) y agrega los scripts dev y start.",
+          "hint": "npm pkg set permite cambiar package.json desde la terminal.",
+          "solutionExplanation": "npm init -y crea package.json; npm pkg set type=module activa import/export; express queda en dependencies y supertest en devDependencies. El script dev usa --watch para reiniciar al guardar.",
+          "solutionCode": "mkdir api-tareas && cd api-tareas\nnpm init -y\nnpm pkg set type=module\nnpm install express\nnpm install -D supertest\nnpm pkg set scripts.dev=\"node --watch --env-file=.env src/servidor.js\"\nnpm pkg set scripts.start=\"node src/servidor.js\"\nmkdir src && echo \"node_modules/\\n.env\" > .gitignore",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "be-02-ej-2",
+          "title": "Práctica 2: Configuración que falla temprano",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe src/config.js que lea PUERTO y DB_NOMBRE del entorno. Si falta alguna, debe mostrar cuáles y detener el proceso. PUERTO debe convertirse a número y, si no es válido, también debe detenerse.",
+          "hint": "Number(\"abc\") devuelve NaN; Number.isInteger te ayuda a comprobarlo.",
+          "solutionExplanation": "Validar al arrancar evita que el servidor falle más tarde, en medio de una petición, con un error difícil de entender.",
+          "solutionCode": "const faltan = [\"PUERTO\", \"DB_NOMBRE\"].filter((n) => !process.env[n]);\nif (faltan.length) {\n  console.error(\"Faltan variables:\", faltan.join(\", \"));\n  process.exit(1);\n}\nconst puerto = Number(process.env.PUERTO);\nif (!Number.isInteger(puerto) || puerto <= 0) {\n  console.error(\"PUERTO debe ser un número entero positivo\");\n  process.exit(1);\n}\nexport const config = { puerto, dbNombre: process.env.DB_NOMBRE };",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-02-ej-3",
+          "title": "Práctica 3: Esperar a la vez",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes dos funciones asíncronas, contarClientes() y contarPedidos(), que tardan 1 segundo cada una. Escribe una función estadisticas() que devuelva { clientes, pedidos } en 1 segundo, no en 2, y que relance un error claro si alguna falla.",
+          "hint": "Si escribes dos await seguidos, la segunda espera a la primera.",
+          "solutionExplanation": "Promise.all lanza las dos promesas a la vez y espera a que terminen ambas. Si una falla, el catch recibe el error y lo envuelve con un mensaje que explica el contexto.",
+          "solutionCode": "export async function estadisticas() {\n  try {\n    const [clientes, pedidos] = await Promise.all([contarClientes(), contarPedidos()]);\n    return { clientes, pedidos };\n  } catch (error) {\n    throw new Error(\"No se pudieron calcular las estadísticas\", { cause: error });\n  }\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-02-q1",
+          "question": "¿Qué archivo se sube a Git para que todos instalen exactamente las mismas versiones?",
+          "options": [
+            "npm-debug.log",
+            "package-lock.json",
+            ".env.production.local",
+            "node_modules"
+          ],
+          "correctIndex": 1,
+          "explanation": "package-lock.json fija las versiones exactas. node_modules se regenera con npm install y .env guarda secretos."
+        },
+        {
+          "id": "be-02-q2",
+          "question": "Dentro de una ruta usas fs.readFileSync para leer un archivo grande. ¿Qué problema causa?",
+          "options": [
+            "Obliga a reiniciar el servidor después de cada lectura",
+            "Solo funciona si el archivo está dentro de node_modules",
+            "Detiene a todos los usuarios mientras lee el archivo",
+            "Devuelve el contenido del archivo siempre vacío"
+          ],
+          "correctIndex": 2,
+          "explanation": "Node usa un solo hilo: una operación síncrona lenta bloquea el bucle de eventos para todas las peticiones."
+        },
+        {
+          "id": "be-02-q3",
+          "question": "¿Dónde debe guardarse la contraseña de la base de datos en un proyecto Node?",
+          "options": [
+            "En una variable de entorno, cargada desde .env en desarrollo",
+            "En package.json, dentro de un campo de configuración propio",
+            "En una constante dentro de src/db.js, comentada con cuidado",
+            "En el README, para que el equipo la encuentre con facilidad"
+          ],
+          "correctIndex": 0,
+          "explanation": "Los secretos van en el entorno; el archivo .env queda fuera de Git y en producción se configura en el servidor."
+        }
+      ]
+    },
+    {
+      "id": "be-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 1 · Node.js como servidor",
+      "title": "Express: rutas, parámetros y middlewares",
+      "subtitle": "Tu primer servidor HTTP con Express y cómo fluye una petición por él.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Crear un servidor Express que responda JSON.",
+        "Leer datos de req.params, req.query y req.body.",
+        "Escribir middlewares y entender por qué importa su orden.",
+        "Separar las rutas en módulos con express.Router."
+      ],
+      "theorySections": [
+        {
+          "id": "be-03-sec-1",
+          "title": "1. Tu primer servidor",
+          "body": "**Express** es el framework más usado para servidores en Node. Instálalo con `npm install express` (este curso usa la versión 5).\n\nLo mínimo:\n- `express()` crea la aplicación.\n- `app.get(ruta, manejador)` responde a un método y una ruta.\n- El manejador recibe `req` (la petición) y `res` (la respuesta).\n- `res.json(objeto)` convierte a JSON y pone la cabecera `Content-Type` por ti.\n- `app.listen(puerto)` empieza a escuchar.\n\nSepara la **creación de la app** (`app.js`) del **arranque** (`servidor.js`). Así las pruebas podrán usar la app sin abrir un puerto.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/app.js\nimport express from \"express\";\n\nexport const app = express();\napp.use(express.json());\n\napp.get(\"/api/v1/salud\", (req, res) => {\n  res.json({ estado: \"ok\", hora: new Date().toISOString() });\n});\n\n// src/servidor.js\nimport { app } from \"./app.js\";\nconst puerto = Number(process.env.PUERTO) || 3000;\napp.listen(puerto, () => console.log(`API en http://localhost:${puerto}`));",
+          "keyTakeaway": "app.js define la API; servidor.js solo la pone a escuchar."
+        },
+        {
+          "id": "be-03-sec-2",
+          "title": "2. Leer lo que envía el cliente",
+          "body": "Una petición trae datos en tres lugares:\n- **`req.params`**: partes variables de la ruta. En `/tareas/:id`, una petición a `/tareas/42` da `req.params.id === \"42\"`.\n- **`req.query`**: la query string. `/tareas?estado=abierta` da `req.query.estado === \"abierta\"`.\n- **`req.body`**: el cuerpo. Solo existe si registraste `express.json()` antes de la ruta.\n\nCuidado: params y query **siempre llegan como texto**. Conviértelos (`Number(...)`) y comprueba que el resultado sea válido antes de usarlos.\n\nPara responder: `res.status(201).json(...)` elige el código; `res.sendStatus(204)` responde sin cuerpo; `res.set(\"Location\", url)` agrega una cabecera.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "const tareas = [{ id: 1, titulo: \"Revisar contrato\", estado: \"abierta\" }];\n\napp.get(\"/api/v1/tareas\", (req, res) => {\n  const { estado } = req.query;                      // opcional\n  const lista = estado ? tareas.filter((t) => t.estado === estado) : tareas;\n  res.json(lista);\n});\n\napp.get(\"/api/v1/tareas/:id\", (req, res) => {\n  const id = Number(req.params.id);                  // llega como texto\n  const tarea = tareas.find((t) => t.id === id);\n  if (!tarea) return res.status(404).json({ error: { mensaje: \"La tarea no existe\" } });\n  res.json(tarea);\n});\n\napp.post(\"/api/v1/tareas\", (req, res) => {\n  const nueva = { id: tareas.length + 1, titulo: req.body.titulo, estado: \"abierta\" };\n  tareas.push(nueva);\n  res.status(201).set(\"Location\", `/api/v1/tareas/${nueva.id}`).json(nueva);\n});",
+          "keyTakeaway": "params identifica el recurso, query filtra y body trae los datos; los dos primeros llegan como texto."
+        },
+        {
+          "id": "be-03-sec-3",
+          "title": "3. Middlewares: la cadena de montaje",
+          "body": "Un **middleware** es una función `(req, res, next)` que se ejecuta **antes** de la ruta. Puede:\n- Leer o agregar datos a `req` (por ejemplo, `req.usuario`).\n- Responder y cortar la cadena (por ejemplo, con un 401).\n- Llamar a `next()` para pasar al siguiente.\n\nExpress los ejecuta **en el orden en que se registran**. Por eso `express.json()` va arriba: si lo pones después de las rutas, `req.body` llega `undefined`.\n\nAl final se registran dos piezas especiales:\n- Un middleware para **rutas inexistentes** que responde 404.\n- El **manejador de errores**, con cuatro parámetros `(err, req, res, next)`, que verás en el capítulo 5.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Registra método, ruta, código y duración de cada petición\nfunction registrarPeticion(req, res, next) {\n  const inicio = performance.now();\n  res.on(\"finish\", () => {\n    const ms = (performance.now() - inicio).toFixed(1);\n    console.log(`${req.method} ${req.originalUrl} → ${res.statusCode} (${ms} ms)`);\n  });\n  next();\n}\n\napp.use(registrarPeticion);   // 1. primero el log\napp.use(express.json());      // 2. luego convertir el cuerpo\napp.use(\"/api/v1/tareas\", rutasTareas);   // 3. las rutas\n\napp.use((req, res) => {       // 4. nada coincidió\n  res.status(404).json({ error: { mensaje: `No existe ${req.method} ${req.originalUrl}` } });\n});",
+          "keyTakeaway": "Los middlewares corren en orden: primero los generales, luego las rutas y al final el 404."
+        },
+        {
+          "id": "be-03-sec-4",
+          "title": "4. Organizar las rutas con Router",
+          "body": "Con diez recursos, un solo archivo se vuelve imposible de leer. **`express.Router()`** agrupa las rutas de un recurso en su propio módulo, con rutas relativas (`/`, `/:id`).\n\nUna estructura que escala:\n- `src/rutas/`: define URLs y métodos, y llama al controlador.\n- `src/controladores/`: lee `req`, llama al servicio y arma la respuesta.\n- `src/servicios/` o `src/datos/`: la lógica y las consultas a la base de datos.\n- `src/middlewares/`: autenticación, validación, errores.\n\nLa regla: **las rutas no saben SQL y la capa de datos no sabe de `req` ni `res`**. Así puedes cambiar una sin romper la otra y probar cada pieza por separado.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/rutas/tareas.js\nimport { Router } from \"express\";\nimport * as ctrl from \"../controladores/tareas.js\";\n\nexport const rutasTareas = Router();\nrutasTareas.get(\"/\", ctrl.listar);\nrutasTareas.get(\"/:id\", ctrl.obtener);\nrutasTareas.post(\"/\", ctrl.crear);\nrutasTareas.patch(\"/:id\", ctrl.actualizar);\nrutasTareas.delete(\"/:id\", ctrl.eliminar);\n\n// src/app.js\nimport { rutasTareas } from \"./rutas/tareas.js\";\napp.use(\"/api/v1/tareas\", rutasTareas);\n\n/* Estructura\nsrc/\n  app.js  servidor.js  config.js\n  rutas/  controladores/  datos/  middlewares/\n*/",
+          "keyTakeaway": "Un Router por recurso y capas separadas: rutas, controladores y datos."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo armar una aplicación Express ordenada.",
+        "rules": [
+          "Registra express.json() antes de cualquier ruta que lea req.body.",
+          "Convierte y valida req.params y req.query antes de usarlos.",
+          "Usa un Router por recurso, montado con un prefijo versionado (/api/v1).",
+          "Termina con un middleware 404 y un manejador de errores.",
+          "Exporta la app sin llamar a listen, para poder probarla."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "import express from \"express\";\nimport { registrarPeticion } from \"./middlewares/registro.js\";\nimport { rutasTareas } from \"./rutas/tareas.js\";\nimport { noEncontrado, manejarErrores } from \"./middlewares/errores.js\";\n\nexport const app = express();\napp.use(registrarPeticion);\napp.use(express.json({ limit: \"100kb\" }));\napp.use(\"/api/v1/tareas\", rutasTareas);\napp.use(noEncontrado);\napp.use(manejarErrores);"
+      },
+      "comparison": {
+        "scenario": "Al crear una tarea, req.body siempre llega undefined.",
+        "juniorLabel": "Así no",
+        "juniorCode": "app.post(\"/api/v1/tareas\", (req, res) => {\n  const { titulo } = req.body;     // TypeError: Cannot destructure 'undefined'\n  res.status(201).json({ titulo });\n});\n\napp.use(express.json());           // registrado demasiado tarde",
+        "juniorFlaws": [
+          "express.json() se ejecuta después de la ruta, así que el cuerpo nunca se convierte.",
+          "El error aparece en producción como un 500 confuso.",
+          "No hay ruta 404 ni manejo de errores al final."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "app.use(express.json());           // primero convertir el cuerpo\n\napp.post(\"/api/v1/tareas\", (req, res) => {\n  const { titulo } = req.body;\n  res.status(201).json({ titulo });\n});\n\napp.use(noEncontrado);             // después de todas las rutas\napp.use(manejarErrores);",
+        "intermediateBenefits": [
+          "El cuerpo ya está convertido cuando la ruta lo lee.",
+          "Las rutas inexistentes responden 404 en JSON.",
+          "Cualquier excepción termina en un manejador central."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-03-ej-1",
+          "title": "Práctica 1: API de productos en memoria",
+          "difficulty": "Básico",
+          "prompt": "Con un arreglo en memoria, crea GET /api/v1/productos (con filtro opcional ?categoria=), GET /api/v1/productos/:id (404 si no existe) y POST /api/v1/productos (responde 201 con el producto y la cabecera Location).",
+          "hint": "Recuerda convertir req.params.id con Number.",
+          "solutionExplanation": "Cada ruta usa la parte de la petición que le corresponde: query para filtrar, params para identificar y body para crear. El 201 con Location le dice al cliente dónde está el recurso nuevo.",
+          "solutionCode": "import express from \"express\";\nexport const app = express();\napp.use(express.json());\n\nconst productos = [{ id: 1, nombre: \"Aceite 5W-30\", categoria: \"lubricantes\", precio: 950 }];\n\napp.get(\"/api/v1/productos\", (req, res) => {\n  const { categoria } = req.query;\n  res.json(categoria ? productos.filter((p) => p.categoria === categoria) : productos);\n});\n\napp.get(\"/api/v1/productos/:id\", (req, res) => {\n  const p = productos.find((x) => x.id === Number(req.params.id));\n  if (!p) return res.status(404).json({ error: { mensaje: \"Producto no encontrado\" } });\n  res.json(p);\n});\n\napp.post(\"/api/v1/productos\", (req, res) => {\n  const nuevo = { id: productos.length + 1, ...req.body };\n  productos.push(nuevo);\n  res.status(201).set(\"Location\", `/api/v1/productos/${nuevo.id}`).json(nuevo);\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-03-ej-2",
+          "title": "Práctica 2: Middleware de cabecera obligatoria",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un middleware exigirClaveApi que compare la cabecera X-Clave-Api con process.env.CLAVE_API. Si falta o no coincide, responde 401 en JSON; si coincide, deja pasar. Aplícalo solo a las rutas de /api/v1/productos.",
+          "hint": "req.get('X-Clave-Api') lee una cabecera sin importar mayúsculas.",
+          "solutionExplanation": "El middleware corta la cadena con un 401 o llama a next(). Al pasarlo como segundo argumento de app.use, solo protege ese prefijo.",
+          "solutionCode": "export function exigirClaveApi(req, res, next) {\n  const clave = req.get(\"X-Clave-Api\");\n  if (!clave || clave !== process.env.CLAVE_API) {\n    return res.status(401).json({ error: { mensaje: \"Falta una clave de API válida\" } });\n  }\n  next();\n}\n\napp.use(\"/api/v1/productos\", exigirClaveApi, rutasProductos);",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-03-ej-3",
+          "title": "Práctica 3: Pasar a Router",
+          "difficulty": "Intermedio",
+          "prompt": "Mueve las rutas de productos de la práctica 1 a src/rutas/productos.js usando express.Router, y móntalas en app.js con el prefijo /api/v1/productos. Agrega al final un middleware 404 en JSON.",
+          "hint": "Dentro del Router las rutas son relativas: \"/\" y \"/:id\".",
+          "solutionExplanation": "El Router no conoce su prefijo; app.use se lo da. Así puedes cambiar /api/v1 por /api/v2 en un solo lugar.",
+          "solutionCode": "// src/rutas/productos.js\nimport { Router } from \"express\";\nimport { listar, obtener, crear } from \"../controladores/productos.js\";\nexport const rutasProductos = Router();\nrutasProductos.get(\"/\", listar);\nrutasProductos.get(\"/:id\", obtener);\nrutasProductos.post(\"/\", crear);\n\n// src/app.js\napp.use(\"/api/v1/productos\", rutasProductos);\napp.use((req, res) => res.status(404).json({ error: { mensaje: \"Ruta no encontrada\" } }));",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-03-q1",
+          "question": "En la ruta /clientes/:id, ¿qué valor tiene req.params.id al pedir /clientes/15?",
+          "options": [
+            "El número 15",
+            "El texto \"15\"",
+            "El valor undefined",
+            "El objeto { id: 15 }"
+          ],
+          "correctIndex": 1,
+          "explanation": "Los parámetros de ruta y de query siempre llegan como texto; hay que convertirlos."
+        },
+        {
+          "id": "be-03-q2",
+          "question": "¿Qué pasa si registras express.json() después de tus rutas POST?",
+          "options": [
+            "Las rutas POST responden siempre 404 Not Found",
+            "Express rechaza arrancar y muestra un error",
+            "req.body llega undefined dentro de esas rutas",
+            "El cuerpo llega duplicado en req.body y req.query"
+          ],
+          "correctIndex": 2,
+          "explanation": "Los middlewares corren en orden de registro; si la ruta va primero, el cuerpo aún no se convirtió."
+        },
+        {
+          "id": "be-03-q3",
+          "question": "¿Por qué conviene separar app.js (la app) de servidor.js (app.listen)?",
+          "options": [
+            "Porque los routers solo funcionan en otro archivo",
+            "Porque Express no permite listen en el mismo archivo",
+            "Para que la app arranque más rápido en producción",
+            "Para que las pruebas usen la app sin abrir un puerto"
+          ],
+          "correctIndex": 3,
+          "explanation": "Herramientas como supertest reciben la app y la prueban directamente, sin un servidor escuchando."
+        }
+      ]
+    },
+    {
+      "id": "be-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2 · Diseñar APIs REST",
+      "title": "Diseño REST: recursos, verbos y URLs",
+      "subtitle": "Cómo nombrar rutas, elegir códigos y paginar para que la API sea predecible.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Diseñar URLs con sustantivos y relaciones anidadas.",
+        "Asignar método y código de estado a cada operación de un recurso.",
+        "Agregar filtros, orden y paginación con OFFSET/FETCH en T-SQL.",
+        "Versionar una API sin romper a los clientes existentes."
+      ],
+      "theorySections": [
+        {
+          "id": "be-04-sec-1",
+          "title": "1. Recursos y URLs",
+          "body": "**REST** es un estilo para diseñar APIs alrededor de **recursos**: las cosas de tu negocio (clientes, pedidos, tareas). Cada recurso tiene una URL y se manipula con los métodos HTTP.\n\nReglas de nombre:\n- **Sustantivos en plural**, no verbos: `/clientes`, no `/obtenerClientes`.\n- Un elemento se identifica con su id: `/clientes/7`.\n- Las relaciones se **anidan** un nivel: `/clientes/7/pedidos` son los pedidos del cliente 7.\n- Minúsculas y guiones: `/ordenes-compra`.\n- Las acciones que no encajan en CRUD se modelan como sub-recurso: `POST /pedidos/31/cancelacion`.\n\nUna buena API es **predecible**: si conoces `/clientes`, adivinas cómo funciona `/proveedores`.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "/api/v1/clientes                  colección de clientes\n/api/v1/clientes/7                el cliente 7\n/api/v1/clientes/7/pedidos        pedidos del cliente 7\n/api/v1/pedidos/31                el pedido 31 (también accesible directo)\n/api/v1/pedidos/31/cancelacion    acción: cancelar el pedido 31 (POST)",
+          "keyTakeaway": "URLs con sustantivos en plural; el método dice la acción."
+        },
+        {
+          "id": "be-04-sec-2",
+          "title": "2. El mapa de operaciones de un recurso",
+          "body": "Con cinco rutas cubres casi todo lo que se hace con un recurso. Fíjate en el código de cada éxito:\n- **Listar** responde `200` con un arreglo (vacío si no hay nada, nunca 404).\n- **Crear** responde `201` y la cabecera `Location` con la URL del recurso nuevo.\n- **Leer, reemplazar o cambiar** un elemento responde `200` con el recurso actualizado.\n- **Borrar** responde `204` sin cuerpo.\n\nErrores comunes:\n- `404` si el id no existe.\n- `400` si los datos no son válidos.\n- `409` si choca con el estado actual (un correo que ya existe, cancelar un pedido ya entregado).\n\n**PUT** reemplaza el recurso completo: los campos que no envíes se pierden. **PATCH** cambia solo lo que envías, y es lo que más se usa en formularios de edición.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Método   Ruta                     Éxito            Errores típicos\n------   ----------------------   --------------   ----------------\nGET      /api/v1/tareas           200 + arreglo    400 (filtro inválido)\nPOST     /api/v1/tareas           201 + Location   400, 409\nGET      /api/v1/tareas/:id       200              404\nPATCH    /api/v1/tareas/:id       200              400, 404, 409\nPUT      /api/v1/tareas/:id       200              400, 404\nDELETE   /api/v1/tareas/:id       204 sin cuerpo   404",
+          "keyTakeaway": "Listar devuelve 200 aunque esté vacío; crear devuelve 201; borrar devuelve 204."
+        },
+        {
+          "id": "be-04-sec-3",
+          "title": "3. Filtros, orden y paginación",
+          "body": "Una colección puede tener miles de filas. Nunca devuelvas todas: **pagina siempre**.\n\nConvenciones en la query string:\n- Filtros con el nombre del campo: `?estado=abierta&prioridad=1`.\n- Orden con un campo permitido y un signo para descendente: `?orden=-creada_en`.\n- Paginación con `pagina` y `limite`, con un máximo (por ejemplo, 100).\n\nEn T-SQL la paginación se hace con `ORDER BY ... OFFSET n ROWS FETCH NEXT m ROWS ONLY`. Siempre necesita `ORDER BY`, y conviene un desempate único (el id) para que una fila no aparezca en dos páginas.\n\nResponde con los datos y un bloque `meta` que diga cuántos hay en total, para que el cliente pueda dibujar la paginación.\n\n**Importante**: el campo de orden nunca se pega en el SQL tal como llega. Compáralo contra una **lista blanca** de columnas permitidas.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- GET /api/v1/tareas?estado=abierta&orden=-creada_en&pagina=2&limite=20\nDECLARE @estado NVARCHAR(20) = N'abierta', @pagina INT = 2, @limite INT = 20;\n\nSELECT tarea_id, titulo, estado, prioridad, creada_en\nFROM dbo.tareas\nWHERE estado = @estado\nORDER BY creada_en DESC, tarea_id DESC          -- desempate único\nOFFSET (@pagina - 1) * @limite ROWS\nFETCH NEXT @limite ROWS ONLY;\n\nSELECT COUNT(*) AS total FROM dbo.tareas WHERE estado = @estado;\n\n/* Respuesta\n{ \"datos\": [ ... 20 tareas ... ],\n  \"meta\": { \"pagina\": 2, \"limite\": 20, \"total\": 134, \"paginas\": 7 } } */",
+          "keyTakeaway": "Pagina siempre, ordena con desempate y acepta solo columnas de una lista blanca."
+        },
+        {
+          "id": "be-04-sec-4",
+          "title": "4. Versionar sin romper a nadie",
+          "body": "Cuando una app móvil ya está publicada, no puedes obligar a todos a actualizarla el mismo día. Si cambias tu API de golpe, la rompes.\n\nDistingue dos tipos de cambio:\n- **Compatibles**: agregar un campo nuevo a la respuesta, agregar una ruta, aceptar un parámetro opcional. Se hacen en la misma versión.\n- **Incompatibles**: renombrar o quitar un campo, cambiar su tipo, hacer obligatorio algo que era opcional. Exigen una **versión nueva**.\n\nLa forma más clara de versionar es en la URL: `/api/v1/...` y `/api/v2/...`. Mantén la v1 funcionando un tiempo anunciado y avisa la fecha de retiro.\n\nPara que los cambios compatibles no rompan, los clientes deben **ignorar los campos que no conocen**.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// v1 y v2 conviven: v2 cambia \"nombre\" por \"nombreCompleto\"\nimport { rutasClientesV1 } from \"./rutas/v1/clientes.js\";\nimport { rutasClientesV2 } from \"./rutas/v2/clientes.js\";\n\napp.use(\"/api/v1/clientes\", (req, res, next) => {\n  res.set(\"Deprecation\", \"true\");\n  res.set(\"Sunset\", \"Wed, 30 Jun 2027 23:59:59 GMT\");   // fecha de retiro\n  next();\n}, rutasClientesV1);\napp.use(\"/api/v2/clientes\", rutasClientesV2);",
+          "keyTakeaway": "Agregar es compatible; quitar o renombrar exige una versión nueva."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que una API sea predecible.",
+        "rules": [
+          "Rutas con sustantivos en plural y en minúsculas; nunca verbos en la URL.",
+          "Cada operación usa su método y su código de éxito (200, 201, 204).",
+          "Las colecciones siempre se paginan y tienen un límite máximo.",
+          "Los campos de orden y filtro se validan contra una lista blanca.",
+          "Prefijo de versión desde el primer día: /api/v1."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "const ORDENES = { creada_en: \"creada_en\", prioridad: \"prioridad\", titulo: \"titulo\" };\n\nexport function leerPaginacion(query) {\n  const pagina = Math.max(1, Number(query.pagina) || 1);\n  const limite = Math.min(100, Math.max(1, Number(query.limite) || 20));\n  const campo = (query.orden || \"creada_en\").replace(/^-/, \"\");\n  if (!ORDENES[campo]) throw new ErrorHttp(400, \"ORDEN_INVALIDO\", `No se puede ordenar por ${campo}`);\n  const direccion = query.orden?.startsWith(\"-\") ? \"DESC\" : \"ASC\";\n  return { pagina, limite, orden: `${ORDENES[campo]} ${direccion}` };\n}"
+      },
+      "comparison": {
+        "scenario": "Una API de pedidos hecha sin diseño previo.",
+        "juniorLabel": "Así no",
+        "juniorCode": "GET  /getPedidos\nGET  /pedido?id=31\nPOST /crearPedido\nPOST /borrarPedido?id=31\nGET  /pedidosDelCliente?clienteId=7     → devuelve los 50 000 pedidos",
+        "juniorFlaws": [
+          "Verbos en la URL: cada recurso nuevo inventa sus propios nombres.",
+          "Borrar con POST y un parámetro rompe la semántica de HTTP y las cachés.",
+          "La colección no tiene paginación y puede tumbar el servidor."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "GET    /api/v1/pedidos?pagina=1&limite=20\nGET    /api/v1/pedidos/31\nPOST   /api/v1/pedidos\nDELETE /api/v1/pedidos/31\nGET    /api/v1/clientes/7/pedidos?pagina=1&limite=20",
+        "intermediateBenefits": [
+          "Mismo patrón para todos los recursos: se aprende una vez.",
+          "Cada método expresa su intención y devuelve su código.",
+          "Las colecciones vienen paginadas y con versión en la ruta."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "be-04-ej-1",
+          "title": "Práctica 1: Diseñar un recurso",
+          "difficulty": "Básico",
+          "prompt": "Diseña las rutas REST para gestionar facturas de proveedores y sus pagos: listar facturas, ver una, crearla, anularla, listar los pagos de una factura y registrar un pago. Indica método, ruta y código de éxito.",
+          "hint": "Anular no es borrar: la factura sigue existiendo con otro estado.",
+          "solutionExplanation": "Las facturas son la colección principal; los pagos se anidan porque siempre pertenecen a una factura. La anulación es una acción, así que se modela como sub-recurso con POST.",
+          "solutionCode": "GET    /api/v1/facturas                    200\nGET    /api/v1/facturas/:id                200\nPOST   /api/v1/facturas                    201 + Location\nPOST   /api/v1/facturas/:id/anulacion      200 (o 409 si ya estaba pagada)\nGET    /api/v1/facturas/:id/pagos          200\nPOST   /api/v1/facturas/:id/pagos          201 + Location",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "be-04-ej-2",
+          "title": "Práctica 2: Paginar en T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la consulta T-SQL para GET /api/v1/clientes?ciudad=Santiago&pagina=3&limite=25 ordenada por nombre, y la consulta que cuenta el total. Usa variables para los parámetros.",
+          "hint": "Agrega cliente_id al ORDER BY como desempate.",
+          "solutionExplanation": "OFFSET salta (3-1)*25 = 50 filas y FETCH toma 25. El desempate por cliente_id evita que dos clientes con el mismo nombre cambien de página entre consultas.",
+          "solutionCode": "DECLARE @ciudad NVARCHAR(60) = N'Santiago', @pagina INT = 3, @limite INT = 25;\n\nSELECT cliente_id, nombre, email, ciudad\nFROM dbo.clientes\nWHERE ciudad = @ciudad\nORDER BY nombre, cliente_id\nOFFSET (@pagina - 1) * @limite ROWS\nFETCH NEXT @limite ROWS ONLY;\n\nSELECT COUNT(*) AS total\nFROM dbo.clientes\nWHERE ciudad = @ciudad;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "be-04-ej-3",
+          "title": "Práctica 3: ¿Compatible o nueva versión?",
+          "difficulty": "Intermedio",
+          "prompt": "Clasifica cada cambio como compatible o incompatible: (a) agregar el campo telefono a la respuesta de cliente; (b) cambiar precio de número a texto; (c) agregar el filtro opcional ?activo=; (d) eliminar la ruta GET /clientes/:id/notas; (e) hacer obligatorio el campo rnc al crear.",
+          "hint": "Pregúntate: ¿una app que no cambió su código seguiría funcionando?",
+          "solutionExplanation": "Solo (a) y (c) son compatibles porque una app vieja no se entera. (b), (d) y (e) rompen clientes existentes y necesitan /api/v2.",
+          "solutionCode": "(a) Compatible\n(b) Incompatible → v2\n(c) Compatible\n(d) Incompatible → v2\n(e) Incompatible → v2",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-04-q1",
+          "question": "¿Qué debe responder GET /api/v1/tareas?estado=cerrada cuando no hay tareas cerradas?",
+          "options": [
+            "200 con un arreglo vacío",
+            "204 sin ningún cuerpo",
+            "404 porque no encontró nada",
+            "400 porque el filtro falló"
+          ],
+          "correctIndex": 0,
+          "explanation": "La colección existe aunque esté vacía; el cliente recibe [] y muestra «sin resultados»."
+        },
+        {
+          "id": "be-04-q2",
+          "question": "¿Por qué la paginación en T-SQL debe ordenar también por una columna única como el id?",
+          "options": [
+            "Para que una fila no se repita ni se salte entre páginas",
+            "Para que SQL Server use menos memoria en la consulta",
+            "Porque OFFSET solo funciona sobre columnas de tipo INT",
+            "Porque FETCH NEXT exige una clave primaria en el orden"
+          ],
+          "correctIndex": 0,
+          "explanation": "Si varias filas empatan en el campo de orden, su posición puede cambiar entre consultas; el desempate único la fija."
+        },
+        {
+          "id": "be-04-q3",
+          "question": "¿Cuál de estos cambios exige publicar una nueva versión de la API?",
+          "options": [
+            "Aceptar un nuevo filtro opcional ?ciudad=",
+            "Crear la ruta nueva GET /clientes/:id/notas",
+            "Renombrar el campo nombre a nombreCompleto",
+            "Agregar el campo telefono a la respuesta"
+          ],
+          "correctIndex": 2,
+          "explanation": "Renombrar rompe a los clientes que leen el campo viejo. Los otros cambios solo agregan."
+        }
+      ]
+    },
+    {
+      "id": "be-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2 · Diseñar APIs REST",
+      "title": "Validar datos y manejar errores",
+      "subtitle": "Nunca confiar en lo que llega y responder los errores siempre igual.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Validar cuerpo, parámetros y query antes de tocar la base de datos.",
+        "Definir un formato único de error para toda la API.",
+        "Centralizar los errores en un middleware con cuatro parámetros.",
+        "Registrar los detalles internos sin mostrárselos al cliente."
+      ],
+      "theorySections": [
+        {
+          "id": "be-05-sec-1",
+          "title": "1. Nunca confíes en el cliente",
+          "body": "Aunque tu formulario tenga validaciones, cualquiera puede llamar a tu API con curl y enviar lo que quiera. **El servidor valida siempre**, y lo hace antes de tocar la base de datos.\n\nQué revisar:\n- **Presencia**: los campos obligatorios están.\n- **Tipo**: un número es número, una fecha es fecha.\n- **Rango y formato**: longitud de textos, valores permitidos, correos.\n- **Campos extra**: ignóralos o recházalos; nunca los pases tal cual a un INSERT.\n\nUna librería como **zod** describe la forma esperada en un esquema y devuelve los datos ya convertidos o una lista de errores. Escribir el esquema una vez evita decenas de `if`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { z } from \"zod\";\n\nexport const esquemaTarea = z.object({\n  titulo: z.string().trim().min(3, \"Mínimo 3 caracteres\").max(120),\n  prioridad: z.coerce.number().int().min(1).max(3).default(2),\n  vence: z.coerce.date().optional(),\n  etiquetas: z.array(z.string().max(20)).max(5).default([]),\n}).strict();            // rechaza campos que no están en el esquema\n\nconst r = esquemaTarea.safeParse({ titulo: \"  ok\", prioridad: \"9\", admin: true });\n// r.success === false\n// r.error.issues → titulo muy corto, prioridad fuera de rango, campo admin no permitido",
+          "keyTakeaway": "Valida en el servidor todo lo que llega, con un esquema, antes de usarlo."
+        },
+        {
+          "id": "be-05-sec-2",
+          "title": "2. Un formato único de error",
+          "body": "Si cada ruta inventa su forma de reportar errores, cada cliente tiene que escribir código distinto para cada caso. Define **un solo formato** para toda la API:\n- `codigo`: un texto estable en mayúsculas que el programa puede comparar (`VALIDACION`, `NO_ENCONTRADO`).\n- `mensaje`: una frase para mostrar a la persona.\n- `detalles`: opcional, la lista de campos con problemas.\n\nAcompáñalo del código HTTP correcto: `400` para datos inválidos, `404` si no existe, `409` para conflictos y `500` para lo inesperado.\n\nCrea una clase `ErrorHttp` que lleve el código de estado. Así cualquier capa puede lanzar `throw new ErrorHttp(404, ...)` y el manejador central sabe qué responder.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/errores.js\nexport class ErrorHttp extends Error {\n  constructor(estado, codigo, mensaje, detalles) {\n    super(mensaje);\n    this.estado = estado;\n    this.codigo = codigo;\n    this.detalles = detalles;\n  }\n}\n\n/* Respuesta a un POST con datos inválidos (400)\n{\n  \"error\": {\n    \"codigo\": \"VALIDACION\",\n    \"mensaje\": \"Revisa los datos enviados.\",\n    \"detalles\": [\n      { \"campo\": \"titulo\", \"mensaje\": \"Mínimo 3 caracteres\" },\n      { \"campo\": \"prioridad\", \"mensaje\": \"Debe ser menor o igual a 3\" }\n    ]\n  }\n} */",
+          "keyTakeaway": "Un formato de error para toda la API: código estable, mensaje legible y detalles por campo."
+        },
+        {
+          "id": "be-05-sec-3",
+          "title": "3. El middleware de errores",
+          "body": "Express reconoce como **manejador de errores** a cualquier middleware con **cuatro parámetros** `(err, req, res, next)`. Se registra al final, después de todas las rutas.\n\nCómo llegan los errores hasta ahí:\n- Si lanzas un error (`throw`) dentro de una ruta.\n- Si llamas a `next(error)`.\n- En **Express 5**, si una ruta `async` rechaza su promesa, el error llega solo. En Express 4 había que envolver cada ruta con `try/catch` o un ayudante.\n\nUn **middleware de validación** reutilizable recibe un esquema, valida `req.body` y, si hay problemas, lanza un `ErrorHttp(400)` con los detalles. Si todo está bien, reemplaza `req.body` por los datos ya limpios.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/middlewares/validar.js\nexport const validar = (esquema) => (req, res, next) => {\n  const r = esquema.safeParse(req.body);\n  if (!r.success) {\n    const detalles = r.error.issues.map((i) => ({ campo: i.path.join(\".\"), mensaje: i.message }));\n    throw new ErrorHttp(400, \"VALIDACION\", \"Revisa los datos enviados.\", detalles);\n  }\n  req.body = r.data;           // datos convertidos y sin campos extra\n  next();\n};\n\n// src/rutas/tareas.js\nrutasTareas.post(\"/\", validar(esquemaTarea), ctrl.crear);\n\n// src/middlewares/errores.js\nexport function manejarErrores(err, req, res, next) {\n  const estado = err.estado ?? 500;\n  if (estado >= 500) console.error(err);          // el detalle queda en el log\n  res.status(estado).json({\n    error: {\n      codigo: err.codigo ?? \"ERROR_INTERNO\",\n      mensaje: estado >= 500 ? \"Ocurrió un error inesperado.\" : err.message,\n      ...(err.detalles && { detalles: err.detalles }),\n    },\n  });\n}",
+          "keyTakeaway": "Lanza ErrorHttp donde sea; un único manejador al final decide qué ve el cliente."
+        },
+        {
+          "id": "be-05-sec-4",
+          "title": "4. Qué ve el cliente y qué queda en el log",
+          "body": "Un error interno puede contener el nombre de tus tablas, la ruta de tus archivos o la versión de tus librerías. Eso le da pistas a un atacante.\n\nLa regla:\n- **Errores 4xx**: el mensaje se escribió para el cliente, se muestra tal cual.\n- **Errores 5xx**: el cliente recibe un mensaje genérico; el log guarda el error completo con su pila (`stack`).\n\nPara unir las dos cosas, genera un **id de petición** al principio (`crypto.randomUUID()`), inclúyelo en el log y en la respuesta. Si un usuario reporta un problema, te da ese id y lo encuentras en segundos.\n\nAlgunos errores de SQL Server merecen traducirse: el número **2627** o **2601** (clave duplicada) es un `409`, y el **547** (viola una clave foránea) suele ser un `400` o `409`.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import { randomUUID } from \"node:crypto\";\n\napp.use((req, res, next) => {\n  req.id = randomUUID();\n  res.set(\"X-Request-Id\", req.id);\n  next();\n});\n\nexport function manejarErrores(err, req, res, next) {\n  // Traducir errores conocidos de SQL Server\n  if (err.number === 2627 || err.number === 2601) err = new ErrorHttp(409, \"DUPLICADO\", \"Ya existe un registro con esos datos.\");\n  if (err.number === 547) err = new ErrorHttp(409, \"REFERENCIA\", \"El registro está relacionado con otros datos.\");\n\n  const estado = err.estado ?? 500;\n  if (estado >= 500) console.error({ id: req.id, ruta: req.originalUrl, error: err });\n  res.status(estado).json({\n    error: { codigo: err.codigo ?? \"ERROR_INTERNO\", mensaje: estado >= 500 ? \"Ocurrió un error inesperado.\" : err.message, id: req.id },\n  });\n}",
+          "keyTakeaway": "Al cliente, un mensaje claro y un id; al log, todos los detalles."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo validar y reportar errores en toda la API.",
+        "rules": [
+          "Toda entrada (body, params, query) se valida con un esquema antes de usarse.",
+          "Los campos que no están en el esquema se rechazan o se descartan.",
+          "Todos los errores salen con el mismo formato JSON y el código HTTP correcto.",
+          "Los errores 5xx nunca muestran stack, SQL ni rutas internas al cliente.",
+          "Cada respuesta lleva un id de petición que también aparece en el log."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "rutasTareas.post(\"/\", validar(esquemaTarea), async (req, res) => {\n  const tarea = await crearTarea(req.usuario.id, req.body);   // body ya validado\n  res.status(201).location(`/api/v1/tareas/${tarea.tareaId}`).json(tarea);\n});\n\nrutasTareas.get(\"/:id\", async (req, res) => {\n  const id = Number(req.params.id);\n  if (!Number.isInteger(id) || id <= 0) throw new ErrorHttp(400, \"ID_INVALIDO\", \"El id debe ser un entero positivo.\");\n  const tarea = await obtenerTarea(id);\n  if (!tarea) throw new ErrorHttp(404, \"NO_ENCONTRADO\", `La tarea ${id} no existe.`);\n  res.json(tarea);\n});"
+      },
+      "comparison": {
+        "scenario": "Una ruta que crea clientes y falla al recibir un correo repetido.",
+        "juniorLabel": "Así no",
+        "juniorCode": "app.post(\"/api/v1/clientes\", async (req, res) => {\n  try {\n    const cliente = await insertarCliente(req.body);   // inserta todo lo que llegue\n    res.json(cliente);\n  } catch (err) {\n    res.status(500).send(err.stack);                  // muestra el error interno\n  }\n});",
+        "juniorFlaws": [
+          "Inserta cualquier campo que envíe el cliente, sin validar.",
+          "Un correo repetido responde 500, cuando es un conflicto (409).",
+          "Envía el stack con nombres de tablas y rutas del servidor.",
+          "Cada ruta maneja errores a su manera y con otro formato."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "app.post(\"/api/v1/clientes\", validar(esquemaCliente), async (req, res) => {\n  const cliente = await insertarCliente(req.body);\n  res.status(201).location(`/api/v1/clientes/${cliente.clienteId}`).json(cliente);\n});\n// El correo repetido (error 2627) llega al manejador central → 409 DUPLICADO",
+        "intermediateBenefits": [
+          "Solo llegan a la base de datos campos validados.",
+          "El duplicado responde 409 con un mensaje claro.",
+          "Ningún detalle interno sale del servidor.",
+          "La ruta es corta: el manejo de errores vive en un solo lugar."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-05-ej-1",
+          "title": "Práctica 1: Esquema de cliente",
+          "difficulty": "Básico",
+          "prompt": "Escribe con zod el esquema de un cliente: nombre (texto de 2 a 100 caracteres), email (correo válido), telefono opcional (solo dígitos, entre 10 y 15) y tipo con los valores \"persona\" o \"empresa\". Rechaza cualquier otro campo.",
+          "hint": "z.enum([...]) acepta una lista cerrada de valores y .regex() comprueba un patrón.",
+          "solutionExplanation": "El esquema describe la forma exacta de los datos. Con .strict() un campo inesperado, como esAdmin, produce un error en lugar de colarse.",
+          "solutionCode": "import { z } from \"zod\";\n\nexport const esquemaCliente = z.object({\n  nombre: z.string().trim().min(2).max(100),\n  email: z.string().trim().toLowerCase().email(\"Correo no válido\"),\n  telefono: z.string().regex(/^[0-9]{10,15}$/, \"Solo dígitos, de 10 a 15\").optional(),\n  tipo: z.enum([\"persona\", \"empresa\"]),\n}).strict();",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-05-ej-2",
+          "title": "Práctica 2: Validar parámetros de ruta",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un middleware validarId que compruebe que req.params.id es un entero positivo. Si no lo es, lanza un ErrorHttp 400 con el código ID_INVALIDO; si lo es, guarda el número en req.idRecurso.",
+          "hint": "Number(\"12abc\") devuelve NaN y Number(\"3.5\") devuelve 3.5; ninguno debe pasar.",
+          "solutionExplanation": "Centralizar la validación del id evita repetirla en cada ruta y garantiza que la capa de datos siempre recibe un número válido.",
+          "solutionCode": "export function validarId(req, res, next) {\n  const id = Number(req.params.id);\n  if (!Number.isInteger(id) || id <= 0) {\n    throw new ErrorHttp(400, \"ID_INVALIDO\", \"El id debe ser un entero positivo.\");\n  }\n  req.idRecurso = id;\n  next();\n}\n\nrutasClientes.get(\"/:id\", validarId, ctrl.obtener);",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-05-ej-3",
+          "title": "Práctica 3: Traducir errores de SQL Server",
+          "difficulty": "Avanzado",
+          "prompt": "Amplía manejarErrores para que: el error 2627 o 2601 responda 409 DUPLICADO; el 547 responda 409 REFERENCIA; y un error de conexión (err.code === \"ESOCKET\" o \"ETIMEOUT\") responda 503 BD_NO_DISPONIBLE con el mensaje genérico. Los 5xx deben registrarse en el log con el id de la petición.",
+          "hint": "Traduce primero y después aplica la lógica de siempre.",
+          "solutionExplanation": "Mapear errores técnicos a códigos HTTP permite que el cliente reaccione bien: reintentar ante un 503, mostrar un aviso ante un 409.",
+          "solutionCode": "const TRADUCCIONES = {\n  2627: [409, \"DUPLICADO\", \"Ya existe un registro con esos datos.\"],\n  2601: [409, \"DUPLICADO\", \"Ya existe un registro con esos datos.\"],\n  547: [409, \"REFERENCIA\", \"El registro está relacionado con otros datos.\"],\n};\n\nexport function manejarErrores(err, req, res, next) {\n  if (TRADUCCIONES[err.number]) err = new ErrorHttp(...TRADUCCIONES[err.number]);\n  if (err.code === \"ESOCKET\" || err.code === \"ETIMEOUT\") {\n    const original = err;\n    err = new ErrorHttp(503, \"BD_NO_DISPONIBLE\", \"Servicio no disponible.\");\n    err.cause = original;\n  }\n  const estado = err.estado ?? 500;\n  if (estado >= 500) console.error({ id: req.id, ruta: req.originalUrl, error: err.cause ?? err });\n  res.status(estado).json({\n    error: {\n      codigo: err.codigo ?? \"ERROR_INTERNO\",\n      mensaje: estado >= 500 ? \"Ocurrió un error inesperado.\" : err.message,\n      id: req.id,\n    },\n  });\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-05-q1",
+          "question": "Tu formulario ya valida el correo en el navegador. ¿Hace falta validarlo también en la API?",
+          "options": [
+            "No, porque el navegador garantiza que los datos llegan sin cambios",
+            "Sí, porque cualquiera puede llamar a la API sin el formulario",
+            "Solo si la API recibe más de cien peticiones por segundo",
+            "Solo cuando la base de datos no tiene restricciones definidas"
+          ],
+          "correctIndex": 1,
+          "explanation": "La validación del cliente mejora la experiencia, pero la del servidor es la única que protege los datos."
+        },
+        {
+          "id": "be-05-q2",
+          "question": "¿Cómo reconoce Express que un middleware es un manejador de errores?",
+          "options": [
+            "Porque recibe cuatro parámetros: err, req, res y next",
+            "Porque su nombre de función empieza con la palabra error",
+            "Porque devuelve un objeto con la propiedad estado incluida",
+            "Porque se registra con app.error() en lugar de app.use()"
+          ],
+          "correctIndex": 0,
+          "explanation": "Express mira la cantidad de parámetros de la función; con cuatro la trata como manejador de errores."
+        },
+        {
+          "id": "be-05-q3",
+          "question": "Al insertar un cliente, SQL Server lanza el error 2627 por un correo repetido. ¿Qué debe responder la API?",
+          "options": [
+            "409 Conflict con un mensaje que explique el duplicado",
+            "404 Not Found porque el cliente nuevo no se encontró",
+            "500 Internal Server Error con el texto completo de SQL",
+            "200 OK devolviendo el cliente que ya estaba guardado"
+          ],
+          "correctIndex": 0,
+          "explanation": "El 2627 es una violación de clave única: el pedido choca con un dato existente, por eso es un conflicto (409)."
+        }
+      ]
+    },
+    {
+      "id": "be-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 2 · Diseñar APIs REST",
+      "title": "Documentar y probar la API",
+      "subtitle": "Un contrato OpenAPI, pruebas manuales ordenadas y pruebas automáticas con supertest.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Describir una API con OpenAPI para que otros la usen sin preguntarte.",
+        "Organizar pruebas manuales con colecciones y variables.",
+        "Escribir pruebas automáticas con node:test y supertest.",
+        "Decidir qué casos probar en cada ruta."
+      ],
+      "theorySections": [
+        {
+          "id": "be-06-sec-1",
+          "title": "1. El contrato: OpenAPI",
+          "body": "Una API sin documentación obliga a los demás a leer tu código o a escribirte. **OpenAPI** es el formato estándar para describirla: un archivo YAML con cada ruta, sus parámetros, el cuerpo esperado y las respuestas posibles.\n\nVentajas:\n- Herramientas como **Swagger UI** o **Redoc** lo convierten en una página navegable donde se puede probar cada ruta.\n- Se pueden generar clientes en otros lenguajes y validar respuestas automáticamente.\n- Sirve como **contrato**: el equipo del front-end empieza a trabajar antes de que la API esté terminada.\n\nMantén el archivo en el repositorio junto al código, y actualízalo en el mismo commit que cambia la ruta.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "openapi: 3.1.0\ninfo:\n  title: API de tareas\n  version: 1.0.0\npaths:\n  /api/v1/tareas/{id}:\n    get:\n      summary: Obtener una tarea\n      parameters:\n        - name: id\n          in: path\n          required: true\n          schema: { type: integer, minimum: 1 }\n      responses:\n        \"200\":\n          description: La tarea\n          content:\n            application/json:\n              schema: { $ref: \"#/components/schemas/Tarea\" }\n        \"404\":\n          description: No existe\ncomponents:\n  schemas:\n    Tarea:\n      type: object\n      properties:\n        tareaId: { type: integer }\n        titulo: { type: string, maxLength: 120 }\n        prioridad: { type: integer, minimum: 1, maximum: 3 }",
+          "keyTakeaway": "OpenAPI es el contrato de tu API: se lee, se prueba y se versiona con el código."
+        },
+        {
+          "id": "be-06-sec-2",
+          "title": "2. Pruebas manuales ordenadas",
+          "body": "Mientras desarrollas, pruebas a mano. Hazlo con orden:\n- Usa un cliente HTTP con interfaz: **Thunder Client** o **REST Client** dentro de VS Code, o **Postman** / **Bruno** fuera de él.\n- Guarda las peticiones en una **colección** por recurso, para repetirlas en un clic.\n- Usa **variables de entorno** del cliente (`{{base}}`, `{{token}}`) para cambiar entre local y producción sin editar cada petición.\n\nCon la extensión REST Client, las peticiones se escriben en un archivo `.http` que puedes subir al repositorio: es documentación que se ejecuta.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "### api.http  (extensión REST Client de VS Code)\n@base = http://localhost:3000/api/v1\n@token = pega-aqui-tu-token\n\n### Listar tareas abiertas\nGET {{base}}/tareas?estado=abierta&pagina=1\nAuthorization: Bearer {{token}}\n\n### Crear una tarea\nPOST {{base}}/tareas\nContent-Type: application/json\nAuthorization: Bearer {{token}}\n\n{ \"titulo\": \"Preparar informe mensual\", \"prioridad\": 1 }\n\n### Datos inválidos: debe responder 400\nPOST {{base}}/tareas\nContent-Type: application/json\nAuthorization: Bearer {{token}}\n\n{ \"titulo\": \"x\", \"prioridad\": 9 }",
+          "keyTakeaway": "Guarda tus pruebas manuales en colecciones o archivos .http, no en tu memoria."
+        },
+        {
+          "id": "be-06-sec-3",
+          "title": "3. Pruebas automáticas con supertest",
+          "body": "Probar a mano cada cambio no escala. Las pruebas automáticas recorren todos los casos en segundos y avisan si rompiste algo.\n\nHerramientas:\n- **node:test**: el corredor de pruebas que trae Node, sin instalar nada. Se ejecuta con `node --test`.\n- **supertest**: recibe tu `app` de Express y le hace peticiones **sin abrir un puerto**. Por eso separamos `app.js` de `servidor.js`.\n\nCada prueba hace una petición y comprueba el código, las cabeceras y el cuerpo. Usa `assert.equal` para valores simples y `assert.deepEqual` para objetos.\n\nPara las pruebas que tocan la base de datos, usa una **base de pruebas** separada que se reinicia antes de correrlas. Nunca pruebes contra producción.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// test/tareas.test.js\nimport { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\nimport request from \"supertest\";\nimport { app } from \"../src/app.js\";\n\ntest(\"POST /tareas crea una tarea y devuelve 201\", async () => {\n  const res = await request(app)\n    .post(\"/api/v1/tareas\")\n    .set(\"Authorization\", `Bearer ${tokenDePrueba}`)\n    .send({ titulo: \"Probar la API\", prioridad: 1 });\n\n  assert.equal(res.status, 201);\n  assert.match(res.headers.location, /^\\/api\\/v1\\/tareas\\/\\d+$/);\n  assert.equal(res.body.titulo, \"Probar la API\");\n});\n\ntest(\"POST /tareas con título corto devuelve 400 y detalles\", async () => {\n  const res = await request(app)\n    .post(\"/api/v1/tareas\")\n    .set(\"Authorization\", `Bearer ${tokenDePrueba}`)\n    .send({ titulo: \"x\" });\n\n  assert.equal(res.status, 400);\n  assert.equal(res.body.error.codigo, \"VALIDACION\");\n  assert.equal(res.body.error.detalles[0].campo, \"titulo\");\n});",
+          "keyTakeaway": "supertest prueba la app sin abrir un puerto; node:test viene incluido con Node."
+        },
+        {
+          "id": "be-06-sec-4",
+          "title": "4. Qué probar en cada ruta",
+          "body": "No hace falta probar cada línea, pero sí cada **comportamiento** que un cliente espera. Para cada ruta, como mínimo:\n1) **El camino feliz**: datos válidos, código de éxito y forma de la respuesta.\n2) **Validación**: un dato inválido responde 400 con el campo correcto en los detalles.\n3) **No existe**: un id inexistente responde 404.\n4) **Autenticación**: sin token responde 401; con un rol insuficiente, 403.\n5) **Reglas de negocio**: el conflicto que la ruta debe impedir responde 409.\n\nCuando encuentres un error en producción, **escribe primero la prueba que lo reproduce** y luego arréglalo. Así ese error no vuelve.\n\nAgrega `npm test` al flujo de GitHub Actions para que corra en cada commit.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# .github/workflows/pruebas.yml\nname: Pruebas\non: [push, pull_request]\njobs:\n  pruebas:\n    runs-on: ubuntu-latest\n    services:\n      sqlserver:\n        image: mcr.microsoft.com/mssql/server:2022-latest\n        env:\n          ACCEPT_EULA: \"Y\"\n          MSSQL_SA_PASSWORD: ${{ secrets.SA_PASSWORD_PRUEBAS }}\n        ports: [\"1433:1433\"]\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-node@v4\n        with: { node-version: 22 }\n      - run: npm ci\n      - run: npm test\n        env:\n          DB_SERVIDOR: localhost\n          DB_CONTRASENA: ${{ secrets.SA_PASSWORD_PRUEBAS }}",
+          "keyTakeaway": "Por cada ruta: camino feliz, validación, 404, autenticación y reglas de negocio."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo mantener la API documentada y probada.",
+        "rules": [
+          "El archivo OpenAPI vive en el repositorio y cambia en el mismo commit que la ruta.",
+          "Las pruebas automáticas usan supertest sobre la app, sin abrir puertos.",
+          "Las pruebas usan una base de datos propia que se reinicia; nunca la de producción.",
+          "Cada ruta tiene al menos su caso de éxito, de validación y de no encontrado.",
+          "Cada error corregido en producción se acompaña de la prueba que lo reproduce."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "import { test, beforeEach } from \"node:test\";\nimport assert from \"node:assert/strict\";\nimport request from \"supertest\";\nimport { app } from \"../src/app.js\";\nimport { reiniciarBaseDePrueba } from \"./ayudantes.js\";\n\nbeforeEach(reiniciarBaseDePrueba);\n\ntest(\"GET /tareas/999 devuelve 404\", async () => {\n  const res = await request(app).get(\"/api/v1/tareas/999\").set(\"Authorization\", `Bearer ${token}`);\n  assert.equal(res.status, 404);\n  assert.equal(res.body.error.codigo, \"NO_ENCONTRADO\");\n});"
+      },
+      "comparison": {
+        "scenario": "Probar que la creación de tareas funciona.",
+        "juniorLabel": "Así no",
+        "juniorCode": "// prueba.js — hay que arrancar el servidor antes en otra terminal\nconst res = await fetch(\"http://localhost:3000/api/v1/tareas\", {\n  method: \"POST\",\n  headers: { \"Content-Type\": \"application/json\" },\n  body: JSON.stringify({ titulo: \"Prueba\" }),\n});\nconsole.log(res.status);   // hay que mirar a ojo si salió 201",
+        "juniorFlaws": [
+          "Depende de un servidor corriendo y de los datos que tenga en ese momento.",
+          "Nadie comprueba el resultado: hay que leer la consola.",
+          "No puede correr sola en GitHub Actions."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "test(\"POST /tareas devuelve 201 y la tarea creada\", async () => {\n  const res = await request(app)\n    .post(\"/api/v1/tareas\")\n    .set(\"Authorization\", `Bearer ${token}`)\n    .send({ titulo: \"Prueba\" });\n  assert.equal(res.status, 201);\n  assert.equal(res.body.titulo, \"Prueba\");\n});",
+        "intermediateBenefits": [
+          "Usa la app directamente: no hace falta arrancar nada.",
+          "Las aserciones fallan solas si el resultado cambia.",
+          "Corre con npm test en tu equipo y en cada commit."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-06-ej-1",
+          "title": "Práctica 1: Documentar una ruta",
+          "difficulty": "Básico",
+          "prompt": "Escribe en OpenAPI la ruta POST /api/v1/clientes: cuerpo con nombre (obligatorio, texto) y email (obligatorio, formato email); respuestas 201 (cliente creado), 400 (datos inválidos) y 409 (correo repetido).",
+          "hint": "El cuerpo va en requestBody y los campos obligatorios en la lista required.",
+          "solutionExplanation": "requestBody describe lo que el cliente debe enviar y responses lista cada código posible. Con esto, Swagger UI ya puede mostrar un formulario de prueba.",
+          "solutionCode": "paths:\n  /api/v1/clientes:\n    post:\n      summary: Crear un cliente\n      requestBody:\n        required: true\n        content:\n          application/json:\n            schema:\n              type: object\n              required: [nombre, email]\n              properties:\n                nombre: { type: string, minLength: 2 }\n                email: { type: string, format: email }\n      responses:\n        \"201\": { description: Cliente creado }\n        \"400\": { description: Datos inválidos }\n        \"409\": { description: El correo ya está registrado }",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "be-06-ej-2",
+          "title": "Práctica 2: Pruebas de una ruta GET",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe tres pruebas con node:test y supertest para GET /api/v1/productos/:id: un id existente devuelve 200 y el nombre esperado; un id inexistente devuelve 404; el id \"abc\" devuelve 400 con el código ID_INVALIDO.",
+          "hint": "Importa la app desde src/app.js; no llames a listen.",
+          "solutionExplanation": "Cada prueba cubre un comportamiento distinto de la misma ruta. Si mañana alguien rompe la validación del id, la tercera prueba falla y lo avisa.",
+          "solutionCode": "import { test } from \"node:test\";\nimport assert from \"node:assert/strict\";\nimport request from \"supertest\";\nimport { app } from \"../src/app.js\";\n\ntest(\"devuelve un producto existente\", async () => {\n  const res = await request(app).get(\"/api/v1/productos/1\");\n  assert.equal(res.status, 200);\n  assert.equal(res.body.nombre, \"Aceite 5W-30\");\n});\n\ntest(\"404 si el producto no existe\", async () => {\n  const res = await request(app).get(\"/api/v1/productos/9999\");\n  assert.equal(res.status, 404);\n});\n\ntest(\"400 si el id no es un número\", async () => {\n  const res = await request(app).get(\"/api/v1/productos/abc\");\n  assert.equal(res.status, 400);\n  assert.equal(res.body.error.codigo, \"ID_INVALIDO\");\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-06-ej-3",
+          "title": "Práctica 3: Plan de pruebas",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la lista de casos de prueba (sin código) para DELETE /api/v1/clientes/:id, sabiendo que solo un administrador puede borrar y que no se puede borrar un cliente que tiene facturas.",
+          "hint": "Repasa los cinco tipos de caso de la sección 4.",
+          "solutionExplanation": "La lista cubre el éxito, la autenticación, la autorización, el recurso inexistente, el id inválido y la regla de negocio. Escribirla antes del código aclara qué debe hacer la ruta.",
+          "solutionCode": "1. Admin borra un cliente sin facturas      → 204 y ya no aparece en GET\n2. Sin token                                → 401\n3. Usuario con rol \"vendedor\"               → 403\n4. Id que no existe                         → 404\n5. Id \"abc\"                                 → 400 ID_INVALIDO\n6. Cliente con facturas                     → 409 y el cliente sigue existiendo",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-06-q1",
+          "question": "¿Qué ventaja tiene supertest frente a llamar con fetch a http://localhost:3000?",
+          "options": [
+            "Prueba la app directamente, sin tener un servidor escuchando",
+            "Hace las peticiones más rápidas porque omite la validación",
+            "Ejecuta las peticiones contra la base de datos de producción",
+            "Genera el archivo OpenAPI a partir de las pruebas escritas"
+          ],
+          "correctIndex": 0,
+          "explanation": "supertest recibe el objeto app y simula las peticiones; las pruebas corren solas en cualquier equipo."
+        },
+        {
+          "id": "be-06-q2",
+          "question": "¿Para qué sirve un archivo OpenAPI dentro del repositorio?",
+          "options": [
+            "Bloquea las peticiones que no cumplen con los permisos del rol",
+            "Describe rutas, datos y respuestas para que otros usen la API",
+            "Reemplaza el código de Express y genera el servidor completo",
+            "Guarda las variables de entorno de cada servidor de la API"
+          ],
+          "correctIndex": 1,
+          "explanation": "Es el contrato de la API: documenta cada ruta y se puede convertir en una página navegable."
+        },
+        {
+          "id": "be-06-q3",
+          "question": "Encontraste un error en producción en la ruta de pagos. ¿Qué conviene hacer primero?",
+          "options": [
+            "Desactivar las pruebas de pagos hasta terminar la corrección",
+            "Escribir una prueba que lo reproduzca y luego corregirlo",
+            "Corregir el código en producción y reiniciar el servidor",
+            "Agregar un try/catch que responda 200 cuando ocurra el error"
+          ],
+          "correctIndex": 1,
+          "explanation": "La prueba demuestra el error, confirma que la corrección funciona y evita que vuelva a aparecer."
+        }
+      ]
+    },
+    {
+      "id": "be-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3 · Bases de datos con T-SQL",
+      "title": "Modelar la base de datos",
+      "subtitle": "De los recursos de la API a tablas de SQL Server con claves, tipos y restricciones.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Traducir los recursos de la API a tablas y relaciones.",
+        "Crear tablas en T-SQL con IDENTITY, claves primarias y foráneas.",
+        "Elegir tipos de datos y restricciones que protejan los datos.",
+        "Crear índices para las consultas que hará la API."
+      ],
+      "theorySections": [
+        {
+          "id": "be-07-sec-1",
+          "title": "1. De recursos a tablas",
+          "body": "Cada recurso principal de la API suele ser una **tabla**: `usuarios`, `proyectos`, `tareas`. Las relaciones se expresan con **claves foráneas**:\n- **Uno a muchos**: un proyecto tiene muchas tareas. La tabla del lado \"muchos\" guarda el id del otro (`tareas.proyecto_id`).\n- **Muchos a muchos**: una tarea tiene varias etiquetas y una etiqueta está en varias tareas. Se resuelve con una **tabla puente** (`tarea_etiquetas`) con las dos claves.\n\nAntes de escribir SQL, dibuja las tablas y sus relaciones. Pregúntate para cada dato: ¿de quién depende? ¿puede repetirse? ¿puede faltar?\n\nLa API no tiene por qué ser un espejo exacto de las tablas: una respuesta puede juntar datos de varias. Pero un buen modelo hace que las consultas de la API sean simples.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "usuarios (usuario_id PK, email UNIQUE, nombre, hash_contrasena, rol, activo, creado_en)\n    │ 1\n    │\n    ▼ N\nproyectos (proyecto_id PK, usuario_id FK, nombre, creado_en)\n    │ 1\n    │\n    ▼ N\ntareas (tarea_id PK, proyecto_id FK, titulo, estado, prioridad, vence, creada_en)\n    │ N                         N │\n    └──── tarea_etiquetas ────────┘\n          (tarea_id FK, etiqueta_id FK)   PK compuesta\n                        │\n                etiquetas (etiqueta_id PK, nombre UNIQUE)",
+          "keyTakeaway": "Un recurso, una tabla; las relaciones se guardan con claves foráneas y tablas puente."
+        },
+        {
+          "id": "be-07-sec-2",
+          "title": "2. Crear las tablas en T-SQL",
+          "body": "En SQL Server:\n- **`IDENTITY(1,1)`** genera el id automáticamente: empieza en 1 y suma 1. La API nunca inventa ids.\n- **`PRIMARY KEY`** identifica cada fila y no admite repetidos ni NULL.\n- **`FOREIGN KEY ... REFERENCES`** impide guardar una tarea de un proyecto que no existe.\n- **`NOT NULL`** para lo obligatorio; **`DEFAULT`** para valores iniciales.\n- **`UNIQUE`** para lo que no puede repetirse (el correo).\n- **`CHECK`** para reglas simples (prioridad entre 1 y 3).\n\nPon nombre a cada restricción (`CONSTRAINT pk_tareas ...`): cuando falle, el mensaje de error dirá exactamente cuál fue.\n\nEscribe los scripts para que se puedan **ejecutar más de una vez** sin error, comprobando antes si la tabla existe.",
+          "codeLanguage": "sql",
+          "codeSnippet": "IF OBJECT_ID(N'dbo.tareas', N'U') IS NULL\nBEGIN\n    CREATE TABLE dbo.tareas (\n        tarea_id     INT IDENTITY(1,1) NOT NULL,\n        proyecto_id  INT               NOT NULL,\n        titulo       NVARCHAR(120)     NOT NULL,\n        estado       NVARCHAR(20)      NOT NULL CONSTRAINT df_tareas_estado DEFAULT N'abierta',\n        prioridad    TINYINT           NOT NULL CONSTRAINT df_tareas_prioridad DEFAULT 2,\n        vence        DATE              NULL,\n        creada_en    DATETIME2(0)      NOT NULL CONSTRAINT df_tareas_creada DEFAULT SYSUTCDATETIME(),\n        CONSTRAINT pk_tareas PRIMARY KEY (tarea_id),\n        CONSTRAINT fk_tareas_proyectos FOREIGN KEY (proyecto_id) REFERENCES dbo.proyectos (proyecto_id),\n        CONSTRAINT ck_tareas_estado CHECK (estado IN (N'abierta', N'en_curso', N'cerrada')),\n        CONSTRAINT ck_tareas_prioridad CHECK (prioridad BETWEEN 1 AND 3)\n    );\nEND;",
+          "keyTakeaway": "IDENTITY genera los ids; las restricciones con nombre protegen los datos aunque la API falle."
+        },
+        {
+          "id": "be-07-sec-3",
+          "title": "3. Tipos de datos que no dan sorpresas",
+          "body": "Elegir bien el tipo evita errores que aparecen meses después:\n- **Textos**: `NVARCHAR(n)` acepta acentos, ñ y emojis. Pon un largo máximo realista; evita `NVARCHAR(MAX)` salvo para textos largos de verdad.\n- **Dinero**: `DECIMAL(12,2)`, nunca `FLOAT`, que redondea mal (0.1 + 0.2 no da 0.3 exacto).\n- **Fechas con hora**: `DATETIME2` guardado en **UTC** con `SYSUTCDATETIME()`. La API convierte a la zona del usuario al mostrar.\n- **Solo fecha**: `DATE` (un vencimiento, un cumpleaños).\n- **Sí/no**: `BIT` (0 o 1).\n- **Ids públicos difíciles de adivinar**: `UNIQUEIDENTIFIER` con `NEWID()` si no quieres que alguien recorra `/facturas/1`, `/facturas/2`...\n\nEn JavaScript, los `DECIMAL` llegan como número y las fechas como objetos `Date`. Al responder JSON, las fechas salen en formato ISO con `Z` (UTC).",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE dbo.facturas (\n    factura_id   INT IDENTITY(1,1)  NOT NULL CONSTRAINT pk_facturas PRIMARY KEY,\n    codigo       UNIQUEIDENTIFIER   NOT NULL CONSTRAINT df_facturas_codigo DEFAULT NEWID(),\n    cliente_id   INT                NOT NULL CONSTRAINT fk_facturas_clientes REFERENCES dbo.clientes (cliente_id),\n    subtotal     DECIMAL(12,2)      NOT NULL,\n    itbis        DECIMAL(12,2)      NOT NULL,\n    total        AS (subtotal + itbis) PERSISTED,      -- columna calculada\n    pagada       BIT                NOT NULL CONSTRAINT df_facturas_pagada DEFAULT 0,\n    emitida_en   DATETIME2(0)       NOT NULL CONSTRAINT df_facturas_emitida DEFAULT SYSUTCDATETIME(),\n    CONSTRAINT uq_facturas_codigo UNIQUE (codigo),\n    CONSTRAINT ck_facturas_montos CHECK (subtotal >= 0 AND itbis >= 0)\n);",
+          "keyTakeaway": "NVARCHAR para texto, DECIMAL para dinero y DATETIME2 en UTC para fechas."
+        },
+        {
+          "id": "be-07-sec-4",
+          "title": "4. Índices para las consultas de la API",
+          "body": "Un **índice** es como el índice de un libro: permite encontrar filas sin leer toda la tabla. La clave primaria ya tiene uno. Los demás los decides según **las consultas que hace tu API**.\n\nDónde suelen hacer falta:\n- En cada **clave foránea** que se usa para filtrar: `GET /proyectos/5/tareas` busca por `proyecto_id`.\n- En los campos de **filtro y orden** frecuentes: estado, fecha de creación.\n- En los campos **UNIQUE** (SQL Server ya crea uno automáticamente).\n\nUn índice puede **incluir** columnas extra (`INCLUDE`) para que la consulta no tenga que volver a la tabla.\n\nNo crees índices por si acaso: cada uno ocupa espacio y hace más lentos los `INSERT` y `UPDATE`. Mide con el plan de ejecución de SQL Server Management Studio o Azure Data Studio.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- GET /api/v1/proyectos/:id/tareas?estado=abierta&orden=-creada_en\nCREATE INDEX ix_tareas_proyecto_estado\n    ON dbo.tareas (proyecto_id, estado, creada_en DESC)\n    INCLUDE (titulo, prioridad);\n\n-- Comprobar qué índices tiene la tabla\nSELECT i.name AS indice, i.type_desc, c.name AS columna, ic.key_ordinal\nFROM sys.indexes AS i\nJOIN sys.index_columns AS ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id\nJOIN sys.columns AS c ON c.object_id = ic.object_id AND c.column_id = ic.column_id\nWHERE i.object_id = OBJECT_ID(N'dbo.tareas')\nORDER BY i.name, ic.key_ordinal;",
+          "keyTakeaway": "Indexa las claves foráneas y los filtros que usa tu API; no indexes por si acaso."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo definir tablas que protejan los datos.",
+        "rules": [
+          "Cada tabla tiene clave primaria; los ids los genera IDENTITY, no la API.",
+          "Las relaciones se declaran con FOREIGN KEY, no solo en el código.",
+          "Dinero en DECIMAL, fechas en DATETIME2 con UTC, texto en NVARCHAR con largo máximo.",
+          "Las restricciones tienen nombre: pk_, fk_, uq_, ck_, df_.",
+          "Los scripts de creación se guardan numerados en el repositorio (migraciones) y se pueden repetir."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- migraciones/003_crear_usuarios.sql\nIF OBJECT_ID(N'dbo.usuarios', N'U') IS NULL\nBEGIN\n    CREATE TABLE dbo.usuarios (\n        usuario_id       INT IDENTITY(1,1) NOT NULL CONSTRAINT pk_usuarios PRIMARY KEY,\n        email            NVARCHAR(254)     NOT NULL CONSTRAINT uq_usuarios_email UNIQUE,\n        nombre           NVARCHAR(100)     NOT NULL,\n        hash_contrasena  VARCHAR(100)      NOT NULL,\n        rol              NVARCHAR(20)      NOT NULL CONSTRAINT df_usuarios_rol DEFAULT N'lector',\n        activo           BIT               NOT NULL CONSTRAINT df_usuarios_activo DEFAULT 1,\n        creado_en        DATETIME2(0)      NOT NULL CONSTRAINT df_usuarios_creado DEFAULT SYSUTCDATETIME(),\n        CONSTRAINT ck_usuarios_rol CHECK (rol IN (N'lector', N'editor', N'admin'))\n    );\nEND;"
+      },
+      "comparison": {
+        "scenario": "Tabla de pedidos para una tienda en línea.",
+        "juniorLabel": "Así no",
+        "juniorCode": "CREATE TABLE pedidos (\n    id        INT,\n    cliente   VARCHAR(MAX),\n    total     FLOAT,\n    fecha     VARCHAR(20),\n    estado    VARCHAR(MAX)\n);",
+        "juniorFlaws": [
+          "Sin clave primaria ni IDENTITY: los ids se repiten o los inventa la API.",
+          "El cliente se guarda como texto: no hay relación con la tabla de clientes.",
+          "FLOAT para dinero produce errores de redondeo en los totales.",
+          "La fecha como texto no se puede ordenar ni filtrar por rango.",
+          "El estado acepta cualquier valor, incluso errores de tipeo."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "CREATE TABLE dbo.pedidos (\n    pedido_id   INT IDENTITY(1,1) NOT NULL CONSTRAINT pk_pedidos PRIMARY KEY,\n    cliente_id  INT               NOT NULL CONSTRAINT fk_pedidos_clientes REFERENCES dbo.clientes (cliente_id),\n    total       DECIMAL(12,2)     NOT NULL CONSTRAINT ck_pedidos_total CHECK (total >= 0),\n    creado_en   DATETIME2(0)      NOT NULL CONSTRAINT df_pedidos_creado DEFAULT SYSUTCDATETIME(),\n    estado      NVARCHAR(20)      NOT NULL CONSTRAINT df_pedidos_estado DEFAULT N'pendiente'\n                CONSTRAINT ck_pedidos_estado CHECK (estado IN (N'pendiente', N'pagado', N'enviado', N'cancelado'))\n);\nCREATE INDEX ix_pedidos_cliente ON dbo.pedidos (cliente_id, creado_en DESC);",
+        "intermediateBenefits": [
+          "IDENTITY y clave primaria: cada pedido tiene un id único.",
+          "La clave foránea garantiza que el cliente existe.",
+          "DECIMAL guarda montos exactos y DATETIME2 permite filtrar por fechas.",
+          "CHECK limita el estado a valores conocidos.",
+          "El índice acelera GET /clientes/:id/pedidos."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "be-07-ej-1",
+          "title": "Práctica 1: Modelar una biblioteca",
+          "difficulty": "Básico",
+          "prompt": "Diseña (en texto) las tablas para una API de biblioteca: libros, autores (un libro puede tener varios autores), socios y préstamos (un socio pide un libro, con fecha de salida y de devolución). Marca claves primarias y foráneas.",
+          "hint": "Libro-autor es muchos a muchos; préstamo une socio y libro.",
+          "solutionExplanation": "La relación libro-autor necesita una tabla puente. Los préstamos son su propia tabla porque tienen datos propios (fechas) y un socio puede pedir el mismo libro varias veces.",
+          "solutionCode": "autores        (autor_id PK, nombre)\nlibros         (libro_id PK, titulo, isbn UNIQUE, anio)\nlibro_autores  (libro_id FK, autor_id FK)  PK (libro_id, autor_id)\nsocios         (socio_id PK, nombre, email UNIQUE)\nprestamos      (prestamo_id PK, libro_id FK, socio_id FK,\n                salida DATETIME2, devuelto DATETIME2 NULL)",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "be-07-ej-2",
+          "title": "Práctica 2: Crear la tabla de productos",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el CREATE TABLE de dbo.productos en T-SQL: id autonumérico, sku único de hasta 30 caracteres, nombre obligatorio, precio con 2 decimales que no puede ser negativo, stock entero que empieza en 0 y no puede ser negativo, categoria_id que apunta a dbo.categorias, y fecha de creación en UTC. Nombra todas las restricciones y hazlo repetible.",
+          "hint": "Usa IF OBJECT_ID(...) IS NULL para que se pueda ejecutar dos veces.",
+          "solutionExplanation": "Las restricciones de la base de datos son la última defensa: aunque un error en la API intente guardar un precio negativo, SQL Server lo rechaza.",
+          "solutionCode": "IF OBJECT_ID(N'dbo.productos', N'U') IS NULL\nBEGIN\n    CREATE TABLE dbo.productos (\n        producto_id   INT IDENTITY(1,1) NOT NULL,\n        sku           NVARCHAR(30)      NOT NULL,\n        nombre        NVARCHAR(120)     NOT NULL,\n        precio        DECIMAL(10,2)     NOT NULL,\n        stock         INT               NOT NULL CONSTRAINT df_productos_stock DEFAULT 0,\n        categoria_id  INT               NOT NULL,\n        creado_en     DATETIME2(0)      NOT NULL CONSTRAINT df_productos_creado DEFAULT SYSUTCDATETIME(),\n        CONSTRAINT pk_productos PRIMARY KEY (producto_id),\n        CONSTRAINT uq_productos_sku UNIQUE (sku),\n        CONSTRAINT fk_productos_categorias FOREIGN KEY (categoria_id) REFERENCES dbo.categorias (categoria_id),\n        CONSTRAINT ck_productos_precio CHECK (precio >= 0),\n        CONSTRAINT ck_productos_stock CHECK (stock >= 0)\n    );\nEND;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "be-07-ej-3",
+          "title": "Práctica 3: Elegir índices",
+          "difficulty": "Avanzado",
+          "prompt": "Tu API tiene estas rutas sobre dbo.prestamos: GET /socios/:id/prestamos (ordenados del más reciente al más viejo) y GET /prestamos/vencidos (donde devuelto es NULL y salida es anterior a hace 15 días). Escribe los índices que crearías y explica por qué.",
+          "hint": "Un índice filtrado (WHERE en el CREATE INDEX) sirve cuando la consulta siempre busca un subconjunto pequeño.",
+          "solutionExplanation": "El primer índice sigue el filtro y el orden de la primera ruta. El segundo es filtrado: solo guarda los préstamos sin devolver, que son pocos, y ordenados por fecha de salida para encontrar los vencidos rápido.",
+          "solutionCode": "-- GET /socios/:id/prestamos\nCREATE INDEX ix_prestamos_socio\n    ON dbo.prestamos (socio_id, salida DESC)\n    INCLUDE (libro_id, devuelto);\n\n-- GET /prestamos/vencidos\nCREATE INDEX ix_prestamos_pendientes\n    ON dbo.prestamos (salida)\n    INCLUDE (socio_id, libro_id)\n    WHERE devuelto IS NULL;\n\n-- La consulta que lo usa\nSELECT prestamo_id, socio_id, libro_id, salida\nFROM dbo.prestamos\nWHERE devuelto IS NULL\n  AND salida < DATEADD(DAY, -15, SYSUTCDATETIME());",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-07-q1",
+          "question": "¿Qué tipo de dato conviene para guardar precios en SQL Server?",
+          "options": [
+            "INT, guardando el precio sin decimales",
+            "FLOAT, que admite números muy grandes",
+            "DECIMAL(12,2), que guarda montos exactos",
+            "NVARCHAR(20), que conserva el formato"
+          ],
+          "correctIndex": 2,
+          "explanation": "DECIMAL es exacto; FLOAT es aproximado y acumula errores de redondeo al sumar montos."
+        },
+        {
+          "id": "be-07-q2",
+          "question": "Una tarea pertenece a un proyecto. ¿Cómo se declara esa relación en la base de datos?",
+          "options": [
+            "Solo en el código de la API, comprobando antes de insertar",
+            "Con una columna proyectos.tareas que guarde una lista de ids",
+            "Con una FOREIGN KEY de tareas.proyecto_id hacia proyectos",
+            "Con un índice único sobre tareas.titulo y proyectos.nombre"
+          ],
+          "correctIndex": 2,
+          "explanation": "La tabla del lado «muchos» guarda la clave del otro lado, y la FOREIGN KEY impide referencias a proyectos inexistentes."
+        },
+        {
+          "id": "be-07-q3",
+          "question": "¿Por qué no conviene crear un índice en cada columna de la tabla?",
+          "options": [
+            "Cada índice nuevo borra las estadísticas de los demás",
+            "Los índices impiden usar ORDER BY en las consultas",
+            "Ocupan espacio y hacen más lentos los INSERT y UPDATE",
+            "SQL Server solo permite un índice por cada tabla creada"
+          ],
+          "correctIndex": 2,
+          "explanation": "Cada índice se actualiza en cada escritura; solo vale la pena para las consultas que realmente hace la API."
+        }
+      ]
+    },
+    {
+      "id": "be-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3 · Bases de datos con T-SQL",
+      "title": "Conectar Node con SQL Server",
+      "subtitle": "Pool de conexiones, consultas parametrizadas y cómo evitar la inyección SQL.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Levantar SQL Server en tu equipo para desarrollar.",
+        "Conectar Express a SQL Server con el paquete mssql y un pool compartido.",
+        "Escribir consultas parametrizadas y explicar por qué evitan la inyección SQL.",
+        "Convertir los resultados en respuestas JSON limpias."
+      ],
+      "theorySections": [
+        {
+          "id": "be-08-sec-1",
+          "title": "1. SQL Server para desarrollar",
+          "body": "Para practicar necesitas un SQL Server propio. Dos opciones gratuitas:\n- **SQL Server Developer Edition** instalado en Windows.\n- **Docker**, en cualquier sistema: un comando y tienes SQL Server 2022 corriendo.\n\nPara administrarlo usa **SQL Server Management Studio** (Windows) o la extensión **mssql** de VS Code.\n\nBuenas costumbres desde el inicio:\n- Crea una base propia para la API (`TareasDB`).\n- Crea un **inicio de sesión y usuario solo para la API**, con permisos de lectura y escritura, no de administración. Nunca conectes la API con `sa`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- 1) En la terminal: SQL Server 2022 en Docker\n-- docker run -e \"ACCEPT_EULA=Y\" -e \"MSSQL_SA_PASSWORD=Cambia.Esta.Clave1\" -p 1433:1433 --name sql -d mcr.microsoft.com/mssql/server:2022-latest\n\n-- 2) Conectado como sa, una sola vez:\nCREATE DATABASE TareasDB;\nGO\nUSE TareasDB;\nGO\nCREATE LOGIN api_tareas WITH PASSWORD = N'Otra.Clave.Segura2';\nCREATE USER api_tareas FOR LOGIN api_tareas;\nALTER ROLE db_datareader ADD MEMBER api_tareas;   -- puede leer\nALTER ROLE db_datawriter ADD MEMBER api_tareas;   -- puede insertar, cambiar y borrar\n-- No puede crear ni borrar tablas: eso lo hacen las migraciones con otra cuenta.",
+          "keyTakeaway": "La API se conecta con un usuario propio que solo puede leer y escribir datos."
+        },
+        {
+          "id": "be-08-sec-2",
+          "title": "2. El paquete mssql y el pool de conexiones",
+          "body": "El paquete **`mssql`** (`npm install mssql`) conecta Node con SQL Server.\n\nAbrir una conexión es lento. Por eso se usa un **pool**: un grupo de conexiones abiertas que las peticiones toman y devuelven. Reglas:\n- Crea **un solo pool** al arrancar la app y compártelo; no abras una conexión por petición.\n- Configura `max` (cuántas conexiones como máximo) y `idleTimeoutMillis`.\n- `encrypt: true` cifra la conexión. En tu equipo, con el certificado de prueba de SQL Server, agrega `trustServerCertificate: true`; en producción, no.\n\nExporta una función que devuelva el pool ya conectado. Las demás capas solo la importan.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/datos/db.js\nimport sql from \"mssql\";\nimport { config } from \"../config.js\";\n\nconst pool = new sql.ConnectionPool({\n  server: config.db.server,\n  database: config.db.database,\n  user: config.db.user,\n  password: config.db.password,\n  pool: { max: 10, min: 0, idleTimeoutMillis: 30_000 },\n  options: {\n    encrypt: true,\n    trustServerCertificate: process.env.NODE_ENV !== \"production\",\n  },\n});\n\nconst conectado = pool.connect();     // se conecta una vez, al importar\n\nexport async function db() {\n  await conectado;\n  return pool;\n}\nexport { sql };",
+          "keyTakeaway": "Un pool por aplicación, creado al arrancar y compartido por todas las rutas."
+        },
+        {
+          "id": "be-08-sec-3",
+          "title": "3. Consultas parametrizadas",
+          "body": "Cada valor que viene del usuario se pasa como **parámetro**, nunca pegado dentro del texto SQL:\n- `request.input(\"nombre\", tipo, valor)` declara el parámetro y su tipo.\n- En el SQL se usa como `@nombre`.\n\nSQL Server recibe por separado la instrucción y los valores. El valor **nunca se interpreta como código**, aunque contenga comillas o palabras como `DROP`.\n\nUsa el tipo correcto (`sql.Int`, `sql.NVarChar(120)`, `sql.Decimal(12,2)`, `sql.Date`). Además de proteger, ayuda a SQL Server a **reutilizar el plan** de ejecución.\n\nEl resultado trae `recordset` (las filas) y `rowsAffected` (cuántas filas cambió cada instrucción).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/datos/tareas.js\nimport { db, sql } from \"./db.js\";\n\nexport async function obtenerTarea(usuarioId, tareaId) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"usuarioId\", sql.Int, usuarioId)\n    .input(\"tareaId\", sql.Int, tareaId)\n    .query(`\n      SELECT t.tarea_id AS tareaId, t.titulo, t.estado, t.prioridad, t.creada_en AS creadaEn\n      FROM dbo.tareas AS t\n      JOIN dbo.proyectos AS p ON p.proyecto_id = t.proyecto_id\n      WHERE t.tarea_id = @tareaId AND p.usuario_id = @usuarioId;\n    `);\n  return r.recordset[0] ?? null;      // null si no existe o no es suya\n}",
+          "keyTakeaway": "Cada valor del usuario entra como parámetro con su tipo; nunca dentro del texto SQL."
+        },
+        {
+          "id": "be-08-sec-4",
+          "title": "4. La inyección SQL, paso a paso",
+          "body": "La **inyección SQL** ocurre cuando el texto del usuario se pega dentro de la consulta. Lo que escribió pasa a ser **parte del código SQL**.\n\nMira el ejemplo: el buscador arma la consulta con una plantilla de texto. Si alguien escribe `' OR 1=1 --`:\n- La comilla cierra el texto.\n- `OR 1=1` hace verdadera la condición para todas las filas.\n- `--` convierte el resto en comentario.\n\nResultado: la API devuelve todos los clientes. Con otras entradas se pueden leer otras tablas o borrar datos.\n\nLa solución no es \"limpiar comillas\" a mano: es **usar siempre parámetros**. Para lo que no puede ser parámetro (un nombre de columna en `ORDER BY`), usa una **lista blanca**.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// ✗ VULNERABLE: el texto del usuario se vuelve código SQL\nconst q = req.query.buscar;           // \"' OR 1=1 --\"\nawait pool.request().query(\n  `SELECT cliente_id, nombre, email FROM dbo.clientes WHERE nombre LIKE '%${q}%'`\n);\n// SQL resultante:\n// ... WHERE nombre LIKE '%' OR 1=1 --%'   → devuelve TODOS los clientes\n\n// ✓ SEGURO: el valor viaja aparte y nunca se ejecuta\nawait pool.request()\n  .input(\"buscar\", sql.NVarChar(100), `%${q}%`)\n  .query(\"SELECT cliente_id, nombre, email FROM dbo.clientes WHERE nombre LIKE @buscar\");",
+          "keyTakeaway": "Si un valor del usuario aparece dentro del texto SQL, hay inyección. Parámetros siempre."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo hablar con SQL Server desde la API.",
+        "rules": [
+          "Un solo pool por aplicación; nunca una conexión nueva por petición.",
+          "La API se conecta con un usuario con permisos mínimos, nunca con sa.",
+          "Todo valor que viene del cliente entra como parámetro con su tipo.",
+          "Nombres de columnas y direcciones de orden solo desde una lista blanca.",
+          "Las consultas viven en la capa de datos y devuelven objetos, no recordsets crudos.",
+          "Al cerrar el servidor se cierra el pool (pool.close())."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "const COLUMNAS_ORDEN = { nombre: \"nombre\", creado: \"creado_en\", ciudad: \"ciudad\" };\n\nexport async function listarClientes({ buscar, orden = \"nombre\", pagina = 1, limite = 20 }) {\n  const columna = COLUMNAS_ORDEN[orden];\n  if (!columna) throw new ErrorHttp(400, \"ORDEN_INVALIDO\", \"Orden no permitido.\");\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"buscar\", sql.NVarChar(100), buscar ? `%${buscar}%` : null)\n    .input(\"saltar\", sql.Int, (pagina - 1) * limite)\n    .input(\"limite\", sql.Int, limite)\n    .query(`\n      SELECT cliente_id AS clienteId, nombre, email, ciudad\n      FROM dbo.clientes\n      WHERE @buscar IS NULL OR nombre LIKE @buscar\n      ORDER BY ${columna}, cliente_id\n      OFFSET @saltar ROWS FETCH NEXT @limite ROWS ONLY;`);\n  return r.recordset;\n}"
+      },
+      "comparison": {
+        "scenario": "Buscar un usuario por correo para el inicio de sesión.",
+        "juniorLabel": "Así no",
+        "juniorCode": "app.post(\"/login\", async (req, res) => {\n  const conexion = await sql.connect(\"Server=prod;User Id=sa;Password=Empresa2026!;\");\n  const r = await conexion.query(\n    `SELECT * FROM usuarios WHERE email = '${req.body.email}'`\n  );\n  res.json(r.recordset[0]);\n});",
+        "juniorFlaws": [
+          "Inyección SQL: un correo como ' OR 1=1 -- devuelve el primer usuario de la tabla.",
+          "Abre una conexión nueva en cada petición y con la cuenta sa.",
+          "SELECT * devuelve también el hash de la contraseña al cliente.",
+          "La cadena de conexión con la contraseña está en el código."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "// src/datos/usuarios.js\nexport async function buscarPorEmail(email) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"email\", sql.NVarChar(254), email)\n    .query(`SELECT usuario_id AS usuarioId, nombre, rol, hash_contrasena AS hash\n            FROM dbo.usuarios\n            WHERE email = @email AND activo = 1;`);\n  return r.recordset[0] ?? null;    // la ruta nunca envía el hash al cliente\n}",
+        "intermediateBenefits": [
+          "El correo viaja como parámetro: no puede alterar la consulta.",
+          "Usa el pool compartido y un usuario con permisos mínimos.",
+          "Selecciona solo las columnas necesarias.",
+          "Las credenciales vienen de la configuración."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-08-ej-1",
+          "title": "Práctica 1: Primera consulta desde Node",
+          "difficulty": "Básico",
+          "prompt": "Con el pool de db.js, escribe la función contarTareasPorEstado(usuarioId) que devuelva un arreglo como [{ estado: \"abierta\", cantidad: 4 }, ...] con las tareas de los proyectos de ese usuario.",
+          "hint": "Necesitas un JOIN con proyectos y un GROUP BY estado.",
+          "solutionExplanation": "El id del usuario entra como parámetro sql.Int. El alias AS cantidad hace que cada fila del recordset ya tenga el nombre de propiedad que espera la API.",
+          "solutionCode": "export async function contarTareasPorEstado(usuarioId) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"usuarioId\", sql.Int, usuarioId)\n    .query(`\n      SELECT t.estado, COUNT(*) AS cantidad\n      FROM dbo.tareas AS t\n      JOIN dbo.proyectos AS p ON p.proyecto_id = t.proyecto_id\n      WHERE p.usuario_id = @usuarioId\n      GROUP BY t.estado\n      ORDER BY t.estado;`);\n  return r.recordset;\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-08-ej-2",
+          "title": "Práctica 2: Encontrar la inyección",
+          "difficulty": "Intermedio",
+          "prompt": "Esta función tiene inyección SQL: filtrar(campo, valor) arma `SELECT producto_id, nombre FROM dbo.productos WHERE ${campo} = '${valor}'`. Explica qué podría hacer un atacante y reescríbela de forma segura, permitiendo filtrar solo por categoria_id o por sku.",
+          "hint": "El valor se resuelve con un parámetro; el nombre de la columna, con una lista blanca.",
+          "solutionExplanation": "Hay dos puntos de inyección: el valor y el nombre del campo. El valor se pasa como parámetro y el campo se elige de un objeto fijo, así ningún texto del usuario llega al SQL.",
+          "solutionCode": "const CAMPOS = {\n  categoria_id: { columna: \"categoria_id\", tipo: sql.Int },\n  sku: { columna: \"sku\", tipo: sql.NVarChar(30) },\n};\n\nexport async function filtrar(campo, valor) {\n  const def = CAMPOS[campo];\n  if (!def) throw new ErrorHttp(400, \"FILTRO_INVALIDO\", `No se puede filtrar por ${campo}`);\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"valor\", def.tipo, valor)\n    .query(`SELECT producto_id AS productoId, nombre FROM dbo.productos WHERE ${def.columna} = @valor;`);\n  return r.recordset;\n}",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-08-ej-3",
+          "title": "Práctica 3: Ruta completa con la base de datos",
+          "difficulty": "Intermedio",
+          "prompt": "Conecta la ruta GET /api/v1/tareas/:id a la función obtenerTarea(usuarioId, tareaId) de la sección 3. Debe responder 400 si el id no es válido, 404 si la tarea no existe o es de otro usuario, y 200 con la tarea si todo está bien. Supón que req.usuario.id ya existe.",
+          "hint": "Responde 404 también cuando la tarea es de otro usuario: así no revelas que existe.",
+          "solutionExplanation": "La ruta valida, delega la consulta a la capa de datos y traduce el resultado a HTTP. No contiene SQL y la capa de datos no sabe nada de req ni res.",
+          "solutionCode": "rutasTareas.get(\"/:id\", async (req, res) => {\n  const id = Number(req.params.id);\n  if (!Number.isInteger(id) || id <= 0) {\n    throw new ErrorHttp(400, \"ID_INVALIDO\", \"El id debe ser un entero positivo.\");\n  }\n  const tarea = await obtenerTarea(req.usuario.id, id);\n  if (!tarea) throw new ErrorHttp(404, \"NO_ENCONTRADO\", `La tarea ${id} no existe.`);\n  res.json(tarea);\n});",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-08-q1",
+          "question": "¿Por qué una API crea un pool de conexiones al arrancar en lugar de conectarse en cada petición?",
+          "options": [
+            "Así la API no necesita la contraseña de la base",
+            "Abrir conexiones es lento y el pool las reutiliza",
+            "SQL Server solo acepta una conexión por cada usuario",
+            "El pool convierte el SQL en consultas parametrizadas"
+          ],
+          "correctIndex": 1,
+          "explanation": "El pool mantiene conexiones abiertas que las peticiones toman y devuelven, sin pagar el costo de conectar cada vez."
+        },
+        {
+          "id": "be-08-q2",
+          "question": "Un buscador recibe el texto ' OR 1=1 -- y devuelve todos los registros. ¿Cuál es la causa?",
+          "options": [
+            "El pool de conexiones tiene el valor max demasiado alto",
+            "Falta un índice en la columna por la que se busca",
+            "La consulta usa LIKE en lugar del operador de igualdad",
+            "El texto del usuario se pegó dentro de la consulta SQL"
+          ],
+          "correctIndex": 3,
+          "explanation": "Al concatenar el texto, la comilla y el OR pasan a ser código SQL. Con un parámetro serían solo un valor."
+        },
+        {
+          "id": "be-08-q3",
+          "question": "Necesitas permitir ?orden=nombre o ?orden=ciudad. ¿Cómo agregas ese campo a la consulta de forma segura?",
+          "options": [
+            "Quitando las comillas simples del texto antes de pegarlo",
+            "Eligiendo la columna de una lista blanca fija en el código",
+            "Pasando el nombre de la columna con input() como parámetro",
+            "Convirtiendo el texto a mayúsculas antes de concatenarlo"
+          ],
+          "correctIndex": 1,
+          "explanation": "Los nombres de columna no pueden ser parámetros; la única forma segura es elegirlos de una lista conocida."
+        }
+      ]
+    },
+    {
+      "id": "be-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3 · Bases de datos con T-SQL",
+      "title": "CRUD completo y transacciones",
+      "subtitle": "Crear, leer, actualizar y borrar desde la API, y agrupar cambios que deben ocurrir juntos.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Crear registros y devolverlos en una sola operación con OUTPUT INSERTED.",
+        "Actualizar solo los campos enviados (PATCH) y detectar registros inexistentes.",
+        "Borrar de forma física o lógica según el caso.",
+        "Usar transacciones en T-SQL y desde Node para cambios que van juntos."
+      ],
+      "theorySections": [
+        {
+          "id": "be-09-sec-1",
+          "title": "1. Crear: INSERT con OUTPUT INSERTED",
+          "body": "Al crear un registro, la API necesita devolver el recurso completo: el id que generó `IDENTITY`, las fechas de los `DEFAULT`, etc.\n\nEn SQL Server, **`OUTPUT INSERTED.columna`** devuelve las columnas de la fila insertada **en la misma instrucción**. No hace falta un segundo `SELECT` ni `SCOPE_IDENTITY()`.\n\nSi el registro depende de otro (una tarea pertenece a un proyecto), comprueba en la misma consulta que ese otro **pertenezca al usuario**. Un `INSERT ... SELECT ... WHERE` no inserta nada si la condición falla, y lo detectas porque `recordset` viene vacío.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- POST /api/v1/proyectos/:proyectoId/tareas\nINSERT INTO dbo.tareas (proyecto_id, titulo, prioridad, vence)\nOUTPUT INSERTED.tarea_id  AS tareaId,\n       INSERTED.titulo,\n       INSERTED.estado,\n       INSERTED.prioridad,\n       INSERTED.vence,\n       INSERTED.creada_en AS creadaEn\nSELECT @proyectoId, @titulo, @prioridad, @vence\nFROM dbo.proyectos\nWHERE proyecto_id = @proyectoId\n  AND usuario_id  = @usuarioId;     -- solo si el proyecto es del usuario\n\n-- recordset vacío → el proyecto no existe o no es suyo → 404",
+          "keyTakeaway": "OUTPUT INSERTED devuelve la fila creada con su id y sus valores por defecto."
+        },
+        {
+          "id": "be-09-sec-2",
+          "title": "2. Actualizar: PATCH con los campos enviados",
+          "body": "Con **PATCH** el cliente envía solo lo que cambia: `{ \"estado\": \"cerrada\" }`. Los demás campos deben quedar igual.\n\nUna forma simple en T-SQL: pasar `NULL` para lo que no vino y usar **`COALESCE(@valor, columna)`**: si el parámetro es NULL, se conserva el valor actual.\n\nLimitación: con esta técnica no se puede poner un campo en NULL a propósito (por ejemplo, quitar el vencimiento). Para esos campos, usa un parámetro extra que indique si vino o no.\n\n**`OUTPUT INSERTED.*`** también funciona en `UPDATE` y devuelve la fila ya cambiada. Si no se actualizó ninguna fila (`rowsAffected[0] === 0`), el recurso no existe o no es del usuario: responde 404.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "export async function actualizarTarea(usuarioId, tareaId, cambios) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"usuarioId\", sql.Int, usuarioId)\n    .input(\"tareaId\", sql.Int, tareaId)\n    .input(\"titulo\", sql.NVarChar(120), cambios.titulo ?? null)\n    .input(\"estado\", sql.NVarChar(20), cambios.estado ?? null)\n    .input(\"prioridad\", sql.TinyInt, cambios.prioridad ?? null)\n    .query(`\n      UPDATE t\n      SET titulo    = COALESCE(@titulo, t.titulo),\n          estado    = COALESCE(@estado, t.estado),\n          prioridad = COALESCE(@prioridad, t.prioridad)\n      OUTPUT INSERTED.tarea_id AS tareaId, INSERTED.titulo, INSERTED.estado, INSERTED.prioridad\n      FROM dbo.tareas AS t\n      JOIN dbo.proyectos AS p ON p.proyecto_id = t.proyecto_id\n      WHERE t.tarea_id = @tareaId AND p.usuario_id = @usuarioId;`);\n  return r.recordset[0] ?? null;    // null → 404\n}",
+          "keyTakeaway": "PATCH cambia solo lo enviado; si no se actualizó ninguna fila, responde 404."
+        },
+        {
+          "id": "be-09-sec-3",
+          "title": "3. Borrar: físico o lógico",
+          "body": "Hay dos formas de borrar:\n- **Borrado físico**: `DELETE`. La fila desaparece. Sirve para datos sin valor histórico (una etiqueta, un borrador).\n- **Borrado lógico**: una columna `eliminado_en DATETIME2 NULL`. \"Borrar\" es poner la fecha; las consultas filtran `WHERE eliminado_en IS NULL`. Sirve para facturas, clientes o cualquier cosa que otros registros referencian o que se audita.\n\nEn ambos casos la API responde **204 No Content** si se borró y **404** si no existía.\n\nSi un registro tiene hijos (un cliente con facturas), el `DELETE` falla con el error **547** por la clave foránea. Decide la regla de negocio: impedirlo con un 409, usar borrado lógico o borrar en cascada (`ON DELETE CASCADE`), solo cuando los hijos no tienen sentido sin el padre.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Borrado lógico de un cliente\nUPDATE dbo.clientes\nSET eliminado_en = SYSUTCDATETIME()\nWHERE cliente_id = @clienteId\n  AND eliminado_en IS NULL;\n-- @@ROWCOUNT = 0 → no existe o ya estaba borrado → 404\n\n-- Todas las consultas de lectura filtran los borrados\nSELECT cliente_id, nombre, email\nFROM dbo.clientes\nWHERE eliminado_en IS NULL;\n\n-- Índice filtrado para que el filtro no cueste\nCREATE INDEX ix_clientes_activos ON dbo.clientes (nombre) WHERE eliminado_en IS NULL;",
+          "keyTakeaway": "Borra físicamente lo que no tiene historia; lo que se audita se marca como eliminado."
+        },
+        {
+          "id": "be-09-sec-4",
+          "title": "4. Transacciones: todo o nada",
+          "body": "Crear un pedido implica varios pasos: insertar el pedido, insertar sus líneas y descontar el stock. Si falla el tercero, no puede quedar un pedido sin stock descontado. Una **transacción** agrupa los pasos: **o se guardan todos o ninguno**.\n\nEn T-SQL:\n- `SET XACT_ABORT ON` hace que cualquier error cancele la transacción completa.\n- `BEGIN TRY ... BEGIN TRAN ... COMMIT ... END TRY` agrupa los pasos.\n- `BEGIN CATCH ... ROLLBACK; THROW; END CATCH` deshace y relanza el error para que la API lo reciba.\n\nDesde Node, `new sql.Transaction(pool)` hace lo mismo: `begin()`, varias `request()` sobre la transacción, y `commit()` o `rollback()`.\n\nCuidado con **leer y luego escribir**: si dos personas compran el último producto a la vez, ambas pueden ver stock 1. Descuenta con una condición atómica: `UPDATE ... SET stock = stock - @cantidad WHERE stock >= @cantidad`, y si no actualizó ninguna fila, no había stock.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE dbo.crear_pedido\n    @clienteId INT, @productoId INT, @cantidad INT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT ON;\n    BEGIN TRY\n        BEGIN TRAN;\n\n        UPDATE dbo.productos\n        SET stock = stock - @cantidad\n        WHERE producto_id = @productoId AND stock >= @cantidad;   -- atómico\n        IF @@ROWCOUNT = 0\n            THROW 50001, N'Stock insuficiente.', 1;\n\n        DECLARE @pedido TABLE (pedido_id INT);\n        INSERT INTO dbo.pedidos (cliente_id, total)\n        OUTPUT INSERTED.pedido_id INTO @pedido\n        SELECT @clienteId, precio * @cantidad FROM dbo.productos WHERE producto_id = @productoId;\n\n        INSERT INTO dbo.pedido_lineas (pedido_id, producto_id, cantidad)\n        SELECT pedido_id, @productoId, @cantidad FROM @pedido;\n\n        COMMIT;\n        SELECT pedido_id AS pedidoId FROM @pedido;\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK;\n        THROW;\n    END CATCH\nEND;",
+          "keyTakeaway": "Lo que debe pasar junto va en una transacción; el stock se descuenta con una condición atómica."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir operaciones de datos seguras y completas.",
+        "rules": [
+          "Crear y actualizar devuelven la fila con OUTPUT INSERTED, sin un SELECT aparte.",
+          "Cada escritura comprueba en el WHERE que el registro pertenece al usuario.",
+          "Si no se afectó ninguna fila, la API responde 404 (o 409 si es una regla de negocio).",
+          "Los cambios de varios pasos van en una transacción con XACT_ABORT y TRY...CATCH.",
+          "Nunca se comprueba un valor y se escribe después en dos pasos separados: la condición va en el UPDATE."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "// Transacción desde Node\nexport async function moverTareas(usuarioId, origenId, destinoId) {\n  const pool = await db();\n  const tx = new sql.Transaction(pool);\n  await tx.begin();\n  try {\n    const r = await new sql.Request(tx)\n      .input(\"u\", sql.Int, usuarioId).input(\"o\", sql.Int, origenId).input(\"d\", sql.Int, destinoId)\n      .query(`\n        UPDATE t SET proyecto_id = @d\n        FROM dbo.tareas AS t\n        JOIN dbo.proyectos AS po ON po.proyecto_id = t.proyecto_id AND po.usuario_id = @u\n        WHERE t.proyecto_id = @o\n          AND EXISTS (SELECT 1 FROM dbo.proyectos WHERE proyecto_id = @d AND usuario_id = @u);`);\n    await new sql.Request(tx).input(\"o\", sql.Int, origenId)\n      .query(\"UPDATE dbo.proyectos SET archivado = 1 WHERE proyecto_id = @o;\");\n    await tx.commit();\n    return r.rowsAffected[0];\n  } catch (err) {\n    await tx.rollback();\n    throw err;\n  }\n}"
+      },
+      "comparison": {
+        "scenario": "Registrar una venta y descontar el inventario.",
+        "juniorLabel": "Así no",
+        "juniorCode": "const { recordset } = await pool.request().input(\"id\", sql.Int, productoId)\n  .query(\"SELECT stock FROM dbo.productos WHERE producto_id = @id\");\nif (recordset[0].stock < cantidad) throw new ErrorHttp(409, \"SIN_STOCK\", \"No hay stock.\");\n\nawait pool.request().query(`INSERT INTO dbo.ventas ...`);\nawait pool.request().query(`UPDATE dbo.productos SET stock = ${recordset[0].stock - cantidad} ...`);",
+        "juniorFlaws": [
+          "Entre la lectura y la escritura otra venta puede llevarse el mismo stock.",
+          "Si el UPDATE falla, la venta queda registrada sin descontar inventario.",
+          "El nuevo stock se calcula en Node y se pega en el SQL."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "const tx = new sql.Transaction(pool);\nawait tx.begin();\ntry {\n  const r = await new sql.Request(tx).input(\"id\", sql.Int, productoId).input(\"cant\", sql.Int, cantidad)\n    .query(\"UPDATE dbo.productos SET stock = stock - @cant WHERE producto_id = @id AND stock >= @cant;\");\n  if (r.rowsAffected[0] === 0) throw new ErrorHttp(409, \"SIN_STOCK\", \"No hay stock suficiente.\");\n  await new sql.Request(tx).input(\"id\", sql.Int, productoId).input(\"cant\", sql.Int, cantidad)\n    .query(\"INSERT INTO dbo.ventas (producto_id, cantidad) VALUES (@id, @cant);\");\n  await tx.commit();\n} catch (err) {\n  await tx.rollback();\n  throw err;\n}",
+        "intermediateBenefits": [
+          "El descuento es atómico: dos ventas simultáneas no pueden dejar stock negativo.",
+          "Si algo falla, la transacción deshace todo.",
+          "Todos los valores viajan como parámetros."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-09-ej-1",
+          "title": "Práctica 1: Crear con OUTPUT",
+          "difficulty": "Básico",
+          "prompt": "Escribe el INSERT en T-SQL para POST /api/v1/clientes que inserte nombre, email y ciudad y devuelva clienteId, nombre, email y creadoEn usando OUTPUT INSERTED con alias.",
+          "hint": "Los alias con AS hacen que el JSON salga en camelCase.",
+          "solutionExplanation": "OUTPUT INSERTED devuelve la fila recién creada, con el id generado por IDENTITY y la fecha del DEFAULT, en una sola ida a la base.",
+          "solutionCode": "INSERT INTO dbo.clientes (nombre, email, ciudad)\nOUTPUT INSERTED.cliente_id AS clienteId,\n       INSERTED.nombre,\n       INSERTED.email,\n       INSERTED.creado_en  AS creadoEn\nVALUES (@nombre, @email, @ciudad);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "be-09-ej-2",
+          "title": "Práctica 2: Ruta DELETE con borrado lógico",
+          "difficulty": "Intermedio",
+          "prompt": "Implementa DELETE /api/v1/clientes/:id con borrado lógico: pone eliminado_en con la fecha UTC solo si el cliente no estaba borrado. Responde 204 si cambió una fila y 404 si no.",
+          "hint": "rowsAffected[0] te dice cuántas filas cambió el UPDATE.",
+          "solutionExplanation": "Filtrar eliminado_en IS NULL hace que borrar dos veces responda 404 la segunda vez, como si el recurso ya no existiera.",
+          "solutionCode": "rutasClientes.delete(\"/:id\", validarId, async (req, res) => {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"id\", sql.Int, req.idRecurso)\n    .query(`UPDATE dbo.clientes\n            SET eliminado_en = SYSUTCDATETIME()\n            WHERE cliente_id = @id AND eliminado_en IS NULL;`);\n  if (r.rowsAffected[0] === 0) throw new ErrorHttp(404, \"NO_ENCONTRADO\", \"El cliente no existe.\");\n  res.sendStatus(204);\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-09-ej-3",
+          "title": "Práctica 3: Transferencia entre cuentas",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe un procedimiento T-SQL dbo.transferir(@origen, @destino, @monto) que reste el monto de la cuenta origen solo si tiene saldo suficiente, lo sume a la cuenta destino y registre el movimiento en dbo.movimientos. Si no hay saldo, debe lanzar el error 50002. Todo debe ser una sola transacción.",
+          "hint": "Usa SET XACT_ABORT ON, TRY...CATCH y una condición atómica en el UPDATE de la cuenta origen.",
+          "solutionExplanation": "La resta lleva la condición saldo >= @monto, así dos transferencias simultáneas no pueden dejar el saldo negativo. Si cualquier paso falla, ROLLBACK deshace los tres y THROW avisa a la API.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE dbo.transferir\n    @origen INT, @destino INT, @monto DECIMAL(12,2)\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT ON;\n    BEGIN TRY\n        BEGIN TRAN;\n        UPDATE dbo.cuentas SET saldo = saldo - @monto\n        WHERE cuenta_id = @origen AND saldo >= @monto;\n        IF @@ROWCOUNT = 0 THROW 50002, N'Saldo insuficiente.', 1;\n\n        UPDATE dbo.cuentas SET saldo = saldo + @monto WHERE cuenta_id = @destino;\n        IF @@ROWCOUNT = 0 THROW 50003, N'La cuenta destino no existe.', 1;\n\n        INSERT INTO dbo.movimientos (origen_id, destino_id, monto)\n        VALUES (@origen, @destino, @monto);\n        COMMIT;\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK;\n        THROW;\n    END CATCH\nEND;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-09-q1",
+          "question": "¿Qué ventaja tiene OUTPUT INSERTED en un INSERT de SQL Server?",
+          "options": [
+            "Impide que el INSERT se ejecute si la fila ya existía antes",
+            "Guarda una copia de la fila en una tabla de auditoría aparte",
+            "Inserta varias filas a la vez sin escribir un VALUES por fila",
+            "Devuelve la fila creada con su id en la misma instrucción"
+          ],
+          "correctIndex": 3,
+          "explanation": "OUTPUT INSERTED evita un segundo SELECT o SCOPE_IDENTITY: la respuesta de la API sale de la misma operación."
+        },
+        {
+          "id": "be-09-q2",
+          "question": "Dos clientes compran a la vez el último producto. ¿Qué evita que el stock quede negativo?",
+          "options": [
+            "Crear un índice sobre la columna stock de la tabla",
+            "Un UPDATE con la condición WHERE stock >= @cantidad",
+            "Responder 201 solo después de volver a leer el stock",
+            "Leer el stock en Node y comprobarlo antes de actualizar"
+          ],
+          "correctIndex": 1,
+          "explanation": "La condición dentro del UPDATE se evalúa de forma atómica; leer primero y escribir después deja un hueco entre ambos pasos."
+        },
+        {
+          "id": "be-09-q3",
+          "question": "¿Qué hace SET XACT_ABORT ON dentro de un procedimiento con transacción?",
+          "options": [
+            "Impide que otros usuarios lean las tablas mientras corre",
+            "Oculta los mensajes de error para que no lleguen a la API",
+            "Confirma automáticamente cada instrucción por separado",
+            "Cancela toda la transacción si cualquier instrucción falla"
+          ],
+          "correctIndex": 3,
+          "explanation": "Con XACT_ABORT ON, un error en cualquier paso deja la transacción para deshacer completa, sin cambios a medias."
+        }
+      ]
+    },
+    {
+      "id": "be-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 4 · Autenticación y producción",
+      "title": "Contraseñas, registro y sesiones",
+      "subtitle": "Guardar contraseñas con hash, crear el registro y el inicio de sesión, y elegir entre cookies y tokens.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar por qué una contraseña nunca se guarda en texto ni con un hash rápido.",
+        "Implementar registro e inicio de sesión con bcrypt.",
+        "Comparar sesiones con cookie y tokens, y configurar cookies seguras.",
+        "Frenar los intentos de adivinar contraseñas."
+      ],
+      "theorySections": [
+        {
+          "id": "be-10-sec-1",
+          "title": "1. Cómo se guarda una contraseña",
+          "body": "Si roban tu base de datos, las contraseñas no deben poder leerse. Por eso:\n- **Nunca en texto plano**, ni \"cifradas\" con una clave que la API conoce.\n- **Nunca con un hash rápido** como MD5 o SHA-256: una tarjeta gráfica prueba miles de millones por segundo.\n- **Sí con un hash lento y con sal**: **bcrypt** o **argon2**.\n\nLa **sal** es un valor aleatorio distinto para cada usuario. Hace que dos personas con la misma contraseña tengan hashes distintos y que no sirvan las tablas precalculadas.\n\nbcrypt guarda la sal y el costo **dentro del mismo texto** del hash (unos 60 caracteres). El **costo** (por ejemplo, 12) decide cuánto tarda cada cálculo: unos 200 ms para ti, años para quien intenta millones.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import bcrypt from \"bcrypt\";            // npm install bcrypt\n\nconst hash = await bcrypt.hash(\"MiClave.Segura2026\", 12);\nconsole.log(hash);\n// $2b$12$Q9z1m8yXb3hJ0bJ6Z0dV3eQ1lD0Qm5mX8i7oQZ3yN2pF5Yp0w0aQK\n//  │   │  └─ sal (22 car.) + hash (31 car.)\n//  │   └──── costo: 2^12 rondas\n//  └──────── versión del algoritmo\n\nconst ok = await bcrypt.compare(\"MiClave.Segura2026\", hash);   // true\nconst mal = await bcrypt.compare(\"miclave.segura2026\", hash);  // false",
+          "keyTakeaway": "Contraseñas solo con bcrypt o argon2: lentos a propósito y con sal por usuario."
+        },
+        {
+          "id": "be-10-sec-2",
+          "title": "2. Registro e inicio de sesión",
+          "body": "**Registro** (`POST /auth/registro`):\n1) Valida correo y contraseña (mínimo 10 caracteres es una buena base).\n2) Calcula el hash con bcrypt.\n3) Inserta el usuario. Si el correo ya existe, SQL Server lanza el error 2627 y respondes 409.\n4) Responde 201 **sin** el hash.\n\n**Inicio de sesión** (`POST /auth/login`):\n1) Busca el usuario activo por correo.\n2) Compara con `bcrypt.compare`.\n3) Si el usuario no existe **o** la contraseña no coincide, responde lo mismo: **401 \"Correo o contraseña incorrectos\"**. Si dices \"ese correo no existe\", le confirmas a un atacante qué correos están registrados.\n\nNormaliza el correo (minúsculas y sin espacios) antes de guardarlo y antes de buscarlo.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/rutas/auth.js\nrutasAuth.post(\"/registro\", validar(esquemaRegistro), async (req, res) => {\n  const { email, nombre, contrasena } = req.body;\n  const hash = await bcrypt.hash(contrasena, 12);\n  const usuario = await crearUsuario({ email, nombre, hash });   // 2627 → 409 en el manejador\n  res.status(201).json({ usuarioId: usuario.usuarioId, email, nombre });\n});\n\nrutasAuth.post(\"/login\", validar(esquemaLogin), async (req, res) => {\n  const { email, contrasena } = req.body;\n  const usuario = await buscarPorEmail(email);\n  const ok = usuario && (await bcrypt.compare(contrasena, usuario.hash));\n  if (!ok) throw new ErrorHttp(401, \"CREDENCIALES\", \"Correo o contraseña incorrectos.\");\n  // Siguiente capítulo: emitir el token\n  res.json({ usuarioId: usuario.usuarioId, nombre: usuario.nombre, rol: usuario.rol });\n});",
+          "keyTakeaway": "Un solo mensaje para correo o contraseña incorrectos; el hash nunca sale del servidor."
+        },
+        {
+          "id": "be-10-sec-3",
+          "title": "3. Sesiones con cookie o tokens",
+          "body": "Después del login, el servidor necesita reconocer al usuario en cada petición. Hay dos enfoques:\n\n**Sesión con cookie**: el servidor guarda la sesión (en la base o en memoria) y envía al navegador una cookie con un id aleatorio. El navegador la reenvía sola en cada petición.\n- Fácil de cerrar: borras la sesión y deja de valer.\n- Ideal cuando el cliente es una web en el mismo dominio.\n\n**Token (JWT)**: el servidor firma un token con los datos del usuario y el cliente lo envía en la cabecera `Authorization`.\n- El servidor no guarda nada: verifica la firma.\n- Cómodo para apps móviles y para varias APIs.\n- Más difícil de revocar antes de que venza (por eso se usan vencimientos cortos).\n\nSi usas cookies, configúralas siempre con: **`HttpOnly`** (JavaScript no puede leerla), **`Secure`** (solo por HTTPS) y **`SameSite=Lax`** o `Strict` (protege contra peticiones desde otros sitios).",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// Sesión con cookie: el id de sesión es aleatorio y se guarda en la base\nimport { randomBytes } from \"node:crypto\";\n\nconst sesionId = randomBytes(32).toString(\"base64url\");\nawait guardarSesion({ sesionId, usuarioId: usuario.usuarioId, vence: enHoras(8) });\n\nres.cookie(\"sid\", sesionId, {\n  httpOnly: true,                       // inaccesible desde document.cookie\n  secure: true,                         // solo por HTTPS\n  sameSite: \"lax\",                      // no viaja en peticiones de otros sitios\n  maxAge: 8 * 60 * 60 * 1000,           // 8 horas\n});\nres.json({ nombre: usuario.nombre });",
+          "keyTakeaway": "Cookie con sesión para webs del mismo dominio; token para móviles y varias APIs."
+        },
+        {
+          "id": "be-10-sec-4",
+          "title": "4. Frenar a quien intenta adivinar",
+          "body": "Un atacante puede probar miles de contraseñas contra tu `/login`. Defensas que se combinan:\n- **Límite de intentos** por IP y por correo: por ejemplo, 5 intentos fallidos cada 15 minutos. Después, responde **429 Too Many Requests**.\n- **Registro de intentos fallidos** en la base, para detectar ataques y bloquear temporalmente una cuenta.\n- **Contraseñas mínimas razonables**: largo (10 o más) en vez de reglas raras; rechaza las más comunes.\n- **Verificación en dos pasos** (2FA) para cuentas con permisos altos.\n\nEl paquete **express-rate-limit** aplica el límite como un middleware. Verás más sobre límites en el capítulo 12.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE dbo.intentos_login (\n    intento_id  BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT pk_intentos_login PRIMARY KEY,\n    email       NVARCHAR(254) NOT NULL,\n    ip          VARCHAR(45)   NOT NULL,\n    exitoso     BIT           NOT NULL,\n    creado_en   DATETIME2(0)  NOT NULL CONSTRAINT df_intentos_creado DEFAULT SYSUTCDATETIME()\n);\nCREATE INDEX ix_intentos_email ON dbo.intentos_login (email, creado_en DESC);\n\n-- ¿Cuántos fallos tuvo este correo en los últimos 15 minutos?\nSELECT COUNT(*) AS fallos\nFROM dbo.intentos_login\nWHERE email = @email\n  AND exitoso = 0\n  AND creado_en > DATEADD(MINUTE, -15, SYSUTCDATETIME());",
+          "keyTakeaway": "Limita los intentos por IP y por cuenta, y registra los fallos para detectar ataques."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para manejar credenciales.",
+        "rules": [
+          "Contraseñas solo con bcrypt (costo 12 o más) o argon2; jamás texto plano, MD5 ni SHA-256.",
+          "El hash nunca se devuelve en una respuesta ni se escribe en los logs.",
+          "Login con un único mensaje para correo o contraseña incorrectos.",
+          "Cookies de sesión con HttpOnly, Secure y SameSite.",
+          "Límite de intentos en /login y registro de los fallos.",
+          "Todo el tráfico de autenticación va por HTTPS."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "import { z } from \"zod\";\n\nexport const esquemaRegistro = z.object({\n  email: z.string().trim().toLowerCase().email(),\n  nombre: z.string().trim().min(2).max(100),\n  contrasena: z.string().min(10, \"Usa al menos 10 caracteres\").max(128),\n}).strict();\n\nexport async function crearUsuario({ email, nombre, hash }) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"email\", sql.NVarChar(254), email)\n    .input(\"nombre\", sql.NVarChar(100), nombre)\n    .input(\"hash\", sql.VarChar(100), hash)\n    .query(`INSERT INTO dbo.usuarios (email, nombre, hash_contrasena)\n            OUTPUT INSERTED.usuario_id AS usuarioId\n            VALUES (@email, @nombre, @hash);`);\n  return r.recordset[0];\n}"
+      },
+      "comparison": {
+        "scenario": "Guardar usuarios en una API nueva.",
+        "juniorLabel": "Así no",
+        "juniorCode": "import { createHash } from \"node:crypto\";\n\nconst hash = createHash(\"sha256\").update(req.body.contrasena).digest(\"hex\");\nawait guardarUsuario(req.body.email, hash);\n\n// En el login:\nif (!usuario) return res.status(404).json({ error: \"Ese correo no está registrado\" });\nif (usuario.hash !== hash) return res.status(401).json({ error: \"Contraseña incorrecta\" });",
+        "juniorFlaws": [
+          "SHA-256 es rápido: con la base robada se prueban miles de millones de contraseñas por segundo.",
+          "Sin sal, dos usuarios con la misma contraseña tienen el mismo hash.",
+          "Mensajes distintos revelan qué correos existen."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "import bcrypt from \"bcrypt\";\n\nconst hash = await bcrypt.hash(req.body.contrasena, 12);\nawait guardarUsuario(req.body.email, hash);\n\n// En el login:\nconst ok = usuario && (await bcrypt.compare(req.body.contrasena, usuario.hash));\nif (!ok) throw new ErrorHttp(401, \"CREDENCIALES\", \"Correo o contraseña incorrectos.\");",
+        "intermediateBenefits": [
+          "bcrypt es lento a propósito y lleva sal propia en cada hash.",
+          "Romper una sola contraseña cuesta años de cómputo.",
+          "El mismo mensaje para ambos casos no revela qué correos existen."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-10-ej-1",
+          "title": "Práctica 1: Hash y comprobación",
+          "difficulty": "Básico",
+          "prompt": "Escribe un script que calcule el hash bcrypt de la misma contraseña dos veces e imprima ambos hashes y el resultado de comparar la contraseña con cada uno. Explica por qué los hashes son distintos pero ambas comparaciones dan true.",
+          "hint": "Cada llamada a bcrypt.hash genera una sal nueva.",
+          "solutionExplanation": "Los hashes difieren porque cada uno tiene su propia sal. bcrypt.compare lee la sal y el costo guardados en el hash, repite el cálculo y por eso ambas comparaciones aciertan.",
+          "solutionCode": "import bcrypt from \"bcrypt\";\n\nconst clave = \"Clave.De.Prueba.2026\";\nconst h1 = await bcrypt.hash(clave, 12);\nconst h2 = await bcrypt.hash(clave, 12);\nconsole.log(h1);\nconsole.log(h2);                                   // distinto de h1\nconsole.log(await bcrypt.compare(clave, h1));      // true\nconsole.log(await bcrypt.compare(clave, h2));      // true",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-10-ej-2",
+          "title": "Práctica 2: Ruta de cambio de contraseña",
+          "difficulty": "Intermedio",
+          "prompt": "Implementa POST /api/v1/auth/cambiar-contrasena para un usuario ya identificado (req.usuario.id). Recibe contrasenaActual y contrasenaNueva. Debe comprobar la actual, exigir que la nueva tenga al menos 10 caracteres y sea distinta, guardar el nuevo hash y responder 204.",
+          "hint": "Busca el hash actual por usuario_id antes de compararlo.",
+          "solutionExplanation": "Pedir la contraseña actual impide que alguien con el teléfono desbloqueado cambie la clave. El hash nuevo reemplaza al viejo y nunca se devuelve.",
+          "solutionCode": "rutasAuth.post(\"/cambiar-contrasena\", autenticar, async (req, res) => {\n  const { contrasenaActual, contrasenaNueva } = req.body;\n  if (typeof contrasenaNueva !== \"string\" || contrasenaNueva.length < 10 || contrasenaNueva === contrasenaActual) {\n    throw new ErrorHttp(400, \"VALIDACION\", \"La nueva contraseña debe tener 10 caracteres y ser distinta.\");\n  }\n  const pool = await db();\n  const r = await pool.request().input(\"id\", sql.Int, req.usuario.id)\n    .query(\"SELECT hash_contrasena AS hash FROM dbo.usuarios WHERE usuario_id = @id AND activo = 1;\");\n  const fila = r.recordset[0];\n  if (!fila || !(await bcrypt.compare(contrasenaActual ?? \"\", fila.hash))) {\n    throw new ErrorHttp(401, \"CREDENCIALES\", \"La contraseña actual no es correcta.\");\n  }\n  const hash = await bcrypt.hash(contrasenaNueva, 12);\n  await pool.request().input(\"id\", sql.Int, req.usuario.id).input(\"hash\", sql.VarChar(100), hash)\n    .query(\"UPDATE dbo.usuarios SET hash_contrasena = @hash WHERE usuario_id = @id;\");\n  res.sendStatus(204);\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-10-ej-3",
+          "title": "Práctica 3: Bloqueo por intentos",
+          "difficulty": "Avanzado",
+          "prompt": "Usando la tabla dbo.intentos_login, escribe en el login la lógica que: (1) antes de comparar, cuente los fallos del correo en los últimos 15 minutos y responda 429 si son 5 o más; (2) después de comparar, registre el intento con su resultado y la IP (req.ip).",
+          "hint": "Registra el intento tanto si acierta como si falla; solo cuentas los fallidos.",
+          "solutionExplanation": "Contar antes de comparar evita gastar bcrypt en un ataque. Registrar todos los intentos deja un historial para auditoría y detección.",
+          "solutionCode": "async function fallosRecientes(email) {\n  const pool = await db();\n  const r = await pool.request().input(\"email\", sql.NVarChar(254), email).query(`\n    SELECT COUNT(*) AS fallos FROM dbo.intentos_login\n    WHERE email = @email AND exitoso = 0\n      AND creado_en > DATEADD(MINUTE, -15, SYSUTCDATETIME());`);\n  return r.recordset[0].fallos;\n}\n\nasync function registrarIntento(email, ip, exitoso) {\n  const pool = await db();\n  await pool.request()\n    .input(\"email\", sql.NVarChar(254), email).input(\"ip\", sql.VarChar(45), ip).input(\"ok\", sql.Bit, exitoso)\n    .query(\"INSERT INTO dbo.intentos_login (email, ip, exitoso) VALUES (@email, @ip, @ok);\");\n}\n\nrutasAuth.post(\"/login\", validar(esquemaLogin), async (req, res) => {\n  const { email, contrasena } = req.body;\n  if ((await fallosRecientes(email)) >= 5) {\n    throw new ErrorHttp(429, \"DEMASIADOS_INTENTOS\", \"Espera 15 minutos e inténtalo de nuevo.\");\n  }\n  const usuario = await buscarPorEmail(email);\n  const ok = Boolean(usuario && (await bcrypt.compare(contrasena, usuario.hash)));\n  await registrarIntento(email, req.ip, ok);\n  if (!ok) throw new ErrorHttp(401, \"CREDENCIALES\", \"Correo o contraseña incorrectos.\");\n  res.json({ usuarioId: usuario.usuarioId, nombre: usuario.nombre });\n});",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-10-q1",
+          "question": "¿Por qué no basta con guardar el SHA-256 de cada contraseña?",
+          "options": [
+            "Produce un texto demasiado largo para una columna NVARCHAR",
+            "SQL Server no puede comparar dos valores en hexadecimal",
+            "Es tan rápido que se prueban miles de millones por segundo",
+            "No funciona con contraseñas que tienen acentos o la letra ñ"
+          ],
+          "correctIndex": 2,
+          "explanation": "Un hash rápido facilita la fuerza bruta. bcrypt y argon2 son lentos a propósito y llevan sal."
+        },
+        {
+          "id": "be-10-q2",
+          "question": "En el login, el correo no existe. ¿Qué debe responder la API?",
+          "options": [
+            "409 porque el correo no coincide con ninguno de la tabla",
+            "200 con un objeto vacío para no dar ninguna información",
+            "404 indicando que ese correo no está registrado en el sistema",
+            "401 con el mismo mensaje que para una contraseña incorrecta"
+          ],
+          "correctIndex": 3,
+          "explanation": "Responder igual en ambos casos evita que un atacante descubra qué correos tienen cuenta."
+        },
+        {
+          "id": "be-10-q3",
+          "question": "¿Qué protege la opción HttpOnly en una cookie de sesión?",
+          "options": [
+            "Que la cookie se borre sola al cerrar la pestaña del navegador",
+            "Que la cookie no se envíe en peticiones desde otros sitios",
+            "Que la cookie solo viaje cuando la conexión usa HTTPS",
+            "Que JavaScript de la página no pueda leer la cookie"
+          ],
+          "correctIndex": 3,
+          "explanation": "HttpOnly impide leerla con document.cookie, así un script inyectado no puede robarla. Secure y SameSite cubren los otros casos."
+        }
+      ]
+    },
+    {
+      "id": "be-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 4 · Autenticación y producción",
+      "title": "JWT y autorización por roles",
+      "subtitle": "Emitir y verificar tokens, proteger rutas y decidir quién puede hacer qué.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Explicar las tres partes de un JWT y qué garantiza la firma.",
+        "Emitir un token al iniciar sesión con un vencimiento corto.",
+        "Escribir un middleware que autentique cada petición.",
+        "Autorizar por rol y por dueño del recurso (401 frente a 403)."
+      ],
+      "theorySections": [
+        {
+          "id": "be-11-sec-1",
+          "title": "1. Qué es un JWT",
+          "body": "Un **JWT** (JSON Web Token) es un texto con tres partes separadas por puntos: **cabecera**, **contenido** (*payload*) y **firma**. Las dos primeras son JSON codificado en base64url.\n\nLo importante:\n- El contenido **no está cifrado**: cualquiera puede decodificarlo y leerlo. **Nunca** pongas contraseñas, datos personales sensibles ni nada secreto.\n- La **firma** se calcula con una clave que solo tiene el servidor. Si alguien cambia una letra del contenido (por ejemplo, `\"rol\":\"lector\"` por `\"rol\":\"admin\"`), la firma deja de coincidir y el token se rechaza.\n\nCampos habituales del contenido: `sub` (id del usuario), `rol`, `iat` (cuándo se emitió) y `exp` (cuándo vence). Recorre el diagrama para ver el flujo completo.",
+          "codeLanguage": "json",
+          "codeSnippet": "// Cabecera\n{ \"alg\": \"HS256\", \"typ\": \"JWT\" }\n\n// Contenido (se puede leer, no es secreto)\n{ \"sub\": 42, \"rol\": \"editor\", \"iat\": 1795000000, \"exp\": 1795000900 }\n\n// Firma = HMAC-SHA256(base64url(cabecera) + \".\" + base64url(contenido), JWT_SECRETO)\n// Token final: xxxxx.yyyyy.zzzzz",
+          "keyTakeaway": "Un JWT se puede leer, pero no se puede alterar sin la clave del servidor.",
+          "diagram": {
+            "type": "flujo-jwt"
+          }
+        },
+        {
+          "id": "be-11-sec-2",
+          "title": "2. Emitir el token en el login",
+          "body": "Con el paquete **jsonwebtoken** (`npm install jsonwebtoken`), después de comprobar la contraseña:\n- `jwt.sign(contenido, secreto, opciones)` crea el token.\n- Usa `expiresIn` corto: **15 minutos** es habitual para el token de acceso.\n- El secreto viene de `process.env.JWT_SECRETO` y debe ser largo y aleatorio (32 bytes o más).\n\nPara no pedir la contraseña cada 15 minutos se usa un **token de refresco**: dura más (días), se guarda en una cookie `HttpOnly`, se registra en la base y solo sirve para pedir un token de acceso nuevo en `POST /auth/refresco`. Como está en la base, se puede **revocar** al cerrar sesión.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import jwt from \"jsonwebtoken\";\nimport { randomBytes } from \"node:crypto\";\n\n// Al final de POST /auth/login, con la contraseña ya verificada\nconst acceso = jwt.sign(\n  { sub: usuario.usuarioId, rol: usuario.rol },\n  process.env.JWT_SECRETO,\n  { expiresIn: \"15m\", algorithm: \"HS256\" }\n);\n\nconst refresco = randomBytes(32).toString(\"base64url\");\nawait guardarRefresco(usuario.usuarioId, refresco, enDias(7));   // tabla dbo.tokens_refresco\nres.cookie(\"refresco\", refresco, { httpOnly: true, secure: true, sameSite: \"strict\", path: \"/api/v1/auth\" });\n\nres.json({ tokenAcceso: acceso, expiraEn: 900 });\n\n// Generar un secreto para el .env:\n// node -e \"console.log(require('crypto').randomBytes(48).toString('base64url'))\"",
+          "keyTakeaway": "Token de acceso corto en la respuesta; token de refresco largo, en cookie y revocable."
+        },
+        {
+          "id": "be-11-sec-3",
+          "title": "3. El middleware autenticar",
+          "body": "Cada ruta protegida pasa primero por un middleware que:\n1) Lee la cabecera `Authorization: Bearer <token>`.\n2) Verifica firma y vencimiento con **`jwt.verify`**, indicando el algoritmo permitido.\n3) Si es válido, guarda `req.usuario = { id, rol }` y llama a `next()`.\n4) Si falta, venció o fue alterado, responde **401**.\n\nNunca uses `jwt.decode` para autenticar: solo decodifica, **no verifica la firma**, y aceptaría un token falsificado.\n\nMonta el middleware en el router completo o en cada ruta que lo necesite. Las rutas públicas (`/auth/login`, `/salud`) van antes o fuera de él.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/middlewares/autenticar.js\nimport jwt from \"jsonwebtoken\";\n\nexport function autenticar(req, res, next) {\n  const [tipo, token] = (req.get(\"Authorization\") ?? \"\").split(\" \");\n  if (tipo !== \"Bearer\" || !token) {\n    throw new ErrorHttp(401, \"SIN_TOKEN\", \"Inicia sesión para continuar.\");\n  }\n  try {\n    const datos = jwt.verify(token, process.env.JWT_SECRETO, { algorithms: [\"HS256\"] });\n    req.usuario = { id: Number(datos.sub), rol: datos.rol };\n    next();\n  } catch (err) {\n    const codigo = err.name === \"TokenExpiredError\" ? \"TOKEN_VENCIDO\" : \"TOKEN_INVALIDO\";\n    throw new ErrorHttp(401, codigo, \"Inicia sesión de nuevo.\");\n  }\n}\n\n// src/app.js\napp.use(\"/api/v1/auth\", rutasAuth);                       // público\napp.use(\"/api/v1/tareas\", autenticar, rutasTareas);       // protegido",
+          "keyTakeaway": "jwt.verify con el algoritmo fijo; jwt.decode nunca sirve para autenticar."
+        },
+        {
+          "id": "be-11-sec-4",
+          "title": "4. Autorizar: rol y dueño",
+          "body": "**Autenticar** responde \"¿quién eres?\". **Autorizar** responde \"¿puedes hacer esto?\". Son dos comprobaciones distintas:\n- Sin token o token inválido → **401 Unauthorized**.\n- Token válido, pero sin permiso → **403 Forbidden**.\n\nDos tipos de autorización que casi siempre necesitas:\n- **Por rol**: solo un `admin` puede listar usuarios. Un middleware `requiereRol(\"admin\")` lo resuelve.\n- **Por dueño**: un `editor` solo puede cambiar **sus** tareas. Esto se comprueba en la consulta, con `WHERE ... usuario_id = @usuarioId`. Si no es suya, responde **404** (no 403), para no revelar que existe.\n\nNunca confíes en un id de usuario que venga en el cuerpo o en la URL para decidir permisos: usa siempre `req.usuario.id`, que sale del token verificado.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/middlewares/autorizar.js\nexport const requiereRol = (...roles) => (req, res, next) => {\n  if (!roles.includes(req.usuario?.rol)) {\n    throw new ErrorHttp(403, \"SIN_PERMISO\", \"No tienes permiso para esta acción.\");\n  }\n  next();\n};\n\n// Por rol\nrutasUsuarios.get(\"/\", requiereRol(\"admin\"), ctrl.listarUsuarios);\nrutasUsuarios.patch(\"/:id/rol\", requiereRol(\"admin\"), ctrl.cambiarRol);\n\n// Por dueño: el id del usuario sale del token, nunca del cuerpo\nrutasTareas.delete(\"/:id\", validarId, async (req, res) => {\n  const borradas = await borrarTarea(req.usuario.id, req.idRecurso);   // WHERE ... AND p.usuario_id = @usuarioId\n  if (!borradas) throw new ErrorHttp(404, \"NO_ENCONTRADO\", \"La tarea no existe.\");\n  res.sendStatus(204);\n});",
+          "keyTakeaway": "401 si no sabemos quién es; 403 si lo sabemos y no puede; el dueño se comprueba en el WHERE."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para tokens y permisos.",
+        "rules": [
+          "Token de acceso con vencimiento corto (15 minutos) y secreto largo en variable de entorno.",
+          "Verifica siempre con jwt.verify y una lista de algoritmos permitidos.",
+          "El contenido del token nunca lleva contraseñas ni datos sensibles.",
+          "El id del usuario sale de req.usuario, nunca del cuerpo de la petición.",
+          "401 para identidad, 403 para permisos y 404 para recursos de otro dueño.",
+          "Los tokens de refresco se guardan en la base para poder revocarlos."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "// Rutas con distintos niveles de acceso\napp.use(\"/api/v1/auth\", rutasAuth);                                    // público\napp.use(\"/api/v1/tareas\", autenticar, rutasTareas);                    // cualquier usuario con sesión\napp.use(\"/api/v1/reportes\", autenticar, requiereRol(\"editor\", \"admin\"), rutasReportes);\napp.use(\"/api/v1/usuarios\", autenticar, requiereRol(\"admin\"), rutasUsuarios);"
+      },
+      "comparison": {
+        "scenario": "Proteger la edición de facturas.",
+        "juniorLabel": "Así no",
+        "juniorCode": "app.patch(\"/api/v1/facturas/:id\", async (req, res) => {\n  const datos = jwt.decode(req.get(\"Authorization\").split(\" \")[1]);   // no verifica la firma\n  if (req.body.esAdmin || datos.rol === \"admin\") {\n    await actualizarFactura(req.params.id, req.body);                  // cualquier factura\n    return res.json({ ok: true });\n  }\n  res.status(401).json({ error: \"No autorizado\" });\n});",
+        "juniorFlaws": [
+          "jwt.decode acepta un token falsificado con \"rol\": \"admin\".",
+          "Basta con enviar esAdmin: true en el cuerpo para obtener permisos.",
+          "No comprueba que la factura sea del usuario.",
+          "Usa 401 cuando el problema es de permisos (debería ser 403)."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "rutasFacturas.patch(\"/:id\", autenticar, requiereRol(\"admin\", \"contador\"), validarId,\n  validar(esquemaCambioFactura), async (req, res) => {\n    const factura = await actualizarFactura(req.usuario, req.idRecurso, req.body);\n    if (!factura) throw new ErrorHttp(404, \"NO_ENCONTRADO\", \"La factura no existe.\");\n    res.json(factura);\n  });",
+        "intermediateBenefits": [
+          "autenticar verifica la firma y el vencimiento del token.",
+          "El rol sale del token verificado, no del cuerpo.",
+          "La capa de datos limita la factura a lo que el usuario puede ver.",
+          "Cada error usa su código: 401, 403 o 404."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-11-ej-1",
+          "title": "Práctica 1: Leer un token",
+          "difficulty": "Básico",
+          "prompt": "Decodifica a mano (con atob en la consola del navegador o en Node con Buffer) la parte central de este token: eyJzdWIiOjQyLCJyb2wiOiJlZGl0b3IiLCJleHAiOjE3OTUwMDAwMDB9. ¿Qué datos lleva? ¿Por qué cambiar \"editor\" por \"admin\" no le daría permisos a nadie?",
+          "hint": "La parte central es el contenido codificado en base64url.",
+          "solutionExplanation": "El contenido es legible por cualquiera, así que no debe llevar secretos. Si alguien cambia el rol, la firma calculada con la clave del servidor ya no coincide y jwt.verify rechaza el token.",
+          "solutionCode": "Buffer.from(\"eyJzdWIiOjQyLCJyb2wiOiJlZGl0b3IiLCJleHAiOjE3OTUwMDAwMDB9\", \"base64url\").toString()\n// '{\"sub\":42,\"rol\":\"editor\",\"exp\":1795000000}'\n\n// Usuario 42, rol editor, vence en la fecha Unix 1795000000.\n// Si se edita el rol, la firma ya no corresponde al contenido → 401.",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-11-ej-2",
+          "title": "Práctica 2: Login que emite tokens",
+          "difficulty": "Intermedio",
+          "prompt": "Completa la ruta POST /api/v1/auth/login para que, tras validar la contraseña, devuelva { tokenAcceso, expiraEn } con un JWT de 15 minutos que lleve sub y rol. Escribe también una prueba con supertest que compruebe que el token devuelto se puede verificar con el secreto.",
+          "hint": "En la prueba, jwt.verify lanza un error si el token no es válido.",
+          "solutionExplanation": "La ruta firma solo los datos necesarios. La prueba asegura que el token tiene el formato y la firma correctos y que lleva el rol del usuario.",
+          "solutionCode": "rutasAuth.post(\"/login\", validar(esquemaLogin), async (req, res) => {\n  const usuario = await buscarPorEmail(req.body.email);\n  const ok = usuario && (await bcrypt.compare(req.body.contrasena, usuario.hash));\n  if (!ok) throw new ErrorHttp(401, \"CREDENCIALES\", \"Correo o contraseña incorrectos.\");\n  const tokenAcceso = jwt.sign({ sub: usuario.usuarioId, rol: usuario.rol }, process.env.JWT_SECRETO,\n    { expiresIn: \"15m\", algorithm: \"HS256\" });\n  res.json({ tokenAcceso, expiraEn: 900 });\n});\n\n// test/auth.test.js\ntest(\"login devuelve un token verificable\", async () => {\n  const res = await request(app).post(\"/api/v1/auth/login\")\n    .send({ email: \"ana@prueba.com\", contrasena: \"Clave.De.Prueba.2026\" });\n  assert.equal(res.status, 200);\n  const datos = jwt.verify(res.body.tokenAcceso, process.env.JWT_SECRETO, { algorithms: [\"HS256\"] });\n  assert.equal(datos.rol, \"editor\");\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-11-ej-3",
+          "title": "Práctica 3: Dueño o administrador",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe la función de datos obtenerFactura(usuario, facturaId) en T-SQL dentro de Node: un admin puede ver cualquier factura; cualquier otro usuario solo las de sus clientes (dbo.clientes.vendedor_id = usuario.id). Devuelve null si no puede verla.",
+          "hint": "Pasa un parámetro @esAdmin de tipo BIT y úsalo en el WHERE.",
+          "solutionExplanation": "La regla de autorización vive en la consulta: si el usuario no tiene acceso, la fila simplemente no aparece y la ruta responde 404, sin revelar que la factura existe.",
+          "solutionCode": "export async function obtenerFactura(usuario, facturaId) {\n  const pool = await db();\n  const r = await pool.request()\n    .input(\"facturaId\", sql.Int, facturaId)\n    .input(\"usuarioId\", sql.Int, usuario.id)\n    .input(\"esAdmin\", sql.Bit, usuario.rol === \"admin\")\n    .query(`\n      SELECT f.factura_id AS facturaId, f.total, f.pagada, c.nombre AS cliente\n      FROM dbo.facturas AS f\n      JOIN dbo.clientes AS c ON c.cliente_id = f.cliente_id\n      WHERE f.factura_id = @facturaId\n        AND (@esAdmin = 1 OR c.vendedor_id = @usuarioId);`);\n  return r.recordset[0] ?? null;\n}",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-11-q1",
+          "question": "¿Qué garantiza la firma de un JWT?",
+          "options": [
+            "Que el token solo funciona desde la IP donde se emitió",
+            "Que el usuario no puede cerrar sesión antes del vencimiento",
+            "Que nadie alteró el contenido sin la clave del servidor",
+            "Que nadie puede leer el contenido del token sin la clave"
+          ],
+          "correctIndex": 2,
+          "explanation": "El contenido es legible (base64url), pero cualquier cambio invalida la firma."
+        },
+        {
+          "id": "be-11-q2",
+          "question": "Un usuario con sesión válida y rol lector intenta borrar a otro usuario. ¿Qué responde la API?",
+          "options": [
+            "404 Not Found: el usuario que intenta borrar no existe",
+            "401 Unauthorized: debe iniciar sesión de nuevo para seguir",
+            "400 Bad Request: el cuerpo de la petición no es válido",
+            "403 Forbidden: sabemos quién es, pero no tiene permiso"
+          ],
+          "correctIndex": 3,
+          "explanation": "401 es para identidad desconocida; 403 para alguien identificado que no tiene el permiso."
+        },
+        {
+          "id": "be-11-q3",
+          "question": "¿Por qué no se debe usar jwt.decode en el middleware de autenticación?",
+          "options": [
+            "Porque solo decodifica y no verifica la firma",
+            "Porque no funciona con tokens firmados con HS256",
+            "Porque borra el token después de leer su contenido",
+            "Porque es más lento que jwt.verify en tokens largos"
+          ],
+          "correctIndex": 0,
+          "explanation": "jwt.decode aceptaría un token falsificado; jwt.verify comprueba la firma y el vencimiento."
+        }
+      ]
+    },
+    {
+      "id": "be-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 4 · Autenticación y producción",
+      "title": "Seguridad y puesta en producción",
+      "subtitle": "CORS, cabeceras, límites, logs, salud del servicio y un despliegue ordenado.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Configurar CORS para que solo tus front-ends llamen a la API.",
+        "Agregar cabeceras de seguridad y límites de peticiones y tamaño.",
+        "Registrar logs útiles sin datos sensibles y exponer una ruta de salud.",
+        "Preparar la API para producción y cerrarla de forma ordenada."
+      ],
+      "theorySections": [
+        {
+          "id": "be-12-sec-1",
+          "title": "1. CORS: quién puede llamar a tu API",
+          "body": "Por seguridad, el navegador no deja que una página de `https://otro-sitio.com` lea las respuestas de tu API, salvo que la API lo permita. Ese permiso es **CORS** (Cross-Origin Resource Sharing).\n\nCuando el origen es distinto, el navegador puede enviar primero una petición **`OPTIONS`** (*preflight*) para preguntar qué métodos y cabeceras se permiten.\n\nCon el paquete **cors**:\n- Indica una **lista de orígenes** permitidos, no `*`.\n- Si usas cookies, activa `credentials: true`; en ese caso `*` no está permitido.\n\nCORS **no protege tu API** de curl ni de otros servidores: solo controla qué páginas web pueden leer las respuestas en un navegador. La protección real siguen siendo la autenticación y la autorización.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import cors from \"cors\";        // npm install cors\n\nconst permitidos = (process.env.ORIGENES_PERMITIDOS ?? \"\").split(\",\");\n// .env → ORIGENES_PERMITIDOS=https://app.miempresa.com,http://localhost:5173\n\napp.use(cors({\n  origin(origen, listo) {\n    // Sin origen: curl, apps móviles o el mismo servidor\n    if (!origen || permitidos.includes(origen)) return listo(null, true);\n    listo(new ErrorHttp(403, \"ORIGEN_NO_PERMITIDO\", \"Origen no permitido.\"));\n  },\n  credentials: true,\n  methods: [\"GET\", \"POST\", \"PATCH\", \"PUT\", \"DELETE\"],\n  allowedHeaders: [\"Content-Type\", \"Authorization\"],\n  maxAge: 600,                    // el navegador recuerda el preflight 10 minutos\n}));",
+          "keyTakeaway": "CORS dice qué páginas pueden leer tu API; no sustituye a la autenticación."
+        },
+        {
+          "id": "be-12-sec-2",
+          "title": "2. Cabeceras de seguridad y límites",
+          "body": "Tres protecciones baratas que toda API pública debería tener:\n- **helmet**: agrega cabeceras de seguridad (como `Strict-Transport-Security` y `X-Content-Type-Options`) y quita `X-Powered-By`, que anuncia que usas Express.\n- **Límite de peticiones** con **express-rate-limit**: por ejemplo, 300 peticiones cada 15 minutos por IP en general, y mucho menos en `/auth/login`. Al pasarse, responde **429**.\n- **Límite de tamaño del cuerpo**: `express.json({ limit: \"100kb\" })`. Sin límite, alguien puede enviar un JSON gigante y agotar la memoria.\n\nSi la API está detrás de Nginx u otro proxy, configura `app.set(\"trust proxy\", 1)`. Si no, todas las peticiones parecerán venir de la IP del proxy y el límite bloqueará a todos a la vez.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import helmet from \"helmet\";\nimport rateLimit from \"express-rate-limit\";\n\napp.set(\"trust proxy\", 1);                     // detrás de Nginx: usar la IP real\napp.use(helmet());\napp.use(express.json({ limit: \"100kb\" }));\n\nconst limiteGeneral = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: \"draft-7\", legacyHeaders: false });\nconst limiteLogin = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: \"draft-7\", legacyHeaders: false,\n  message: { error: { codigo: \"DEMASIADOS_INTENTOS\", mensaje: \"Espera unos minutos.\" } } });\n\napp.use(\"/api/\", limiteGeneral);\napp.use(\"/api/v1/auth/login\", limiteLogin);",
+          "keyTakeaway": "helmet, límite de peticiones y límite de tamaño: tres líneas que evitan muchos problemas."
+        },
+        {
+          "id": "be-12-sec-3",
+          "title": "3. Logs y salud del servicio",
+          "body": "En producción no puedes poner `console.log` y mirar la pantalla. Necesitas **logs estructurados**: una línea JSON por evento, con nivel (`info`, `warn`, `error`), hora, id de petición, ruta, código y duración. Así se buscan y filtran con herramientas.\n\n**pino** y **pino-http** hacen esto con muy poco costo. Configúralos para **ocultar** datos sensibles: la cabecera `Authorization`, cookies, contraseñas.\n\nAgrega una **ruta de salud** pública:\n- `GET /salud` responde 200 si el proceso está vivo.\n- `GET /salud/lista` además hace `SELECT 1` en la base y responde **503** si no puede conectarse.\n\nEl servidor, el balanceador o el contenedor llaman a estas rutas para saber si deben enviarle tráfico o reiniciarlo.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "import pino from \"pino\";\nimport pinoHttp from \"pino-http\";\n\nexport const log = pino({\n  level: process.env.NIVEL_LOG ?? \"info\",\n  redact: [\"req.headers.authorization\", \"req.headers.cookie\", \"*.contrasena\", \"*.hash\"],\n});\napp.use(pinoHttp({ logger: log, genReqId: (req) => req.id }));\n\napp.get(\"/salud\", (req, res) => res.json({ estado: \"ok\" }));\n\napp.get(\"/salud/lista\", async (req, res) => {\n  try {\n    const pool = await db();\n    await pool.request().query(\"SELECT 1 AS ok;\");\n    res.json({ estado: \"ok\", baseDeDatos: \"ok\" });\n  } catch (err) {\n    log.error({ err }, \"Base de datos no disponible\");\n    res.status(503).json({ estado: \"degradado\", baseDeDatos: \"sin conexión\" });\n  }\n});",
+          "keyTakeaway": "Logs en JSON sin secretos y una ruta de salud que revisa también la base de datos."
+        },
+        {
+          "id": "be-12-sec-4",
+          "title": "4. Preparar el despliegue",
+          "body": "Lista de comprobación antes de publicar:\n- `NODE_ENV=production` y todas las variables de entorno configuradas en el servidor (nunca un `.env` copiado a mano).\n- La API escucha en un puerto interno; **Nginx** delante pone el **HTTPS** y reenvía. En el curso Web viste cómo configurar Nginx y el certificado.\n- Un gestor de procesos que la **reinicie si se cae**: un servicio de **systemd**, **pm2** o un **contenedor** con política de reinicio.\n- La cadena de conexión con `encrypt: true` y **sin** `trustServerCertificate` en producción.\n- Las **migraciones** de la base se aplican antes de arrancar la versión nueva.\n\n**Cierre ordenado**: al desplegar, el sistema envía la señal `SIGTERM`. La API debe dejar de aceptar conexiones nuevas, terminar las que están en curso y cerrar el pool de SQL Server. Así ningún usuario recibe un error a mitad de una operación.",
+          "codeLanguage": "javascript",
+          "codeSnippet": "// src/servidor.js\nimport { app } from \"./app.js\";\nimport { db } from \"./datos/db.js\";\nimport { log } from \"./log.js\";\n\nconst servidor = app.listen(Number(process.env.PUERTO), () => log.info(\"API escuchando\"));\n\nasync function cerrar(senal) {\n  log.info({ senal }, \"Cerrando de forma ordenada\");\n  servidor.close(async () => {          // deja de aceptar y espera las peticiones en curso\n    await (await db()).close();          // cierra el pool de SQL Server\n    process.exit(0);\n  });\n  setTimeout(() => process.exit(1), 10_000).unref();   // plazo máximo\n}\nprocess.on(\"SIGTERM\", cerrar);\nprocess.on(\"SIGINT\", cerrar);\n\n/* /etc/systemd/system/api-tareas.service\n[Service]\nWorkingDirectory=/srv/api-tareas\nExecStart=/usr/bin/node src/servidor.js\nEnvironmentFile=/etc/api-tareas.env\nRestart=always\nUser=api */",
+          "keyTakeaway": "En producción: HTTPS delante, reinicio automático, variables seguras y cierre ordenado."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista mínima de seguridad y operación de una API.",
+        "rules": [
+          "CORS con lista de orígenes; nunca * junto con credenciales.",
+          "helmet activo, límite de tamaño del cuerpo y límite de peticiones (más estricto en /auth).",
+          "trust proxy configurado cuando hay un proxy delante.",
+          "Logs JSON con id de petición y sin tokens, cookies ni contraseñas.",
+          "Rutas /salud y /salud/lista para el monitoreo.",
+          "Variables de entorno en el servidor, HTTPS, reinicio automático y cierre ordenado con SIGTERM."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "// src/app.js — orden recomendado\nexport const app = express();\napp.set(\"trust proxy\", 1);\napp.use(asignarIdPeticion);\napp.use(pinoHttp({ logger: log, genReqId: (req) => req.id }));\napp.use(helmet());\napp.use(cors(opcionesCors));\napp.use(express.json({ limit: \"100kb\" }));\napp.use(\"/api/\", limiteGeneral);\n\napp.use(\"/salud\", rutasSalud);\napp.use(\"/api/v1/auth\", limiteAuth, rutasAuth);\napp.use(\"/api/v1/tareas\", autenticar, rutasTareas);\napp.use(\"/api/v1/usuarios\", autenticar, requiereRol(\"admin\"), rutasUsuarios);\n\napp.use(noEncontrado);\napp.use(manejarErrores);"
+      },
+      "comparison": {
+        "scenario": "La API pasa de la computadora del desarrollador al servidor.",
+        "juniorLabel": "Así no",
+        "juniorCode": "app.use(cors());                          // cualquier sitio puede leer las respuestas\napp.use(express.json());                  // sin límite de tamaño\n\napp.use((err, req, res, next) => {\n  console.log(req.headers, req.body);     // imprime tokens y contraseñas\n  res.status(500).json({ error: err.message, stack: err.stack });\n});\n\napp.listen(3000);                         // si se cae, nadie la levanta",
+        "juniorFlaws": [
+          "CORS abierto a cualquier origen.",
+          "Un JSON enorme puede agotar la memoria del servidor.",
+          "Los logs guardan tokens y contraseñas en texto.",
+          "El cliente recibe el stack con detalles internos.",
+          "Sin reinicio automático ni cierre ordenado."
+        ],
+        "intermediateLabel": "Así sí",
+        "intermediateCode": "app.use(helmet());\napp.use(cors({ origin: permitidos, credentials: true }));\napp.use(express.json({ limit: \"100kb\" }));\napp.use(\"/api/\", limiteGeneral);\n\n// manejarErrores: log con redact + mensaje genérico en 5xx\napp.use(manejarErrores);\n\n// servidor.js con SIGTERM → servidor.close() + pool.close()\n// systemd con Restart=always y EnvironmentFile",
+        "intermediateBenefits": [
+          "Solo los front-ends conocidos leen las respuestas.",
+          "El tamaño del cuerpo está acotado.",
+          "Los logs ocultan secretos y llevan id de petición.",
+          "El cliente nunca ve detalles internos.",
+          "El servicio se reinicia solo y se apaga sin cortar peticiones."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "be-12-ej-1",
+          "title": "Práctica 1: Configurar CORS",
+          "difficulty": "Básico",
+          "prompt": "Tu front-end vive en https://panel.mitienda.com y en desarrollo en http://localhost:5173. Configura cors para permitir solo esos dos orígenes, con cookies, y comprueba con curl que un origen distinto no recibe la cabecera Access-Control-Allow-Origin.",
+          "hint": "curl -H \"Origin: https://otro.com\" -i simula una petición desde otro sitio.",
+          "solutionExplanation": "Con una lista fija, el navegador solo entrega las respuestas a esos dos orígenes. curl permite ver qué cabeceras CORS devuelve la API para cada origen.",
+          "solutionCode": "app.use(cors({\n  origin: [\"https://panel.mitienda.com\", \"http://localhost:5173\"],\n  credentials: true,\n}));\n\n# Origen permitido: aparece Access-Control-Allow-Origin\ncurl -i -H \"Origin: http://localhost:5173\" http://localhost:3000/salud\n# Origen no permitido: la cabecera no aparece\ncurl -i -H \"Origin: https://otro.com\" http://localhost:3000/salud",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-12-ej-2",
+          "title": "Práctica 2: Ruta de salud con prueba",
+          "difficulty": "Intermedio",
+          "prompt": "Implementa GET /salud/lista que haga SELECT 1 en SQL Server y responda 200 o 503. Escribe una prueba con supertest que compruebe el 200 cuando la base está disponible.",
+          "hint": "Atrapa el error de la consulta y responde 503 en lugar de dejar que llegue al manejador general.",
+          "solutionExplanation": "La ruta convierte el estado de la base en un código que entienden los balanceadores y monitores: 200 recibe tráfico y 503 indica que algo falla.",
+          "solutionCode": "rutasSalud.get(\"/lista\", async (req, res) => {\n  try {\n    const pool = await db();\n    await pool.request().query(\"SELECT 1 AS ok;\");\n    res.json({ estado: \"ok\", baseDeDatos: \"ok\" });\n  } catch {\n    res.status(503).json({ estado: \"degradado\", baseDeDatos: \"sin conexión\" });\n  }\n});\n\ntest(\"GET /salud/lista responde 200 con la base disponible\", async () => {\n  const res = await request(app).get(\"/salud/lista\");\n  assert.equal(res.status, 200);\n  assert.equal(res.body.baseDeDatos, \"ok\");\n});",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "be-12-ej-3",
+          "title": "Práctica 3: Revisión antes de publicar",
+          "difficulty": "Avanzado",
+          "prompt": "Revisa esta configuración y enumera cada problema con su arreglo: la API usa app.use(cors({ origin: \"*\", credentials: true })), conecta con trustServerCertificate: true en producción, el token JWT vence en 30 días, no hay trust proxy aunque está detrás de Nginx y el log registra req.headers completo.",
+          "hint": "Son cinco problemas; cada uno tiene una línea de arreglo.",
+          "solutionExplanation": "Cada punto corresponde a una regla del capítulo: CORS con lista, conexión cifrada verificada, tokens cortos con refresco, IP real para los límites y logs sin secretos.",
+          "solutionCode": "1. cors con \"*\" y credentials → lista de orígenes: origin: [\"https://app.empresa.com\"]\n2. trustServerCertificate en producción → quitarlo y usar un certificado válido en SQL Server\n3. JWT de 30 días → acceso de 15 min + token de refresco revocable\n4. Sin trust proxy → app.set(\"trust proxy\", 1) para que el límite use la IP real\n5. Log con headers completos → pino con redact de authorization y cookie",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "be-12-q1",
+          "question": "¿Qué controla realmente la configuración de CORS de una API?",
+          "options": [
+            "Qué usuarios pueden llamar a la API desde cualquier programa",
+            "Qué IP pueden abrir una conexión con el servidor de la API",
+            "Qué tablas de SQL Server puede consultar cada una de las rutas",
+            "Qué páginas web pueden leer las respuestas desde el navegador"
+          ],
+          "correctIndex": 3,
+          "explanation": "CORS es una regla del navegador. curl u otro servidor pueden llamar igual; por eso hace falta autenticación."
+        },
+        {
+          "id": "be-12-q2",
+          "question": "La API está detrás de Nginx y el límite de peticiones bloquea a todos los usuarios a la vez. ¿Qué falta?",
+          "options": [
+            "Configurar app.set(\"trust proxy\", 1) para usar la IP real",
+            "Subir el límite general de 300 a 3000 peticiones por minuto",
+            "Quitar el límite de tamaño del cuerpo en express.json()",
+            "Agregar helmet antes del middleware de límite de peticiones"
+          ],
+          "correctIndex": 0,
+          "explanation": "Sin trust proxy, todas las peticiones parecen venir de la IP de Nginx y comparten el mismo contador."
+        },
+        {
+          "id": "be-12-q3",
+          "question": "¿Para qué sirve escuchar la señal SIGTERM en el servidor?",
+          "options": [
+            "Para reiniciar el proceso cada vez que cambia un archivo del código",
+            "Para terminar las peticiones en curso y cerrar el pool",
+            "Para bloquear el apagado del servidor mientras haya usuarios",
+            "Para registrar en el log cada petición que llega al servidor"
+          ],
+          "correctIndex": 1,
+          "explanation": "Al desplegar, el sistema pide terminar con SIGTERM; cerrar en orden evita cortar operaciones a medias."
+        }
+      ]
+    }
+  ]
+}

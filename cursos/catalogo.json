@@ -109,6 +109,24 @@
       "publicado": true
     },
     {
+      "id": "backend-apis",
+      "archivo": "backend-apis.json",
+      "tema": "web",
+      "separador": "Back-end",
+      "cuaderno": "Cuaderno de back-end",
+      "categoria": "Programación",
+      "etiquetas": [
+        "Node.js",
+        "Express",
+        "REST",
+        "T-SQL",
+        "JWT",
+        "Seguridad"
+      ],
+      "color": "#0F766E",
+      "publicado": true
+    },
+    {
       "id": "typescript-react",
       "archivo": "typescript-react.json",
       "tema": "web",
