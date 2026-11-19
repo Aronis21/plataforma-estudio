@@ -36,6 +36,23 @@
       "publicado": true
     },
     {
+      "id": "ingenieria-datos",
+      "archivo": "ingenieria-datos.json",
+      "tema": "datos",
+      "separador": "Ing. de datos",
+      "cuaderno": "Bitácora del pipeline",
+      "categoria": "Datos y Analítica",
+      "etiquetas": [
+        "ETL",
+        "T-SQL",
+        "dbt",
+        "Airflow",
+        "Calidad de datos"
+      ],
+      "color": "#0E9F8E",
+      "publicado": true
+    },
+    {
       "id": "programacion-desarrollo-web",
       "archivo": "programacion-desarrollo-web.json",
       "tema": "web",

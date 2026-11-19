@@ -1,0 +1,1828 @@
+{
+  "id": "ingenieria-datos",
+  "title": "Ingeniería de Datos",
+  "subtitle": "Pipelines confiables de punta a punta: ETL y ELT en T-SQL, transformación con dbt, orquestación con Airflow y calidad de datos.",
+  "level": "Intermedio",
+  "author": "Aronis",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "ing-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1: Fundamentos del pipeline",
+      "title": "El Oficio del Ingeniero de Datos: Ciclo de Vida, OLTP frente a OLAP y Batch frente a Streaming",
+      "subtitle": "Qué construye un ingeniero de datos, para quién y con qué decisiones de diseño.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Describir las etapas del ciclo de vida del dato: generación, ingesta, almacenamiento, transformación y servicio.",
+        "Distinguir una base transaccional (OLTP) de un almacén analítico (OLAP) y explicar por qué no se analiza sobre producción.",
+        "Elegir entre procesamiento por lotes (batch) y en flujo (streaming) según la latencia que el negocio de verdad necesita.",
+        "Definir un pipeline con sus entradas, salidas, frecuencia y dueño."
+      ],
+      "theorySections": [
+        {
+          "id": "ing01-sec-1",
+          "title": "1. Qué hace un ingeniero de datos",
+          "body": "El analista responde preguntas con datos; el **ingeniero de datos** se asegura de que esos datos lleguen **completos, a tiempo y confiables**. Su producto no es un informe: es un **pipeline**, un proceso automático que mueve y transforma datos desde donde nacen hasta donde se usan.\n\nEl ciclo de vida del dato tiene cinco etapas:\n- **Generación**: el sistema de ventas, la app, un sensor o una API de un proveedor.\n- **Ingesta**: copiar esos datos a un lugar controlado, sin perder ni duplicar filas.\n- **Almacenamiento**: guardarlos en un formato y un motor adecuados (aquí, SQL Server).\n- **Transformación**: limpiar, unir y modelar para que respondan preguntas de negocio.\n- **Servicio**: entregarlos a tableros, modelos de ML, otras aplicaciones o personas.\n\nPor debajo de todo hay tres temas transversales que verás en todo el curso: **orquestación** (qué corre y cuándo), **calidad** (cómo sabes que está bien) y **seguridad** (quién puede ver qué).",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "[ventas_app]  --ingesta-->  [raw]  --transformación-->  [staging]  -->  [marts]  -->  [Power BI]\n   genera                   copia fiel                limpia y tipa     modela        consume\n                           (sin tocar)\n        orquestación: Airflow   ·   transformación: dbt   ·   calidad: pruebas en cada capa",
+          "keyTakeaway": "El ingeniero de datos entrega pipelines confiables; el informe es solo el último eslabón."
+        },
+        {
+          "id": "ing01-sec-2",
+          "title": "2. OLTP frente a OLAP",
+          "body": "Una base **OLTP** (Online Transaction Processing) atiende la operación diaria: registrar una venta, actualizar un saldo. Está **normalizada**, optimizada para escribir y leer pocas filas muy rápido, y no puede ponerse lenta.\n\nUn almacén **OLAP** (Online Analytical Processing) está pensado para leer **millones de filas** y agregarlas. Suele estar **desnormalizado** (hechos y dimensiones), guarda historia y en SQL Server se apoya en **índices columnstore**.\n\n¿Por qué no analizar directo sobre la base de la aplicación?\n- Una consulta analítica pesada bloquea o frena las ventas en curso.\n- La base operativa solo guarda el estado actual: si un cliente cambia de ciudad, la ciudad anterior se pierde.\n- Los datos de varias fuentes (ventas, CRM, marketing) no viven en el mismo lugar.\n\nPor eso existe el pipeline: copia los datos del OLTP al OLAP de forma controlada.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- OLTP: pocas filas, por clave, muchas veces por segundo\nSELECT saldo FROM ventas.cuentas WHERE cuenta_id = 48213;\n\n-- OLAP: muchas filas, agregadas, en el almacén\nSELECT d.anio, d.mes, SUM(h.monto) AS ventas\nFROM dw.fct_ventas AS h\nJOIN dw.dim_fecha  AS d ON d.fecha_key = h.fecha_key\nGROUP BY d.anio, d.mes;\n\n-- En el almacén, un índice columnstore acelera las agregaciones\nCREATE CLUSTERED COLUMNSTORE INDEX cci_fct_ventas ON dw.fct_ventas;",
+          "keyTakeaway": "OLTP opera el negocio; OLAP lo analiza. El pipeline conecta los dos sin que uno frene al otro."
+        },
+        {
+          "id": "ing01-sec-3",
+          "title": "3. Batch frente a streaming",
+          "body": "**Batch** (por lotes): el pipeline corre cada cierto tiempo (cada hora, cada noche) y procesa todo lo nuevo de golpe. Es más simple, más barato y más fácil de rehacer si algo falla.\n\n**Streaming** (en flujo): cada evento se procesa segundos después de ocurrir, con herramientas como Kafka o Event Hubs. Es más complejo de operar y de probar.\n\nLa pregunta correcta no es \"¿qué es más moderno?\", sino **\"¿qué decisión cambia si el dato llega antes?\"**:\n- Un tablero de ventas que el gerente mira cada mañana: batch nocturno.\n- Detección de fraude en una tarjeta: streaming, porque una hora tarde ya no sirve.\n- Inventario para reponer tiendas dos veces al día: batch cada pocas horas (a veces llamado *micro-batch*).\n\nEn este curso trabajamos en batch, que cubre la gran mayoría de los casos y es donde están las bases de ETL, dbt y Airflow.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Requisito del negocio               Latencia real necesaria    Diseño\n---------------------------------   -----------------------   ------------------\nTablero diario de ventas            24 horas                  batch nocturno\nReposición de inventario            4 a 6 horas               batch cada 4 h\nAlerta de fraude en pagos           segundos                  streaming\nInforme mensual de comisiones       1 mes                     batch mensual",
+          "keyTakeaway": "Elige la latencia por la decisión que habilita, no por la tecnología."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Antes de construir cualquier pipeline, escríbelo en una ficha corta.",
+        "rules": [
+          "Cada pipeline tiene un dueño con nombre, no \"el equipo de datos\".",
+          "Declara la latencia acordada (por ejemplo, datos listos a las 07:00) y mídela.",
+          "Nunca ejecutes consultas analíticas pesadas sobre la base de producción.",
+          "Lista las fuentes, las tablas de salida y quién las consume.",
+          "Prefiere batch salvo que haya una decisión que exija segundos."
+        ],
+        "codeLanguage": "yaml",
+        "referenceCode": "pipeline: ventas_diarias\ndueno: Aronis\nfuentes:\n  - ventas_app.dbo.pedidos      # OLTP, réplica de lectura\n  - crm.dbo.clientes\nsalidas:\n  - dw.fct_ventas\n  - dw.dim_cliente\nfrecuencia: diaria 02:00\nlisto_antes_de: \"07:00\"\nconsumidores: [tablero_gerencia, modelo_churn]"
+      },
+      "comparison": {
+        "scenario": "El equipo comercial pide un tablero de ventas actualizado.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- El tablero consulta directo la base de la aplicación cada 5 minutos\nSELECT c.ciudad, SUM(p.total) AS ventas\nFROM ventas_app.dbo.pedidos  AS p\nJOIN ventas_app.dbo.clientes AS c ON c.cliente_id = p.cliente_id\nGROUP BY c.ciudad;",
+        "juniorFlaws": [
+          "Cada refresco recorre toda la tabla de pedidos y compite con las ventas en curso.",
+          "Usa la ciudad actual del cliente: las ventas pasadas cambian de ciudad si el cliente se muda.",
+          "Nadie pidió 5 minutos; el gerente mira el tablero una vez al día."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Un pipeline nocturno copia lo nuevo al almacén y el tablero lee el almacén\nSELECT d.ciudad, SUM(h.monto) AS ventas\nFROM dw.fct_ventas  AS h\nJOIN dw.dim_cliente AS d ON d.cliente_key = h.cliente_key   -- ciudad vigente en la fecha de la venta\nGROUP BY d.ciudad;",
+        "intermediateBenefits": [
+          "La base operativa no recibe consultas analíticas.",
+          "El almacén conserva la historia del cliente.",
+          "La latencia (diaria) coincide con el uso real del tablero."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing01-ej-1",
+          "title": "Práctica 1: Clasifica la latencia",
+          "difficulty": "Básico",
+          "prompt": "Para cada requisito decide si lo resolverías con batch diario, batch cada pocas horas o streaming, y justifica en una línea:\n1. Informe semanal de horas extra por empleado.\n2. Bloquear una tarjeta cuando hay tres compras en países distintos en 10 minutos.\n3. Tablero de stock que los jefes de tienda revisan al abrir y a mediodía.\n4. Conteo de usuarios activos por día para el equipo de producto.",
+          "hint": "Pregúntate qué decisión se toma con el dato y cuánto pierde el negocio si llega una hora tarde.",
+          "solutionExplanation": "Solo la alerta de fraude necesita segundos: una hora tarde, el dinero ya se perdió. El stock se revisa dos veces al día, así que un batch cada 4 a 6 horas basta. Los otros dos se consumen una vez al día o a la semana.",
+          "solutionCode": "1. Batch semanal (o diario): se revisa una vez por semana.\n2. Streaming: el valor está en bloquear en segundos.\n3. Batch cada 4-6 horas: dos revisiones al día.\n4. Batch diario: la métrica es diaria por definición.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing01-ej-2",
+          "title": "Práctica 2: Ficha de un pipeline",
+          "difficulty": "Intermedio",
+          "prompt": "Una cadena de farmacias quiere un tablero con las ventas por sucursal y producto, listo a las 08:00. Las ventas viven en `pos.dbo.tickets` y `pos.dbo.ticket_lineas`, y el catálogo de productos en `erp.dbo.productos`. Escribe la ficha del pipeline en YAML con dueño, fuentes, salidas, frecuencia, hora límite y consumidores.",
+          "hint": "Usa la misma estructura del estándar profesional. Piensa en una hora de inicio que deje margen ante fallos.",
+          "solutionExplanation": "Programar a las 02:00 deja seis horas para reintentos antes de la hora límite. Las salidas siguen el modelo de hechos y dimensiones, y la ficha deja claro a quién avisar si algo se retrasa.",
+          "solutionCode": "pipeline: ventas_farmacias\ndueno: equipo_datos_retail (responsable: Aronis)\nfuentes:\n  - pos.dbo.tickets\n  - pos.dbo.ticket_lineas\n  - erp.dbo.productos\nsalidas:\n  - dw.fct_ventas_linea\n  - dw.dim_producto\n  - dw.dim_sucursal\nfrecuencia: diaria 02:00\nlisto_antes_de: \"08:00\"\nconsumidores: [tablero_ventas_sucursal]",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "ing01-ej-3",
+          "title": "Práctica 3: Una consulta OLAP en T-SQL",
+          "difficulty": "Intermedio",
+          "prompt": "Con las tablas `dw.fct_ventas (fecha_key, sucursal_key, monto)`, `dw.dim_fecha (fecha_key, anio, mes)` y `dw.dim_sucursal (sucursal_key, nombre)`, escribe una consulta que devuelva las 5 sucursales con más ventas en 2026, con su total redondeado a 2 decimales.",
+          "hint": "En T-SQL se usa `TOP (5)` con `ORDER BY`.",
+          "solutionExplanation": "Es el patrón típico de un almacén: se filtra por un atributo de la dimensión fecha, se agrega el hecho y se ordena. `TOP (5)` con paréntesis es la forma recomendada en T-SQL.",
+          "solutionCode": "SELECT TOP (5)\n       s.nombre,\n       ROUND(SUM(h.monto), 2) AS ventas_2026\nFROM dw.fct_ventas   AS h\nJOIN dw.dim_fecha    AS d ON d.fecha_key    = h.fecha_key\nJOIN dw.dim_sucursal AS s ON s.sucursal_key = h.sucursal_key\nWHERE d.anio = 2026\nGROUP BY s.nombre\nORDER BY ventas_2026 DESC;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing01-q1",
+          "question": "¿Por qué no conviene que un tablero consulte directamente la base de datos de la aplicación?",
+          "options": [
+            "Las consultas pesadas frenan la operación y esa base no guarda la historia de los cambios.",
+            "Las bases operativas solo aceptan consultas con INSERT y UPDATE, no consultas SELECT.",
+            "SQL Server no permite consultar una base operativa desde una herramienta de BI externa.",
+            "Las bases operativas guardan los datos cifrados y el tablero no puede leerlos sin claves."
+          ],
+          "correctIndex": 0,
+          "explanation": "La base OLTP está hecha para transacciones rápidas y guarda el estado actual; el almacén guarda historia y soporta agregaciones."
+        },
+        {
+          "id": "ing01-q2",
+          "question": "Un gerente revisa el tablero de ventas cada mañana a las 09:00. ¿Qué diseño es el adecuado?",
+          "options": [
+            "Un pipeline mensual que recalcule todo el histórico el primer día del mes.",
+            "Una consulta directa a la base de ventas cada vez que se abre el tablero.",
+            "Un pipeline de streaming que procese cada venta segundos después de ocurrir.",
+            "Un pipeline batch nocturno que deje los datos listos antes de las 09:00."
+          ],
+          "correctIndex": 3,
+          "explanation": "La latencia necesaria es diaria; streaming añade costo y complejidad sin cambiar ninguna decisión."
+        },
+        {
+          "id": "ing01-q3",
+          "question": "¿En qué etapa del ciclo de vida se limpian, unen y modelan los datos para el negocio?",
+          "options": [
+            "En la generación, dentro del sistema que crea los datos originales.",
+            "En la ingesta, mientras se copian los datos desde la fuente original.",
+            "En la transformación, después de la ingesta y antes de servirlos.",
+            "En el servicio, cuando el tablero calcula las métricas al mostrarlas."
+          ],
+          "correctIndex": 2,
+          "explanation": "La ingesta copia fielmente; la transformación limpia y modela; el servicio entrega el resultado."
+        }
+      ]
+    },
+    {
+      "id": "ing-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1: Fundamentos del pipeline",
+      "title": "ETL frente a ELT y Patrones de Carga: Completa, Incremental y MERGE",
+      "subtitle": "Dónde transformar los datos y cómo cargarlos sin perder ni duplicar filas.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar la diferencia entre ETL y ELT y por qué los almacenes modernos prefieren ELT.",
+        "Elegir entre carga completa e incremental según el volumen y los cambios de la fuente.",
+        "Implementar una carga incremental con marca de agua (watermark) en T-SQL.",
+        "Escribir un MERGE idempotente que inserte y actualice sin duplicar."
+      ],
+      "theorySections": [
+        {
+          "id": "ing02-sec-1",
+          "title": "1. ETL y ELT: dónde ocurre la T",
+          "body": "**ETL** (Extract, Transform, Load): se extraen los datos, se transforman en un servidor intermedio (SSIS, un script de Python) y solo el resultado limpio se carga al almacén.\n\n**ELT** (Extract, Load, Transform): se extraen y se cargan **tal cual** al almacén, y la transformación se hace después **dentro del almacén con SQL**. Es el enfoque de dbt.\n\n¿Por qué ELT se volvió el estándar?\n- El almacén tiene potencia de sobra para transformar con SQL.\n- Conservas el dato crudo: si una regla de negocio cambia, la vuelves a aplicar sin volver a extraer.\n- La lógica queda en SQL versionado, que más personas del equipo pueden leer y revisar.\n\nETL sigue teniendo sentido cuando hay que **quitar datos sensibles antes** de que entren al almacén, o cuando la fuente entrega formatos que el almacén no lee.",
+          "diagram": {
+            "type": "etl-elt"
+          },
+          "codeLanguage": "plaintext",
+          "codeSnippet": "ETL:  fuente --extrae--> [servidor de transformación] --carga limpio--> almacén\nELT:  fuente --extrae--> almacén.raw --SQL (dbt)--> almacén.staging --> almacén.marts",
+          "keyTakeaway": "En ELT cargas crudo y transformas con SQL dentro del almacén; así nunca pierdes el original."
+        },
+        {
+          "id": "ing02-sec-2",
+          "title": "2. Carga completa frente a incremental",
+          "body": "**Carga completa** (*full load*): borras la tabla destino y la vuelves a llenar con todo. Es simple y siempre queda igual a la fuente, pero se vuelve lenta cuando la tabla crece.\n\n**Carga incremental**: solo traes lo nuevo o lo modificado desde la última carga. Necesitas una forma confiable de saber qué cambió:\n- Una columna de **fecha de modificación** (`modificado_en`) que la aplicación siempre actualiza.\n- Un **id creciente** (sirve solo para inserciones, no para cambios).\n- **Change Data Capture** (CDC) o Change Tracking de SQL Server, que registran cada cambio.\n\nLa **marca de agua** (*watermark*) es el valor más alto que ya cargaste. En la siguiente corrida pides todo lo que sea mayor. Se guarda en una tabla de control, no en la memoria del script.\n\nRegla práctica: tablas pequeñas (catálogos, sucursales) con carga completa; tablas grandes que crecen (pedidos, eventos) con incremental.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Tabla de control con la última marca de agua por tabla\nCREATE TABLE ctl.marcas_agua (\n    tabla        sysname      NOT NULL PRIMARY KEY,\n    ultima_marca datetime2(3) NOT NULL\n);\n\nDECLARE @desde datetime2(3) =\n    (SELECT ultima_marca FROM ctl.marcas_agua WHERE tabla = 'pedidos');\nDECLARE @hasta datetime2(3) = SYSUTCDATETIME();\n\nSELECT pedido_id, cliente_id, total, estado, modificado_en\nFROM ventas_app.dbo.pedidos\nWHERE modificado_en >  @desde\n  AND modificado_en <= @hasta;   -- límite superior fijo: no se pierde nada entre lecturas",
+          "keyTakeaway": "Incremental = solo lo que cambió desde la última marca de agua guardada en una tabla de control."
+        },
+        {
+          "id": "ing02-sec-3",
+          "title": "3. MERGE: insertar y actualizar en un paso",
+          "body": "En una carga incremental llegan filas **nuevas** y filas **modificadas**. `MERGE` compara el lote con la tabla destino por la clave de negocio y decide:\n- `WHEN MATCHED`: la fila ya existe; se actualiza si algo cambió.\n- `WHEN NOT MATCHED BY TARGET`: es nueva; se inserta.\n- `WHEN NOT MATCHED BY SOURCE`: existe en destino pero no en el lote (útil solo en cargas completas para marcar bajas).\n\nUn buen MERGE es **idempotente**: si lo ejecutas dos veces con el mismo lote, el resultado es el mismo. Para lograrlo:\n- El lote no debe tener la clave repetida (deduplica antes con `ROW_NUMBER()`).\n- Actualiza solo si algún valor cambió, para no tocar filas de más.\n- Termina el MERGE con punto y coma (en T-SQL es obligatorio).",
+          "codeLanguage": "sql",
+          "codeSnippet": "MERGE dw.pedidos AS d\nUSING stg.pedidos_lote AS o\n   ON d.pedido_id = o.pedido_id\nWHEN MATCHED AND (d.estado <> o.estado OR d.total <> o.total) THEN\n    UPDATE SET d.estado = o.estado,\n               d.total  = o.total,\n               d.actualizado_en = SYSUTCDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (pedido_id, cliente_id, total, estado, actualizado_en)\n    VALUES (o.pedido_id, o.cliente_id, o.total, o.estado, SYSUTCDATETIME());",
+          "keyTakeaway": "MERGE por clave de negocio, con un lote sin duplicados, hace la carga repetible sin efectos extra."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Patrón de carga incremental seguro en SQL Server.",
+        "rules": [
+          "Guarda la marca de agua en una tabla de control, nunca en el código.",
+          "Lee con un límite superior fijo (@hasta) calculado al inicio de la corrida.",
+          "Deduplica el lote por clave antes del MERGE.",
+          "Actualiza la marca de agua en la misma transacción que la carga.",
+          "Usa la hora del servidor en UTC (SYSUTCDATETIME) para todas las marcas."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "BEGIN TRY\n    BEGIN TRANSACTION;\n\n    DECLARE @hasta datetime2(3) = SYSUTCDATETIME();\n    DECLARE @desde datetime2(3) = (SELECT ultima_marca FROM ctl.marcas_agua WHERE tabla = 'pedidos');\n\n    WITH lote AS (\n        SELECT *, ROW_NUMBER() OVER (PARTITION BY pedido_id ORDER BY modificado_en DESC) AS rn\n        FROM raw.pedidos\n        WHERE modificado_en > @desde AND modificado_en <= @hasta\n    )\n    MERGE dw.pedidos AS d\n    USING (SELECT * FROM lote WHERE rn = 1) AS o\n       ON d.pedido_id = o.pedido_id\n    WHEN MATCHED AND (d.estado <> o.estado OR d.total <> o.total) THEN\n        UPDATE SET d.estado = o.estado, d.total = o.total, d.actualizado_en = @hasta\n    WHEN NOT MATCHED BY TARGET THEN\n        INSERT (pedido_id, cliente_id, total, estado, actualizado_en)\n        VALUES (o.pedido_id, o.cliente_id, o.total, o.estado, @hasta);\n\n    UPDATE ctl.marcas_agua SET ultima_marca = @hasta WHERE tabla = 'pedidos';\n\n    COMMIT TRANSACTION;\nEND TRY\nBEGIN CATCH\n    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;\n    THROW;\nEND CATCH;"
+      },
+      "comparison": {
+        "scenario": "Cargar los pedidos nuevos cada hora.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Trae lo de la última hora según el reloj del servidor que ejecuta el script\nINSERT INTO dw.pedidos\nSELECT *\nFROM ventas_app.dbo.pedidos\nWHERE modificado_en >= DATEADD(HOUR, -1, GETDATE());",
+        "juniorFlaws": [
+          "Si el job se retrasa o falla una hora, esos pedidos se pierden para siempre.",
+          "INSERT de pedidos modificados crea duplicados en lugar de actualizarlos.",
+          "GETDATE() usa hora local; con cambio de horario o servidores distintos el rango falla."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Usa la marca de agua guardada y MERGE por clave\nDECLARE @desde datetime2(3) = (SELECT ultima_marca FROM ctl.marcas_agua WHERE tabla = 'pedidos');\nDECLARE @hasta datetime2(3) = SYSUTCDATETIME();\n\nMERGE dw.pedidos AS d\nUSING (SELECT * FROM ventas_app.dbo.pedidos\n       WHERE modificado_en > @desde AND modificado_en <= @hasta) AS o\n   ON d.pedido_id = o.pedido_id\nWHEN MATCHED THEN UPDATE SET d.estado = o.estado, d.total = o.total\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (pedido_id, cliente_id, total, estado) VALUES (o.pedido_id, o.cliente_id, o.total, o.estado);\n\nUPDATE ctl.marcas_agua SET ultima_marca = @hasta WHERE tabla = 'pedidos';",
+        "intermediateBenefits": [
+          "Si una corrida falla, la siguiente retoma desde la última marca guardada.",
+          "Los pedidos modificados se actualizan; no se duplican.",
+          "El rango es exacto y en UTC."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing02-ej-1",
+          "title": "Práctica 1: ¿Completa o incremental?",
+          "difficulty": "Básico",
+          "prompt": "Decide el tipo de carga para cada tabla y explica por qué:\n1. `erp.dbo.sucursales` (45 filas, cambian un par de veces al año).\n2. `app.dbo.eventos_click` (30 millones de filas nuevas por día, nunca se modifican).\n3. `ventas.dbo.pedidos` (2 millones de filas, el estado cambia durante días, tiene `modificado_en`).",
+          "hint": "Mira el tamaño y si las filas se modifican después de insertarse.",
+          "solutionExplanation": "Las tablas pequeñas se recargan completas porque es más simple y siempre exacto. Si las filas solo se insertan, basta una marca de agua sobre el id o la fecha de creación. Si se modifican, hace falta `modificado_en` (o CDC) y un MERGE.",
+          "solutionCode": "1. Completa: 45 filas se recargan en milisegundos y nunca quedan desfasadas.\n2. Incremental solo de inserciones: marca de agua sobre evento_id o fecha de creación, con INSERT.\n3. Incremental con actualizaciones: marca de agua sobre modificado_en y MERGE por pedido_id.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing02-ej-2",
+          "title": "Práctica 2: Deduplica el lote antes del MERGE",
+          "difficulty": "Intermedio",
+          "prompt": "La tabla `raw.clientes` recibe varias versiones del mismo cliente en un mismo lote (columnas `cliente_id`, `email`, `ciudad`, `modificado_en`). Escribe la consulta que deja solo la versión más reciente de cada cliente, lista para usarse como origen de un MERGE.",
+          "hint": "ROW_NUMBER() con PARTITION BY la clave y ORDER BY la fecha descendente.",
+          "solutionExplanation": "Si el origen de un MERGE trae la misma clave dos veces, SQL Server lanza un error porque una fila destino coincidiría con dos filas origen. Numerar por clave y quedarse con `rn = 1` garantiza una sola versión, la más reciente.",
+          "solutionCode": "WITH numerados AS (\n    SELECT cliente_id, email, ciudad, modificado_en,\n           ROW_NUMBER() OVER (PARTITION BY cliente_id\n                              ORDER BY modificado_en DESC) AS rn\n    FROM raw.clientes\n)\nSELECT cliente_id, email, ciudad, modificado_en\nFROM numerados\nWHERE rn = 1;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing02-ej-3",
+          "title": "Práctica 3: MERGE completo de productos",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe un MERGE de `stg.productos` (código, nombre, precio) hacia `dw.productos` (codigo, nombre, precio, activo, actualizado_en) que:\n- inserte los productos nuevos como activos,\n- actualice nombre y precio solo si cambiaron,\n- marque `activo = 0` los productos que ya no vienen en el lote (es una carga completa del catálogo).",
+          "hint": "Usa las tres ramas de MERGE, incluida `WHEN NOT MATCHED BY SOURCE`.",
+          "solutionExplanation": "La rama `NOT MATCHED BY SOURCE` solo es segura porque el lote es el catálogo completo: si fuera incremental, marcaría como inactivos productos que simplemente no cambiaron. La condición en `WHEN MATCHED` evita reescribir filas idénticas.",
+          "solutionCode": "MERGE dw.productos AS d\nUSING stg.productos AS o\n   ON d.codigo = o.codigo\nWHEN MATCHED AND (d.nombre <> o.nombre OR d.precio <> o.precio OR d.activo = 0) THEN\n    UPDATE SET d.nombre = o.nombre,\n               d.precio = o.precio,\n               d.activo = 1,\n               d.actualizado_en = SYSUTCDATETIME()\nWHEN NOT MATCHED BY TARGET THEN\n    INSERT (codigo, nombre, precio, activo, actualizado_en)\n    VALUES (o.codigo, o.nombre, o.precio, 1, SYSUTCDATETIME())\nWHEN NOT MATCHED BY SOURCE AND d.activo = 1 THEN\n    UPDATE SET d.activo = 0,\n               d.actualizado_en = SYSUTCDATETIME();",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing02-q1",
+          "question": "¿Cuál es la principal ventaja de ELT frente a ETL?",
+          "options": [
+            "Evita por completo la extracción, ya que el almacén lee la fuente en tiempo real.",
+            "Se conserva el dato crudo en el almacén y se puede transformar de nuevo con SQL.",
+            "No necesita ningún almacén, porque la transformación ocurre en la propia fuente.",
+            "Los datos llegan al almacén ya limpios, así que no hace falta probar su calidad."
+          ],
+          "correctIndex": 1,
+          "explanation": "En ELT el dato crudo queda guardado; si cambia una regla, se vuelve a transformar sin volver a extraer."
+        },
+        {
+          "id": "ing02-q2",
+          "question": "¿Por qué la marca de agua se guarda en una tabla de control y no se calcula como «la última hora»?",
+          "options": [
+            "Porque las tablas de control se cargan más rápido que cualquier consulta normal.",
+            "Porque así la carga incremental se convierte en una carga completa automáticamente.",
+            "Porque si una corrida falla, la siguiente retoma desde lo último cargado sin perder filas.",
+            "Porque SQL Server no permite usar DATEADD dentro de un filtro WHERE con fechas."
+          ],
+          "correctIndex": 2,
+          "explanation": "Una ventana fija de tiempo pierde datos cuando el job se retrasa; la marca de agua guardada no."
+        },
+        {
+          "id": "ing02-q3",
+          "question": "¿Qué hace que un MERGE sea idempotente?",
+          "options": [
+            "Que al repetirlo con el mismo lote, la tabla destino quede exactamente igual.",
+            "Que use solamente la rama WHEN NOT MATCHED y nunca actualice filas existentes.",
+            "Que se ejecute siempre dentro de un cursor que recorre las filas una por una.",
+            "Que borre la tabla destino completa antes de insertar todas las filas del lote."
+          ],
+          "correctIndex": 0,
+          "explanation": "Idempotente significa que ejecutarlo una o varias veces produce el mismo resultado; es clave para poder reintentar."
+        }
+      ]
+    },
+    {
+      "id": "ing-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 1: Fundamentos del pipeline",
+      "title": "Ingesta desde Archivos y APIs: Zona Cruda, Staging y Cambios de Esquema",
+      "subtitle": "Traer datos externos al almacén sin perder información y sin romper el pipeline.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Organizar el almacén en esquemas raw, staging y marts con responsabilidades claras.",
+        "Cargar archivos CSV a SQL Server con BULK INSERT y columnas de auditoría.",
+        "Convertir tipos de forma segura con TRY_CAST y aislar las filas que no convierten.",
+        "Ingerir una API paginada con Python y detectar cambios de esquema."
+      ],
+      "theorySections": [
+        {
+          "id": "ing03-sec-1",
+          "title": "1. Zona cruda: copia fiel y auditable",
+          "body": "La primera capa del almacén es la **zona cruda** (`raw`). Su regla es simple: **guardar exactamente lo que llegó**, sin limpiar ni filtrar, más unas columnas de auditoría:\n- `_cargado_en`: cuándo entró la fila.\n- `_archivo` o `_origen`: de qué archivo o endpoint vino.\n- `_lote_id`: identificador de la corrida, para poder borrar o repetir un lote completo.\n\nEn raw todas las columnas suelen ser **texto** (`nvarchar`). Así una fecha mal escrita no hace fallar la carga: se guarda tal cual y se resuelve en la capa siguiente.\n\nCon esto puedes responder siempre \"¿de dónde salió este dato?\" y volver a procesar cualquier día sin pedirle nada de nuevo a la fuente.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE raw.ventas_sucursal (\n    fecha        nvarchar(50)  NULL,\n    sucursal     nvarchar(100) NULL,\n    producto     nvarchar(100) NULL,\n    cantidad     nvarchar(50)  NULL,\n    monto        nvarchar(50)  NULL,\n    _archivo     nvarchar(260) NOT NULL,\n    _lote_id     uniqueidentifier NOT NULL,\n    _cargado_en  datetime2(3)  NOT NULL DEFAULT SYSUTCDATETIME()\n);",
+          "keyTakeaway": "Raw guarda todo como llegó, en texto y con auditoría; la limpieza viene después."
+        },
+        {
+          "id": "ing03-sec-2",
+          "title": "2. Cargar archivos con BULK INSERT",
+          "body": "`BULK INSERT` carga un archivo plano a una tabla de forma masiva y rápida. Como el archivo no trae las columnas de auditoría, se carga primero a una tabla temporal con su misma forma y luego se pasa a raw agregando `_archivo` y `_lote_id`.\n\nOpciones importantes:\n- `FORMAT = 'CSV'` respeta las comillas en campos con comas.\n- `FIRSTROW = 2` salta la fila de encabezados.\n- `CODEPAGE = '65001'` lee UTF-8 (tildes y eñes correctas).\n- `MAXERRORS` y `ERRORFILE` permiten que unas pocas filas malas no detengan todo y quedan guardadas para revisar.\n\nEl archivo debe estar en una ruta que **el servidor** de SQL Server pueda leer, no en tu computadora.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE #carga (\n    fecha nvarchar(50), sucursal nvarchar(100), producto nvarchar(100),\n    cantidad nvarchar(50), monto nvarchar(50)\n);\n\nBULK INSERT #carga\nFROM '/datos/entrada/ventas_2026-11-17.csv'\nWITH (FORMAT = 'CSV', FIRSTROW = 2, CODEPAGE = '65001',\n      FIELDTERMINATOR = ',', ROWTERMINATOR = '0x0a',\n      MAXERRORS = 10, ERRORFILE = '/datos/errores/ventas_2026-11-17');\n\nDECLARE @lote uniqueidentifier = NEWID();\nINSERT INTO raw.ventas_sucursal (fecha, sucursal, producto, cantidad, monto, _archivo, _lote_id)\nSELECT fecha, sucursal, producto, cantidad, monto, 'ventas_2026-11-17.csv', @lote\nFROM #carga;",
+          "keyTakeaway": "Carga masiva a una tabla temporal y luego a raw con las columnas de auditoría."
+        },
+        {
+          "id": "ing03-sec-3",
+          "title": "3. Staging: tipos correctos y filas rechazadas",
+          "body": "En **staging** cada columna recibe su tipo real. Usa `TRY_CAST` o `TRY_CONVERT`: devuelven `NULL` en lugar de fallar cuando el valor no convierte.\n\nEl truco profesional es **no perder en silencio** las filas que fallan: si el texto original no era nulo pero la conversión sí, esa fila va a una tabla de **rechazos** con el motivo. Así el pipeline sigue y alguien revisa los errores.\n\nCon fechas, indica el estilo para no depender del idioma del servidor: `TRY_CONVERT(date, fecha, 23)` lee `aaaa-mm-dd` y el estilo 103 lee `dd/mm/aaaa`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT\n    TRY_CONVERT(date, fecha, 23)          AS fecha,\n    LTRIM(RTRIM(sucursal))                AS sucursal,\n    LTRIM(RTRIM(producto))                AS producto,\n    TRY_CAST(cantidad AS int)             AS cantidad,\n    TRY_CAST(REPLACE(monto, ',', '') AS decimal(12,2)) AS monto,\n    _lote_id\nFROM raw.ventas_sucursal;\n\n-- Filas que no convierten: van a rechazos con el motivo\nINSERT INTO stg.rechazos (tabla, _lote_id, motivo, fila_json)\nSELECT 'ventas_sucursal', _lote_id, 'monto no numérico',\n       (SELECT r.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)\nFROM raw.ventas_sucursal AS r\nWHERE r.monto IS NOT NULL\n  AND TRY_CAST(REPLACE(r.monto, ',', '') AS decimal(12,2)) IS NULL;",
+          "keyTakeaway": "TRY_CAST para tipar sin romper, y una tabla de rechazos para no perder nada en silencio."
+        },
+        {
+          "id": "ing03-sec-4",
+          "title": "4. APIs paginadas y cambios de esquema",
+          "body": "Muchas fuentes son **APIs REST** que devuelven los datos por páginas. Un ingestor confiable:\n- Recorre todas las páginas hasta que no hay más (`next` vacío).\n- Respeta los límites de la API y reintenta ante errores temporales (429, 503).\n- Guarda la respuesta **en crudo** (JSON) con fecha de carga; la interpretación se hace en staging con `OPENJSON`.\n\nLas APIs cambian sin avisar: aparece un campo nuevo o desaparece uno. Compara las claves recibidas con las esperadas y **avisa** cuando difieren, en lugar de descubrirlo cuando el tablero muestra ceros.",
+          "codeLanguage": "python",
+          "codeSnippet": "import time\nimport requests\n\nESPERADAS = {\"id\", \"email\", \"plan\", \"creado_en\"}\n\n\ndef leer_todo(url, token):\n    filas, pagina = [], url\n    while pagina:\n        for intento in range(4):\n            r = requests.get(pagina, headers={\"Authorization\": f\"Bearer {token}\"}, timeout=30)\n            if r.status_code in (429, 503):\n                time.sleep(2 ** intento)   # espera 1, 2, 4, 8 segundos\n                continue\n            r.raise_for_status()\n            break\n        datos = r.json()\n        filas.extend(datos[\"results\"])\n        pagina = datos.get(\"next\")\n    return filas\n\n\ndef revisar_esquema(filas):\n    recibidas = set().union(*(f.keys() for f in filas)) if filas else set()\n    nuevas, faltan = recibidas - ESPERADAS, ESPERADAS - recibidas\n    if nuevas or faltan:\n        print(f\"AVISO esquema: nuevas={sorted(nuevas)} faltan={sorted(faltan)}\")",
+          "keyTakeaway": "Pagina hasta el final, reintenta con espera creciente y vigila el esquema en cada carga."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas de una capa de ingesta confiable.",
+        "rules": [
+          "Raw nunca se modifica: solo se insertan lotes nuevos.",
+          "Cada fila de raw lleva _cargado_en, _origen y _lote_id.",
+          "La conversión de tipos ocurre en staging con TRY_CAST o TRY_CONVERT.",
+          "Las filas que no convierten van a una tabla de rechazos con su motivo.",
+          "Un cambio de esquema genera un aviso visible, no un fallo silencioso."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Vista de staging tipada sobre raw\nCREATE OR ALTER VIEW stg.ventas_sucursal AS\nSELECT\n    TRY_CONVERT(date, fecha, 23)                       AS fecha,\n    UPPER(LTRIM(RTRIM(sucursal)))                      AS sucursal,\n    LTRIM(RTRIM(producto))                             AS producto,\n    TRY_CAST(cantidad AS int)                          AS cantidad,\n    TRY_CAST(REPLACE(monto, ',', '') AS decimal(12,2)) AS monto,\n    _lote_id,\n    _cargado_en\nFROM raw.ventas_sucursal;"
+      },
+      "comparison": {
+        "scenario": "Cargar un CSV diario de ventas enviado por las sucursales.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Tabla con tipos finales y carga directa\nCREATE TABLE dbo.ventas (fecha date, sucursal varchar(50), monto decimal(12,2));\n\nBULK INSERT dbo.ventas FROM '/datos/entrada/ventas.csv'\nWITH (FIRSTROW = 2, FIELDTERMINATOR = ',');",
+        "juniorFlaws": [
+          "Una sola fecha mal escrita hace fallar el archivo entero.",
+          "No hay forma de saber de qué archivo ni de qué día vino cada fila.",
+          "varchar sin CODEPAGE daña las tildes y las eñes de los nombres."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- 1) Archivo a tabla temporal en texto, con UTF-8 y archivo de errores\nBULK INSERT #carga FROM '/datos/entrada/ventas_2026-11-17.csv'\nWITH (FORMAT = 'CSV', FIRSTROW = 2, CODEPAGE = '65001', MAXERRORS = 10,\n      ERRORFILE = '/datos/errores/ventas_2026-11-17');\n-- 2) De la temporal a raw, con _archivo y _lote_id\nINSERT INTO raw.ventas_sucursal (fecha, sucursal, producto, cantidad, monto, _archivo, _lote_id)\nSELECT fecha, sucursal, producto, cantidad, monto, 'ventas_2026-11-17.csv', NEWID()\nFROM #carga;\n-- 3) Tipos y rechazos en staging con TRY_CONVERT",
+        "intermediateBenefits": [
+          "Una fila mala no detiene la carga y queda registrada.",
+          "Cada fila se puede rastrear hasta su archivo y su lote.",
+          "Los textos en español llegan bien."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing03-ej-1",
+          "title": "Práctica 1: Columnas de auditoría",
+          "difficulty": "Básico",
+          "prompt": "Diseña la tabla `raw.clientes_crm` para recibir un CSV con las columnas `id`, `nombre`, `email`, `fecha_alta` y `pais`. Incluye las columnas de auditoría del estándar y elige tipos adecuados para la zona cruda.",
+          "hint": "En raw todo el contenido va en nvarchar; las columnas de auditoría sí tienen tipo fijo.",
+          "solutionExplanation": "Todas las columnas del archivo van como texto para que nada falle al cargar. Las columnas de auditoría permiten rastrear y repetir cada lote.",
+          "solutionCode": "CREATE TABLE raw.clientes_crm (\n    id          nvarchar(50)  NULL,\n    nombre      nvarchar(200) NULL,\n    email       nvarchar(320) NULL,\n    fecha_alta  nvarchar(50)  NULL,\n    pais        nvarchar(100) NULL,\n    _archivo    nvarchar(260) NOT NULL,\n    _lote_id    uniqueidentifier NOT NULL,\n    _cargado_en datetime2(3)  NOT NULL DEFAULT SYSUTCDATETIME()\n);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing03-ej-2",
+          "title": "Práctica 2: Staging con rechazos",
+          "difficulty": "Intermedio",
+          "prompt": "Sobre `raw.clientes_crm`, escribe:\n1. Una consulta que devuelva `cliente_id` (int), `email` en minúsculas y sin espacios, y `fecha_alta` (date, formato dd/mm/aaaa).\n2. Un INSERT a `stg.rechazos (tabla, _lote_id, motivo, fila_json)` con las filas cuya fecha no convierte.",
+          "hint": "El estilo 103 de TRY_CONVERT lee dd/mm/aaaa. Para la fila completa en JSON usa FOR JSON PATH, WITHOUT_ARRAY_WRAPPER.",
+          "solutionExplanation": "El tipado y los rechazos usan la misma expresión de conversión, así que siempre coinciden. Solo se rechazan filas donde había un valor y no convirtió; una fecha vacía es un NULL legítimo.",
+          "solutionCode": "SELECT TRY_CAST(id AS int)                 AS cliente_id,\n       LOWER(LTRIM(RTRIM(email)))          AS email,\n       TRY_CONVERT(date, fecha_alta, 103)  AS fecha_alta,\n       _lote_id\nFROM raw.clientes_crm;\n\nINSERT INTO stg.rechazos (tabla, _lote_id, motivo, fila_json)\nSELECT 'clientes_crm', r._lote_id, 'fecha_alta no válida',\n       (SELECT r.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)\nFROM raw.clientes_crm AS r\nWHERE NULLIF(LTRIM(RTRIM(r.fecha_alta)), '') IS NOT NULL\n  AND TRY_CONVERT(date, r.fecha_alta, 103) IS NULL;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing03-ej-3",
+          "title": "Práctica 3: Ingestor de API con lote",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe una función de Python `guardar_lote(filas, conexion)` que reciba la lista de diccionarios de una API y la inserte en `raw.suscripciones (payload, _origen, _lote_id)` guardando cada fila como texto JSON. Usa `pyodbc`, un mismo `_lote_id` para todas las filas y `fast_executemany`.",
+          "hint": "json.dumps(fila, ensure_ascii=False) convierte cada diccionario a texto. uuid.uuid4() genera el id del lote.",
+          "solutionExplanation": "Guardar el payload completo hace que un campo nuevo de la API no rompa nada: queda almacenado y se puede leer después con `OPENJSON`. El mismo `_lote_id` permite borrar o reprocesar la corrida entera.",
+          "solutionCode": "import json\nimport uuid\n\n\ndef guardar_lote(filas, conexion, origen=\"api/suscripciones\"):\n    lote = str(uuid.uuid4())\n    cursor = conexion.cursor()\n    cursor.fast_executemany = True\n    cursor.executemany(\n        \"INSERT INTO raw.suscripciones (payload, _origen, _lote_id) VALUES (?, ?, ?)\",\n        [(json.dumps(f, ensure_ascii=False), origen, lote) for f in filas],\n    )\n    conexion.commit()\n    return lote",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing03-q1",
+          "question": "¿Por qué en la zona cruda las columnas suelen guardarse como texto (nvarchar)?",
+          "options": [
+            "Porque SQL Server carga los archivos CSV más rápido cuando todo está en texto.",
+            "Para que un valor mal formado no haga fallar la carga y se resuelva en staging.",
+            "Porque así se evita tener que convertir los datos en las capas siguientes.",
+            "Porque los índices columnstore solo pueden crearse sobre columnas de texto."
+          ],
+          "correctIndex": 1,
+          "explanation": "Raw debe aceptar todo lo que llega; la conversión con TRY_CAST ocurre en staging."
+        },
+        {
+          "id": "ing03-q2",
+          "question": "¿Qué devuelve TRY_CAST('12,5x' AS decimal(10,2)) en SQL Server?",
+          "options": [
+            "El texto original sin cambios, porque la conversión no pudo realizarse.",
+            "12.50, porque TRY_CAST ignora los caracteres que no son números válidos.",
+            "NULL, porque el texto no se puede convertir y TRY_CAST no lanza error.",
+            "Un error de conversión que detiene la consulta, igual que hace CAST."
+          ],
+          "correctIndex": 2,
+          "explanation": "TRY_CAST devuelve NULL cuando no puede convertir; por eso hay que buscar esas filas y llevarlas a rechazos."
+        },
+        {
+          "id": "ing03-q3",
+          "question": "Una API agrega un campo nuevo sin avisar. ¿Qué debería hacer el ingestor?",
+          "options": [
+            "Crear automáticamente la columna nueva en todas las tablas de los marts.",
+            "Detener la carga y borrar los datos del día hasta que alguien lo revise.",
+            "Descartar el campo nuevo en silencio para que staging no se vea afectado.",
+            "Guardar el payload completo y emitir un aviso de cambio de esquema."
+          ],
+          "correctIndex": 3,
+          "explanation": "Guardar todo protege la información, y el aviso permite decidir con calma cómo usar el campo nuevo."
+        }
+      ]
+    },
+    {
+      "id": "ing-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2: Transformación con dbt",
+      "title": "Capas del Almacén: Staging, Intermedio y Marts con Claves Sustitutas",
+      "subtitle": "Cómo organizar las transformaciones para que cada tabla tenga un solo propósito.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Asignar cada transformación a la capa correcta: staging, intermedio o marts.",
+        "Aplicar convenciones de nombres que digan de dónde viene y qué es cada tabla.",
+        "Generar claves sustitutas estables con HASHBYTES en T-SQL.",
+        "Definir el grano de una tabla de hechos antes de construirla."
+      ],
+      "theorySections": [
+        {
+          "id": "ing04-sec-1",
+          "title": "1. Tres capas, tres responsabilidades",
+          "body": "Después de raw, las transformaciones se ordenan en tres capas. Si recuerdas la arquitectura medallón del curso de Analista, staging se parece a Silver y marts a Gold; aquí nos enfocamos en **cómo construirlas**.\n\n- **Staging** (`stg_`): una tabla por cada tabla de origen. Solo renombra, tipa y limpia. **No une** con otras tablas ni agrega.\n- **Intermedio** (`int_`): uniones y lógica reutilizable que todavía no es un producto final. Por ejemplo, pedidos con sus líneas y su cliente ya resueltos.\n- **Marts** (`fct_` y `dim_`): las tablas que consume el negocio. Hechos con su grano claro y dimensiones descriptivas.\n\nLa regla de oro: **cada capa solo lee de la anterior**. Un mart nunca lee raw directamente; si lo hace, la limpieza se repite (y se hace distinta) en varios lugares.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "raw.pedidos ─┐\n             ├─> stg_pedidos ──┐\nraw.lineas ──┼─> stg_lineas ───┼─> int_pedidos_con_lineas ─> fct_ventas_linea\n             │                 │\nraw.clientes ┴─> stg_clientes ─┴──────────────────────────> dim_cliente",
+          "keyTakeaway": "Staging limpia una fuente, intermedio combina, marts entrega. Cada capa lee solo de la anterior."
+        },
+        {
+          "id": "ing04-sec-2",
+          "title": "2. Convenciones de nombres",
+          "body": "Un nombre bien elegido evita abrir el archivo para saber qué hace:\n- `stg_<fuente>__<tabla>`: `stg_erp__productos`, `stg_shopify__pedidos`. El doble guion bajo separa la fuente de la tabla.\n- `int_<entidad>_<verbo>`: `int_pedidos_con_lineas`, `int_clientes_deduplicados`.\n- `fct_<proceso>`: `fct_ventas_linea`, `fct_pagos`. Un hecho es un evento medible.\n- `dim_<entidad>`: `dim_cliente`, `dim_producto`, `dim_fecha`.\n\nDentro de las tablas: columnas en `snake_case`, claves terminadas en `_id` (de negocio) o `_key` (sustitutas), booleanos que empiezan con `es_` o `tiene_`, y fechas con `_en` (fecha y hora) o `_fecha`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- stg_erp__productos: solo renombra, tipa y limpia una fuente\nSELECT\n    CAST(prod_cod AS varchar(20))          AS producto_id,\n    LTRIM(RTRIM(prod_desc))                AS nombre,\n    CAST(prod_precio AS decimal(12,2))     AS precio,\n    CASE WHEN prod_estado = 'A' THEN 1 ELSE 0 END AS es_activo,\n    TRY_CONVERT(datetime2(0), fec_mod, 120) AS modificado_en\nFROM raw.erp_productos;",
+          "keyTakeaway": "Prefijo de capa, fuente y entidad en el nombre; snake_case y sufijos claros en las columnas."
+        },
+        {
+          "id": "ing04-sec-3",
+          "title": "3. Claves sustitutas estables",
+          "body": "Una **clave sustituta** (*surrogate key*) es un identificador propio del almacén, independiente de los sistemas de origen. Se necesita cuando:\n- Dos fuentes usan el mismo id para cosas distintas (el cliente 100 del ERP no es el 100 del CRM).\n- La clave de negocio está compuesta por varias columnas.\n- Una dimensión guarda varias versiones de la misma entidad (SCD tipo 2).\n\nEn lugar de un `IDENTITY` (que cambia si recargas la tabla), en ELT se usa un **hash** de las columnas de negocio: siempre da el mismo valor para la misma entrada, así puedes reconstruir la tabla sin romper las relaciones. En T-SQL: `HASHBYTES('SHA2_256', ...)`. Usa un separador entre columnas para que `('ab','c')` y `('a','bc')` no den el mismo hash.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT\n    CONVERT(char(64),\n        HASHBYTES('SHA2_256',\n            CONCAT_WS('|', 'erp', CAST(cliente_id AS varchar(20)))), 2) AS cliente_key,\n    'erp'      AS fuente,\n    cliente_id,\n    nombre,\n    ciudad\nFROM stg.erp__clientes;\n-- El estilo 2 de CONVERT devuelve el hash como texto hexadecimal sin 0x",
+          "keyTakeaway": "Un hash de la clave de negocio da una clave sustituta que sobrevive a cualquier recarga."
+        },
+        {
+          "id": "ing04-sec-4",
+          "title": "4. El grano primero",
+          "body": "El **grano** es lo que representa **una fila** de una tabla de hechos. Se decide antes de escribir SQL, y se escribe en la documentación:\n- \"Una fila por línea de pedido\" (grano fino: se puede sumar por producto).\n- \"Una fila por pedido\" (no permite ver productos).\n- \"Una fila por cliente y día\" (una foto periódica).\n\nMezclar granos en la misma tabla es el error más caro: los totales salen inflados y nadie sabe por qué. Si necesitas ambos, construye dos tablas de hechos.\n\nUna forma rápida de verificar el grano es contar filas frente a filas distintas por las columnas que lo definen: deben ser iguales.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Grano declarado: una fila por pedido_id + linea_num\nSELECT COUNT(*)                                   AS filas,\n       COUNT(DISTINCT CONCAT(pedido_id, '|', linea_num)) AS combinaciones\nFROM dw.fct_ventas_linea;\n-- Si filas > combinaciones, el grano está roto (hay duplicados)",
+          "keyTakeaway": "Escribe el grano antes de construir el hecho y verifícalo con un conteo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas de capas y nombres para un almacén ordenado.",
+        "rules": [
+          "Cada tabla de origen tiene exactamente un modelo stg_ que la limpia.",
+          "Staging no hace JOIN ni GROUP BY.",
+          "Los marts nunca leen raw ni otra fuente directamente.",
+          "Las claves sustitutas son hashes de la clave de negocio y la fuente.",
+          "Cada tabla de hechos documenta su grano en una frase."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- fct_ventas_linea · grano: una fila por línea de pedido\nSELECT\n    CONVERT(char(64), HASHBYTES('SHA2_256', CONCAT_WS('|', l.pedido_id, l.linea_num)), 2) AS venta_linea_key,\n    CONVERT(char(64), HASHBYTES('SHA2_256', CONCAT_WS('|', 'erp', p.cliente_id)), 2)      AS cliente_key,\n    CONVERT(int, FORMAT(p.fecha_pedido, 'yyyyMMdd'))                                      AS fecha_key,\n    l.producto_id,\n    l.cantidad,\n    l.cantidad * l.precio_unitario AS monto\nFROM int_pedidos_con_lineas AS l\nJOIN stg_erp__pedidos       AS p ON p.pedido_id = l.pedido_id;"
+      },
+      "comparison": {
+        "scenario": "Construir la tabla de ventas por producto para el tablero.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- El mart lee raw, limpia y une todo en un paso\nSELECT p.id, TRY_CAST(p.fecha AS date) AS fecha, c.nombre, l.prod, l.cant * l.precio AS monto,\n       p.envio   -- costo de envío del pedido\nFROM raw.pedidos AS p\nJOIN raw.lineas  AS l ON l.pedido = p.id\nJOIN raw.clientes AS c ON c.id = p.cliente;",
+        "juniorFlaws": [
+          "La limpieza de raw se repetirá, distinta, en cada mart que la necesite.",
+          "El costo de envío es del pedido, pero aparece en cada línea: al sumarlo se multiplica.",
+          "Nombres como prod y cant no dicen qué contienen ni de qué fuente vienen."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- stg_ limpia cada fuente; el mart solo combina y respeta un grano\n-- fct_ventas_linea (grano: línea de pedido)\nSELECT l.pedido_id, l.linea_num, p.fecha_pedido, p.cliente_id, l.producto_id,\n       l.cantidad, l.cantidad * l.precio_unitario AS monto\nFROM stg_erp__lineas  AS l\nJOIN stg_erp__pedidos AS p ON p.pedido_id = l.pedido_id;\n-- fct_pedidos (grano: pedido) lleva el costo de envío",
+        "intermediateBenefits": [
+          "La limpieza vive en un solo lugar.",
+          "Cada hecho tiene un grano y no mezcla montos de niveles distintos.",
+          "Los nombres explican el contenido."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing04-ej-1",
+          "title": "Práctica 1: Asigna la capa",
+          "difficulty": "Básico",
+          "prompt": "Indica en qué capa (staging, intermedio o marts) va cada transformación y propón un nombre para el modelo:\n1. Renombrar `cli_nom` a `nombre` y quitar espacios en la tabla de clientes del CRM.\n2. Unir pedidos con sus líneas y calcular el monto de cada línea.\n3. Tabla final con una fila por cliente y sus atributos descriptivos.\n4. Convertir a fecha la columna de texto `fec_pago` de la pasarela de pagos.",
+          "hint": "Si toca una sola fuente y solo limpia, es staging.",
+          "solutionExplanation": "Limpiar una fuente es staging; combinar fuentes sin ser producto final es intermedio; lo que consume el negocio son los marts.",
+          "solutionCode": "1. Staging: stg_crm__clientes\n2. Intermedio: int_pedidos_con_lineas\n3. Marts: dim_cliente\n4. Staging: stg_pasarela__pagos",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing04-ej-2",
+          "title": "Práctica 2: Clave sustituta de dos fuentes",
+          "difficulty": "Intermedio",
+          "prompt": "Tienes clientes en `stg_erp__clientes (cliente_id int, nombre)` y en `stg_crm__clientes (id varchar(20), nombre)`. Escribe una consulta que una ambas fuentes con `UNION ALL` y genere una `cliente_key` que no choque aunque los ids se repitan entre fuentes.",
+          "hint": "Incluye el nombre de la fuente dentro del hash.",
+          "solutionExplanation": "Al incluir la fuente en el hash, el cliente 100 del ERP y el 100 del CRM obtienen claves distintas. CONCAT_WS con un separador evita colisiones entre combinaciones de texto.",
+          "solutionCode": "SELECT CONVERT(char(64), HASHBYTES('SHA2_256', CONCAT_WS('|', 'erp', CAST(cliente_id AS varchar(20)))), 2) AS cliente_key,\n       'erp' AS fuente, CAST(cliente_id AS varchar(20)) AS id_origen, nombre\nFROM stg_erp__clientes\nUNION ALL\nSELECT CONVERT(char(64), HASHBYTES('SHA2_256', CONCAT_WS('|', 'crm', id)), 2),\n       'crm', id, nombre\nFROM stg_crm__clientes;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing04-ej-3",
+          "title": "Práctica 3: Verifica el grano",
+          "difficulty": "Intermedio",
+          "prompt": "La tabla `dw.fct_pagos` debería tener una fila por `pago_id`. Escribe una consulta que liste los `pago_id` repetidos con cuántas veces aparecen, ordenados de mayor a menor.",
+          "hint": "GROUP BY la columna del grano y HAVING COUNT(*) > 1.",
+          "solutionExplanation": "Si la consulta devuelve filas, el grano está roto y cualquier suma de montos estará inflada. Es una prueba que conviene automatizar (lo harás con dbt en el capítulo 7).",
+          "solutionCode": "SELECT pago_id, COUNT(*) AS veces\nFROM dw.fct_pagos\nGROUP BY pago_id\nHAVING COUNT(*) > 1\nORDER BY veces DESC;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing04-q1",
+          "question": "¿Qué tipo de transformación corresponde a un modelo de staging?",
+          "options": [
+            "Renombrar, tipar y limpiar una sola tabla de origen, sin uniones.",
+            "Agregar las ventas por mes para que las consultas del tablero sean rápidas.",
+            "Unir varias fuentes y calcular las métricas finales para el tablero.",
+            "Copiar el archivo original sin cambios junto con las columnas de auditoría."
+          ],
+          "correctIndex": 0,
+          "explanation": "Staging es una tabla por fuente con limpieza básica; las uniones van en intermedio y las métricas en marts."
+        },
+        {
+          "id": "ing04-q2",
+          "question": "¿Por qué se prefiere un hash de la clave de negocio en lugar de IDENTITY como clave sustituta?",
+          "options": [
+            "Porque el hash da el mismo valor en cada recarga y no rompe las relaciones.",
+            "Porque un hash ocupa menos espacio en disco que cualquier columna entera.",
+            "Porque IDENTITY no está disponible en las tablas de un almacén de datos.",
+            "Porque el hash ordena las filas por fecha de forma automática al insertar."
+          ],
+          "correctIndex": 0,
+          "explanation": "IDENTITY asigna números nuevos al recargar; el hash es determinista y la clave se mantiene."
+        },
+        {
+          "id": "ing04-q3",
+          "question": "Una tabla de hechos mezcla filas por pedido y filas por línea de pedido. ¿Qué problema aparece?",
+          "options": [
+            "Las dimensiones dejan de poder unirse a la tabla de hechos por su clave.",
+            "El índice columnstore se desactiva al detectar granos diferentes.",
+            "Los totales salen inflados porque se suman montos de niveles distintos.",
+            "Las consultas fallan porque SQL Server no admite dos granos en una tabla."
+          ],
+          "correctIndex": 2,
+          "explanation": "Un grano mezclado duplica montos al agregar; cada grano necesita su propia tabla de hechos."
+        }
+      ]
+    },
+    {
+      "id": "ing-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2: Transformación con dbt",
+      "title": "dbt I: Proyecto, Modelos, source, ref y Materializaciones",
+      "subtitle": "Escribir transformaciones como SELECT versionados y dejar que dbt construya el resto.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Crear un proyecto dbt conectado a SQL Server con el adaptador dbt-sqlserver.",
+        "Declarar fuentes con source() y dependencias entre modelos con ref().",
+        "Elegir la materialización adecuada: view, table, incremental o ephemeral.",
+        "Ejecutar y seleccionar modelos con dbt run, dbt build y --select."
+      ],
+      "theorySections": [
+        {
+          "id": "ing05-sec-1",
+          "title": "1. Qué es dbt y cómo se organiza un proyecto",
+          "body": "**dbt** (data build tool) es la T de ELT. Tú escribes cada transformación como un archivo `.sql` con **un solo SELECT**; dbt lo compila, lo envuelve en el `CREATE VIEW` o `CREATE TABLE` que corresponda y lo ejecuta en el orden correcto.\n\nLo que dbt aporta además del SQL:\n- **Dependencias automáticas**: sabe qué modelo va antes que cuál.\n- **Entornos**: el mismo código escribe en tu esquema de desarrollo o en producción.\n- **Pruebas y documentación** junto al código (capítulo 7).\n\nPara SQL Server se instala `dbt-sqlserver`. La conexión se define en `profiles.yml` (fuera del repositorio, porque tiene credenciales) y el proyecto en `dbt_project.yml`.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# dbt_project.yml\nname: almacen_ventas\nversion: \"1.0.0\"\nprofile: almacen_ventas\n\nmodel-paths: [\"models\"]\n\nmodels:\n  almacen_ventas:\n    staging:\n      +materialized: view\n      +schema: staging\n    intermediate:\n      +materialized: ephemeral\n    marts:\n      +materialized: table\n      +schema: marts",
+          "keyTakeaway": "En dbt cada modelo es un SELECT; dbt decide cómo crearlo y en qué orden."
+        },
+        {
+          "id": "ing05-sec-2",
+          "title": "2. source() y ref(): el grafo de dependencias",
+          "body": "Nunca escribas el nombre físico de una tabla en un modelo. Usa:\n- `{{ source('erp', 'pedidos') }}` para leer una tabla de **origen** (raw), declarada en un archivo YAML.\n- `{{ ref('stg_erp__pedidos') }}` para leer **otro modelo** de dbt.\n\nCon eso dbt construye el **DAG** (grafo dirigido sin ciclos) del proyecto: si `fct_ventas` usa `ref('stg_erp__pedidos')`, dbt sabe que debe construir primero el staging. Además, `ref()` se traduce al esquema del entorno actual (tu esquema de desarrollo o el de producción) sin cambiar el código.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- models/staging/erp/_erp__sources.yml declara la fuente:\n--   sources:\n--     - name: erp\n--       schema: raw\n--       tables:\n--         - name: pedidos\n\n-- models/staging/erp/stg_erp__pedidos.sql\nSELECT\n    CAST(id AS int)                     AS pedido_id,\n    CAST(cliente AS int)                AS cliente_id,\n    TRY_CONVERT(date, fecha, 23)        AS fecha_pedido,\n    CAST(total AS decimal(12,2))        AS total\nFROM {{ source('erp', 'pedidos') }}\n\n-- models/marts/fct_pedidos.sql\nSELECT p.pedido_id, p.cliente_id, p.fecha_pedido, p.total\nFROM {{ ref('stg_erp__pedidos') }} AS p",
+          "keyTakeaway": "source() para raw, ref() para modelos: así dbt conoce el orden y el entorno."
+        },
+        {
+          "id": "ing05-sec-3",
+          "title": "3. Materializaciones",
+          "body": "La **materialización** dice cómo se guarda un modelo:\n- `view`: crea una vista. No ocupa espacio y siempre está al día, pero se recalcula en cada consulta. Ideal para staging.\n- `table`: recrea la tabla completa en cada ejecución. Rápida de consultar; costosa de construir si es grande. Ideal para marts medianos.\n- `incremental`: la primera vez crea la tabla; después solo procesa lo nuevo (capítulo 6). Para hechos grandes.\n- `ephemeral`: no crea nada; dbt lo inserta como CTE en los modelos que lo usan. Para lógica intermedia pequeña.\n\nSe define por carpeta en `dbt_project.yml` y se puede sobrescribir en un modelo con `{{ config(materialized='table') }}`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- models/marts/dim_cliente.sql\n{{ config(materialized='table') }}\n\nSELECT\n    c.cliente_id,\n    c.nombre,\n    c.ciudad,\n    MIN(p.fecha_pedido) AS primera_compra\nFROM {{ ref('stg_erp__clientes') }} AS c\nLEFT JOIN {{ ref('stg_erp__pedidos') }} AS p\n       ON p.cliente_id = c.cliente_id\nGROUP BY c.cliente_id, c.nombre, c.ciudad",
+          "keyTakeaway": "view para staging, table para marts, incremental para hechos grandes, ephemeral para pasos pequeños."
+        },
+        {
+          "id": "ing05-sec-4",
+          "title": "4. Comandos y selección",
+          "body": "Los comandos que usarás a diario:\n- `dbt run`: construye los modelos.\n- `dbt test`: ejecuta las pruebas.\n- `dbt build`: construye y prueba en orden del DAG; si una prueba falla, no construye lo que depende de ese modelo.\n- `dbt compile`: muestra el SQL final sin ejecutarlo (útil para depurar Jinja).\n\nCon `--select` eliges qué construir:\n- `--select stg_erp__pedidos`: solo ese modelo.\n- `--select +fct_pedidos`: el modelo y todo lo que necesita (ancestros).\n- `--select stg_erp__pedidos+`: el modelo y todo lo que depende de él.\n- `--select staging.erp`: todos los modelos de una carpeta.",
+          "codeLanguage": "bash",
+          "codeSnippet": "dbt debug                                   # comprueba la conexión a SQL Server\ndbt build --select +fct_pedidos             # construye y prueba fct_pedidos y sus ancestros\ndbt run --select stg_erp__pedidos+          # cambiaste staging: reconstruye lo que depende\ndbt compile --select dim_cliente            # revisa el SQL compilado en target/compiled\ndbt build --target prod                     # mismo código, esquema de producción",
+          "keyTakeaway": "dbt build con --select construye y prueba exactamente lo que necesitas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Buenas prácticas de un proyecto dbt.",
+        "rules": [
+          "Cada modelo es un único SELECT, sin CREATE ni INSERT.",
+          "Nunca escribas nombres físicos de tablas: usa source() y ref().",
+          "Las credenciales viven en profiles.yml o en variables de entorno, nunca en el repositorio.",
+          "La materialización se define por carpeta y solo se sobrescribe con motivo.",
+          "Antes de un cambio grande, ejecuta dbt build --select el_modelo+ en desarrollo."
+        ],
+        "codeLanguage": "yaml",
+        "referenceCode": "# ~/.dbt/profiles.yml (fuera del repositorio)\nalmacen_ventas:\n  target: dev\n  outputs:\n    dev:\n      type: sqlserver\n      driver: \"ODBC Driver 18 for SQL Server\"\n      server: \"{{ env_var('DBT_SERVER') }}\"\n      port: 1433\n      database: almacen\n      schema: dbt_aronis          # esquema personal de desarrollo\n      user: \"{{ env_var('DBT_USER') }}\"\n      password: \"{{ env_var('DBT_PASSWORD') }}\"\n      encrypt: true\n      trust_cert: false\n    prod:\n      type: sqlserver\n      driver: \"ODBC Driver 18 for SQL Server\"\n      server: \"{{ env_var('DBT_SERVER') }}\"\n      port: 1433\n      database: almacen\n      schema: dw\n      user: \"{{ env_var('DBT_USER') }}\"\n      password: \"{{ env_var('DBT_PASSWORD') }}\"\n      encrypt: true"
+      },
+      "comparison": {
+        "scenario": "Crear el modelo de pedidos del mart.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- models/marts/fct_pedidos.sql\nCREATE TABLE dw.fct_pedidos AS\nSELECT * FROM almacen.raw.pedidos\nWHERE fecha >= '2026-01-01'",
+        "juniorFlaws": [
+          "dbt espera un SELECT; el CREATE TABLE lo genera dbt según la materialización.",
+          "El nombre físico fijo rompe el aislamiento entre desarrollo y producción.",
+          "Lee raw directamente: dbt no conoce la dependencia y el mart repite la limpieza.",
+          "SELECT * expone columnas nuevas de la fuente sin control."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- models/marts/fct_pedidos.sql\n{{ config(materialized='table') }}\n\nSELECT pedido_id, cliente_id, fecha_pedido, total\nFROM {{ ref('stg_erp__pedidos') }}\nWHERE fecha_pedido >= '2026-01-01'",
+        "intermediateBenefits": [
+          "dbt crea la tabla en el esquema del entorno actual.",
+          "La dependencia con staging queda en el DAG y en el linaje.",
+          "Las columnas están declaradas una por una."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing05-ej-1",
+          "title": "Práctica 1: Declara una fuente",
+          "difficulty": "Básico",
+          "prompt": "Escribe el archivo `models/staging/crm/_crm__sources.yml` que declare la fuente `crm`, en el esquema `raw`, con las tablas `clientes` y `oportunidades`. Agrega una descripción a cada tabla.",
+          "hint": "La estructura es sources → name, schema, tables → name, description.",
+          "solutionExplanation": "Declarar la fuente permite usar `source('crm', 'clientes')`, documentarla y, más adelante, agregarle pruebas y controles de frescura.",
+          "solutionCode": "version: 2\n\nsources:\n  - name: crm\n    schema: raw\n    description: Copia cruda del CRM, cargada cada noche.\n    tables:\n      - name: clientes\n        description: Una fila por cliente registrado en el CRM.\n      - name: oportunidades\n        description: Una fila por oportunidad de venta abierta o cerrada.",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "ing05-ej-2",
+          "title": "Práctica 2: Modelo de staging",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `stg_crm__oportunidades.sql` que lea de la fuente declarada y entregue: `oportunidad_id` (int, desde `id`), `cliente_id` (int, desde `id_cliente`), `etapa` en minúsculas y sin espacios, `monto` como decimal(12,2) (desde `valor`, texto) y `cerrada_en` como datetime2(0) (desde `fecha_cierre`, formato aaaa-mm-dd hh:mi:ss).",
+          "hint": "Usa source(), TRY_CAST y TRY_CONVERT con el estilo 120.",
+          "solutionExplanation": "El modelo de staging solo renombra, tipa y limpia una fuente. TRY_CAST evita que un valor raro haga fallar todo el modelo.",
+          "solutionCode": "SELECT\n    TRY_CAST(id AS int)                          AS oportunidad_id,\n    TRY_CAST(id_cliente AS int)                  AS cliente_id,\n    LOWER(LTRIM(RTRIM(etapa)))                   AS etapa,\n    TRY_CAST(valor AS decimal(12,2))             AS monto,\n    TRY_CONVERT(datetime2(0), fecha_cierre, 120) AS cerrada_en\nFROM {{ source('crm', 'oportunidades') }}",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing05-ej-3",
+          "title": "Práctica 3: Elige el comando",
+          "difficulty": "Básico",
+          "prompt": "Escribe el comando de dbt para cada situación:\n1. Cambiaste `stg_crm__clientes` y quieres reconstruir y probar ese modelo y todo lo que depende de él.\n2. Quieres ver el SQL que dbt generó para `dim_cliente` sin ejecutarlo.\n3. Quieres construir `fct_oportunidades` y todo lo que necesita, en producción.",
+          "hint": "El signo + antes selecciona ancestros; después, descendientes.",
+          "solutionExplanation": "`dbt build` construye y prueba en orden; el `+` controla la dirección de la selección y `--target` elige el entorno de profiles.yml.",
+          "solutionCode": "dbt build --select stg_crm__clientes+\ndbt compile --select dim_cliente\ndbt build --select +fct_oportunidades --target prod",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing05-q1",
+          "question": "¿Qué hace dbt con un modelo que contiene {{ ref('stg_erp__pedidos') }}?",
+          "options": [
+            "Copia el contenido de stg_erp__pedidos a un archivo CSV dentro del proyecto.",
+            "Registra la dependencia en el DAG y lo traduce al esquema del entorno actual.",
+            "Borra stg_erp__pedidos antes de construir el modelo para evitar datos viejos.",
+            "Ejecuta stg_erp__pedidos dentro del modelo como un procedimiento almacenado."
+          ],
+          "correctIndex": 1,
+          "explanation": "ref() define el orden de construcción, el linaje y resuelve el esquema de dev o prod."
+        },
+        {
+          "id": "ing05-q2",
+          "question": "¿Qué materialización conviene para un modelo de staging liviano que siempre debe estar al día?",
+          "options": [
+            "view, porque no ocupa espacio y refleja siempre los datos de raw.",
+            "table, porque las vistas no se pueden usar como origen de otros modelos.",
+            "incremental, porque es la única que dbt permite usar dentro de staging.",
+            "ephemeral, porque crea una tabla temporal que se borra al terminar el día."
+          ],
+          "correctIndex": 0,
+          "explanation": "Las vistas son la opción habitual en staging: baratas y siempre actualizadas."
+        },
+        {
+          "id": "ing05-q3",
+          "question": "¿Qué diferencia a dbt build de dbt run?",
+          "options": [
+            "dbt build también ejecuta las pruebas y frena lo que depende de un fallo.",
+            "dbt build ignora el DAG y construye los modelos en orden alfabético.",
+            "dbt build solo compila el SQL de los modelos sin llegar a ejecutarlos.",
+            "dbt build borra el esquema de destino antes de construir los modelos."
+          ],
+          "correctIndex": 0,
+          "explanation": "build combina run, test, snapshot y seed en orden del DAG y no propaga errores."
+        }
+      ]
+    },
+    {
+      "id": "ing-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 2: Transformación con dbt",
+      "title": "dbt II: Modelos Incrementales, Snapshots (SCD Tipo 2) y Macros con Jinja",
+      "subtitle": "Procesar solo lo nuevo, guardar la historia de los cambios y no repetir código.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Escribir un modelo incremental con is_incremental() y unique_key.",
+        "Elegir la estrategia incremental adecuada en SQL Server (merge o delete+insert).",
+        "Guardar la historia de una tabla con un snapshot de dbt.",
+        "Crear macros con Jinja para reutilizar lógica en varios modelos."
+      ],
+      "theorySections": [
+        {
+          "id": "ing06-sec-1",
+          "title": "1. Modelos incrementales",
+          "body": "Un modelo `incremental` se construye completo la primera vez. En las siguientes ejecuciones dbt solo procesa las filas nuevas y las fusiona con la tabla existente.\n\nLas piezas:\n- `materialized='incremental'` en el config.\n- `unique_key`: la clave por la que dbt actualiza en lugar de duplicar.\n- Un filtro dentro de `{% if is_incremental() %}` que solo se aplica cuando la tabla ya existe. Ahí `{{ this }}` es la propia tabla destino.\n\nPara cubrir datos que llegan tarde, filtra con un pequeño **margen hacia atrás** (por ejemplo, 3 días): como hay `unique_key`, repetir filas no duplica nada.\n\nSi cambias la lógica del modelo, reconstrúyelo completo con `dbt run --full-refresh --select el_modelo`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- models/marts/fct_eventos.sql\n{{ config(\n    materialized='incremental',\n    unique_key='evento_id',\n    incremental_strategy='merge'\n) }}\n\nSELECT evento_id, usuario_id, tipo, ocurrido_en\nFROM {{ ref('stg_app__eventos') }}\n\n{% if is_incremental() %}\nWHERE ocurrido_en > (\n    SELECT DATEADD(DAY, -3, MAX(ocurrido_en)) FROM {{ this }}\n)\n{% endif %}",
+          "keyTakeaway": "Incremental = filtro con is_incremental() + unique_key, con margen para datos tardíos."
+        },
+        {
+          "id": "ing06-sec-2",
+          "title": "2. Estrategias incrementales en SQL Server",
+          "body": "La estrategia dice cómo se mezcla el lote nuevo con la tabla:\n- `append`: solo inserta. Rápido, pero duplica si una fila se repite. Sirve para eventos que nunca cambian y sin margen hacia atrás.\n- `merge`: usa `MERGE` por `unique_key`; actualiza las existentes e inserta las nuevas.\n- `delete+insert`: borra en destino las claves que vienen en el lote y luego las inserta. Suele rendir mejor que merge con lotes grandes.\n\nCon `dbt-sqlserver` están disponibles las tres. Elige `merge` por defecto y pasa a `delete+insert` cuando el MERGE se vuelva lento.\n\nUn detalle: si el origen trae columnas nuevas, la opción `on_schema_change` decide qué hacer (`ignore`, `append_new_columns`, `sync_all_columns` o `fail`). Usa `fail` en hechos críticos para enterarte.",
+          "codeLanguage": "sql",
+          "codeSnippet": "{{ config(\n    materialized='incremental',\n    unique_key=['pedido_id', 'linea_num'],\n    incremental_strategy='delete+insert',\n    on_schema_change='fail'\n) }}\n\nSELECT pedido_id, linea_num, producto_id, cantidad, monto, modificado_en\nFROM {{ ref('int_pedidos_con_lineas') }}\n{% if is_incremental() %}\nWHERE modificado_en >= (SELECT DATEADD(DAY, -2, MAX(modificado_en)) FROM {{ this }})\n{% endif %}",
+          "keyTakeaway": "merge por defecto, delete+insert para lotes grandes y on_schema_change='fail' en tablas críticas."
+        },
+        {
+          "id": "ing06-sec-3",
+          "title": "3. Snapshots: la historia de una tabla",
+          "body": "Las bases operativas solo guardan el estado actual. Un **snapshot** de dbt guarda cada versión de una fila cuando cambia, implementando una **dimensión lentamente cambiante tipo 2**.\n\ndbt agrega las columnas `dbt_valid_from` y `dbt_valid_to` (nula en la versión vigente), además de `dbt_scd_id` y `dbt_updated_at`.\n\nDos estrategias para detectar cambios:\n- `timestamp`: compara una columna de fecha de modificación. Es la más eficiente.\n- `check`: compara las columnas que indiques. Para fuentes sin fecha de modificación.\n\nSe ejecutan con `dbt snapshot` (o dentro de `dbt build`) y conviene correrlos **con la misma frecuencia** que cambian los datos: un cambio que ocurre y se revierte entre dos ejecuciones no queda registrado.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# snapshots/clientes_snapshot.yml\nsnapshots:\n  - name: clientes_snapshot\n    relation: source('crm', 'clientes')\n    config:\n      schema: snapshots\n      unique_key: id\n      strategy: timestamp\n      updated_at: modificado_en\n      hard_deletes: invalidate   # si el cliente desaparece, cierra su versión",
+          "keyTakeaway": "Un snapshot guarda cada versión con dbt_valid_from y dbt_valid_to: es una SCD tipo 2 automática."
+        },
+        {
+          "id": "ing06-sec-4",
+          "title": "4. Macros con Jinja",
+          "body": "dbt usa **Jinja**, un lenguaje de plantillas: `{{ ... }}` imprime un valor y `{% ... %}` ejecuta lógica (if, for, set).\n\nUna **macro** es una función de Jinja que devuelve SQL. Se guarda en la carpeta `macros/` y se usa en cualquier modelo. Evita copiar la misma expresión en diez archivos: si la regla cambia, se cambia en un lugar.\n\nEjemplos típicos: limpiar un texto, convertir centavos a moneda, generar una clave sustituta. Para claves sustitutas existe ya `dbt_utils.generate_surrogate_key`; instala paquetes como `dbt_utils` en `packages.yml` y ejecuta `dbt deps`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- macros/limpiar_texto.sql\n{% macro limpiar_texto(columna) %}\n    NULLIF(LTRIM(RTRIM({{ columna }})), '')\n{% endmacro %}\n\n-- macros/centavos_a_moneda.sql\n{% macro centavos_a_moneda(columna, decimales=2) %}\n    CAST({{ columna }} / 100.0 AS decimal(14, {{ decimales }}))\n{% endmacro %}\n\n-- Uso en un modelo\nSELECT\n    {{ limpiar_texto('nombre') }}         AS nombre,\n    {{ centavos_a_moneda('monto_cent') }} AS monto\nFROM {{ source('pasarela', 'pagos') }}",
+          "keyTakeaway": "Si una expresión aparece en más de dos modelos, conviértela en macro."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cuándo usar cada herramienta de dbt para datos que crecen o cambian.",
+        "rules": [
+          "Hechos grandes que crecen: incremental con unique_key y margen hacia atrás.",
+          "Dimensiones con historia: snapshot con estrategia timestamp si hay fecha de modificación.",
+          "Los snapshots leen de source() y nunca se reconstruyen: guardan historia irrecuperable.",
+          "Toda lógica repetida en más de dos modelos va a una macro.",
+          "Después de cambiar la lógica de un incremental, ejecuta --full-refresh."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- models/marts/dim_cliente_historia.sql\n-- Dimensión SCD2 lista para el mart a partir del snapshot\nSELECT\n    {{ dbt_utils.generate_surrogate_key(['id', 'dbt_valid_from']) }} AS cliente_key,\n    CAST(id AS int)                         AS cliente_id,\n    {{ limpiar_texto('nombre') }}           AS nombre,\n    {{ limpiar_texto('ciudad') }}           AS ciudad,\n    dbt_valid_from                          AS vigente_desde,\n    COALESCE(dbt_valid_to, '9999-12-31')    AS vigente_hasta,\n    CASE WHEN dbt_valid_to IS NULL THEN 1 ELSE 0 END AS es_actual\nFROM {{ ref('clientes_snapshot') }}"
+      },
+      "comparison": {
+        "scenario": "Hacer incremental la tabla de pagos, que tiene 80 millones de filas.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "{{ config(materialized='incremental') }}\n\nSELECT pago_id, pedido_id, monto, estado, modificado_en\nFROM {{ ref('stg_pasarela__pagos') }}\nWHERE modificado_en > (SELECT MAX(modificado_en) FROM {{ this }})",
+        "juniorFlaws": [
+          "Sin is_incremental(), la primera ejecución falla porque {{ this }} todavía no existe.",
+          "Sin unique_key, un pago que cambia de estado se inserta otra vez como fila nueva.",
+          "Sin margen hacia atrás, los pagos que llegan con retraso se pierden."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "{{ config(materialized='incremental', unique_key='pago_id', incremental_strategy='merge') }}\n\nSELECT pago_id, pedido_id, monto, estado, modificado_en\nFROM {{ ref('stg_pasarela__pagos') }}\n{% if is_incremental() %}\nWHERE modificado_en >= (SELECT DATEADD(DAY, -3, MAX(modificado_en)) FROM {{ this }})\n{% endif %}",
+        "intermediateBenefits": [
+          "La primera ejecución construye la tabla completa.",
+          "Los cambios de estado actualizan la fila existente.",
+          "Tres días de margen recogen los pagos tardíos sin duplicar."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing06-ej-1",
+          "title": "Práctica 1: Incremental de sesiones",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `fct_sesiones.sql` como modelo incremental a partir de `stg_app__sesiones (sesion_id, usuario_id, inicio_en, fin_en, paginas)`. Usa `sesion_id` como clave, estrategia merge y un margen de 1 día sobre `inicio_en`.",
+          "hint": "Recuerda envolver el filtro en {% if is_incremental() %}.",
+          "solutionExplanation": "La primera ejecución carga todo; después solo se procesan las sesiones del último día de datos y las que llegan tarde se actualizan por `sesion_id`.",
+          "solutionCode": "{{ config(materialized='incremental', unique_key='sesion_id', incremental_strategy='merge') }}\n\nSELECT sesion_id, usuario_id, inicio_en, fin_en, paginas,\n       DATEDIFF(SECOND, inicio_en, fin_en) AS duracion_seg\nFROM {{ ref('stg_app__sesiones') }}\n{% if is_incremental() %}\nWHERE inicio_en >= (SELECT DATEADD(DAY, -1, MAX(inicio_en)) FROM {{ this }})\n{% endif %}",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing06-ej-2",
+          "title": "Práctica 2: Snapshot con estrategia check",
+          "difficulty": "Intermedio",
+          "prompt": "La tabla `raw.productos` del ERP no tiene fecha de modificación. Escribe el snapshot `productos_snapshot` que guarde la historia cuando cambien `precio` o `categoria`, usando `codigo` como clave.",
+          "hint": "Sin columna de fecha, usa strategy: check y check_cols.",
+          "solutionExplanation": "La estrategia check compara las columnas indicadas en cada ejecución. Limitar `check_cols` a lo que importa evita crear versiones nuevas por cambios irrelevantes, como una descripción corregida.",
+          "solutionCode": "snapshots:\n  - name: productos_snapshot\n    relation: source('erp', 'productos')\n    config:\n      schema: snapshots\n      unique_key: codigo\n      strategy: check\n      check_cols: [precio, categoria]",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "ing06-ej-3",
+          "title": "Práctica 3: Macro de clasificación",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe una macro `tramo_monto(columna)` que devuelva un CASE con los tramos 'bajo' (< 50), 'medio' (50 a < 200) y 'alto' (200 o más), y 'sin dato' cuando el valor es NULL. Luego úsala en un SELECT sobre `ref('fct_pedidos')`.",
+          "hint": "Dentro de la macro escribe el SQL tal cual, con {{ columna }} donde va la columna.",
+          "solutionExplanation": "La macro deja la regla de negocio en un solo lugar. Si mañana el tramo alto empieza en 250, se cambia la macro y todos los modelos que la usan quedan alineados en la próxima ejecución.",
+          "solutionCode": "-- macros/tramo_monto.sql\n{% macro tramo_monto(columna) %}\n    CASE\n        WHEN {{ columna }} IS NULL THEN 'sin dato'\n        WHEN {{ columna }} < 50    THEN 'bajo'\n        WHEN {{ columna }} < 200   THEN 'medio'\n        ELSE 'alto'\n    END\n{% endmacro %}\n\n-- models/marts/pedidos_por_tramo.sql\nSELECT {{ tramo_monto('total') }} AS tramo, COUNT(*) AS pedidos\nFROM {{ ref('fct_pedidos') }}\nGROUP BY {{ tramo_monto('total') }}",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing06-q1",
+          "question": "¿Para qué sirve el bloque {% if is_incremental() %} en un modelo incremental?",
+          "options": [
+            "Para aplicar el filtro de filas nuevas solo cuando la tabla destino ya existe.",
+            "Para convertir el modelo en una vista cuando la tabla todavía está vacía.",
+            "Para que dbt ejecute el modelo únicamente si hubo cambios en el repositorio.",
+            "Para borrar la tabla destino cada vez que el modelo detecta columnas nuevas."
+          ],
+          "correctIndex": 0,
+          "explanation": "En la primera ejecución {{ this }} no existe; el bloque evita el filtro y construye todo."
+        },
+        {
+          "id": "ing06-q2",
+          "question": "¿Qué columna deja dbt en NULL para identificar la versión vigente en un snapshot?",
+          "options": [
+            "dbt_updated_at, que vale NULL hasta que la fila cambia por primera vez.",
+            "dbt_valid_to, que se completa cuando aparece una versión más nueva.",
+            "dbt_valid_from, que se llena solo al cerrar la versión de la fila.",
+            "dbt_scd_id, que se borra cuando la fila deja de estar vigente."
+          ],
+          "correctIndex": 1,
+          "explanation": "La versión actual tiene dbt_valid_to nulo; al cambiar, dbt la cierra y crea una nueva."
+        },
+        {
+          "id": "ing06-q3",
+          "question": "Un modelo incremental sin unique_key recibe de nuevo un pago que cambió de estado. ¿Qué pasa?",
+          "options": [
+            "dbt detiene la ejecución porque la clave del pago ya existe en la tabla.",
+            "El pago se inserta como otra fila y queda duplicado en la tabla.",
+            "dbt detecta el cambio y actualiza la fila existente por su contenido.",
+            "El pago se descarta porque su fecha es anterior a la última ejecución."
+          ],
+          "correctIndex": 1,
+          "explanation": "Sin unique_key la estrategia equivale a append: solo inserta, así que duplica."
+        }
+      ]
+    },
+    {
+      "id": "ing-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 2: Transformación con dbt",
+      "title": "dbt III: Pruebas, Documentación y Linaje",
+      "subtitle": "Que cada modelo diga qué contiene, qué garantiza y de dónde viene.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Agregar pruebas genéricas: unique, not_null, accepted_values y relationships.",
+        "Escribir pruebas singulares en SQL para reglas de negocio.",
+        "Controlar la frescura de las fuentes con freshness.",
+        "Documentar modelos y columnas y generar el sitio de documentación con linaje."
+      ],
+      "theorySections": [
+        {
+          "id": "ing07-sec-1",
+          "title": "1. Pruebas genéricas en YAML",
+          "body": "Una prueba en dbt es una consulta que busca **filas que no deberían existir**. Si devuelve cero filas, pasa.\n\ndbt trae cuatro pruebas genéricas que se declaran en el YAML del modelo:\n- `unique`: la columna no se repite (verifica el grano).\n- `not_null`: la columna nunca está vacía.\n- `accepted_values`: solo aparecen los valores permitidos.\n- `relationships`: cada valor existe en otra tabla (integridad referencial, como una clave foránea).\n\nCon `severity: warn` una prueba avisa sin detener el pipeline. Úsalo para reglas deseables pero no críticas.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "# models/marts/_marts.yml\nversion: 2\nmodels:\n  - name: fct_pedidos\n    description: Una fila por pedido confirmado.\n    columns:\n      - name: pedido_id\n        data_tests: [unique, not_null]\n      - name: cliente_id\n        data_tests:\n          - not_null\n          - relationships:\n              arguments:\n                to: ref('dim_cliente')\n                field: cliente_id\n      - name: estado\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: ['pagado', 'enviado', 'entregado', 'devuelto']\n              config:\n                severity: warn",
+          "keyTakeaway": "Toda clave primaria lleva unique y not_null; toda clave foránea lleva relationships."
+        },
+        {
+          "id": "ing07-sec-2",
+          "title": "2. Pruebas singulares y unitarias",
+          "body": "Para reglas que no encajan en las genéricas, escribe una **prueba singular**: un archivo `.sql` en la carpeta `tests/` que devuelve las filas que violan la regla.\n\nEjemplos: \"ningún pedido entregado tiene monto cero\", \"la suma de líneas coincide con el total del pedido\", \"no hay fechas en el futuro\".\n\ndbt también tiene **pruebas unitarias** (`unit_tests`): defines filas de entrada de ejemplo y el resultado esperado de un modelo, y dbt comprueba la lógica sin depender de los datos reales. Son útiles para CASE complicados o cálculos de fechas.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- tests/assert_lineas_cuadran_con_total.sql\n-- Devuelve los pedidos cuyo total difiere de la suma de sus líneas en más de 1 centavo\nSELECT p.pedido_id, p.total, SUM(l.monto) AS suma_lineas\nFROM {{ ref('fct_pedidos') }}       AS p\nJOIN {{ ref('fct_ventas_linea') }}  AS l ON l.pedido_id = p.pedido_id\nGROUP BY p.pedido_id, p.total\nHAVING ABS(p.total - SUM(l.monto)) > 0.01",
+          "keyTakeaway": "Una prueba singular es un SELECT que devuelve las filas que rompen una regla."
+        },
+        {
+          "id": "ing07-sec-3",
+          "title": "3. Frescura de las fuentes",
+          "body": "Un pipeline puede terminar en verde con datos de hace tres días si la fuente dejó de enviar. La **frescura** (*freshness*) detecta eso.\n\nEn la declaración de la fuente indicas la columna que marca la llegada (`loaded_at_field`) y los umbrales `warn_after` y `error_after`. Luego `dbt source freshness` compara la fecha más reciente con la hora actual.\n\nConviene ejecutarlo **antes** de construir los modelos: si la fuente está vieja, no tiene sentido recalcular todo con datos atrasados.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "sources:\n  - name: erp\n    schema: raw\n    config:\n      loaded_at_field: _cargado_en\n      freshness:\n        warn_after: {count: 12, period: hour}\n        error_after: {count: 24, period: hour}\n    tables:\n      - name: pedidos\n      - name: clientes\n      - name: tipos_cambio\n        config:\n          freshness: null     # tabla que casi nunca cambia: sin control",
+          "keyTakeaway": "dbt source freshness avisa cuando la fuente dejó de llegar, aunque el pipeline termine bien."
+        },
+        {
+          "id": "ing07-sec-4",
+          "title": "4. Documentación y linaje",
+          "body": "Las descripciones del YAML no son decoración: con `dbt docs generate` dbt crea un sitio web con cada modelo, sus columnas, sus pruebas, el SQL compilado y el **grafo de linaje**, que muestra de qué fuentes sale cada tabla y qué depende de ella.\n\nEl linaje responde preguntas clave antes de cambiar algo: \"si modifico `stg_erp__clientes`, ¿qué tableros se ven afectados?\".\n\nPara textos largos o repetidos usa bloques `{% docs %}` en archivos `.md` y referencia con `doc()`. Y declara los **exposures**: los tableros y aplicaciones que consumen tus marts, para que aparezcan al final del linaje.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "models:\n  - name: dim_cliente\n    description: \"{{ doc('dim_cliente') }}\"\n    columns:\n      - name: cliente_id\n        description: Clave de negocio del cliente en el ERP.\n      - name: primera_compra\n        description: Fecha del primer pedido confirmado; NULL si nunca compró.\n\nexposures:\n  - name: tablero_gerencia_ventas\n    type: dashboard\n    owner: {name: Aronis}\n    depends_on:\n      - ref('fct_pedidos')\n      - ref('dim_cliente')",
+          "keyTakeaway": "Documenta en el YAML, genera el sitio y usa el linaje antes de cada cambio."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cobertura mínima de pruebas y documentación de un proyecto dbt.",
+        "rules": [
+          "Toda clave primaria de un modelo tiene unique y not_null.",
+          "Toda clave foránea de un hecho tiene relationships hacia su dimensión.",
+          "Toda fuente tiene freshness, salvo las tablas que casi nunca cambian.",
+          "Todo mart tiene descripción, grano y descripción de sus columnas clave.",
+          "En producción se ejecuta dbt source freshness y luego dbt build."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "# Orden recomendado en cada corrida de producción\ndbt deps\ndbt source freshness            # falla si la fuente está vieja\ndbt build --target prod         # modelos, snapshots y pruebas en orden del DAG\ndbt docs generate --target prod # actualiza la documentación y el linaje"
+      },
+      "comparison": {
+        "scenario": "Asegurar que fct_pedidos esté bien antes de que lo lea el tablero.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Alguien corre esto a mano cuando se acuerda\nSELECT COUNT(*) FROM dw.fct_pedidos;\nSELECT COUNT(DISTINCT pedido_id) FROM dw.fct_pedidos;\n-- \"si los dos números se parecen, está bien\"",
+        "juniorFlaws": [
+          "Depende de la memoria de una persona y no queda registro.",
+          "\"Se parecen\" no es un criterio: un solo duplicado infla los totales.",
+          "No revisa nulos, valores raros ni claves huérfanas."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "models:\n  - name: fct_pedidos\n    description: Una fila por pedido confirmado.\n    columns:\n      - name: pedido_id\n        data_tests: [unique, not_null]\n      - name: cliente_id\n        data_tests:\n          - relationships:\n              arguments: {to: ref('dim_cliente'), field: cliente_id}\n# dbt build ejecuta estas pruebas en cada corrida y frena lo que depende si fallan",
+        "intermediateBenefits": [
+          "Las pruebas corren siempre, en cada ejecución.",
+          "El criterio es exacto: cero filas que violen la regla.",
+          "Un fallo detiene los modelos que dependen de fct_pedidos."
+        ],
+        "codeLanguage": "yaml"
+      },
+      "exercises": [
+        {
+          "id": "ing07-ej-1",
+          "title": "Práctica 1: Pruebas de un hecho",
+          "difficulty": "Básico",
+          "prompt": "Escribe el YAML del modelo `fct_pagos` con: descripción del grano (una fila por pago), `pago_id` único y no nulo, `pedido_id` no nulo y relacionado con `fct_pedidos`, y `metodo` con los valores 'tarjeta', 'transferencia' y 'efectivo'.",
+          "hint": "Sigue la estructura de la sección 1.",
+          "solutionExplanation": "Con estas cuatro pruebas se cubren el grano, la integridad con pedidos y el dominio de valores. Son la cobertura mínima de cualquier tabla de hechos.",
+          "solutionCode": "version: 2\nmodels:\n  - name: fct_pagos\n    description: Una fila por pago recibido.\n    columns:\n      - name: pago_id\n        data_tests: [unique, not_null]\n      - name: pedido_id\n        data_tests:\n          - not_null\n          - relationships:\n              arguments: {to: ref('fct_pedidos'), field: pedido_id}\n      - name: metodo\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: ['tarjeta', 'transferencia', 'efectivo']",
+          "codeLanguage": "yaml"
+        },
+        {
+          "id": "ing07-ej-2",
+          "title": "Práctica 2: Prueba singular de fechas",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la prueba singular `assert_sin_pedidos_futuros.sql` que falle si `fct_pedidos` tiene pedidos con `fecha_pedido` posterior a la fecha actual en UTC.",
+          "hint": "La prueba debe devolver las filas problemáticas. CAST(SYSUTCDATETIME() AS date) da la fecha de hoy en UTC.",
+          "solutionExplanation": "Una fecha futura suele indicar un error de zona horaria o de formato (por ejemplo, día y mes invertidos). Si la consulta devuelve filas, dbt marca la prueba como fallida y muestra cuántas.",
+          "solutionCode": "-- tests/assert_sin_pedidos_futuros.sql\nSELECT pedido_id, fecha_pedido\nFROM {{ ref('fct_pedidos') }}\nWHERE fecha_pedido > CAST(SYSUTCDATETIME() AS date)",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing07-ej-3",
+          "title": "Práctica 3: Frescura por tabla",
+          "difficulty": "Intermedio",
+          "prompt": "Declara la fuente `pasarela` (esquema `raw`) con la tabla `pagos`, que se carga cada hora: avisa si pasan 2 horas sin datos y falla si pasan 6. Agrega la tabla `comisiones`, que se carga una vez al mes, con avisos a los 35 días y error a los 40.",
+          "hint": "La configuración de freshness puede ir a nivel de fuente y sobrescribirse por tabla.",
+          "solutionExplanation": "Cada tabla tiene umbrales coherentes con su frecuencia de carga. Un mismo umbral para ambas daría falsas alarmas en comisiones o dejaría pasar retrasos en pagos.",
+          "solutionCode": "sources:\n  - name: pasarela\n    schema: raw\n    config:\n      loaded_at_field: _cargado_en\n    tables:\n      - name: pagos\n        config:\n          freshness:\n            warn_after: {count: 2, period: hour}\n            error_after: {count: 6, period: hour}\n      - name: comisiones\n        config:\n          freshness:\n            warn_after: {count: 35, period: day}\n            error_after: {count: 40, period: day}",
+          "codeLanguage": "yaml"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing07-q1",
+          "question": "¿Cuándo pasa una prueba de dbt?",
+          "options": [
+            "Cuando la tabla probada tiene más filas que en la última corrida.",
+            "Cuando la consulta de la prueba devuelve al menos una fila.",
+            "Cuando la consulta de la prueba devuelve cero filas.",
+            "Cuando el modelo probado se construye sin errores de SQL."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las pruebas buscan filas que violan la regla; si no hay ninguna, la prueba pasa."
+        },
+        {
+          "id": "ing07-q2",
+          "question": "¿Qué prueba genérica verifica que cada cliente_id de un hecho exista en la dimensión de clientes?",
+          "options": [
+            "not_null, aplicada a la columna cliente_id dentro de la dimensión.",
+            "unique, aplicada a la columna cliente_id dentro de la tabla de hechos.",
+            "relationships, apuntando a la dimensión y a su columna de clave.",
+            "accepted_values, con la lista completa de clientes escrita en el YAML."
+          ],
+          "correctIndex": 2,
+          "explanation": "relationships comprueba integridad referencial, como una clave foránea."
+        },
+        {
+          "id": "ing07-q3",
+          "question": "El pipeline terminó en verde, pero el tablero muestra datos de hace dos días. ¿Qué faltó?",
+          "options": [
+            "Ejecutar dbt docs generate al final de cada corrida de producción.",
+            "Cambiar la materialización de los marts de table a incremental.",
+            "Un control de freshness sobre la fuente, que detecta que dejó de llegar.",
+            "Una prueba unique sobre la clave primaria de todas las tablas del mart."
+          ],
+          "correctIndex": 2,
+          "explanation": "Las pruebas de modelos no detectan una fuente que dejó de enviar; freshness sí."
+        }
+      ]
+    },
+    {
+      "id": "ing-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3: Orquestación con Airflow",
+      "title": "Airflow I: DAGs, Tareas, Operadores, Dependencias y Calendarios",
+      "subtitle": "Describir en Python qué corre, en qué orden y cuándo.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es un DAG de Airflow y cómo lo ejecuta el planificador.",
+        "Crear tareas con la API TaskFlow (@task) y con operadores.",
+        "Definir dependencias con >> y tareas en paralelo.",
+        "Configurar el calendario con schedule, start_date y catchup."
+      ],
+      "theorySections": [
+        {
+          "id": "ing08-sec-1",
+          "title": "1. Qué es Airflow y qué es un DAG",
+          "body": "**Apache Airflow** es un orquestador: no transforma datos, **decide qué tarea corre, cuándo y en qué orden**, reintenta si algo falla y deja registro de todo.\n\nUn **DAG** (*Directed Acyclic Graph*) es un flujo de trabajo: un conjunto de **tareas** unidas por **dependencias** que van en una sola dirección y nunca forman un ciclo. Se escribe en un archivo Python dentro de la carpeta `dags/`.\n\nLas piezas de Airflow:\n- **Planificador** (*scheduler*): lee los DAGs y crea una **ejecución** (*DAG run*) cada vez que toca según el calendario.\n- **Ejecutores y workers**: corren las tareas.\n- **Interfaz web**: muestra el estado de cada tarea (éxito, fallo, en cola) y sus registros.\n- **Base de metadatos**: guarda el historial de ejecuciones.",
+          "diagram": {
+            "type": "dag-airflow"
+          },
+          "codeLanguage": "python",
+          "codeSnippet": "# dags/ventas_diarias.py  (Airflow 3: las piezas de autoría vienen de airflow.sdk)\nimport pendulum\nfrom airflow.sdk import dag, task\n\n\n@dag(\n    schedule=\"0 2 * * *\",                              # todos los días a las 02:00\n    start_date=pendulum.datetime(2026, 11, 1, tz=\"America/Santo_Domingo\"),\n    catchup=False,\n    tags=[\"ventas\"],\n)\ndef ventas_diarias():\n    @task\n    def extraer():\n        return 1520  # filas leídas\n\n    @task\n    def cargar(filas: int):\n        print(f\"Cargadas {filas} filas\")\n\n    cargar(extraer())\n\n\nventas_diarias()",
+          "keyTakeaway": "Airflow orquesta: un DAG define tareas, dependencias y calendario en Python."
+        },
+        {
+          "id": "ing08-sec-2",
+          "title": "2. Tareas: TaskFlow y operadores",
+          "body": "Hay dos formas de crear tareas, y se combinan sin problema:\n- **TaskFlow** (`@task`): conviertes una función de Python en tarea. Lo que la función devuelve pasa automáticamente a la siguiente.\n- **Operadores**: clases ya hechas para tareas comunes. `BashOperator` ejecuta un comando, `SQLExecuteQueryOperator` ejecuta SQL en una conexión, y hay operadores para casi cualquier servicio.\n\nRegla clave: **una tarea, una responsabilidad**. Si \"extraer y cargar y transformar\" es una sola tarea, cuando falle no sabrás qué parte falló y tendrás que repetir todo.\n\nLas tareas corren en procesos distintos, quizá en máquinas distintas: no compartas variables globales entre ellas; pasa los datos por la base o por archivos, y entre tareas solo valores pequeños.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator\nfrom airflow.providers.standard.operators.bash import BashOperator\n\n\n@dag(schedule=\"@daily\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef carga_ventas():\n    limpiar_staging = SQLExecuteQueryOperator(\n        task_id=\"limpiar_staging\",\n        conn_id=\"almacen_mssql\",\n        sql=\"TRUNCATE TABLE stg.pedidos_lote;\",\n    )\n\n    @task\n    def extraer_api() -> int:\n        # ... llama a la API y guarda en raw\n        return 840\n\n    transformar = BashOperator(\n        task_id=\"dbt_build\",\n        bash_command=\"cd /opt/dbt/almacen && dbt build --target prod\",\n    )\n\n    limpiar_staging >> extraer_api() >> transformar\n\n\ncarga_ventas()",
+          "keyTakeaway": "@task para lógica en Python, operadores para lo común; cada tarea hace una sola cosa."
+        },
+        {
+          "id": "ing08-sec-3",
+          "title": "3. Dependencias y paralelismo",
+          "body": "El operador `>>` dice \"esto va antes que aquello\". Con listas creas ramas en paralelo:\n- `a >> b >> c`: en fila.\n- `a >> [b, c] >> d`: b y c corren a la vez después de a; d espera a las dos.\n\nPor defecto una tarea corre cuando **todas** sus anteriores terminaron bien (`trigger_rule=\"all_success\"`). Puedes cambiarlo, por ejemplo `all_done` para una tarea de limpieza o aviso que debe correr pase lo que pase.\n\nParalelizar ingestas independientes acorta mucho la duración total: si extraer cinco fuentes toma 10 minutos cada una, en fila son 50 y en paralelo unos 10.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import dag, task\n\n\n@dag(schedule=\"0 3 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef ingesta_paralela():\n    @task\n    def inicio(): ...\n\n    @task\n    def extraer(fuente: str):\n        print(f\"extrayendo {fuente}\")\n\n    @task\n    def transformar(): ...\n\n    @task(trigger_rule=\"all_done\")\n    def avisar():\n        print(\"corrida terminada\")\n\n    fuentes = [extraer.override(task_id=f\"extraer_{f}\")(f) for f in [\"erp\", \"crm\", \"pasarela\"]]\n    t = transformar()\n    inicio() >> fuentes >> t >> avisar()\n\n\ningesta_paralela()",
+          "keyTakeaway": "a >> [b, c] >> d corre b y c en paralelo; trigger_rule cambia cuándo arranca una tarea."
+        },
+        {
+          "id": "ing08-sec-4",
+          "title": "4. Calendario: schedule, start_date, catchup e intervalo",
+          "body": "- `schedule`: cuándo corre. Una expresión cron (`\"0 2 * * *\"`), un atajo (`\"@daily\"`, `\"@hourly\"`) o `None` para ejecutar solo a mano.\n- `start_date`: desde cuándo existe el calendario. Debe ser **fija** y con zona horaria, nunca `datetime.now()`.\n- `catchup`: si es `True` y el `start_date` está en el pasado, Airflow crea una ejecución por cada intervalo pendiente. Déjalo en `False` salvo que quieras rellenar historia a propósito.\n\nCada ejecución procesa un **intervalo de datos**: la corrida diaria de las 02:00 del 18 de noviembre cubre por defecto el día 17. Airflow te lo da como `data_interval_start` y `data_interval_end`, y la fecha lógica en texto como `{{ ds }}`. Úsalos para filtrar en lugar de la hora actual: así una corrida repetida mañana procesa exactamente el mismo día.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import dag, task, get_current_context\n\n\n@dag(schedule=\"0 2 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef ventas_por_intervalo():\n    @task\n    def cargar_dia():\n        ctx = get_current_context()\n        desde = ctx[\"data_interval_start\"]   # 2026-11-17 02:00 UTC\n        hasta = ctx[\"data_interval_end\"]     # 2026-11-18 02:00 UTC\n        sql = (\n            \"SELECT * FROM raw.pedidos \"\n            f\"WHERE creado_en >= '{desde.isoformat()}' AND creado_en < '{hasta.isoformat()}'\"\n        )\n        print(sql)\n\n    cargar_dia()\n\n\nventas_por_intervalo()",
+          "keyTakeaway": "Filtra por el intervalo de datos de la ejecución, no por la hora actual."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para escribir un DAG mantenible.",
+        "rules": [
+          "start_date fija y con zona horaria; catchup=False salvo que quieras rellenar.",
+          "Cada tarea hace una sola cosa y tiene un task_id descriptivo.",
+          "Nada de consultas ni llamadas a APIs en el nivel superior del archivo: el planificador lo lee cada pocos segundos.",
+          "Filtra los datos por data_interval_start y data_interval_end.",
+          "Las credenciales viven en Conexiones de Airflow, nunca en el código."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import pendulum\nfrom airflow.sdk import dag, task\n\nARGS = {\"owner\": \"aronis\", \"retries\": 2}\n\n\n@dag(\n    dag_id=\"ventas_diarias\",\n    schedule=\"0 2 * * *\",\n    start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"),\n    catchup=False,\n    default_args=ARGS,\n    tags=[\"ventas\", \"dbt\"],\n    doc_md=\"Carga diaria de ventas. Datos listos antes de las 07:00. Dueño: Aronis.\",\n)\ndef ventas_diarias():\n    @task\n    def extraer_erp(): ...\n\n    @task\n    def extraer_crm(): ...\n\n    @task\n    def construir_dbt(): ...\n\n    [extraer_erp(), extraer_crm()] >> construir_dbt()\n\n\nventas_diarias()"
+      },
+      "comparison": {
+        "scenario": "Programar la carga diaria de pedidos.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "from datetime import datetime\nimport pyodbc\nfrom airflow.sdk import DAG\nfrom airflow.providers.standard.operators.python import PythonOperator\n\nconexion = pyodbc.connect(\"SERVER=prod;UID=admin;PWD=Secreta123\")   # se ejecuta al leer el archivo\n\ndef todo():\n    # extrae, carga y transforma en un solo paso\n    conexion.execute(\"INSERT INTO dw.pedidos SELECT * FROM raw.pedidos WHERE fecha >= CAST(GETDATE() - 1 AS date)\")\n\nwith DAG(\"pedidos\", schedule=\"@daily\", start_date=datetime.now()):\n    PythonOperator(task_id=\"t1\", python_callable=todo)",
+        "juniorFlaws": [
+          "La conexión se abre cada vez que el planificador lee el archivo, con la contraseña en el código.",
+          "start_date=datetime.now() cambia en cada lectura y el DAG puede no ejecutarse nunca.",
+          "Una sola tarea gigante: si falla, no se sabe qué parte falló.",
+          "Filtra por la fecha actual: repetir la corrida de ayer carga otro día."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "import pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook\n\n\n@dag(schedule=\"0 2 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef pedidos():\n    @task\n    def cargar_raw(data_interval_start=None, data_interval_end=None):\n        MsSqlHook(mssql_conn_id=\"almacen_mssql\").run(\n            \"EXEC raw.cargar_pedidos @desde = %s, @hasta = %s\",\n            parameters=(data_interval_start, data_interval_end),\n        )\n\n    @task\n    def construir_marts(): ...\n\n    cargar_raw() >> construir_marts()\n\n\npedidos()",
+        "intermediateBenefits": [
+          "La conexión se crea solo al ejecutar la tarea y la credencial vive en Airflow.",
+          "start_date fija: el calendario es predecible.",
+          "Dos tareas con responsabilidades separadas.",
+          "Cada corrida procesa su propio intervalo, aunque se repita otro día."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ing08-ej-1",
+          "title": "Práctica 1: Lee la expresión cron",
+          "difficulty": "Básico",
+          "prompt": "Escribe la expresión cron para cada caso (minuto, hora, día del mes, mes, día de la semana):\n1. Todos los días a las 06:30.\n2. Cada hora en punto.\n3. De lunes a viernes a las 22:00.\n4. El día 1 de cada mes a las 04:00.",
+          "hint": "En cron, el día de la semana va de 0 (domingo) a 6 (sábado); 1-5 es de lunes a viernes.",
+          "solutionExplanation": "Los cinco campos se leen de izquierda a derecha. Un asterisco significa \"cualquier valor\".",
+          "solutionCode": "1. 30 6 * * *\n2. 0 * * * *\n3. 0 22 * * 1-5\n4. 0 4 1 * *",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing08-ej-2",
+          "title": "Práctica 2: DAG con ramas en paralelo",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un DAG `inventario` que corra cada 6 horas con TaskFlow. Debe tener una tarea `verificar_conexion`, luego tres extracciones en paralelo (`extraer_tiendas`, `extraer_bodega`, `extraer_compras`), después `consolidar` y al final `notificar`, que debe correr aunque algo falle.",
+          "hint": "La expresión cron de cada 6 horas es \"0 */6 * * *\". Para notificar usa trigger_rule=\"all_done\".",
+          "solutionExplanation": "Las tres extracciones no dependen entre sí, así que corren a la vez. `notificar` usa `all_done` para avisar también cuando la corrida falla.",
+          "solutionCode": "import pendulum\nfrom airflow.sdk import dag, task\n\n\n@dag(schedule=\"0 */6 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef inventario():\n    @task\n    def verificar_conexion(): ...\n\n    @task\n    def extraer_tiendas(): ...\n\n    @task\n    def extraer_bodega(): ...\n\n    @task\n    def extraer_compras(): ...\n\n    @task\n    def consolidar(): ...\n\n    @task(trigger_rule=\"all_done\")\n    def notificar(): ...\n\n    verificar_conexion() >> [extraer_tiendas(), extraer_bodega(), extraer_compras()] >> consolidar() >> notificar()\n\n\ninventario()",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "ing08-ej-3",
+          "title": "Práctica 3: SQL con la fecha lógica",
+          "difficulty": "Intermedio",
+          "prompt": "Agrega a un DAG diario una tarea `SQLExecuteQueryOperator` con `task_id=\"cargar_ventas_dia\"` y la conexión `almacen_mssql` que ejecute el procedimiento `dw.cargar_ventas` pasándole la fecha lógica de la ejecución como texto aaaa-mm-dd.",
+          "hint": "El campo sql de los operadores admite plantillas de Jinja: {{ ds }} es la fecha lógica en formato aaaa-mm-dd.",
+          "solutionExplanation": "`{{ ds }}` se reemplaza al ejecutar por la fecha lógica de esa corrida. Si repites la ejecución del 17, el procedimiento vuelve a recibir '2026-11-17', no la fecha de hoy.",
+          "solutionCode": "from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator\n\ncargar_ventas_dia = SQLExecuteQueryOperator(\n    task_id=\"cargar_ventas_dia\",\n    conn_id=\"almacen_mssql\",\n    sql=\"EXEC dw.cargar_ventas @fecha = '{{ ds }}';\",\n)",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing08-q1",
+          "question": "¿Qué hace Airflow en un pipeline de datos?",
+          "options": [
+            "Guarda los datos de las tablas de hechos en su base de metadatos.",
+            "Decide cuándo y en qué orden corre cada tarea, y registra y reintenta.",
+            "Transforma los datos con su propio motor SQL en lugar del almacén.",
+            "Reemplaza a dbt compilando los modelos y creando las tablas finales."
+          ],
+          "correctIndex": 1,
+          "explanation": "Airflow es un orquestador: coordina tareas; el trabajo pesado lo hacen el almacén, dbt o los scripts."
+        },
+        {
+          "id": "ing08-q2",
+          "question": "¿Qué ocurre con a >> [b, c] >> d?",
+          "options": [
+            "a, b, c y d corren todas al mismo tiempo porque están en la misma línea.",
+            "b corre después de a, c después de b y d al final, una tras otra.",
+            "d corre en cuanto termina b o c, sin esperar a que terminen las dos.",
+            "b y c corren en paralelo después de a, y d espera a que terminen ambas."
+          ],
+          "correctIndex": 3,
+          "explanation": "La lista crea ramas paralelas; con la regla por defecto, d espera a todas sus anteriores."
+        },
+        {
+          "id": "ing08-q3",
+          "question": "¿Por qué no se debe usar start_date=datetime.now() en un DAG?",
+          "options": [
+            "Porque hace que el DAG corra cada segundo desde el momento de crearlo.",
+            "Porque cambia cada vez que se lee el archivo y el calendario no se cumple.",
+            "Porque Airflow solo acepta fechas escritas como texto en formato ISO.",
+            "Porque obliga a activar catchup y a rellenar todos los días ya pasados."
+          ],
+          "correctIndex": 1,
+          "explanation": "start_date debe ser fija; un valor que se mueve impide que el planificador cierre el primer intervalo."
+        }
+      ]
+    },
+    {
+      "id": "ing-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3: Orquestación con Airflow",
+      "title": "Airflow II: Idempotencia, Reintentos, Backfill, Sensores, XCom y Conexiones",
+      "subtitle": "Que un DAG aguante fallos, se pueda repetir y no esconda credenciales.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Diseñar tareas idempotentes que se puedan reintentar y repetir sin duplicar datos.",
+        "Configurar reintentos, tiempos máximos y avisos de fallo.",
+        "Rellenar historia con backfill de forma segura.",
+        "Usar sensores, XCom y Conexiones de Airflow correctamente."
+      ],
+      "theorySections": [
+        {
+          "id": "ing09-sec-1",
+          "title": "1. Idempotencia: la regla que hace todo posible",
+          "body": "Una tarea es **idempotente** si ejecutarla una vez o diez veces con el mismo intervalo deja el mismo resultado. Sin idempotencia, los reintentos y los backfills duplican datos.\n\nPatrones para lograrla:\n- **Reemplazar la partición**: borra los datos del intervalo y vuelve a insertarlos, en una transacción.\n- **MERGE por clave** (capítulo 2).\n- **Escribir a una tabla temporal y renombrar** al final.\n\nY nunca uses \"la hora actual\" para decidir qué procesar: usa el intervalo de la ejecución.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Procedimiento idempotente: reemplaza el día completo\nCREATE OR ALTER PROCEDURE dw.cargar_ventas @fecha date\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT ON;\n    BEGIN TRANSACTION;\n\n    DELETE FROM dw.fct_ventas_dia WHERE fecha = @fecha;\n\n    INSERT INTO dw.fct_ventas_dia (fecha, sucursal_id, ventas, pedidos)\n    SELECT @fecha, sucursal_id, SUM(total), COUNT(*)\n    FROM stg.pedidos\n    WHERE fecha_pedido = @fecha\n    GROUP BY sucursal_id;\n\n    COMMIT TRANSACTION;\nEND;",
+          "keyTakeaway": "Borra e inserta el intervalo dentro de una transacción: repetir da el mismo resultado."
+        },
+        {
+          "id": "ing09-sec-2",
+          "title": "2. Reintentos, tiempos máximos y avisos",
+          "body": "Muchos fallos son temporales: la API respondió 503, la red se cortó, la base estaba ocupada. Airflow reintenta solo si lo configuras:\n- `retries`: cuántas veces reintentar.\n- `retry_delay` y `retry_exponential_backoff`: cuánto esperar, y si la espera crece en cada intento.\n- `execution_timeout`: tiempo máximo de una tarea. Sin él, una consulta colgada bloquea el pipeline toda la noche.\n- `on_failure_callback`: función que se ejecuta cuando la tarea falla definitivamente; ahí envías el aviso (correo, Teams, Slack).\n\nSe suelen poner en `default_args` para todo el DAG y ajustar por tarea cuando haga falta.",
+          "codeLanguage": "python",
+          "codeSnippet": "from datetime import timedelta\n\n\ndef avisar_fallo(context):\n    ti = context[\"ti\"]\n    mensaje = (\n        f\"Falló {ti.dag_id}.{ti.task_id} \"\n        f\"(intervalo {context['data_interval_start']:%Y-%m-%d}) tras {ti.try_number} intentos\"\n    )\n    print(mensaje)  # aquí iría el envío a Teams, Slack o correo\n\n\nARGS = {\n    \"owner\": \"aronis\",\n    \"retries\": 3,\n    \"retry_delay\": timedelta(minutes=2),\n    \"retry_exponential_backoff\": True,      # 2, 4, 8 minutos\n    \"execution_timeout\": timedelta(minutes=30),\n    \"on_failure_callback\": avisar_fallo,\n}",
+          "keyTakeaway": "Reintentos con espera creciente, un tiempo máximo y un aviso cuando falla de verdad."
+        },
+        {
+          "id": "ing09-sec-3",
+          "title": "3. Backfill y sensores",
+          "body": "Un **backfill** ejecuta el DAG para intervalos pasados: por ejemplo, cargar todo octubre porque el pipeline es nuevo o porque se corrigió un error. Solo es seguro si las tareas son idempotentes y filtran por su intervalo.\n\nLimita cuántas ejecuciones corren a la vez (`max_active_runs`) para no saturar la base de origen.\n\nUn **sensor** es una tarea que **espera** a que algo ocurra: que llegue un archivo, que termine otro DAG, que una tabla tenga datos. Usa `mode=\"reschedule\"` o sensores diferibles (*deferrable*) para que la espera no ocupe un worker, y pon siempre un `timeout`.",
+          "codeLanguage": "python",
+          "codeSnippet": "# Backfill de octubre desde la línea de comandos (Airflow 3)\n#   airflow backfill create --dag-id ventas_diarias \\\n#       --from-date 2026-10-01 --to-date 2026-10-31 --max-active-runs 3\n\nfrom airflow.providers.standard.sensors.filesystem import FileSensor\n\nesperar_archivo = FileSensor(\n    task_id=\"esperar_archivo_ventas\",\n    fs_conn_id=\"carpeta_entrada\",\n    filepath=\"ventas_{{ ds }}.csv\",\n    mode=\"reschedule\",       # libera el worker entre comprobaciones\n    poke_interval=300,       # revisa cada 5 minutos\n    timeout=60 * 60 * 4,     # falla si en 4 horas no llegó\n)",
+          "keyTakeaway": "Backfill solo con tareas idempotentes; sensores en modo reschedule y siempre con timeout."
+        },
+        {
+          "id": "ing09-sec-4",
+          "title": "4. XCom, Variables y Conexiones",
+          "body": "**XCom** (*cross-communication*) pasa **valores pequeños** entre tareas: un número de filas, una ruta de archivo, un id de lote. Con TaskFlow ocurre solo al devolver un valor. No pases DataFrames ni listas enormes por XCom: se guardan en la base de metadatos.\n\n**Conexiones**: guardan servidor, usuario y contraseña de cada sistema con un `conn_id`. Los hooks y operadores las usan por nombre; el código nunca ve la contraseña. Se pueden cargar desde variables de entorno o un gestor de secretos.\n\n**Variables**: valores de configuración (una ruta, un correo de aviso). Léelas dentro de la tarea o con plantillas `{{ var.value.nombre }}`, no en el nivel superior del archivo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook\n\n\n@dag(schedule=\"@daily\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef conteo_ventas():\n    @task\n    def contar(ds=None) -> int:\n        hook = MsSqlHook(mssql_conn_id=\"almacen_mssql\")   # credenciales en la Conexión\n        fila = hook.get_first(\"SELECT COUNT(*) FROM stg.pedidos WHERE fecha_pedido = %s\", parameters=(ds,))\n        return fila[0]                                      # va por XCom (valor pequeño)\n\n    @task\n    def validar(filas: int):\n        if filas == 0:\n            raise ValueError(\"No llegaron pedidos para el día\")\n\n    validar(contar())\n\n\nconteo_ventas()",
+          "keyTakeaway": "XCom para valores pequeños, Conexiones para credenciales, Variables leídas dentro de la tarea."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lista de control de un DAG listo para producción.",
+        "rules": [
+          "Todas las tareas son idempotentes y filtran por su intervalo.",
+          "default_args define retries, retry_delay, execution_timeout y on_failure_callback.",
+          "max_active_runs limita las ejecuciones simultáneas.",
+          "Los sensores usan mode=\"reschedule\" (o son diferibles) y tienen timeout.",
+          "Por XCom solo viajan valores pequeños; los datos van por tablas o archivos."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "from datetime import timedelta\nimport pendulum\nfrom airflow.sdk import dag\n\nDEFAULT_ARGS = {\n    \"owner\": \"aronis\",\n    \"retries\": 3,\n    \"retry_delay\": timedelta(minutes=2),\n    \"retry_exponential_backoff\": True,\n    \"execution_timeout\": timedelta(minutes=45),\n    \"on_failure_callback\": lambda ctx: print(\"aviso de fallo\"),\n}\n\n\n@dag(\n    schedule=\"0 2 * * *\",\n    start_date=pendulum.datetime(2026, 1, 1, tz=\"UTC\"),\n    catchup=False,\n    max_active_runs=1,\n    default_args=DEFAULT_ARGS,\n)\ndef pipeline_produccion():\n    ...\n\n\npipeline_produccion()"
+      },
+      "comparison": {
+        "scenario": "Cargar las ventas de un día y pasar los datos a la tarea de validación.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "@task\ndef cargar():\n    hook = MsSqlHook(mssql_conn_id=\"almacen_mssql\")\n    hook.run(\"INSERT INTO dw.fct_ventas_dia SELECT * FROM stg.pedidos_hoy\")\n    return hook.get_pandas_df(\"SELECT * FROM dw.fct_ventas_dia\")   # millones de filas por XCom\n\n@task\ndef validar(df):\n    assert len(df) > 0",
+        "juniorFlaws": [
+          "INSERT sin borrar antes: cada reintento duplica el día.",
+          "Usa una tabla \"de hoy\", no el intervalo: un backfill vuelve a cargar hoy.",
+          "Pasa un DataFrame enorme por XCom y llena la base de metadatos."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "@task\ndef cargar(ds=None):\n    hook = MsSqlHook(mssql_conn_id=\"almacen_mssql\")\n    hook.run(\"EXEC dw.cargar_ventas @fecha = %s\", parameters=(ds,))   # borra e inserta el día\n\n@task\ndef validar(ds=None):\n    hook = MsSqlHook(mssql_conn_id=\"almacen_mssql\")\n    filas = hook.get_first(\"SELECT COUNT(*) FROM dw.fct_ventas_dia WHERE fecha = %s\", parameters=(ds,))[0]\n    if filas == 0:\n        raise ValueError(f\"Sin ventas para {ds}\")",
+        "intermediateBenefits": [
+          "El procedimiento reemplaza el día: los reintentos no duplican.",
+          "Cada ejecución trabaja con su propia fecha lógica.",
+          "La validación consulta la base; por XCom no viaja nada pesado."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ing09-ej-1",
+          "title": "Práctica 1: Haz idempotente la carga",
+          "difficulty": "Intermedio",
+          "prompt": "Este procedimiento duplica datos si se ejecuta dos veces:\n`INSERT INTO dw.fct_visitas (fecha, pagina, visitas) SELECT @fecha, pagina, COUNT(*) FROM stg.eventos WHERE CAST(ocurrido_en AS date) = @fecha GROUP BY pagina;`\nReescríbelo como procedimiento `dw.cargar_visitas @fecha date` idempotente y transaccional.",
+          "hint": "Borra el día antes de insertarlo, todo dentro de BEGIN TRANSACTION, con SET XACT_ABORT ON.",
+          "solutionExplanation": "Con XACT_ABORT ON, cualquier error deshace toda la transacción, así que nunca queda el día borrado sin volver a insertarse.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE dw.cargar_visitas @fecha date\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT ON;\n    BEGIN TRANSACTION;\n\n    DELETE FROM dw.fct_visitas WHERE fecha = @fecha;\n\n    INSERT INTO dw.fct_visitas (fecha, pagina, visitas)\n    SELECT @fecha, pagina, COUNT(*)\n    FROM stg.eventos\n    WHERE ocurrido_en >= @fecha\n      AND ocurrido_en <  DATEADD(DAY, 1, @fecha)\n    GROUP BY pagina;\n\n    COMMIT TRANSACTION;\nEND;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing09-ej-2",
+          "title": "Práctica 2: default_args de producción",
+          "difficulty": "Básico",
+          "prompt": "Escribe el diccionario `DEFAULT_ARGS` para un DAG cuyas tareas deben reintentarse 4 veces con espera creciente desde 1 minuto, no pueden tardar más de 20 minutos y deben llamar a la función `avisar_fallo` cuando fallen definitivamente.",
+          "hint": "Usa timedelta para retry_delay y execution_timeout.",
+          "solutionExplanation": "Con espera exponencial desde 1 minuto, los reintentos ocurren tras 1, 2, 4 y 8 minutos aproximadamente, lo que da tiempo a que se recupere un servicio caído.",
+          "solutionCode": "from datetime import timedelta\n\n\ndef avisar_fallo(context):\n    print(f\"Falló {context['ti'].task_id}\")\n\n\nDEFAULT_ARGS = {\n    \"owner\": \"aronis\",\n    \"retries\": 4,\n    \"retry_delay\": timedelta(minutes=1),\n    \"retry_exponential_backoff\": True,\n    \"execution_timeout\": timedelta(minutes=20),\n    \"on_failure_callback\": avisar_fallo,\n}",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "ing09-ej-3",
+          "title": "Práctica 3: Sensor y validación",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe un DAG diario `pagos_banco` que:\n1. Espere con un `FileSensor` el archivo `pagos_{{ ds_nodash }}.csv` en la conexión `sftp_banco_local`, revisando cada 10 minutos y fallando a las 6 horas, sin ocupar un worker.\n2. Cargue el archivo con una tarea `cargar` que reciba `ds` y devuelva el número de filas.\n3. Falle en `validar` si el número de filas es menor que 10.",
+          "hint": "mode=\"reschedule\" libera el worker; timeout está en segundos.",
+          "solutionExplanation": "El sensor espera sin bloquear recursos. `cargar` devuelve solo el conteo (un entero por XCom) y `validar` lo recibe como argumento gracias a TaskFlow.",
+          "solutionCode": "import pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.standard.sensors.filesystem import FileSensor\n\n\n@dag(schedule=\"0 6 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False, max_active_runs=1)\ndef pagos_banco():\n    esperar = FileSensor(\n        task_id=\"esperar_archivo\",\n        fs_conn_id=\"sftp_banco_local\",\n        filepath=\"pagos_{{ ds_nodash }}.csv\",\n        mode=\"reschedule\",\n        poke_interval=600,\n        timeout=6 * 60 * 60,\n    )\n\n    @task\n    def cargar(ds=None) -> int:\n        # BULK INSERT del archivo del día a raw y conteo de filas cargadas\n        return 125\n\n    @task\n    def validar(filas: int):\n        if filas < 10:\n            raise ValueError(f\"Solo llegaron {filas} pagos\")\n\n    esperar >> validar(cargar())\n\n\npagos_banco()",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing09-q1",
+          "question": "¿Por qué la idempotencia es necesaria para hacer un backfill?",
+          "options": [
+            "Porque el backfill borra la base de metadatos antes de crear cada ejecución.",
+            "Porque sin idempotencia el backfill solo puede ejecutar un día por semana.",
+            "Porque Airflow solo permite hacer backfill de DAGs que no tienen sensores.",
+            "Porque el backfill repite intervalos y no debe duplicar datos ya cargados."
+          ],
+          "correctIndex": 3,
+          "explanation": "Al rellenar historia se vuelven a ejecutar intervalos; si las tareas no son idempotentes, se duplican filas."
+        },
+        {
+          "id": "ing09-q2",
+          "question": "¿Qué ventaja tiene un sensor con mode=\"reschedule\"?",
+          "options": [
+            "Reintenta toda la ejecución del DAG desde el inicio si el archivo no llega.",
+            "Libera el worker entre comprobaciones en lugar de ocuparlo mientras espera.",
+            "Vuelve a programar el DAG para el día siguiente si la condición no se cumple.",
+            "Revisa la condición cada segundo para detectar el archivo lo antes posible."
+          ],
+          "correctIndex": 1,
+          "explanation": "En modo poke el sensor ocupa un worker todo el tiempo; reschedule lo libera entre revisiones."
+        },
+        {
+          "id": "ing09-q3",
+          "question": "¿Qué conviene pasar entre tareas por XCom?",
+          "options": [
+            "La tabla completa de ventas del día convertida en DataFrame de pandas.",
+            "El código SQL de todos los modelos que se van a ejecutar después.",
+            "El usuario y la contraseña de la base de datos para la tarea siguiente.",
+            "Valores pequeños, como un conteo de filas o la ruta de un archivo."
+          ],
+          "correctIndex": 3,
+          "explanation": "XCom se guarda en la base de metadatos; los datos pesados van por tablas y las credenciales por Conexiones."
+        }
+      ]
+    },
+    {
+      "id": "ing-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 3: Orquestación con Airflow",
+      "title": "Airflow con dbt: Orquestar el Proyecto, Alertas y Horas Límite",
+      "subtitle": "Unir ingesta, transformación y pruebas en una sola corrida que avisa cuando algo va mal.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Ejecutar dbt desde Airflow con BashOperator y entender sus límites.",
+        "Representar cada modelo de dbt como tarea con Astronomer Cosmos.",
+        "Encadenar ingesta, freshness, build y publicación en el orden correcto.",
+        "Vigilar la hora límite de entrega y enviar alertas útiles."
+      ],
+      "theorySections": [
+        {
+          "id": "ing10-sec-1",
+          "title": "1. dbt desde Airflow: la forma simple",
+          "body": "La forma más directa de orquestar dbt es una tarea `BashOperator` que ejecuta el comando. Funciona y es fácil de entender.\n\nSu límite: todo el proyecto es **una sola tarea**. Si falla un modelo entre cien, Airflow solo dice \"falló dbt_build\" y, al reintentar, vuelve a construir los cien.\n\nMejoras sencillas:\n- Separar en varias tareas por capa: `dbt build --select staging`, luego `intermediate`, luego `marts`.\n- Usar `dbt retry` en el reintento: reanuda solo desde los nodos que fallaron en la ejecución anterior.\n- Pasar la fecha lógica a dbt con `--vars` para que los modelos sepan qué intervalo procesar.",
+          "codeLanguage": "python",
+          "codeSnippet": "from airflow.providers.standard.operators.bash import BashOperator\n\nDBT = \"cd /opt/dbt/almacen && dbt\"\n\nfreshness = BashOperator(task_id=\"dbt_freshness\", bash_command=f\"{DBT} source freshness --target prod\")\n\nbuild_staging = BashOperator(\n    task_id=\"dbt_staging\",\n    # {{ ds }} es una plantilla de Airflow: se reemplaza por la fecha lógica\n    bash_command=DBT + \" build --select staging --target prod --vars '{fecha: {{ ds }}}'\",\n)\n\nbuild_marts = BashOperator(task_id=\"dbt_marts\", bash_command=f\"{DBT} build --select marts --target prod\")\n\nfreshness >> build_staging >> build_marts",
+          "keyTakeaway": "Un BashOperator por capa es simple y suficiente para proyectos pequeños."
+        },
+        {
+          "id": "ing10-sec-2",
+          "title": "2. Un modelo, una tarea: Cosmos",
+          "body": "**Astronomer Cosmos** es un paquete de código abierto que lee el proyecto dbt y crea **una tarea de Airflow por modelo** (y sus pruebas), respetando las dependencias de `ref()`.\n\nVentajas:\n- En la interfaz de Airflow ves exactamente qué modelo falló.\n- Los reintentos repiten solo ese modelo.\n- Los modelos independientes corren en paralelo.\n\nSe usa con `DbtTaskGroup` dentro de un DAG, así puedes poner la ingesta antes y la publicación después. Con proyectos de cientos de modelos el grafo se vuelve grande: filtra con `select` o agrupa por carpeta.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import dag, task\nfrom cosmos import DbtTaskGroup, ProjectConfig, ProfileConfig, RenderConfig\n\nperfil = ProfileConfig(\n    profile_name=\"almacen_ventas\",\n    target_name=\"prod\",\n    profiles_yml_filepath=\"/opt/dbt/profiles.yml\",\n)\n\n\n@dag(schedule=\"0 2 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"), catchup=False)\ndef ventas_con_cosmos():\n    @task\n    def ingerir(): ...\n\n    transformar = DbtTaskGroup(\n        group_id=\"dbt\",\n        project_config=ProjectConfig(\"/opt/dbt/almacen\"),\n        profile_config=perfil,\n        render_config=RenderConfig(select=[\"path:models/staging\", \"path:models/marts\"]),\n    )\n\n    @task\n    def publicar(): ...\n\n    ingerir() >> transformar >> publicar()\n\n\nventas_con_cosmos()",
+          "keyTakeaway": "Con Cosmos cada modelo es una tarea: fallos localizados y reintentos precisos."
+        },
+        {
+          "id": "ing10-sec-3",
+          "title": "3. El orden de una corrida completa",
+          "body": "Un pipeline de punta a punta suele tener este orden:\n1. **Ingesta** de cada fuente a raw, en paralelo.\n2. **Freshness** de las fuentes: si algo no llegó, se detiene aquí.\n3. **Snapshots**: guardar la historia antes de transformar.\n4. **dbt build**: modelos y pruebas en orden del DAG.\n5. **Publicación**: refrescar el modelo semántico o el tablero, y avisar que los datos están listos.\n\nUn detalle importante: el tablero debe refrescarse **solo si todo pasó**. Es mejor mostrar datos de ayer marcados como de ayer que datos de hoy incompletos o equivocados.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "[extraer_erp] ─┐\n[extraer_crm] ─┼─> [dbt source freshness] ─> [dbt snapshot] ─> [dbt build] ─> [refrescar tablero] ─> [avisar \"listo\"]\n[extraer_pago]─┘\n                             si algo falla: on_failure_callback ─> aviso con la tarea y el enlace al registro",
+          "keyTakeaway": "Ingesta, frescura, snapshots, build y publicación; el tablero solo se refresca si todo pasó."
+        },
+        {
+          "id": "ing10-sec-4",
+          "title": "4. Hora límite y alertas que sirven",
+          "body": "El negocio no pregunta si el DAG terminó, pregunta **\"¿están los datos a las 07:00?\"**. Vigila esa promesa:\n- Una tarea final que compare la hora de término con la hora límite y avise si se pasó.\n- Un control externo: una consulta programada que revise la frescura del mart y avise si a las 07:15 no se actualizó. Así te enteras aunque Airflow mismo esté caído.\n\nUna buena alerta responde de inmediato: **qué falló, qué intervalo, qué impacto y dónde mirar**. Una alerta que dice \"Error en DAG\" a las 3 de la mañana solo genera ruido. Y no alertes por cada reintento: solo cuando la tarea falla definitivamente.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pendulum\nfrom airflow.sdk import task\n\nHORA_LIMITE = 7  # 07:00 hora de Santo Domingo\n\n\n@task(trigger_rule=\"all_success\")\ndef verificar_hora_limite(data_interval_end=None):\n    zona = \"America/Santo_Domingo\"\n    ahora = pendulum.now(zona)\n    limite = data_interval_end.in_timezone(zona).replace(hour=HORA_LIMITE, minute=0, second=0)\n    if ahora > limite:\n        retraso = ahora.diff(limite).in_minutes()\n        print(f\"AVISO: datos listos con {retraso} minutos de retraso (límite {limite:%H:%M})\")\n    return ahora.isoformat()",
+          "keyTakeaway": "Vigila la promesa (datos a las 07:00), no solo el estado verde del DAG."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo se orquesta un proyecto dbt en producción.",
+        "rules": [
+          "freshness va antes que build; si falla, no se transforma.",
+          "Los snapshots corren antes de los modelos que leen de ellos.",
+          "Proyectos pequeños: BashOperator por capa. Proyectos medianos o grandes: Cosmos.",
+          "El tablero se refresca solo si todo el build pasó.",
+          "Cada alerta dice qué falló, qué intervalo, qué impacto y dónde mirar."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.standard.operators.bash import BashOperator\n\nDBT = \"cd /opt/dbt/almacen && dbt\"\n\n\n@dag(schedule=\"0 2 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"),\n     catchup=False, max_active_runs=1, default_args={\"retries\": 2})\ndef ventas_produccion():\n    @task\n    def extraer(fuente: str): ...\n\n    fuentes = [extraer.override(task_id=f\"extraer_{f}\")(f) for f in (\"erp\", \"crm\", \"pasarela\")]\n    freshness = BashOperator(task_id=\"freshness\", bash_command=f\"{DBT} source freshness --target prod\")\n    snapshot = BashOperator(task_id=\"snapshot\", bash_command=f\"{DBT} snapshot --target prod\")\n    build = BashOperator(task_id=\"build\", bash_command=f\"{DBT} build --exclude resource_type:snapshot --target prod\")\n\n    @task\n    def refrescar_tablero(): ...\n\n    fuentes >> freshness >> snapshot >> build >> refrescar_tablero()\n\n\nventas_produccion()"
+      },
+      "comparison": {
+        "scenario": "Orquestar la corrida nocturna con dbt.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "todo = BashOperator(\n    task_id=\"todo\",\n    bash_command=\"python extraer.py && dbt run && python refrescar_tablero.py\",\n)",
+        "juniorFlaws": [
+          "Si falla dbt, no se sabe qué modelo falló ni se puede reintentar solo esa parte.",
+          "dbt run no ejecuta las pruebas: el tablero se refresca aunque los datos estén mal.",
+          "No hay control de frescura: con fuentes atrasadas se publica igual."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "extraer = BashOperator(task_id=\"extraer\", bash_command=\"python /opt/pipelines/extraer.py --fecha {{ ds }}\")\nfreshness = BashOperator(task_id=\"freshness\", bash_command=f\"{DBT} source freshness --target prod\")\nbuild = BashOperator(task_id=\"build\", bash_command=f\"{DBT} build --target prod\")\nrefrescar = BashOperator(task_id=\"refrescar_tablero\", bash_command=\"python /opt/pipelines/refrescar.py\")\n\nextraer >> freshness >> build >> refrescar",
+        "intermediateBenefits": [
+          "Cada paso es una tarea visible y reintentable.",
+          "dbt build ejecuta las pruebas y frena antes de publicar.",
+          "freshness evita transformar datos que no llegaron."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "ing10-ej-1",
+          "title": "Práctica 1: Ordena la corrida",
+          "difficulty": "Básico",
+          "prompt": "Ordena estas tareas para una corrida nocturna y marca cuáles pueden ir en paralelo: `refrescar_power_bi`, `dbt_build`, `extraer_erp`, `dbt_snapshot`, `extraer_crm`, `dbt_source_freshness`, `avisar_listo`.",
+          "hint": "Primero llega el dato, luego se comprueba, se guarda la historia, se transforma y se publica.",
+          "solutionExplanation": "Las dos extracciones son independientes. Los snapshots deben capturar el estado de las fuentes antes de que los modelos los lean, y el tablero se refresca solo después de que pasen las pruebas.",
+          "solutionCode": "[extraer_erp, extraer_crm]      (en paralelo)\n-> dbt_source_freshness\n-> dbt_snapshot\n-> dbt_build\n-> refrescar_power_bi\n-> avisar_listo",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing10-ej-2",
+          "title": "Práctica 2: dbt por capas con BashOperator",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe tres tareas `BashOperator` (`dbt_staging`, `dbt_intermediate`, `dbt_marts`) que ejecuten `dbt build` por carpeta en el proyecto `/opt/dbt/almacen` con el target `prod`, y encadénalas.",
+          "hint": "--select staging selecciona la carpeta models/staging.",
+          "solutionExplanation": "Separar por capa da un poco de visibilidad sin agregar dependencias: si falla marts, sabes que staging e intermedio terminaron bien y el reintento empieza desde marts.",
+          "solutionCode": "from airflow.providers.standard.operators.bash import BashOperator\n\nDBT = \"cd /opt/dbt/almacen && dbt build --target prod --select\"\n\ndbt_staging = BashOperator(task_id=\"dbt_staging\", bash_command=f\"{DBT} staging\")\ndbt_intermediate = BashOperator(task_id=\"dbt_intermediate\", bash_command=f\"{DBT} intermediate\")\ndbt_marts = BashOperator(task_id=\"dbt_marts\", bash_command=f\"{DBT} marts\")\n\ndbt_staging >> dbt_intermediate >> dbt_marts",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "ing10-ej-3",
+          "title": "Práctica 3: Una alerta útil",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe la función `avisar_fallo(context)` para `on_failure_callback` que arme un mensaje con: el DAG y la tarea que fallaron, el intervalo de datos (fecha de inicio), el número de intento y el enlace al registro (`context[\"ti\"].log_url`). Termina con una línea de impacto: \"El tablero de ventas no se actualizará hasta resolverlo\".",
+          "hint": "context[\"ti\"] es la instancia de la tarea; data_interval_start viene en el contexto.",
+          "solutionExplanation": "Con este mensaje quien recibe la alerta sabe qué falló, qué día afecta, qué consecuencia tiene y dónde empezar a mirar, sin abrir Airflow a ciegas.",
+          "solutionCode": "def avisar_fallo(context):\n    ti = context[\"ti\"]\n    mensaje = \"\\n\".join([\n        f\"Falló {ti.dag_id} › {ti.task_id}\",\n        f\"Intervalo: {context['data_interval_start']:%Y-%m-%d}\",\n        f\"Intento: {ti.try_number}\",\n        f\"Registro: {ti.log_url}\",\n        \"Impacto: el tablero de ventas no se actualizará hasta resolverlo.\",\n    ])\n    print(mensaje)  # enviar a Teams, Slack o correo\n    return mensaje",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing10-q1",
+          "question": "¿Qué ventaja da Cosmos frente a un único BashOperator con dbt build?",
+          "options": [
+            "Hace que dbt ya no necesite conectarse al almacén para construir modelos.",
+            "Convierte los modelos de dbt en DataFrames que viajan por XCom.",
+            "Cada modelo es una tarea: se ve cuál falló y se reintenta solo ese.",
+            "Elimina la necesidad de escribir pruebas en los archivos YAML de dbt."
+          ],
+          "correctIndex": 2,
+          "explanation": "Cosmos traduce el DAG de dbt a tareas de Airflow, con visibilidad y reintentos por modelo."
+        },
+        {
+          "id": "ing10-q2",
+          "question": "¿Por qué dbt source freshness se ejecuta antes de dbt build?",
+          "options": [
+            "Porque dbt build falla siempre si no se ejecutó freshness primero.",
+            "Porque freshness compila los modelos que después ejecuta dbt build.",
+            "Porque dbt build borra las fechas de carga que usa la prueba de frescura.",
+            "Para no transformar ni publicar si las fuentes no llegaron a tiempo."
+          ],
+          "correctIndex": 3,
+          "explanation": "Detectar una fuente atrasada al inicio evita gastar tiempo y publicar datos incompletos."
+        },
+        {
+          "id": "ing10-q3",
+          "question": "Las pruebas de dbt fallaron en la corrida nocturna. ¿Qué debería pasar con el tablero?",
+          "options": [
+            "Se refresca solo con las tablas cuyas pruebas pasaron, sin avisar a nadie.",
+            "Se borra por completo hasta que alguien corrija las pruebas fallidas.",
+            "Se refresca igual, porque los usuarios prefieren datos nuevos aunque fallen.",
+            "No se refresca: sigue mostrando los datos válidos del día anterior."
+          ],
+          "correctIndex": 3,
+          "explanation": "Publicar datos que no pasaron las pruebas destruye la confianza; mejor datos de ayer, correctos y marcados."
+        }
+      ]
+    },
+    {
+      "id": "ing-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 4: Calidad y operación",
+      "title": "Calidad de Datos: Dimensiones, Pruebas en T-SQL, Contratos y Cuarentena",
+      "subtitle": "Definir qué significa «dato correcto», medirlo en cada carga y frenar lo que no cumple.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Usar las dimensiones de calidad (completitud, unicidad, validez, consistencia, exactitud y oportunidad) para escribir reglas medibles.",
+        "Implementar un registro de controles de calidad en T-SQL con umbrales.",
+        "Definir un contrato de datos entre quien produce y quien consume.",
+        "Separar filas inválidas en una tabla de cuarentena sin detener todo el pipeline."
+      ],
+      "theorySections": [
+        {
+          "id": "ing11-sec-1",
+          "title": "1. Dimensiones de calidad convertidas en reglas",
+          "body": "\"Los datos están mal\" no se puede arreglar. Hay que convertirlo en **reglas medibles**, agrupadas en dimensiones:\n- **Completitud**: los campos obligatorios no faltan. *\"Menos del 1 % de pedidos sin cliente.\"*\n- **Unicidad**: no hay duplicados del grano. *\"Cero pedido_id repetidos.\"*\n- **Validez**: los valores cumplen formato y rango. *\"Montos entre 0 y 50 000; emails con @.\"*\n- **Consistencia**: los datos cuadran entre tablas. *\"La suma de líneas es igual al total del pedido.\"*\n- **Exactitud**: reflejan la realidad. *\"Las ventas del almacén difieren menos del 0,5 % del cierre contable.\"*\n- **Oportunidad**: llegan a tiempo. *\"Datos de ayer disponibles antes de las 07:00.\"*\n\nCada regla necesita un **umbral** y una **acción**: ¿bloquea la publicación, solo avisa o manda filas a cuarentena?",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Dimensión      Regla                                         Umbral     Acción\n------------   -------------------------------------------   --------   -----------\nUnicidad       pedido_id no se repite en fct_pedidos         0 filas    bloquear\nCompletitud    cliente_id no nulo en fct_pedidos             < 1 %      avisar\nValidez        monto entre 0 y 50 000                        0 filas    cuarentena\nConsistencia   suma de líneas = total del pedido (± 0,01)    0 filas    bloquear\nExactitud      ventas del mes vs cierre contable             < 0,5 %    avisar\nOportunidad    max(_cargado_en) de raw.pedidos               < 24 h     bloquear",
+          "keyTakeaway": "Cada regla de calidad tiene dimensión, umbral y acción; sin eso es solo una queja."
+        },
+        {
+          "id": "ing11-sec-2",
+          "title": "2. Un registro de controles en T-SQL",
+          "body": "Además de las pruebas de dbt, conviene guardar **el resultado de cada control en cada corrida**. Así puedes ver tendencias (\"la completitud de email baja desde hace una semana\") y demostrar la calidad con datos.\n\nEl patrón: una tabla `calidad.resultados` y un procedimiento que ejecuta cada control, calcula cuántas filas fallan y el porcentaje, lo compara con el umbral y guarda el resultado. Si un control **bloqueante** falla, el procedimiento lanza un error con `THROW` y la tarea de Airflow se detiene.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE calidad.resultados (\n    corrida_id   uniqueidentifier NOT NULL,\n    control      varchar(100)     NOT NULL,\n    tabla        sysname          NOT NULL,\n    filas_total  bigint           NOT NULL,\n    filas_malas  bigint           NOT NULL,\n    pct_malas    AS CAST(filas_malas * 100.0 / NULLIF(filas_total, 0) AS decimal(6,3)),\n    umbral_pct   decimal(6,3)     NOT NULL,\n    bloqueante   bit              NOT NULL,\n    aprobado     bit              NOT NULL,\n    medido_en    datetime2(0)     NOT NULL DEFAULT SYSUTCDATETIME()\n);\n\nDECLARE @corrida uniqueidentifier = NEWID();\n\nINSERT INTO calidad.resultados (corrida_id, control, tabla, filas_total, filas_malas, umbral_pct, bloqueante, aprobado)\nSELECT @corrida, 'cliente_id no nulo', 'dw.fct_pedidos',\n       COUNT(*),\n       SUM(CASE WHEN cliente_id IS NULL THEN 1 ELSE 0 END),\n       1.0, 0,\n       CASE WHEN SUM(CASE WHEN cliente_id IS NULL THEN 1 ELSE 0 END) * 100.0\n                 / NULLIF(COUNT(*), 0) <= 1.0 THEN 1 ELSE 0 END\nFROM dw.fct_pedidos;\n\nIF EXISTS (SELECT 1 FROM calidad.resultados\n           WHERE corrida_id = @corrida AND bloqueante = 1 AND aprobado = 0)\n    THROW 50001, 'Falló un control de calidad bloqueante.', 1;",
+          "keyTakeaway": "Guarda cada control con su resultado y lanza THROW si falla uno bloqueante."
+        },
+        {
+          "id": "ing11-sec-3",
+          "title": "3. Contratos de datos",
+          "body": "Muchos problemas de calidad nacen **aguas arriba**: el equipo de la aplicación renombra una columna o cambia un estado y el pipeline se rompe. Un **contrato de datos** es un acuerdo explícito entre quien produce y quien consume:\n- Qué columnas existen, con qué tipo y cuáles son obligatorias.\n- Qué valores son válidos.\n- Con qué frecuencia llegan y quién es el responsable.\n- Cómo se avisa un cambio (y con cuánta anticipación).\n\ndbt permite **hacer cumplir** el contrato de un modelo: con `contract: {enforced: true}` verifica, antes de construir, que el SELECT devuelva exactamente esas columnas con esos tipos; si no, falla sin tocar la tabla. Así los consumidores del mart están protegidos de cambios accidentales.",
+          "codeLanguage": "yaml",
+          "codeSnippet": "models:\n  - name: fct_pedidos\n    config:\n      contract:\n        enforced: true\n    columns:\n      - name: pedido_id\n        data_type: int\n        constraints:\n          - type: not_null\n      - name: cliente_id\n        data_type: int\n      - name: fecha_pedido\n        data_type: date\n      - name: total\n        data_type: decimal(12,2)\n      - name: estado\n        data_type: varchar(20)",
+          "keyTakeaway": "Un contrato hace explícito lo que el consumidor puede esperar; dbt lo verifica antes de construir."
+        },
+        {
+          "id": "ing11-sec-4",
+          "title": "4. Cuarentena: separar sin detener",
+          "body": "No todo error merece detener el pipeline. Si 3 pedidos de 200 000 tienen un monto negativo, bloquear el tablero de toda la empresa es desproporcionado. La alternativa es la **cuarentena**:\n- Las filas que violan reglas de validez van a una tabla aparte, con el motivo.\n- Las filas buenas siguen su camino.\n- Un control vigila el **porcentaje** en cuarentena: si supera el umbral, ahí sí se bloquea, porque ya no es un caso aislado sino un problema de la fuente.\n- Alguien revisa la cuarentena, corrige en la fuente y las filas vuelven a entrar en la siguiente corrida.\n\nAsí el negocio recibe datos a tiempo y los errores no desaparecen en silencio.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Filas válidas al mart\nINSERT INTO dw.fct_pedidos (pedido_id, cliente_id, fecha_pedido, total, estado)\nSELECT pedido_id, cliente_id, fecha_pedido, total, estado\nFROM stg.pedidos\nWHERE total BETWEEN 0 AND 50000\n  AND fecha_pedido <= CAST(SYSUTCDATETIME() AS date);\n\n-- Filas inválidas a cuarentena con su motivo\nINSERT INTO calidad.cuarentena_pedidos (pedido_id, motivo, fila_json, detectado_en)\nSELECT pedido_id,\n       CASE WHEN total < 0 OR total > 50000 THEN 'total fuera de rango'\n            ELSE 'fecha en el futuro' END,\n       (SELECT s.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER),\n       SYSUTCDATETIME()\nFROM stg.pedidos AS s\nWHERE NOT (total BETWEEN 0 AND 50000)\n   OR fecha_pedido > CAST(SYSUTCDATETIME() AS date);",
+          "keyTakeaway": "Cuarentena para casos aislados; bloqueo cuando el porcentaje indica un problema de la fuente."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Política de calidad de un pipeline.",
+        "rules": [
+          "Cada regla tiene dimensión, umbral, acción (bloquear, avisar o cuarentena) y dueño.",
+          "Los resultados de los controles se guardan en cada corrida, no solo se muestran.",
+          "Los marts que consumen otros equipos tienen contrato aplicado.",
+          "La cuarentena tiene un umbral de porcentaje que, si se supera, bloquea.",
+          "Las filas en cuarentena se revisan y se corrigen en la fuente, no a mano en el almacén."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Control de porcentaje en cuarentena: bloquea si supera el 0,5 %\nDECLARE @total bigint = (SELECT COUNT(*) FROM stg.pedidos);\nDECLARE @malas bigint = (SELECT COUNT(*) FROM calidad.cuarentena_pedidos\n                         WHERE detectado_en >= CAST(SYSUTCDATETIME() AS date));\n\nIF @total > 0 AND @malas * 100.0 / @total > 0.5\n    THROW 50002, 'Más del 0,5 % de los pedidos quedó en cuarentena: revisar la fuente.', 1;"
+      },
+      "comparison": {
+        "scenario": "Unos pocos pedidos llegan con monto negativo.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Opción 1: se borran sin dejar rastro\nDELETE FROM stg.pedidos WHERE total < 0;\n\n-- Opción 2: se detiene todo el pipeline por 3 filas\nIF EXISTS (SELECT 1 FROM stg.pedidos WHERE total < 0)\n    THROW 50000, 'Datos inválidos', 1;",
+        "juniorFlaws": [
+          "Borrar oculta el problema: nadie lo corrige en la fuente y el total del mes no cuadra.",
+          "Detener todo por 3 filas deja a la empresa sin tablero por un caso aislado.",
+          "El mensaje \"Datos inválidos\" no dice qué regla, cuántas filas ni dónde mirar."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Separa, registra y bloquea solo si es masivo\nINSERT INTO calidad.cuarentena_pedidos (pedido_id, motivo, fila_json, detectado_en)\nSELECT pedido_id, 'total negativo', (SELECT s.* FOR JSON PATH, WITHOUT_ARRAY_WRAPPER), SYSUTCDATETIME()\nFROM stg.pedidos AS s\nWHERE total < 0;\n\nDECLARE @pct decimal(6,3) =\n    (SELECT SUM(CASE WHEN total < 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0) FROM stg.pedidos);\nIF @pct > 0.5\n    THROW 50002, 'Más del 0,5 % de pedidos con total negativo (ver calidad.cuarentena_pedidos).', 1;",
+        "intermediateBenefits": [
+          "Las filas malas quedan guardadas con su motivo para corregirlas.",
+          "El tablero se publica con los datos válidos.",
+          "Si el problema es masivo, se bloquea con un mensaje claro."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing11-ej-1",
+          "title": "Práctica 1: Escribe reglas medibles",
+          "difficulty": "Básico",
+          "prompt": "El área de cobranza dice: \"los datos de facturas están mal\". Convierte la queja en cuatro reglas medibles sobre `dw.fct_facturas (factura_id, cliente_id, emitida_en, vence_en, monto, estado)`, una por dimensión distinta, cada una con umbral y acción.",
+          "hint": "Piensa en unicidad, completitud, validez y consistencia entre fechas.",
+          "solutionExplanation": "Cada regla puede comprobarse con una consulta y tiene una acción clara. La de fechas es de consistencia porque compara dos columnas de la misma fila.",
+          "solutionCode": "Unicidad:     factura_id no se repite                          0 filas   bloquear\nCompletitud:  cliente_id no nulo                               < 0,5 %   avisar\nValidez:      estado en ('emitida','pagada','vencida','anulada') 0 filas  cuarentena\nConsistencia: vence_en >= emitida_en                           0 filas   cuarentena",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing11-ej-2",
+          "title": "Práctica 2: Control de unicidad registrado",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el INSERT a `calidad.resultados` (estructura de la sección 2) para el control \"factura_id único\" sobre `dw.fct_facturas`, bloqueante y con umbral 0 %. `filas_malas` debe ser el número de filas que sobran por duplicados (filas totales menos facturas distintas).",
+          "hint": "COUNT(*) - COUNT(DISTINCT factura_id) da las filas sobrantes.",
+          "solutionExplanation": "Contar filas sobrantes (y no solo \"hay o no hay duplicados\") permite ver la magnitud en el historial. Con umbral 0, una sola fila sobrante marca el control como no aprobado.",
+          "solutionCode": "DECLARE @corrida uniqueidentifier = NEWID();\n\nINSERT INTO calidad.resultados (corrida_id, control, tabla, filas_total, filas_malas, umbral_pct, bloqueante, aprobado)\nSELECT @corrida, 'factura_id único', 'dw.fct_facturas',\n       COUNT(*),\n       COUNT(*) - COUNT(DISTINCT factura_id),\n       0.0, 1,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT factura_id) THEN 1 ELSE 0 END\nFROM dw.fct_facturas;\n\nIF EXISTS (SELECT 1 FROM calidad.resultados WHERE corrida_id = @corrida AND bloqueante = 1 AND aprobado = 0)\n    THROW 50001, 'factura_id duplicado en dw.fct_facturas.', 1;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing11-ej-3",
+          "title": "Práctica 3: Contrato de una dimensión",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el YAML con contrato aplicado para `dim_producto` con las columnas `producto_id` (varchar(20), no nula), `nombre` (nvarchar(200), no nula), `categoria` (varchar(50)) y `precio` (decimal(12,2)). Agrega a `producto_id` las pruebas unique y not_null.",
+          "hint": "contract: {enforced: true} va en config; cada columna lleva data_type.",
+          "solutionExplanation": "El contrato garantiza nombres y tipos antes de construir; las pruebas garantizan el contenido después. Se complementan.",
+          "solutionCode": "models:\n  - name: dim_producto\n    config:\n      contract:\n        enforced: true\n    columns:\n      - name: producto_id\n        data_type: varchar(20)\n        constraints:\n          - type: not_null\n        data_tests: [unique, not_null]\n      - name: nombre\n        data_type: nvarchar(200)\n        constraints:\n          - type: not_null\n      - name: categoria\n        data_type: varchar(50)\n      - name: precio\n        data_type: decimal(12,2)",
+          "codeLanguage": "yaml"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing11-q1",
+          "question": "¿A qué dimensión pertenece la regla «la fecha de vencimiento no es anterior a la de emisión»?",
+          "options": [
+            "Oportunidad, porque trata sobre cuándo llegan las facturas al almacén.",
+            "Completitud, porque exige que las dos fechas estén siempre presentes.",
+            "Consistencia, porque compara dos datos que deben cuadrar entre sí.",
+            "Unicidad, porque cada factura debe tener una sola fecha de emisión."
+          ],
+          "correctIndex": 2,
+          "explanation": "Consistencia evalúa que datos relacionados no se contradigan."
+        },
+        {
+          "id": "ing11-q2",
+          "question": "¿Qué hace un contrato aplicado (enforced) en un modelo de dbt?",
+          "options": [
+            "Envía un correo al equipo de origen cada vez que cambia una columna.",
+            "Revisa después de construir que no haya filas duplicadas en la tabla.",
+            "Convierte automáticamente los tipos de las columnas que no coinciden.",
+            "Verifica antes de construir que las columnas y tipos sean los declarados."
+          ],
+          "correctIndex": 3,
+          "explanation": "Si el SELECT no coincide con el contrato, dbt falla sin modificar la tabla publicada."
+        },
+        {
+          "id": "ing11-q3",
+          "question": "¿Cuándo conviene mandar filas a cuarentena en lugar de detener el pipeline?",
+          "options": [
+            "Cuando son casos aislados, bajo un umbral que vigila su porcentaje.",
+            "Cuando la clave primaria del hecho aparece duplicada en muchas filas.",
+            "Cuando la fuente completa dejó de llegar y no hay datos del día.",
+            "Siempre, porque detener un pipeline nunca está justificado en producción."
+          ],
+          "correctIndex": 0,
+          "explanation": "La cuarentena aísla errores puntuales; un problema masivo o de grano sí debe bloquear."
+        }
+      ]
+    },
+    {
+      "id": "ing-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 4: Calidad y operación",
+      "title": "Observabilidad y Caso Integrador: Frescura, Volumen, Incidentes y Pipeline de Punta a Punta",
+      "subtitle": "Saber en todo momento si los datos están bien, y construir un pipeline completo con todo lo aprendido.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Monitorear los pilares de la observabilidad de datos: frescura, volumen, esquema, distribución y linaje.",
+        "Detectar caídas de volumen comparando con el historial en T-SQL.",
+        "Responder a un incidente de datos con un procedimiento claro y un informe sin culpables.",
+        "Diseñar e implementar un pipeline completo de ingesta, transformación, calidad y publicación."
+      ],
+      "theorySections": [
+        {
+          "id": "ing12-sec-1",
+          "title": "1. Los cinco pilares de la observabilidad",
+          "body": "Las pruebas revisan reglas que tú conoces. La **observabilidad** busca lo que no anticipaste, vigilando cinco señales en todas las tablas importantes:\n- **Frescura**: ¿cuándo se actualizó por última vez?\n- **Volumen**: ¿llegaron las filas de siempre o la mitad?\n- **Esquema**: ¿cambió alguna columna o tipo?\n- **Distribución**: ¿los valores se ven normales? (porcentaje de nulos, promedio, valores distintos).\n- **Linaje**: si algo se rompe, ¿qué depende de ello?\n\nLas cuatro primeras se pueden medir con consultas de SQL Server sobre el propio almacén y las vistas del sistema (`sys.tables`, `sys.dm_db_partition_stats`, `INFORMATION_SCHEMA.COLUMNS`). El linaje ya lo tienes en dbt.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Volumen y última modificación de cada tabla del esquema dw\nSELECT s.name + '.' + t.name          AS tabla,\n       SUM(p.row_count)                AS filas,\n       t.modify_date                   AS esquema_modificado_en\nFROM sys.tables AS t\nJOIN sys.schemas AS s ON s.schema_id = t.schema_id\nJOIN sys.dm_db_partition_stats AS p\n     ON p.object_id = t.object_id AND p.index_id IN (0, 1)\nWHERE s.name = 'dw'\nGROUP BY s.name, t.name, t.modify_date\nORDER BY filas DESC;",
+          "keyTakeaway": "Frescura, volumen, esquema, distribución y linaje: vigílalos en todas las tablas críticas."
+        },
+        {
+          "id": "ing12-sec-2",
+          "title": "2. Anomalías de volumen",
+          "body": "Un umbral fijo (\"al menos 1 000 filas\") falla fácil: los domingos siempre hay menos ventas y en diciembre muchas más. Es mejor comparar con el **historial del mismo tipo de día**.\n\nUna técnica simple y robusta: compara las filas de hoy con la **mediana** de los mismos días de la semana de las últimas 8 semanas. Si hoy está por debajo del 50 % o por encima del 200 %, avisa. La mediana no se deja arrastrar por un día excepcional como lo haría el promedio.\n\nGuarda el conteo diario en una tabla de métricas para que la comparación sea rápida.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- calidad.volumen_diario (tabla, fecha, filas) se llena en cada corrida\nDECLARE @hoy date = CAST(SYSUTCDATETIME() AS date);\n\nWITH historia AS (\n    SELECT filas\n    FROM calidad.volumen_diario\n    WHERE tabla = 'dw.fct_pedidos'\n      AND fecha >= DATEADD(WEEK, -8, @hoy) AND fecha < @hoy\n      AND DATEPART(WEEKDAY, fecha) = DATEPART(WEEKDAY, @hoy)\n),\nreferencia AS (\n    SELECT DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY filas) OVER () AS mediana\n    FROM historia\n)\nSELECT v.filas, r.mediana,\n       CAST(v.filas * 100.0 / NULLIF(r.mediana, 0) AS decimal(7,1)) AS pct_vs_mediana,\n       CASE WHEN v.filas < 0.5 * r.mediana OR v.filas > 2 * r.mediana\n            THEN 'ANOMALÍA' ELSE 'normal' END AS estado\nFROM calidad.volumen_diario AS v\nCROSS JOIN referencia AS r\nWHERE v.tabla = 'dw.fct_pedidos' AND v.fecha = @hoy;",
+          "keyTakeaway": "Compara el volumen con la mediana de los mismos días de la semana, no con un número fijo."
+        },
+        {
+          "id": "ing12-sec-3",
+          "title": "3. Gestión de incidentes de datos",
+          "body": "Cuando algo falla en producción, un procedimiento claro evita el pánico:\n1. **Detectar y reconocer**: alguien toma el incidente y lo dice en el canal.\n2. **Evaluar el impacto**: qué tablas, qué tableros (el linaje lo dice) y qué decisiones se ven afectadas.\n3. **Contener**: detener la publicación y avisar a los consumidores, con una nota en el tablero si hace falta.\n4. **Corregir**: arreglar la causa y reprocesar los intervalos afectados (gracias a la idempotencia, con un backfill).\n5. **Aprender**: escribir un informe **sin culpables** (*blameless postmortem*): qué pasó, por qué, cómo se detectó y qué control nuevo evita que se repita.\n\nEl paso 5 es el que mejora el sistema: cada incidente debería terminar con una prueba o un monitor nuevo.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "INFORME DE INCIDENTE · 2026-11-12 · Ventas duplicadas en tablero de gerencia\nImpacto:     ventas del 11-nov infladas un 18 % durante 5 horas; 2 tableros afectados.\nCausa:       la API de pagos reenvió un lote; la carga usaba INSERT sin clave.\nDetección:   un gerente lo notó a las 09:40 (no lo detectó ningún control).\nCorrección:  MERGE por pago_id y backfill de 11-nov con dbt build --full-refresh.\nPrevención:  prueba unique en fct_pagos (bloqueante) y monitor de volumen diario.",
+          "keyTakeaway": "Contén primero, corrige con backfill y termina cada incidente con un control nuevo."
+        },
+        {
+          "id": "ing12-sec-4",
+          "title": "4. Caso integrador: el pipeline completo",
+          "body": "Reúne todo el curso en un solo proyecto. Una tienda en línea quiere un tablero de ventas diarias listo a las 07:00 con datos del ERP (pedidos y clientes) y de la pasarela de pagos.\n\nTu pipeline debe:\n- **Ingerir** las tres fuentes a raw con auditoría y carga incremental (capítulos 2 y 3).\n- **Transformar** con dbt en staging, intermedio y marts, con un snapshot de clientes (capítulos 4 a 6).\n- **Probar** grano, relaciones, valores y frescura, con contrato en los marts (capítulos 7 y 11).\n- **Orquestar** con Airflow: ingesta en paralelo, freshness, snapshot, build, controles y publicación, con reintentos y alertas (capítulos 8 a 10).\n- **Observar** volumen y hora límite, y tener listo el procedimiento de incidentes (este capítulo).\n\nEl código de abajo es el esqueleto del DAG; los ejercicios te piden completar las piezas clave.",
+          "codeLanguage": "python",
+          "codeSnippet": "from datetime import timedelta\nimport pendulum\nfrom airflow.sdk import dag, task\nfrom airflow.providers.standard.operators.bash import BashOperator\nfrom airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator\n\nDBT = \"cd /opt/dbt/tienda && dbt\"\nARGS = {\"owner\": \"aronis\", \"retries\": 3, \"retry_delay\": timedelta(minutes=2),\n        \"retry_exponential_backoff\": True, \"execution_timeout\": timedelta(minutes=40)}\n\n\n@dag(schedule=\"0 2 * * *\", start_date=pendulum.datetime(2026, 11, 1, tz=\"UTC\"),\n     catchup=False, max_active_runs=1, default_args=ARGS, tags=[\"tienda\", \"integrador\"])\ndef tienda_ventas_diarias():\n    @task\n    def ingerir(fuente: str, data_interval_start=None, data_interval_end=None) -> int:\n        ...  # carga incremental a raw con _lote_id; devuelve filas cargadas\n\n    fuentes = [ingerir.override(task_id=f\"ingerir_{f}\")(f) for f in (\"erp_pedidos\", \"erp_clientes\", \"pagos\")]\n\n    freshness = BashOperator(task_id=\"freshness\", bash_command=f\"{DBT} source freshness --target prod\")\n    snapshot = BashOperator(task_id=\"snapshot\", bash_command=f\"{DBT} snapshot --target prod\")\n    build = BashOperator(task_id=\"build\", bash_command=f\"{DBT} build --exclude resource_type:snapshot --target prod\")\n    controles = SQLExecuteQueryOperator(task_id=\"controles_calidad\", conn_id=\"almacen_mssql\",\n                                        sql=\"EXEC calidad.ejecutar_controles @fecha = '{{ ds }}';\")\n\n    @task\n    def publicar(): ...\n\n    fuentes >> freshness >> snapshot >> build >> controles >> publicar()\n\n\ntienda_ventas_diarias()",
+          "keyTakeaway": "El integrador une ingesta, dbt, calidad, Airflow y observabilidad en un solo pipeline."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lo mínimo para operar un pipeline con tranquilidad.",
+        "rules": [
+          "Cada tabla crítica tiene monitores de frescura y volumen.",
+          "Los cambios de esquema en las fuentes generan un aviso.",
+          "Existe un canal y un procedimiento de incidentes conocido por el equipo.",
+          "Cada incidente termina con un informe sin culpables y un control nuevo.",
+          "El pipeline se puede reprocesar para cualquier fecha con un backfill."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Panel de salud: frescura de las tablas críticas en horas\nSELECT 'raw.erp_pedidos' AS tabla, DATEDIFF(HOUR, MAX(_cargado_en), SYSUTCDATETIME()) AS horas_sin_datos\nFROM raw.erp_pedidos\nUNION ALL\nSELECT 'raw.pagos', DATEDIFF(HOUR, MAX(_cargado_en), SYSUTCDATETIME())\nFROM raw.pagos\nUNION ALL\nSELECT 'dw.fct_pedidos', DATEDIFF(HOUR, MAX(actualizado_en), SYSUTCDATETIME())\nFROM dw.fct_pedidos\nORDER BY horas_sin_datos DESC;"
+      },
+      "comparison": {
+        "scenario": "El tablero mostró ventas en cero un lunes por la mañana.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Se arregla a mano y no se vuelve a hablar del tema\nINSERT INTO dw.fct_ventas_dia\nSELECT * FROM respaldo.ventas_domingo;\n-- \"ya quedó\"",
+        "juniorFlaws": [
+          "La corrección manual no pasa por el pipeline: nadie sabe qué datos quedaron.",
+          "No se investigó la causa, así que volverá a ocurrir.",
+          "No se avisó a quienes tomaron decisiones con el tablero en cero.",
+          "No se agregó ningún control que lo detecte la próxima vez."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- 1. Contener: avisar en el canal y marcar el tablero como \"en revisión\"\n-- 2. Causa: la API de la pasarela devolvió 0 filas sin error (cambio de token)\n-- 3. Corregir: renovar la conexión y reprocesar el día\n--      airflow backfill create --dag-id tienda_ventas_diarias --from-date 2026-11-16 --to-date 2026-11-16\n-- 4. Prevenir: monitor de volumen con la mediana de los domingos\nINSERT INTO calidad.monitores (tabla, tipo, umbral_min_pct, umbral_max_pct, bloqueante)\nVALUES ('raw.pagos', 'volumen_vs_mediana', 50, 200, 1);\n-- 5. Informe sin culpables compartido con el equipo",
+        "intermediateBenefits": [
+          "Los consumidores saben que el dato está en revisión.",
+          "La corrección pasa por el pipeline y queda registrada.",
+          "Un monitor nuevo detectará el mismo problema antes que un gerente."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "ing12-ej-1",
+          "title": "Práctica 1: Registro de volumen diario",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el T-SQL que, para la fecha `@fecha`, guarde en `calidad.volumen_diario (tabla, fecha, filas)` el número de pedidos de `dw.fct_pedidos` de ese día. Debe ser idempotente: si se ejecuta dos veces para el mismo día, no duplica.",
+          "hint": "Usa MERGE por (tabla, fecha) o borra e inserta dentro de una transacción.",
+          "solutionExplanation": "El MERGE por la clave (tabla, fecha) actualiza el conteo si la corrida se repite, así el historial que usan los monitores nunca tiene días duplicados.",
+          "solutionCode": "DECLARE @fecha date = '2026-11-17';\n\nMERGE calidad.volumen_diario AS d\nUSING (SELECT 'dw.fct_pedidos' AS tabla, @fecha AS fecha, COUNT(*) AS filas\n       FROM dw.fct_pedidos\n       WHERE fecha_pedido = @fecha) AS o\n   ON d.tabla = o.tabla AND d.fecha = o.fecha\nWHEN MATCHED THEN UPDATE SET d.filas = o.filas\nWHEN NOT MATCHED BY TARGET THEN INSERT (tabla, fecha, filas) VALUES (o.tabla, o.fecha, o.filas);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "ing12-ej-2",
+          "title": "Práctica 2: Informe sin culpables",
+          "difficulty": "Básico",
+          "prompt": "Un martes, el tablero de inventario mostró existencias negativas durante toda la mañana. La causa fue que la bodega empezó a enviar las salidas con signo positivo en lugar de negativo, sin avisar. Escribe el informe con las secciones: impacto, causa, detección, corrección y prevención.",
+          "hint": "La prevención debe incluir al menos un control automático y un acuerdo con el equipo de origen.",
+          "solutionExplanation": "El informe describe hechos, no personas. La prevención combina un control técnico (prueba de validez) con uno de proceso (contrato con la bodega), porque la causa raíz fue un cambio no comunicado.",
+          "solutionCode": "INFORME DE INCIDENTE · Existencias negativas en tablero de inventario\nImpacto:     existencias erróneas de 06:00 a 12:30; 14 jefes de tienda vieron datos incorrectos.\nCausa:       la bodega cambió el signo de las salidas sin aviso; el modelo restaba un valor ya negativo.\nDetección:   reporte de un jefe de tienda a las 09:15.\nCorrección:  ajuste del signo en stg_bodega__movimientos y backfill del día.\nPrevención:  prueba de validez (salidas <= 0) bloqueante en staging;\n             contrato de datos con la bodega con aviso de cambios con 2 semanas de anticipación.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "ing12-ej-3",
+          "title": "Práctica 3: Completa el integrador",
+          "difficulty": "Avanzado",
+          "prompt": "Sobre el esqueleto de la sección 4, completa la tarea `ingerir` para la fuente `pagos`: debe llamar con `MsSqlHook` (conexión `almacen_mssql`) al procedimiento `raw.cargar_pagos @desde, @hasta` usando el intervalo de la ejecución, y luego devolver cuántas filas quedaron en `raw.pagos` con `_cargado_en` dentro de ese intervalo. Si son cero, debe lanzar un error para que no siga el pipeline.",
+          "hint": "Recibe data_interval_start y data_interval_end como parámetros de la tarea; usa parameters en run y get_first.",
+          "solutionExplanation": "La tarea es idempotente porque el procedimiento trabaja sobre el intervalo y no sobre la hora actual. Devolver solo el conteo mantiene XCom liviano, y fallar con cero filas detiene el pipeline antes de publicar un tablero vacío, como en el incidente del ejemplo.",
+          "solutionCode": "from airflow.sdk import task\nfrom airflow.providers.microsoft.mssql.hooks.mssql import MsSqlHook\n\n\n@task(task_id=\"ingerir_pagos\")\ndef ingerir_pagos(data_interval_start=None, data_interval_end=None) -> int:\n    hook = MsSqlHook(mssql_conn_id=\"almacen_mssql\")\n    hook.run(\n        \"EXEC raw.cargar_pagos @desde = %s, @hasta = %s\",\n        parameters=(data_interval_start, data_interval_end),\n    )\n    filas = hook.get_first(\n        \"SELECT COUNT(*) FROM raw.pagos WHERE _cargado_en >= %s AND _cargado_en < %s\",\n        parameters=(data_interval_start, data_interval_end),\n    )[0]\n    if filas == 0:\n        raise ValueError(\"La pasarela no entregó pagos en el intervalo\")\n    return filas",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "ing12-q1",
+          "question": "¿Por qué comparar el volumen con la mediana del mismo día de la semana?",
+          "options": [
+            "Porque SQL Server no permite calcular promedios sobre columnas de conteo.",
+            "Porque así el monitor solo se ejecuta una vez por semana y cuesta menos.",
+            "Porque la mediana siempre da un número mayor que el volumen real del día.",
+            "Porque respeta los patrones semanales y no se deja arrastrar por días raros."
+          ],
+          "correctIndex": 3,
+          "explanation": "Los domingos no se parecen a los lunes; y la mediana resiste valores extremos mejor que el promedio."
+        },
+        {
+          "id": "ing12-q2",
+          "question": "¿Cuál es el objetivo principal de un informe de incidente sin culpables?",
+          "options": [
+            "Entender la causa y agregar controles que eviten que se repita.",
+            "Identificar a la persona responsable para que no vuelva a tocar el pipeline.",
+            "Justificar ante los usuarios por qué el tablero falló durante la mañana.",
+            "Documentar el incidente para cerrarlo rápido sin cambiar ningún proceso."
+          ],
+          "correctIndex": 0,
+          "explanation": "Se analizan hechos y procesos, no personas; el resultado es un sistema más robusto."
+        },
+        {
+          "id": "ing12-q3",
+          "question": "En el caso integrador, ¿qué orden de tareas es el correcto?",
+          "options": [
+            "Publicación, ingesta, build, snapshot, freshness y controles de calidad.",
+            "Ingesta, freshness, snapshot, build, controles de calidad y publicación.",
+            "Snapshot, publicación, ingesta, freshness, controles de calidad y build.",
+            "Build, ingesta, controles de calidad, freshness, snapshot y publicación."
+          ],
+          "correctIndex": 1,
+          "explanation": "Primero llegan y se verifican los datos, luego se guarda la historia, se transforma, se controla y solo al final se publica."
+        }
+      ]
+    }
+  ]
+}

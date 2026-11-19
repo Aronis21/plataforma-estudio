@@ -191,3 +191,25 @@
   .dg-estrella { max-width: 360px; }
 }
 .dg-estrella .tabla-nodo.origen text { fill: var(--cta-txt); }
+
+
+/* Flujos ETL/ELT y DAG de Airflow */
+.dg-svg .dg-flecha { stroke: var(--tinta-2); stroke-width: 1.5; }
+.dg-svg .dg-punta { fill: var(--tinta-2); }
+.dg-svg .dg-caja { fill: var(--superficie-2); stroke: var(--borde); stroke-width: 1.5; }
+.dg-svg .dg-caja.transforma { fill: color-mix(in srgb, var(--cta-bg) 55%, transparent); stroke: var(--tinta-2); }
+.dg-svg .dg-caja.almacen { fill: color-mix(in srgb, var(--mano) 22%, transparent); stroke: var(--mano); }
+.dg-svg .t-caja { font: 11px var(--f-mono); fill: var(--tinta); }
+.dg-leyenda .dg-l-transforma { background: color-mix(in srgb, var(--cta-bg) 55%, transparent); }
+.dg-leyenda .dg-l-almacen { background: color-mix(in srgb, var(--mano) 22%, transparent); border: 1px solid var(--mano); }
+.dg-dag { max-width: 420px; }
+.dg-dag .dg-nodo rect { stroke-width: 1.5; transition: fill .2s, stroke .2s; }
+.dg-dag .dg-nodo text { font: 11px var(--f-mono); fill: var(--tinta); }
+.dg-dag .dg-nodo.ok rect { fill: color-mix(in srgb, var(--ok) 22%, transparent); stroke: var(--ok); }
+.dg-dag .dg-nodo.fallo rect { fill: color-mix(in srgb, var(--ko) 25%, transparent); stroke: var(--ko); }
+.dg-dag .dg-nodo.omitida rect { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-dasharray: 4 3; }
+.dg-dag .dg-nodo.omitida text { fill: var(--tinta-2); }
+.dg-leyenda .dg-l-ok { background: color-mix(in srgb, var(--ok) 35%, transparent); border: 1px solid var(--ok); }
+.dg-leyenda .dg-l-fallo { background: color-mix(in srgb, var(--ko) 35%, transparent); border: 1px solid var(--ko); }
+.dg-leyenda .dg-l-omitida { background: var(--superficie-2); border: 1px dashed var(--tinta-2); }
+.dg-dag-texto { margin: .8rem 0 0; line-height: 1.5; }

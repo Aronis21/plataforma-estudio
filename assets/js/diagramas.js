@@ -425,7 +425,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 5. Ciclo de vida de un componente React (curso TypeScript y React)
+  // 7. Ciclo de vida de un componente React (curso TypeScript y React)
   // ---------------------------------------------------------------------------
   const FASES = [
     {
@@ -475,6 +475,106 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 8. ETL frente a ELT (estático)
+  // ---------------------------------------------------------------------------
+  function flecha(x1, y, x2, mk) {
+    return `<line class="dg-flecha" x1="${x1}" y1="${y}" x2="${x2 - 2}" y2="${y}" marker-end="url(#${mk})"/>`;
+  }
+  function caja(x, y, w, h, lineas, clase) {
+    const cy = y + h / 2 - (lineas.length - 1) * 6.5;
+    const txt = lineas.map((l, i) => `<tspan x="${x + w / 2}" y="${cy + i * 13 + 4}">${esc(l)}</tspan>`).join("");
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" class="dg-caja ${clase || ""}"/><text text-anchor="middle" class="t-caja">${txt}</text>`;
+  }
+
+  function htmlEtlElt() {
+    const mk = `dg-punta-${++uid}`;
+    const W = 360, w = 74, h = 44, g = 20;
+    const fila = (y, cajas) => cajas.map((c, i) => {
+      const x = i * (w + g);
+      return caja(x, y, w, h, c[0], c[1]) + (i < cajas.length - 1 ? flecha(x + w, y + h / 2, x + w + g, mk) : "");
+    }).join("");
+    const etl = fila(22, [[["fuente"], ""], [["servidor", "ETL"], "transforma"], [["almacén", "(limpio)"], "almacen"]]);
+    const elt = fila(112, [[["fuente"], ""], [["almacén", "raw"], "almacen"], [["SQL / dbt", "en el almacén"], "transforma"], [["staging", "y marts"], "almacen"]]);
+    return `<figure class="diagrama" data-diagrama="etl-elt">
+      <svg class="dg-svg" viewBox="0 0 ${W} 166" role="img" aria-label="Comparación de flujos: en ETL la transformación ocurre en un servidor antes de cargar; en ELT se carga crudo y se transforma dentro del almacén">
+        <defs><marker id="${mk}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-punta"/></marker></defs>
+        <text x="0" y="13" class="t-in">ETL · Extract, Transform, Load</text>
+        ${etl}
+        <text x="0" y="103" class="t-in">ELT · Extract, Load, Transform</text>
+        ${elt}
+      </svg>
+      <div class="dg-leyenda"><span><i class="dg-l-transforma"></i>dónde se transforma</span><span><i class="dg-l-almacen"></i>almacén de datos</span></div>
+      <figcaption>En ETL solo el resultado limpio llega al almacén: si cambia una regla, hay que volver a extraer. En ELT el dato crudo queda guardado en raw y la transformación es SQL versionado (dbt) que se puede volver a ejecutar cuando quieras.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 9. DAG de Airflow con estados de ejecución (interactivo)
+  // ---------------------------------------------------------------------------
+  const DAG_NODOS = [
+    { id: "erp", txt: "extraer_erp", x: 0, y: 0, w: 108 },
+    { id: "crm", txt: "extraer_crm", x: 126, y: 0, w: 108 },
+    { id: "pagos", txt: "extraer_pagos", x: 252, y: 0, w: 108 },
+    { id: "fresh", txt: "freshness", x: 126, y: 62, w: 108 },
+    { id: "snap", txt: "dbt snapshot", x: 126, y: 118, w: 108 },
+    { id: "build", txt: "dbt build", x: 126, y: 174, w: 108 },
+    { id: "pub", txt: "publicar", x: 126, y: 230, w: 108 },
+  ];
+  const DAG_ARISTAS = [["erp", "fresh"], ["crm", "fresh"], ["pagos", "fresh"], ["fresh", "snap"], ["snap", "build"], ["build", "pub"]];
+  const DAG_ESC = [
+    { id: "ok", nombre: "Corrida exitosa", falla: null,
+      texto: "Las tres extracciones corren en paralelo. freshness espera a las tres; luego cada tarea arranca cuando termina la anterior." },
+    { id: "crm", nombre: "Falla extraer_crm", falla: "crm",
+      texto: "extraer_crm agota sus reintentos. Las otras extracciones terminan bien, pero todo lo que depende de crm queda en «upstream_failed»: no se transforma ni se publica con datos incompletos." },
+    { id: "build", nombre: "Falla una prueba en dbt build", falla: "build",
+      texto: "Una prueba de dbt falla. Las tareas previas quedan en verde y publicar no corre: el tablero sigue mostrando los datos válidos de ayer. Al corregir, se reintenta solo desde build." },
+  ];
+  const DAG_H = 28;
+
+  function estadosDag(falla) {
+    const est = {};
+    for (const n of DAG_NODOS) est[n.id] = "ok";
+    if (!falla) return est;
+    est[falla] = "fallo";
+    // propaga "omitida" a todos los descendientes
+    const pend = [falla];
+    while (pend.length) {
+      const a = pend.pop();
+      for (const [o, d] of DAG_ARISTAS) if (o === a && est[d] !== "omitida") { est[d] = "omitida"; pend.push(d); }
+    }
+    return est;
+  }
+
+  function svgDag(falla, mk) {
+    const est = estadosDag(falla);
+    const nodo = (id) => DAG_NODOS.find((n) => n.id === id);
+    const aristas = DAG_ARISTAS.map(([o, d]) => {
+      const a = nodo(o), b = nodo(d);
+      return `<line class="dg-flecha" x1="${a.x + a.w / 2}" y1="${a.y + DAG_H}" x2="${b.x + b.w / 2}" y2="${b.y - 2}" marker-end="url(#${mk})"/>`;
+    }).join("");
+    const nodos = DAG_NODOS.map((n) => `<g class="dg-nodo ${est[n.id]}">
+        <rect x="${n.x}" y="${n.y}" width="${n.w}" height="${DAG_H}" rx="6"/>
+        <text x="${n.x + n.w / 2}" y="${n.y + 18}" text-anchor="middle">${esc(n.txt)}</text></g>`).join("");
+    return `<svg class="dg-svg dg-dag" viewBox="0 0 360 ${230 + DAG_H + 2}" role="img" aria-label="DAG de Airflow: tres extracciones en paralelo, luego freshness, dbt snapshot, dbt build y publicar">
+        <defs><marker id="${mk}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="dg-punta"/></marker></defs>
+        ${aristas}${nodos}
+      </svg>`;
+  }
+
+  function htmlDag() {
+    const n = ++uid;
+    const e0 = DAG_ESC[0];
+    return `<figure class="diagrama" data-diagrama="dag-airflow" data-n="${n}">
+      <div class="dg-botones" role="group" aria-label="Elige un escenario de ejecución">
+        ${DAG_ESC.map((e) => `<button type="button" class="dg-btn" data-esc="${e.id}" aria-pressed="${e === e0}">${esc(e.nombre)}</button>`).join("")}
+      </div>
+      <div class="dg-panel-dag" aria-live="polite">${svgDag(e0.falla, `dg-punta-dag-${n}`)}<p class="dg-dag-texto">${esc(e0.texto)}</p></div>
+      <div class="dg-leyenda"><span><i class="dg-l-ok"></i>éxito</span><span><i class="dg-l-fallo"></i>falló</span><span><i class="dg-l-omitida"></i>no corre (upstream_failed)</span></div>
+      <figcaption>Cada caja es una tarea y cada flecha una dependencia (&gt;&gt;). Cambia de escenario para ver qué pasa con las tareas que dependen de una que falla.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
@@ -485,6 +585,8 @@
     "ciclo-vida-react": htmlCicloVida,
     "modelo-estrella": htmlEstrella,
     "calculate-contexto": htmlCalculate,
+    "etl-elt": htmlEtlElt,
+    "dag-airflow": htmlDag,
   };
 
   function html(spec) {
@@ -493,6 +595,7 @@
   }
 
   function activar(raiz) {
+    activarDag(raiz);
     (raiz || document).querySelectorAll('[data-diagrama="venn-joins"]').forEach((fig) => {
       if (fig.dataset.listo) return;
       fig.dataset.listo = "1";
@@ -565,6 +668,21 @@
         pintar();
         const nueva = fig.querySelector(`tr[data-cat="${CSS.escape(tr.dataset.cat)}"]`);
         if (nueva) nueva.focus();
+      });
+    });
+  }
+
+  function activarDag(raiz) {
+    (raiz || document).querySelectorAll('[data-diagrama="dag-airflow"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      const n = fig.dataset.n;
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-esc]");
+        if (!b) return;
+        const esc_ = DAG_ESC.find((x) => x.id === b.dataset.esc);
+        fig.querySelectorAll("[data-esc]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-dag").innerHTML = `${svgDag(esc_.falla, `dg-punta-dag-${n}`)}<p class="dg-dag-texto">${esc(esc_.texto)}</p>`;
       });
     });
   }
