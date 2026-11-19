@@ -87,6 +87,22 @@
       ],
       "color": "#C6E85A",
       "publicado": true
+    },
+    {
+      "id": "ia-aplicada-datos",
+      "archivo": "ia-aplicada-datos.json",
+      "tema": "ia",
+      "separador": "IA y datos",
+      "cuaderno": "Cuaderno de datos con IA",
+      "categoria": "Inteligencia Artificial",
+      "etiquetas": [
+        "T-SQL",
+        "Python",
+        "LLM",
+        "Reportes"
+      ],
+      "color": "#C6E85A",
+      "publicado": true
     }
   ]
 }

@@ -1,0 +1,1848 @@
+{
+  "id": "ia-aplicada-datos",
+  "title": "IA aplicada a datos",
+  "subtitle": "Usa modelos de lenguaje con T-SQL, Python y reportes: pedir bien, revisar siempre y automatizar con controles.",
+  "level": "Intermedio",
+  "author": "Plan de Estudio Autónomo",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "cap-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1: Fundamentos",
+      "title": "Dónde ayuda un modelo de lenguaje con datos (y dónde se equivoca)",
+      "subtitle": "Qué tareas de análisis acelera la IA, qué errores comete y qué datos nunca debes pegarle.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Identificar las tareas del trabajo con datos donde un modelo de lenguaje ahorra tiempo de verdad.",
+        "Reconocer las alucinaciones típicas: columnas inventadas, cifras inventadas y funciones de otro dialecto.",
+        "Clasificar los datos de una tabla según si se pueden compartir con un servicio de IA externo.",
+        "Aplicar la regla de oro del curso: la IA propone, tú verificas con los datos."
+      ],
+      "theorySections": [
+        {
+          "id": "iad01-sec-1",
+          "title": "1. Qué hace bien un modelo de lenguaje",
+          "body": "Un modelo de lenguaje (LLM) predice el texto más probable a partir de lo que le das. No *consulta* tu base de datos ni *calcula* como Excel: escribe texto que se parece al texto correcto. Eso lo hace muy útil para tareas donde el resultado es **texto que tú puedes comprobar**:\n\n- **Escribir un primer borrador** de una consulta T-SQL, un script de pandas o el párrafo de un informe.\n- **Explicar** código ajeno: «¿qué hace este `CROSS APPLY`?».\n- **Traducir** entre formatos: de una pregunta de negocio a SQL, de SQL a pandas, de una tabla a un resumen.\n- **Ordenar texto libre**: clasificar comentarios de clientes, sacar fechas o montos de correos.\n\nEn todos estos casos el modelo te ahorra el «papel en blanco», y tú conservas el control porque el resultado se puede ejecutar, leer o contrastar.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Pregunta de negocio: «¿Cuánto vendimos por país en 2025?»\n-- Borrador que propone la IA (y que tú vas a revisar):\nSELECT c.Pais,\n       SUM(d.Cantidad * d.PrecioUnitario) AS Ventas\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nJOIN dbo.DetallePedido AS d ON d.PedidoID = p.PedidoID\nWHERE p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.Pais\nORDER BY Ventas DESC;",
+          "keyTakeaway": "Usa la IA donde el resultado es texto verificable: código que ejecutas o un resumen que contrastas con la tabla."
+        },
+        {
+          "id": "iad01-sec-2",
+          "title": "2. Alucinaciones: cómo se equivoca con datos",
+          "body": "Una **alucinación** es una respuesta segura y bien redactada que es falsa. Con datos aparecen siempre las mismas:\n\n- **Columnas o tablas inventadas**: si no le diste el esquema, el modelo supone `customer_id` o `total_amount` porque «suelen existir».\n- **Dialecto equivocado**: escribe `LIMIT 10` (PostgreSQL/MySQL) en lugar de `TOP (10)` de T-SQL, o `DATE_TRUNC` en vez de `DATETRUNC`/`DATEFROMPARTS`.\n- **Cifras inventadas**: si le pides «¿cuál fue la venta media?» sin darle los datos, igual responde un número.\n- **Lógica sutilmente mala**: un `JOIN` que duplica filas, un `AVG` que ignora `NULL`, un filtro de fechas que deja fuera el último día.\n\nLo peligroso no es el error evidente (falla al ejecutar) sino el que **corre sin errores y da un número equivocado**.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Alucinación típica: dialecto y columnas que no existen\nSELECT customer_name, total_amount\nFROM orders\nORDER BY total_amount DESC\nLIMIT 10;            -- ✗ LIMIT no existe en T-SQL\n\n-- Versión corregida contra el esquema real\nSELECT TOP (10) c.Nombre, p.PedidoID, p.Total\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nORDER BY p.Total DESC;",
+          "keyTakeaway": "El error peligroso es el que se ejecuta sin fallar: siempre contrasta el resultado con un conteo o un total que conozcas."
+        },
+        {
+          "id": "iad01-sec-3",
+          "title": "3. Privacidad: qué datos nunca pegar en un chat",
+          "body": "Cuando pegas algo en un servicio de IA externo, ese texto sale de tu empresa. Antes de compartir, clasifica las columnas:\n\n- **Se puede compartir**: el esquema (nombres de tablas y columnas, tipos), consultas sin datos, valores agregados que ya son públicos dentro del equipo.\n- **Solo anonimizado**: filas de muestra. Reemplaza nombres, correos y documentos por valores ficticios.\n- **Nunca**: datos personales identificables (nombre + correo, cédula, teléfono), datos de salud, salarios individuales, contraseñas, claves de API o cadenas de conexión.\n\nRevisa también la política de tu empresa: muchas tienen un servicio de IA aprobado con contrato de no retención de datos, y prohíben los demás.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Muestra segura para pegar en un prompt: sin datos personales\nSELECT TOP (5)\n       CONCAT('cliente_', ClienteID) AS Cliente,   -- seudónimo\n       Pais,\n       YEAR(FechaAlta)                AS AnioAlta,  -- menos detalle\n       Segmento\nFROM dbo.Clientes\nORDER BY NEWID();                                  -- filas al azar",
+          "keyTakeaway": "Comparte estructura, no personas: el esquema casi siempre basta y las filas de muestra van anonimizadas."
+        },
+        {
+          "id": "iad01-sec-4",
+          "title": "4. La regla de oro: la IA propone, los datos deciden",
+          "body": "Durante todo el curso usaremos un ciclo de cuatro pasos:\n\n1. **Contexto**: le das al modelo el esquema, el dialecto (T-SQL) y la pregunta exacta.\n2. **Propuesta**: el modelo devuelve código o texto.\n3. **Verificación**: ejecutas, comparas con un número que conoces (conteo de filas, total del mes, un caso a mano).\n4. **Decisión**: aceptas, corriges o vuelves a preguntar con más contexto.\n\nNunca copies una cifra de la IA a un informe sin haberla obtenido tú de la base de datos.",
+          "keyTakeaway": "Ningún número llega a un informe si no salió de una consulta que tú ejecutaste."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas mínimas para usar IA con datos de la empresa sin poner en riesgo la calidad ni la privacidad.",
+        "rules": [
+          "Indica siempre el dialecto: «escribe T-SQL para SQL Server 2022».",
+          "Da el esquema real; no dejes que el modelo adivine nombres de columnas.",
+          "No pegues datos personales, claves ni cadenas de conexión en un servicio externo.",
+          "Verifica cada consulta con al menos un control: conteo de filas, total conocido o caso a mano.",
+          "Las cifras de un informe salen de una consulta ejecutada, nunca del texto del modelo."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Control rápido antes de aceptar una consulta generada:\n-- el total por país debe sumar lo mismo que el total general.\nSELECT SUM(d.Cantidad * d.PrecioUnitario) AS TotalGeneral\nFROM dbo.DetallePedido AS d\nJOIN dbo.Pedidos AS p ON p.PedidoID = d.PedidoID\nWHERE p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01';"
+      },
+      "comparison": {
+        "scenario": "Un analista le pide al chat «dame los 10 clientes que más compraron» y pega en el prompt la tabla completa de clientes con nombre, correo y teléfono.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Prompt: \"Aquí están mis clientes (pegué 5.000 filas con nombre,\n-- email y teléfono). Dame los 10 que más compraron.\"\n-- Respuesta del modelo, copiada al informe tal cual:\nSELECT customer_name, SUM(amount) AS total\nFROM customers\nGROUP BY customer_name\nORDER BY total DESC\nLIMIT 10;",
+        "juniorFlaws": [
+          "Filtra datos personales (correo y teléfono) a un servicio externo.",
+          "El modelo inventa tablas y columnas porque no recibió el esquema.",
+          "Usa LIMIT, que no existe en T-SQL.",
+          "Agrupa por nombre: dos clientes con el mismo nombre se suman como uno."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Prompt: \"T-SQL para SQL Server. Tablas: dbo.Clientes(ClienteID, Nombre, Pais),\n-- dbo.Pedidos(PedidoID, ClienteID, FechaPedido, Total).\n-- Quiero los 10 clientes con mayor suma de Total en 2025.\"\nSELECT TOP (10) c.ClienteID, c.Nombre, SUM(p.Total) AS Total2025\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.ClienteID, c.Nombre\nORDER BY Total2025 DESC;",
+        "intermediateBenefits": [
+          "Solo comparte el esquema: ningún dato personal sale de la empresa.",
+          "Usa tablas y columnas reales, y sintaxis T-SQL (TOP).",
+          "Agrupa por ClienteID, así los homónimos no se mezclan.",
+          "Deja el filtro de fechas explícito y fácil de revisar."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad01-ej-1",
+          "title": "Práctica 1: Detecta las alucinaciones",
+          "difficulty": "Básico",
+          "prompt": "Un modelo devolvió esta consulta para «ventas por categoría del último mes»: `SELECT category, SUM(price*qty) FROM products JOIN sales USING(product_id) WHERE sale_date > NOW() - INTERVAL '1 month' GROUP BY category;`. Tus tablas son `dbo.Productos(ProductoID, Nombre, Categoria, Precio)` y `dbo.DetallePedido(PedidoID, ProductoID, Cantidad, PrecioUnitario)` con la fecha en `dbo.Pedidos(PedidoID, FechaPedido)`. Lista los errores y escribe la versión T-SQL.",
+          "hint": "Busca nombres inventados, USING, NOW() e INTERVAL. En T-SQL la fecha actual es GETDATE() y se resta con DATEADD.",
+          "solutionExplanation": "Errores: tablas y columnas en inglés que no existen, `USING` y `INTERVAL` no son T-SQL, `NOW()` es de otros motores y faltaba la tabla Pedidos para la fecha. Además conviene usar el precio cobrado (`PrecioUnitario`), no el precio de catálogo.",
+          "solutionCode": "SELECT pr.Categoria,\n       SUM(d.Cantidad * d.PrecioUnitario) AS Ventas\nFROM dbo.DetallePedido AS d\nJOIN dbo.Productos AS pr ON pr.ProductoID = d.ProductoID\nJOIN dbo.Pedidos   AS p  ON p.PedidoID   = d.PedidoID\nWHERE p.FechaPedido >= DATEADD(MONTH, -1, CAST(GETDATE() AS date))\nGROUP BY pr.Categoria\nORDER BY Ventas DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad01-ej-2",
+          "title": "Práctica 2: Muestra anonimizada",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta T-SQL que devuelva 10 filas al azar de `dbo.Clientes(ClienteID, Nombre, Email, Telefono, Ciudad, FechaNacimiento, Segmento)` listas para pegar en un prompt: sin nombre, correo ni teléfono, con un seudónimo y con la edad en rangos de 10 años en lugar de la fecha de nacimiento.",
+          "hint": "CONCAT para el seudónimo, DATEDIFF(YEAR, ...) para la edad y división entera por 10 para el rango. ORDER BY NEWID() mezcla las filas.",
+          "solutionExplanation": "El seudónimo conserva la relación entre filas sin identificar a nadie. La edad en rangos y la ciudad bastan para que el modelo entienda la forma de los datos.",
+          "solutionCode": "SELECT TOP (10)\n       CONCAT('C', RIGHT(CONCAT('0000', ClienteID), 4)) AS Cliente,\n       Ciudad,\n       Segmento,\n       CONCAT((DATEDIFF(YEAR, FechaNacimiento, GETDATE()) / 10) * 10, '-',\n              (DATEDIFF(YEAR, FechaNacimiento, GETDATE()) / 10) * 10 + 9) AS RangoEdad\nFROM dbo.Clientes\nORDER BY NEWID();",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad01-ej-3",
+          "title": "Práctica 3: Control de un total",
+          "difficulty": "Básico",
+          "prompt": "La IA te dio una consulta de ventas por país para 2025. Escribe la consulta de control que calcula el total general de 2025, para comprobar que la suma por países coincide.",
+          "hint": "Misma tabla, mismo filtro de fechas, sin GROUP BY.",
+          "solutionExplanation": "Si la suma de la columna Ventas por país no es igual a este total, la consulta generada pierde o duplica filas (por ejemplo, por un JOIN mal hecho).",
+          "solutionCode": "SELECT SUM(d.Cantidad * d.PrecioUnitario) AS Total2025\nFROM dbo.DetallePedido AS d\nJOIN dbo.Pedidos AS p ON p.PedidoID = d.PedidoID\nWHERE p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01';",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad01-q1",
+          "question": "¿En qué tarea aporta más un modelo de lenguaje al trabajo con datos?",
+          "options": [
+            "Redactar un borrador de consulta que luego ejecutas y revisas",
+            "Garantizar que una consulta compleja siempre sea correcta",
+            "Calcular el total de ventas del mes sin consultar la base",
+            "Recordar las cifras exactas del informe del trimestre pasado"
+          ],
+          "correctIndex": 0,
+          "explanation": "El modelo genera texto plausible. Sirve como borrador verificable, no como calculadora ni como fuente de cifras."
+        },
+        {
+          "id": "iad01-q2",
+          "question": "¿Cuál de estos datos puedes compartir con un servicio de IA externo sin anonimizar?",
+          "options": [
+            "El salario individual de cada empleado del área",
+            "La cadena de conexión al servidor SQL de producción",
+            "Diez filas reales de clientes con su correo y teléfono",
+            "Los nombres de tablas y columnas con sus tipos de dato"
+          ],
+          "correctIndex": 3,
+          "explanation": "El esquema describe la estructura sin exponer personas. Los datos personales, salarios y credenciales nunca se pegan."
+        },
+        {
+          "id": "iad01-q3",
+          "question": "Una consulta generada por IA se ejecuta sin errores. ¿Qué haces antes de usar el resultado?",
+          "options": [
+            "La uso tal cual, porque si corre es que está bien escrita",
+            "Le pido al mismo modelo que confirme que el número es real",
+            "Comparo su resultado con un total o conteo que ya conozco",
+            "Cambio el formato de la salida para que se vea más claro"
+          ],
+          "correctIndex": 2,
+          "explanation": "Los errores más caros corren sin fallar. Un control independiente (total, conteo, caso a mano) es lo que los detecta."
+        }
+      ]
+    },
+    {
+      "id": "cap-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1: Fundamentos",
+      "title": "Cómo describirle tus datos al modelo",
+      "subtitle": "Esquema, filas de muestra y diccionario de datos: el contexto que convierte respuestas genéricas en respuestas útiles.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Extraer el esquema de una base SQL Server con INFORMATION_SCHEMA y sys.foreign_keys.",
+        "Escribir un diccionario de datos breve con el significado de negocio de cada columna.",
+        "Armar un bloque de contexto reutilizable: dialecto, esquema, relaciones, reglas y muestra.",
+        "Decidir cuánto contexto dar según el tamaño de la base y el límite del modelo."
+      ],
+      "theorySections": [
+        {
+          "id": "iad02-sec-1",
+          "title": "1. El esquema sale de la propia base",
+          "body": "No escribas el esquema a mano: pídeselo a SQL Server. Las vistas `INFORMATION_SCHEMA.COLUMNS` y `INFORMATION_SCHEMA.TABLES` describen tablas, columnas, tipos y si aceptan `NULL`. Con `STRING_AGG` lo conviertes en una línea por tabla, que es un formato compacto y fácil de leer para el modelo.\n\nVentajas: siempre está actualizado, no tiene erratas y ocupa pocos tokens.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Una línea por tabla: dbo.Pedidos(PedidoID int, ClienteID int, ...)\nSELECT CONCAT(c.TABLE_SCHEMA, '.', c.TABLE_NAME, '(',\n       STRING_AGG(CONCAT(c.COLUMN_NAME, ' ', c.DATA_TYPE,\n                  IIF(c.IS_NULLABLE = 'YES', ' null', '')), ', ')\n         WITHIN GROUP (ORDER BY c.ORDINAL_POSITION),\n       ')') AS Tabla\nFROM INFORMATION_SCHEMA.COLUMNS AS c\nJOIN INFORMATION_SCHEMA.TABLES  AS t\n  ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME\nWHERE t.TABLE_TYPE = 'BASE TABLE'\nGROUP BY c.TABLE_SCHEMA, c.TABLE_NAME;",
+          "keyTakeaway": "El mejor esquema para un prompt es el que genera la base de datos: completo, actual y compacto."
+        },
+        {
+          "id": "iad02-sec-2",
+          "title": "2. Las relaciones evitan JOINs inventados",
+          "body": "Con solo las columnas, el modelo tiene que **adivinar** cómo se unen las tablas. Si hay `ClienteID` en dos tablas lo hará bien, pero si la clave se llama distinto (`IdCliente`, `CodCli`) o hay dos caminos posibles, probablemente se equivoque.\n\nLas claves foráneas están en `sys.foreign_keys` y `sys.foreign_key_columns`. Una lista de líneas del tipo `dbo.Pedidos.ClienteID -> dbo.Clientes.ClienteID` le dice exactamente qué unir. Si tu base no tiene claves foráneas declaradas, escríbelas a mano en el contexto: es la parte que más errores evita.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT CONCAT(OBJECT_SCHEMA_NAME(fk.parent_object_id), '.',\n              OBJECT_NAME(fk.parent_object_id), '.',\n              COL_NAME(fkc.parent_object_id, fkc.parent_column_id),\n              ' -> ',\n              OBJECT_SCHEMA_NAME(fk.referenced_object_id), '.',\n              OBJECT_NAME(fk.referenced_object_id), '.',\n              COL_NAME(fkc.referenced_object_id, fkc.referenced_column_id)) AS Relacion\nFROM sys.foreign_keys AS fk\nJOIN sys.foreign_key_columns AS fkc ON fkc.constraint_object_id = fk.object_id\nORDER BY Relacion;",
+          "keyTakeaway": "Declara cómo se unen las tablas; un JOIN adivinado es la fuente más común de cifras duplicadas."
+        },
+        {
+          "id": "iad02-sec-3",
+          "title": "3. El diccionario de datos: lo que el esquema no dice",
+          "body": "El esquema dice que `Pedidos.Estado` es `varchar(20)`, pero no que los valores posibles son `'pagado'`, `'cancelado'` y `'devuelto'`, ni que **las ventas solo cuentan los pagados**. Esas reglas de negocio viven en la cabeza del equipo, y el modelo no las puede adivinar.\n\nUn diccionario útil tiene, por columna importante:\n- **Significado**: «Total incluye impuestos, en pesos dominicanos».\n- **Valores posibles** de las columnas de categoría (sácalos con `SELECT DISTINCT`).\n- **Reglas**: «una venta es un pedido con Estado = 'pagado'», «FechaPedido está en hora local».\n\nGuárdalo en un archivo o, mejor, en las propiedades extendidas de SQL Server (`MS_Description`) para que viaje con la base.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Valores reales de una columna de categoría, con su frecuencia\nSELECT Estado, COUNT(*) AS Pedidos\nFROM dbo.Pedidos\nGROUP BY Estado\nORDER BY Pedidos DESC;\n\n-- Guardar la descripción dentro de la base\nEXEC sys.sp_addextendedproperty\n     @name = N'MS_Description',\n     @value = N'Solo los pedidos con Estado = ''pagado'' cuentan como venta.',\n     @level0type = N'SCHEMA', @level0name = N'dbo',\n     @level1type = N'TABLE',  @level1name = N'Pedidos',\n     @level2type = N'COLUMN', @level2name = N'Estado';",
+          "keyTakeaway": "El diccionario aporta lo que el esquema no puede: valores válidos y reglas de negocio."
+        },
+        {
+          "id": "iad02-sec-4",
+          "title": "4. El bloque de contexto reutilizable",
+          "body": "Junta todo en un bloque fijo que pegas al inicio de cada conversación (o que tu código envía como mensaje de sistema):\n\n1. **Dialecto y versión**: «SQL Server 2022, T-SQL».\n2. **Esquema**: una línea por tabla.\n3. **Relaciones**: una línea por clave foránea.\n4. **Reglas de negocio**: 3 a 8 viñetas.\n5. **Muestra**: 3 a 5 filas anonimizadas de las tablas clave, si hacen falta.\n6. **Formato de respuesta**: «devuelve solo la consulta en un bloque ```sql```».\n\nSi la base es enorme, no envíes todo: incluye solo las tablas relevantes para la pregunta. Cien tablas de contexto confunden más de lo que ayudan.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Eres un analista que escribe T-SQL para SQL Server 2022.\nTablas:\n- dbo.Clientes(ClienteID int, Nombre nvarchar, Pais nvarchar, FechaAlta date)\n- dbo.Pedidos(PedidoID int, ClienteID int, FechaPedido datetime2, Estado varchar, Total decimal)\nRelaciones:\n- dbo.Pedidos.ClienteID -> dbo.Clientes.ClienteID\nReglas:\n- Una venta es un pedido con Estado = 'pagado'.\n- Total está en DOP e incluye ITBIS.\n- Los rangos de fecha son semiabiertos: >= inicio AND < fin.\nResponde solo con la consulta en un bloque sql.",
+          "keyTakeaway": "Un bloque de contexto fijo hace que todas las respuestas partan de las mismas reglas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo debe ser el contexto que acompaña cada pregunta sobre datos.",
+        "rules": [
+          "Genera el esquema desde INFORMATION_SCHEMA; no lo copies a mano.",
+          "Incluye las relaciones entre tablas, aunque no estén declaradas en la base.",
+          "Escribe las reglas de negocio como viñetas cortas y verificables.",
+          "Envía solo las tablas relevantes para la pregunta.",
+          "Versiona el bloque de contexto junto al código del proyecto."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "contexto/\n├── esquema.txt        ← generado con INFORMATION_SCHEMA\n├── relaciones.txt     ← generado con sys.foreign_keys\n└── reglas.md          ← escrito por el equipo y revisado"
+      },
+      "comparison": {
+        "scenario": "Un analista pregunta «¿cuántas ventas hubo en octubre?» pegando solo los nombres de las tablas.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Prompt: \"Tengo las tablas Clientes y Pedidos.\n-- ¿Cuántas ventas hubo en octubre?\"\n-- Respuesta del modelo:\nSELECT COUNT(*) FROM Pedidos\nWHERE MONTH(FechaPedido) = 10;",
+        "juniorFlaws": [
+          "Cuenta también pedidos cancelados y devueltos: el modelo no conocía la regla de venta.",
+          "No filtra el año: mezcla octubre de todos los años.",
+          "MONTH() sobre la columna impide usar un índice en FechaPedido."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Prompt con bloque de contexto (esquema + regla «venta = Estado 'pagado'»)\nSELECT COUNT(*) AS Ventas\nFROM dbo.Pedidos\nWHERE Estado = 'pagado'\n  AND FechaPedido >= '2025-10-01'\n  AND FechaPedido <  '2025-11-01';",
+        "intermediateBenefits": [
+          "Aplica la regla de negocio porque estaba en el contexto.",
+          "El rango semiabierto incluye todo el 31 de octubre y aprovecha índices.",
+          "Fija el año, así el resultado no cambia con el tiempo."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad02-ej-1",
+          "title": "Práctica 1: Esquema de una sola tabla",
+          "difficulty": "Básico",
+          "prompt": "Escribe una consulta que devuelva, para la tabla `dbo.Pedidos`, una fila por columna con su nombre, tipo de dato, longitud máxima y si acepta NULL, en el orden en que fueron creadas.",
+          "hint": "INFORMATION_SCHEMA.COLUMNS tiene CHARACTER_MAXIMUM_LENGTH y ORDINAL_POSITION.",
+          "solutionExplanation": "Filtrar por esquema y tabla, y ordenar por ORDINAL_POSITION, da exactamente la definición de la tabla.",
+          "solutionCode": "SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE\nFROM INFORMATION_SCHEMA.COLUMNS\nWHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'Pedidos'\nORDER BY ORDINAL_POSITION;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad02-ej-2",
+          "title": "Práctica 2: Valores de las columnas de categoría",
+          "difficulty": "Intermedio",
+          "prompt": "Para el diccionario de datos necesitas los valores distintos de `Estado` y `MetodoPago` de `dbo.Pedidos`. Escribe una sola consulta que devuelva una fila por columna con la lista de valores separados por coma, ordenados alfabéticamente.",
+          "hint": "Haz un UNION ALL de dos SELECT DISTINCT y luego STRING_AGG con WITHIN GROUP.",
+          "solutionExplanation": "La subconsulta junta los valores con el nombre de su columna; STRING_AGG los convierte en una línea lista para pegar en el diccionario.",
+          "solutionCode": "WITH v AS (\n    SELECT DISTINCT 'Estado' AS Columna, Estado AS Valor FROM dbo.Pedidos\n    UNION ALL\n    SELECT DISTINCT 'MetodoPago', MetodoPago FROM dbo.Pedidos\n)\nSELECT Columna,\n       STRING_AGG(Valor, ', ') WITHIN GROUP (ORDER BY Valor) AS Valores\nFROM v\nWHERE Valor IS NOT NULL\nGROUP BY Columna;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad02-ej-3",
+          "title": "Práctica 3: Escribe las reglas de negocio",
+          "difficulty": "Básico",
+          "prompt": "Tu equipo te cuenta: «Solo cuentan los pedidos pagados. Los montos están en pesos con ITBIS. Un cliente activo es quien compró en los últimos 90 días. Los pedidos de prueba tienen ClienteID = 0». Conviértelo en la sección de reglas de tu bloque de contexto.",
+          "hint": "Viñetas cortas, cada una con la columna exacta y el valor concreto.",
+          "solutionExplanation": "Cada regla nombra la columna y la condición en SQL, así el modelo puede aplicarla literalmente.",
+          "solutionCode": "Reglas de negocio:\n- Venta = pedido con Estado = 'pagado'.\n- Pedidos.Total está en DOP e incluye ITBIS.\n- Cliente activo = tiene un pedido pagado con FechaPedido >= DATEADD(DAY, -90, CAST(GETDATE() AS date)).\n- Excluir siempre los pedidos de prueba: ClienteID <> 0.",
+          "codeLanguage": "plaintext"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad02-q1",
+          "question": "¿Por qué conviene sacar el esquema de INFORMATION_SCHEMA en lugar de escribirlo a mano?",
+          "options": [
+            "Porque los modelos solo entienden el formato de esas vistas",
+            "Porque refleja la base actual sin erratas ni columnas olvidadas",
+            "Porque INFORMATION_SCHEMA incluye las reglas de negocio de cada tabla",
+            "Porque así el modelo puede conectarse solo a tu base de datos"
+          ],
+          "correctIndex": 1,
+          "explanation": "La vista describe la estructura real en ese momento. Las reglas de negocio no están ahí: van en el diccionario."
+        },
+        {
+          "id": "iad02-q2",
+          "question": "¿Qué aporta el diccionario de datos que el esquema no tiene?",
+          "options": [
+            "La lista de índices y el espacio que ocupa cada tabla",
+            "Los permisos de cada usuario sobre las tablas de la base",
+            "Los valores válidos y las reglas de negocio de cada columna",
+            "Los tipos de dato y la longitud de cada columna de la tabla"
+          ],
+          "correctIndex": 2,
+          "explanation": "Tipos, índices y permisos se obtienen del catálogo. El significado y reglas como «venta = pagado» solo están en el diccionario."
+        },
+        {
+          "id": "iad02-q3",
+          "question": "Tu base tiene 300 tablas y preguntas por ventas por región. ¿Qué contexto envías?",
+          "options": [
+            "Solo las tablas y relaciones que intervienen en la pregunta",
+            "Ningún esquema, para ahorrar tokens y dejar que el modelo adivine",
+            "Las 300 tablas completas para que el modelo no se pierda nada",
+            "Una exportación con todas las filas de las tablas de ventas"
+          ],
+          "correctIndex": 0,
+          "explanation": "El contexto relevante y acotado da mejores respuestas; demasiadas tablas confunden y enviar filas reales es un riesgo."
+        }
+      ]
+    },
+    {
+      "id": "cap-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 2: IA y T-SQL",
+      "title": "De la pregunta a la consulta T-SQL",
+      "subtitle": "Cómo pedir SQL a un modelo para que la primera respuesta sea útil: pregunta precisa, contexto y formato.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Reescribir una pregunta ambigua de negocio en una especificación precisa: métrica, periodo, filtro y granularidad.",
+        "Pedir T-SQL con un prompt que incluya dialecto, esquema, reglas y formato de salida.",
+        "Usar ejemplos (pregunta → consulta) para que el modelo siga el estilo del equipo.",
+        "Iterar con el modelo dándole el error o el resultado inesperado en lugar de volver a empezar."
+      ],
+      "theorySections": [
+        {
+          "id": "iad03-sec-1",
+          "title": "1. Primero precisa la pregunta",
+          "body": "La mayoría de las consultas malas vienen de preguntas ambiguas. «¿Cómo van las ventas?» no se puede traducir a SQL. Antes de pedir nada, completa cuatro huecos:\n\n- **Métrica**: ¿monto (`SUM(Total)`), número de pedidos (`COUNT(*)`), clientes únicos (`COUNT(DISTINCT ClienteID)`)?\n- **Periodo**: ¿qué fechas exactas? ¿mes calendario o últimos 30 días?\n- **Filtro**: ¿solo pagados? ¿sin pedidos de prueba? ¿un país?\n- **Granularidad**: ¿una fila por mes, por país, por producto?\n\nSi tú no lo decides, el modelo lo decide por ti, y lo hará en silencio.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Ambigua:  \"¿Cómo van las ventas este año?\"\n\nPrecisa:  \"Monto vendido (SUM de Total, solo Estado = 'pagado')\n           por mes de 2025 (enero a octubre),\n           una fila por mes con el monto y el número de pedidos,\n           ordenado por mes.\" ",
+          "keyTakeaway": "Métrica, periodo, filtro y granularidad: si falta uno, el modelo lo inventa."
+        },
+        {
+          "id": "iad03-sec-2",
+          "title": "2. La anatomía de un buen prompt para SQL",
+          "body": "Un prompt para generar SQL tiene cinco partes, siempre en el mismo orden:\n\n1. **Rol y dialecto**: «Escribe T-SQL para SQL Server 2022».\n2. **Contexto**: el bloque de esquema, relaciones y reglas del capítulo anterior.\n3. **Pregunta precisa**.\n4. **Restricciones**: «usa CTE en lugar de subconsultas anidadas», «no uses SELECT *», «rango de fechas semiabierto».\n5. **Formato**: «devuelve solo la consulta en un bloque sql, con un comentario por paso».\n\nPedir comentarios no es decoración: te obliga a ti a leer la lógica paso a paso, y te ayuda a detectar el paso que no corresponde.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Respuesta a un prompt bien armado:\n-- 1) Pedidos pagados de 2025\nWITH Pagados AS (\n    SELECT PedidoID, FechaPedido, Total\n    FROM dbo.Pedidos\n    WHERE Estado = 'pagado'\n      AND FechaPedido >= '2025-01-01' AND FechaPedido < '2026-01-01'\n)\n-- 2) Agregado por mes\nSELECT DATEFROMPARTS(YEAR(FechaPedido), MONTH(FechaPedido), 1) AS Mes,\n       COUNT(*)   AS Pedidos,\n       SUM(Total) AS Monto\nFROM Pagados\nGROUP BY DATEFROMPARTS(YEAR(FechaPedido), MONTH(FechaPedido), 1)\nORDER BY Mes;",
+          "keyTakeaway": "Rol, contexto, pregunta, restricciones y formato: un prompt con las cinco partes rara vez necesita segunda vuelta."
+        },
+        {
+          "id": "iad03-sec-3",
+          "title": "3. Ejemplos que enseñan el estilo del equipo",
+          "body": "Si tu equipo tiene convenciones (alias cortos, CTE con nombre en español, `DATEFROMPARTS` para el mes), lo más eficaz es mostrar **dos o tres ejemplos resueltos**: pregunta y consulta aprobada. A esto se le llama *few-shot*.\n\nElige ejemplos que cubran trampas reales: uno con la regla de «solo pagados», uno con rango de fechas y uno con un JOIN que necesita `DISTINCT` o una agregación previa. El modelo imitará los patrones, incluidos los buenos hábitos.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Ejemplo 1\nPregunta: clientes únicos que compraron en septiembre de 2025\nConsulta:\nSELECT COUNT(DISTINCT ClienteID) AS Clientes\nFROM dbo.Pedidos\nWHERE Estado = 'pagado'\n  AND FechaPedido >= '2025-09-01' AND FechaPedido < '2025-10-01';\n\nAhora responde en el mismo estilo:\nPregunta: clientes únicos por país en el tercer trimestre de 2025",
+          "keyTakeaway": "Dos o tres ejemplos aprobados enseñan más estilo y reglas que un párrafo de instrucciones."
+        },
+        {
+          "id": "iad03-sec-4",
+          "title": "4. Iterar: devuelve el error, no repitas la pregunta",
+          "body": "Si la consulta falla o el resultado no cuadra, no vuelvas a escribir la pregunta desde cero. Dale al modelo **la evidencia**:\n\n- El mensaje de error exacto de SQL Server (`Invalid column name 'Monto'`).\n- El resultado inesperado y el valor esperado: «la suma por país da 1.240.000 y el total general es 1.180.000».\n\nCon esa evidencia el modelo suele encontrar la causa (un JOIN que duplica, un filtro que falta). Si después de dos vueltas sigue sin cuadrar, deja de iterar y revisa tú la lógica: el capítulo siguiente te enseña cómo.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "La consulta corre, pero la suma de Monto por país (1.240.000)\nes mayor que el total general del año (1.180.000).\nTablas y reglas: las mismas de antes.\nEncuentra por qué hay filas duplicadas y corrige la consulta.",
+          "keyTakeaway": "Da al modelo el error o la diferencia numérica: la evidencia concreta acorta la corrección."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Plantilla de prompt que el equipo usa para pedir consultas T-SQL.",
+        "rules": [
+          "Toda pregunta lleva métrica, periodo, filtro y granularidad explícitos.",
+          "El prompt nombra el dialecto y la versión de SQL Server.",
+          "Pide comentarios por paso y CTE con nombres descriptivos.",
+          "Incluye 2 o 3 ejemplos aprobados cuando el equipo tiene convenciones.",
+          "Al iterar, pega el error o la diferencia numérica, no la pregunta otra vez."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "[ROL] Escribe T-SQL para SQL Server 2022.\n[CONTEXTO] <esquema> <relaciones> <reglas>\n[EJEMPLOS] <2-3 pares pregunta / consulta aprobada>\n[PREGUNTA] <métrica> de <filtro> en <periodo>, una fila por <granularidad>.\n[RESTRICCIONES] Sin SELECT *. Fechas en rango semiabierto. CTE con nombres en español.\n[FORMATO] Solo la consulta en un bloque sql, con un comentario por paso."
+      },
+      "comparison": {
+        "scenario": "Gerencia pide «los mejores productos del último trimestre» y el analista lo pega tal cual en el chat.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Prompt: \"Dame los mejores productos del último trimestre\"\nSELECT TOP 10 *\nFROM Productos\nORDER BY Ventas DESC;",
+        "juniorFlaws": [
+          "«Mejores» quedó sin definir: ¿por monto, por unidades o por margen?",
+          "«Último trimestre» no tiene fechas: el modelo ni siquiera lo filtró.",
+          "Inventa una columna Ventas en Productos y usa SELECT *."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Prompt: monto vendido (Cantidad * PrecioUnitario, solo pedidos pagados)\n-- del 2025-07-01 al 2025-09-30, top 10 productos, una fila por producto.\nWITH VentasTrimestre AS (\n    SELECT d.ProductoID, SUM(d.Cantidad * d.PrecioUnitario) AS Monto\n    FROM dbo.DetallePedido AS d\n    JOIN dbo.Pedidos AS p ON p.PedidoID = d.PedidoID\n    WHERE p.Estado = 'pagado'\n      AND p.FechaPedido >= '2025-07-01' AND p.FechaPedido < '2025-10-01'\n    GROUP BY d.ProductoID\n)\nSELECT TOP (10) pr.Nombre, pr.Categoria, v.Monto\nFROM VentasTrimestre AS v\nJOIN dbo.Productos AS pr ON pr.ProductoID = v.ProductoID\nORDER BY v.Monto DESC;",
+        "intermediateBenefits": [
+          "La métrica y el periodo están definidos antes de pedir la consulta.",
+          "Agrega primero y une después: no hay duplicados.",
+          "Solo devuelve las columnas que el informe necesita."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad03-ej-1",
+          "title": "Práctica 1: Precisa la pregunta",
+          "difficulty": "Básico",
+          "prompt": "Reescribe la pregunta «¿Qué clientes son los más fieles?» como una especificación precisa (métrica, periodo, filtro y granularidad) y luego escribe la consulta T-SQL que la responde con las tablas `dbo.Clientes` y `dbo.Pedidos`.",
+          "hint": "Una definición razonable: número de meses distintos con al menos un pedido pagado en los últimos 12 meses.",
+          "solutionExplanation": "Hay varias definiciones válidas; lo importante es elegir una explícita. Aquí, fidelidad = meses distintos con compra en los últimos 12 meses, top 20 clientes.",
+          "solutionCode": "-- Métrica: meses distintos con compra pagada. Periodo: últimos 12 meses.\n-- Filtro: Estado = 'pagado', sin pedidos de prueba. Granularidad: cliente.\nSELECT TOP (20) c.ClienteID, c.Nombre,\n       COUNT(DISTINCT DATEFROMPARTS(YEAR(p.FechaPedido), MONTH(p.FechaPedido), 1)) AS MesesConCompra\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado'\n  AND p.ClienteID <> 0\n  AND p.FechaPedido >= DATEADD(MONTH, -12, CAST(GETDATE() AS date))\nGROUP BY c.ClienteID, c.Nombre\nORDER BY MesesConCompra DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad03-ej-2",
+          "title": "Práctica 2: Escribe el prompt completo",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un prompt con las cinco partes (rol, contexto, pregunta, restricciones y formato) para obtener el ticket promedio por país y por mes del primer semestre de 2025. Después escribe tú la consulta que esperarías recibir.",
+          "hint": "Ticket promedio = AVG(Total) de pedidos pagados. Agrupa por país y por el primer día del mes.",
+          "solutionExplanation": "La consulta responde exactamente lo que dice el prompt: una fila por país y mes, solo pagados, rango semiabierto de seis meses.",
+          "solutionCode": "/* Prompt:\nEscribe T-SQL para SQL Server 2022.\nTablas: dbo.Clientes(ClienteID, Pais), dbo.Pedidos(PedidoID, ClienteID, FechaPedido, Estado, Total).\nRelación: Pedidos.ClienteID -> Clientes.ClienteID. Venta = Estado 'pagado'.\nPregunta: ticket promedio (AVG de Total) por país y por mes, del 2025-01-01 al 2025-06-30.\nRestricciones: sin SELECT *, rango semiabierto, redondea a 2 decimales.\nFormato: solo la consulta en un bloque sql con comentarios. */\nSELECT c.Pais,\n       DATEFROMPARTS(YEAR(p.FechaPedido), MONTH(p.FechaPedido), 1) AS Mes,\n       ROUND(AVG(p.Total), 2) AS TicketPromedio\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado'\n  AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2025-07-01'\nGROUP BY c.Pais, DATEFROMPARTS(YEAR(p.FechaPedido), MONTH(p.FechaPedido), 1)\nORDER BY c.Pais, Mes;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad03-ej-3",
+          "title": "Práctica 3: Corrige con la evidencia",
+          "difficulty": "Intermedio",
+          "prompt": "La IA te dio esta consulta y SQL Server responde «Column 'dbo.Clientes.Nombre' is invalid in the select list because it is not contained in either an aggregate function or the GROUP BY clause»: `SELECT c.ClienteID, c.Nombre, SUM(p.Total) FROM dbo.Pedidos p JOIN dbo.Clientes c ON c.ClienteID = p.ClienteID GROUP BY c.ClienteID;`. Corrígela y explica la causa.",
+          "hint": "En T-SQL toda columna del SELECT que no está agregada debe estar en el GROUP BY.",
+          "solutionExplanation": "Otros motores permiten columnas funcionalmente dependientes de la clave; SQL Server no. Se agrega Nombre al GROUP BY (o se agrega primero por ID y se une después).",
+          "solutionCode": "SELECT c.ClienteID, c.Nombre, SUM(p.Total) AS Total\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nGROUP BY c.ClienteID, c.Nombre;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad03-q1",
+          "question": "¿Qué le falta a la pregunta «¿cuánto vendimos?» para poder traducirla a SQL?",
+          "options": [
+            "El nombre del servidor donde está la base de datos",
+            "El periodo, los filtros y la granularidad",
+            "El color y el tipo de gráfico que tendrá el informe",
+            "Una lista con los usuarios que pueden ver el informe"
+          ],
+          "correctIndex": 1,
+          "explanation": "Sin periodo, filtro (por ejemplo, solo pagados) y granularidad, el modelo elige por ti sin decírtelo."
+        },
+        {
+          "id": "iad03-q2",
+          "question": "¿Para qué sirven los ejemplos de pregunta y consulta dentro del prompt?",
+          "options": [
+            "Para que el modelo memorice tus datos de forma permanente",
+            "Para que el modelo ejecute las consultas en tu servidor",
+            "Para que el modelo imite el estilo y las reglas del equipo",
+            "Para reducir a cero el número de tokens de la respuesta"
+          ],
+          "correctIndex": 2,
+          "explanation": "El few-shot muestra patrones aprobados (filtros, fechas, alias) que el modelo copia en la nueva consulta."
+        },
+        {
+          "id": "iad03-q3",
+          "question": "La consulta generada da una suma mayor que el total conocido. ¿Cuál es el mejor siguiente paso?",
+          "options": [
+            "Pedir al modelo que redondee el resultado al total conocido",
+            "Hacer la misma pregunta otra vez esperando otra respuesta",
+            "Aceptar el resultado porque la diferencia es pequeña",
+            "Dar al modelo ambas cifras y pedirle que busque la duplicación"
+          ],
+          "correctIndex": 3,
+          "explanation": "La evidencia concreta (cifra obtenida frente a cifra esperada) orienta la corrección; repetir o maquillar el número no la resuelve."
+        }
+      ]
+    },
+    {
+      "id": "cap-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2: IA y T-SQL",
+      "title": "Revisar el SQL que escribe la IA",
+      "subtitle": "Una lista de revisión para JOINs que duplican, NULLs que desaparecen y fechas que se quedan cortas.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Elegir el tipo de JOIN correcto y detectar cuándo la IA usó INNER donde hacía falta LEFT.",
+        "Encontrar duplicados por JOIN de uno a muchos comparando conteos antes y después.",
+        "Revisar el manejo de NULL en filtros, agregaciones y NOT IN.",
+        "Comprobar los rangos de fechas y las divisiones enteras de T-SQL."
+      ],
+      "theorySections": [
+        {
+          "id": "iad04-sec-1",
+          "title": "1. El tipo de JOIN cambia la pregunta",
+          "body": "Cuando pides «todos los clientes con su número de pedidos», la IA suele escribir `INNER JOIN`. El resultado se ve bien, pero **faltan los clientes sin pedidos**, que era justo lo que querías ver con un 0.\n\n- `INNER JOIN`: solo las filas que coinciden en ambas tablas.\n- `LEFT JOIN`: todas las filas de la izquierda, con `NULL` donde no hay coincidencia.\n- `FULL JOIN`: todo de ambos lados.\n\nUsa el diagrama para ver qué conjunto devuelve cada tipo. Al revisar, pregúntate: «¿quiero ver también los que no tienen pareja?». Si la respuesta es sí, es `LEFT JOIN`, y el `COUNT` debe contar una columna de la tabla derecha (`COUNT(p.PedidoID)`), no `COUNT(*)`.",
+          "diagram": {
+            "type": "venn-joins"
+          },
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Todos los clientes, también los que no compraron (0 pedidos)\nSELECT c.ClienteID, c.Nombre,\n       COUNT(p.PedidoID) AS Pedidos      -- COUNT(*) contaría 1 para los sin pedidos\nFROM dbo.Clientes AS c\nLEFT JOIN dbo.Pedidos AS p\n       ON p.ClienteID = c.ClienteID\n      AND p.Estado = 'pagado'           -- el filtro de la tabla derecha va en el ON\nGROUP BY c.ClienteID, c.Nombre;",
+          "keyTakeaway": "Con LEFT JOIN, los filtros de la tabla derecha van en el ON; en el WHERE lo convierten otra vez en INNER."
+        },
+        {
+          "id": "iad04-sec-2",
+          "title": "2. Duplicados: el JOIN de uno a muchos",
+          "body": "Es el error más caro de la IA con SQL. Si unes `Pedidos` (una fila por pedido) con `DetallePedido` (varias filas por pedido) y luego sumas `Pedidos.Total`, **cada total se suma tantas veces como líneas tenga el pedido**.\n\nCómo detectarlo:\n1. Cuenta filas de la tabla principal: `SELECT COUNT(*) FROM dbo.Pedidos WHERE ...`.\n2. Cuenta filas después del JOIN.\n3. Si el segundo número es mayor, cualquier `SUM` de columnas de la tabla principal está inflado.\n\nCómo corregirlo: **agrega primero** la tabla de detalle en una CTE (una fila por pedido) y une después.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- ✗ Total inflado: Pedidos x líneas de detalle\nSELECT SUM(p.Total) FROM dbo.Pedidos AS p\nJOIN dbo.DetallePedido AS d ON d.PedidoID = p.PedidoID;\n\n-- ✓ Agregar el detalle primero: una fila por pedido\nWITH Lineas AS (\n    SELECT PedidoID, COUNT(*) AS NumLineas\n    FROM dbo.DetallePedido GROUP BY PedidoID\n)\nSELECT SUM(p.Total) AS Total, AVG(CAST(l.NumLineas AS decimal(10,2))) AS LineasPorPedido\nFROM dbo.Pedidos AS p\nJOIN Lineas AS l ON l.PedidoID = p.PedidoID;",
+          "keyTakeaway": "Cuenta filas antes y después de cada JOIN; si suben, no sumes columnas de la tabla del lado «uno»."
+        },
+        {
+          "id": "iad04-sec-3",
+          "title": "3. NULL: el valor que desaparece en silencio",
+          "body": "Tres trampas que la IA repite:\n\n- **Filtros**: `WHERE Descuento <> 0` no devuelve las filas con `Descuento NULL`. Si quieres incluirlas, dilo: `ISNULL(Descuento, 0) <> 0` o `Descuento IS NULL OR ...`.\n- **Promedios**: `AVG(Calificacion)` ignora los `NULL`. ¿Es lo que quieres, o un `NULL` significa 0?\n- **NOT IN**: si la subconsulta devuelve algún `NULL`, `NOT IN` no devuelve **ninguna** fila. Usa `NOT EXISTS`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- ✗ Si algún Pedidos.ClienteID es NULL, esto devuelve 0 filas\nSELECT ClienteID FROM dbo.Clientes\nWHERE ClienteID NOT IN (SELECT ClienteID FROM dbo.Pedidos);\n\n-- ✓ NOT EXISTS no tiene ese problema\nSELECT c.ClienteID FROM dbo.Clientes AS c\nWHERE NOT EXISTS (SELECT 1 FROM dbo.Pedidos AS p WHERE p.ClienteID = c.ClienteID);",
+          "keyTakeaway": "Ante cada filtro o promedio, pregúntate qué pasa con las filas NULL; y prefiere NOT EXISTS a NOT IN."
+        },
+        {
+          "id": "iad04-sec-4",
+          "title": "4. Fechas y divisiones: errores de un día y de un decimal",
+          "body": "- **Fechas con hora**: `FechaPedido BETWEEN '2025-10-01' AND '2025-10-31'` deja fuera todo lo del 31 después de las 00:00. Usa el rango semiabierto `>= '2025-10-01' AND < '2025-11-01'`.\n- **Funciones sobre la columna**: `YEAR(FechaPedido) = 2025` funciona, pero impide usar el índice. El rango semiabierto da lo mismo y es más rápido.\n- **División entera**: en T-SQL, `int / int` da un entero. `3 / 4` es `0`. Para una tasa, multiplica por `1.0` o usa `CAST(... AS decimal(10,4))`.\n- **División por cero**: protege con `NULLIF(denominador, 0)`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT\n    COUNT(CASE WHEN Estado = 'devuelto' THEN 1 END) * 1.0\n      / NULLIF(COUNT(*), 0) AS TasaDevolucion      -- 0.0412, no 0\nFROM dbo.Pedidos\nWHERE FechaPedido >= '2025-10-01'\n  AND FechaPedido <  '2025-11-01';                 -- incluye todo el día 31",
+          "keyTakeaway": "Rango semiabierto para fechas, *1.0 para tasas y NULLIF para no dividir por cero."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Lista de revisión de SQL generado",
+        "summary": "Recorre esta lista antes de aceptar cualquier consulta escrita por IA.",
+        "rules": [
+          "¿El tipo de JOIN responde la pregunta? ¿Hacen falta las filas sin pareja?",
+          "¿Cuántas filas hay antes y después de cada JOIN?",
+          "¿Qué pasa con los NULL en cada filtro, promedio y NOT IN?",
+          "¿Las fechas usan rango semiabierto?",
+          "¿Las tasas evitan la división entera y la división por cero?",
+          "¿El total cuadra con un control independiente?"
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Control de filas antes y después del JOIN\nSELECT\n  (SELECT COUNT(*) FROM dbo.Pedidos WHERE Estado = 'pagado') AS Antes,\n  (SELECT COUNT(*) FROM dbo.Pedidos AS p\n     JOIN dbo.DetallePedido AS d ON d.PedidoID = p.PedidoID\n   WHERE p.Estado = 'pagado') AS Despues;"
+      },
+      "comparison": {
+        "scenario": "La IA genera el ingreso por cliente de 2025 y el total del informe sale un 38 % más alto que en contabilidad.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "SELECT c.Nombre, SUM(p.Total) AS Ingreso\nFROM dbo.Clientes c\nJOIN dbo.Pedidos p ON p.ClienteID = c.ClienteID\nJOIN dbo.DetallePedido d ON d.PedidoID = p.PedidoID\nWHERE p.FechaPedido BETWEEN '2025-01-01' AND '2025-12-31'\nGROUP BY c.Nombre;",
+        "juniorFlaws": [
+          "El JOIN con DetallePedido repite cada pedido por línea: el Total se suma varias veces.",
+          "BETWEEN con fecha y hora deja fuera el 31 de diciembre después de las 00:00.",
+          "Agrupa por nombre: los homónimos se mezclan.",
+          "No filtra Estado = 'pagado'."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "SELECT c.ClienteID, c.Nombre, SUM(p.Total) AS Ingreso\nFROM dbo.Clientes AS c\nJOIN dbo.Pedidos  AS p ON p.ClienteID = c.ClienteID\nWHERE p.Estado = 'pagado'\n  AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.ClienteID, c.Nombre;",
+        "intermediateBenefits": [
+          "Sin la tabla de detalle, cada pedido cuenta una vez.",
+          "El rango semiabierto incluye el año completo.",
+          "Agrupar por ClienteID evita mezclar homónimos.",
+          "Aplica la regla de negocio de ventas pagadas."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad04-ej-1",
+          "title": "Práctica 1: Encuentra la duplicación",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta que devuelva, en una sola fila, el número de pedidos pagados de 2025 y el número de filas que resultan al unirlos con `dbo.DetallePedido`. Luego escribe la versión correcta del total de 2025 que no se infle.",
+          "hint": "Dos subconsultas escalares en el SELECT. Para el total correcto, no unas con el detalle.",
+          "solutionExplanation": "Si Despues > Antes, el JOIN multiplica filas. El total correcto se calcula sobre Pedidos sin unir con el detalle (o agregando el detalle antes).",
+          "solutionCode": "SELECT\n  (SELECT COUNT(*) FROM dbo.Pedidos\n    WHERE Estado = 'pagado' AND FechaPedido >= '2025-01-01' AND FechaPedido < '2026-01-01') AS Antes,\n  (SELECT COUNT(*) FROM dbo.Pedidos AS p\n     JOIN dbo.DetallePedido AS d ON d.PedidoID = p.PedidoID\n    WHERE p.Estado = 'pagado' AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01') AS Despues;\n\nSELECT SUM(Total) AS Total2025\nFROM dbo.Pedidos\nWHERE Estado = 'pagado' AND FechaPedido >= '2025-01-01' AND FechaPedido < '2026-01-01';",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad04-ej-2",
+          "title": "Práctica 2: Productos sin ventas",
+          "difficulty": "Intermedio",
+          "prompt": "La IA propuso `SELECT Nombre FROM dbo.Productos WHERE ProductoID NOT IN (SELECT ProductoID FROM dbo.DetallePedido);` para listar productos que nunca se vendieron, y devuelve 0 filas aunque sabes que hay varios. Explica por qué y corrígela de dos formas: con NOT EXISTS y con LEFT JOIN.",
+          "hint": "Hay líneas de detalle con ProductoID NULL.",
+          "solutionExplanation": "Con un NULL en la subconsulta, `x NOT IN (..., NULL)` es desconocido para toda fila, así que no devuelve nada. NOT EXISTS y LEFT JOIN ... IS NULL no tienen ese problema.",
+          "solutionCode": "SELECT pr.Nombre\nFROM dbo.Productos AS pr\nWHERE NOT EXISTS (SELECT 1 FROM dbo.DetallePedido AS d WHERE d.ProductoID = pr.ProductoID);\n\nSELECT pr.Nombre\nFROM dbo.Productos AS pr\nLEFT JOIN dbo.DetallePedido AS d ON d.ProductoID = pr.ProductoID\nWHERE d.ProductoID IS NULL;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad04-ej-3",
+          "title": "Práctica 3: Tasa de cancelación correcta",
+          "difficulty": "Básico",
+          "prompt": "La IA escribió `SELECT SUM(CASE WHEN Estado='cancelado' THEN 1 ELSE 0 END) / COUNT(*) FROM dbo.Pedidos WHERE FechaPedido BETWEEN '2025-10-01' AND '2025-10-31';` y devuelve 0. Corrige los dos errores.",
+          "hint": "Uno es de tipos de dato y el otro de fechas.",
+          "solutionExplanation": "La división int/int devuelve 0; multiplicar por 1.0 la vuelve decimal. El rango semiabierto incluye todo el 31 de octubre. NULLIF evita el error si no hay pedidos.",
+          "solutionCode": "SELECT SUM(CASE WHEN Estado = 'cancelado' THEN 1 ELSE 0 END) * 1.0\n       / NULLIF(COUNT(*), 0) AS TasaCancelacion\nFROM dbo.Pedidos\nWHERE FechaPedido >= '2025-10-01' AND FechaPedido < '2025-11-01';",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad04-q1",
+          "question": "Quieres todos los clientes con su número de pedidos, incluso con 0. ¿Qué JOIN y qué conteo usas?",
+          "options": [
+            "LEFT JOIN y COUNT de una columna de la tabla de pedidos",
+            "INNER JOIN y COUNT(DISTINCT) del identificador de cliente",
+            "INNER JOIN y COUNT(*) sobre el resultado del JOIN",
+            "CROSS JOIN y SUM de una columna de la tabla de pedidos"
+          ],
+          "correctIndex": 0,
+          "explanation": "LEFT JOIN conserva los clientes sin pedidos, y COUNT(p.PedidoID) cuenta 0 para ellos porque ignora los NULL."
+        },
+        {
+          "id": "iad04-q2",
+          "question": "Tras unir Pedidos con DetallePedido, la suma de Pedidos.Total sube. ¿Por qué?",
+          "options": [
+            "Cada pedido se repite por cada línea de detalle",
+            "El JOIN agrega pedidos cancelados de forma automática",
+            "SQL Server redondea los decimales al hacer el JOIN",
+            "La tabla de detalle guarda el total con los impuestos"
+          ],
+          "correctIndex": 0,
+          "explanation": "Es un JOIN de uno a muchos: el total del pedido aparece en tantas filas como líneas tenga, y SUM lo cuenta varias veces."
+        },
+        {
+          "id": "iad04-q3",
+          "question": "¿Por qué evitar BETWEEN '2025-10-01' AND '2025-10-31' en una columna datetime2?",
+          "options": [
+            "Porque BETWEEN incluye también todo el mes de noviembre",
+            "Porque obliga a convertir la columna a texto para comparar",
+            "Porque excluye lo ocurrido el día 31 después de medianoche",
+            "Porque BETWEEN no está permitido en consultas de T-SQL"
+          ],
+          "correctIndex": 2,
+          "explanation": "'2025-10-31' equivale a las 00:00 de ese día; los pedidos posteriores quedan fuera. El rango semiabierto < '2025-11-01' los incluye."
+        }
+      ]
+    },
+    {
+      "id": "cap-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2: IA y T-SQL",
+      "title": "Explicar y optimizar consultas con IA",
+      "subtitle": "Pedir explicaciones de consultas ajenas, leer planes de ejecución y refactorizar sin cambiar el resultado.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Pedir a un modelo que explique una consulta larga paso a paso y contrastar la explicación.",
+        "Obtener las estadísticas de IO y tiempo de una consulta y compartirlas como contexto.",
+        "Evaluar las sugerencias de índices de la IA antes de crearlos.",
+        "Comprobar que una consulta refactorizada devuelve exactamente lo mismo con EXCEPT."
+      ],
+      "theorySections": [
+        {
+          "id": "iad05-sec-1",
+          "title": "1. Que te explique una consulta heredada",
+          "body": "Heredar una consulta de 200 líneas sin comentarios es habitual. Un modelo de lenguaje es muy bueno resumiéndola, siempre que le pidas una estructura concreta:\n\n- **Propósito** en una frase.\n- **Pasos** en orden (una línea por CTE o subconsulta).\n- **Supuestos** que hace (filtros fijos, fechas codificadas, tablas temporales).\n- **Riesgos** visibles (JOINs de uno a muchos, `NOT IN`, divisiones enteras).\n\nLuego **verifica la explicación** con una ejecución: si dice que «filtra solo clientes activos», busca ese filtro en el código. Una explicación también puede alucinar.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Explica esta consulta T-SQL para un analista nuevo.\nFormato:\n1. Propósito (una frase)\n2. Pasos (una línea por CTE o subconsulta, en orden)\n3. Supuestos fijos (fechas, códigos, filtros)\n4. Riesgos de resultado incorrecto\nNo reescribas la consulta.\n<consulta>",
+          "keyTakeaway": "Pide la explicación con estructura fija y verifica cada afirmación contra el código."
+        },
+        {
+          "id": "iad05-sec-2",
+          "title": "2. Dale evidencia de rendimiento, no solo el código",
+          "body": "Si preguntas «¿cómo optimizo esta consulta?» sin más, recibirás consejos genéricos («evita SELECT *», «crea índices»). Para recibir algo útil, comparte **lo que mide SQL Server**:\n\n- `SET STATISTICS IO, TIME ON` muestra lecturas lógicas por tabla y tiempo de CPU.\n- El **plan de ejecución real** (en SSMS, Ctrl+M) muestra qué operadores cuestan más: *Table Scan*, *Key Lookup*, *Sort*, *Hash Match*.\n- La cantidad de filas de cada tabla.\n\nCon esas cifras, el modelo puede señalar el operador caro y proponer un cambio concreto.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SET STATISTICS IO, TIME ON;\n\nSELECT c.Pais, SUM(p.Total) AS Ventas\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado'\n  AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.Pais;\n\nSET STATISTICS IO, TIME OFF;\n-- Mensajes: Table 'Pedidos'. Scan count 1, logical reads 48211 ...\n--           CPU time = 1850 ms, elapsed time = 2304 ms.",
+          "keyTakeaway": "Lecturas lógicas, tiempo y el operador más caro del plan convierten un consejo genérico en uno concreto."
+        },
+        {
+          "id": "iad05-sec-3",
+          "title": "3. Índices sugeridos: útiles, pero con criterio",
+          "body": "Es común que la IA proponga un índice. Antes de crearlo, revisa:\n\n- **Columnas clave**: primero las de igualdad (`Estado`), luego las de rango (`FechaPedido`).\n- **INCLUDE**: las columnas que solo se leen (`ClienteID`, `Total`) para evitar el *Key Lookup*.\n- **Costo**: cada índice ralentiza los `INSERT` y `UPDATE` y ocupa espacio. ¿Ya existe uno parecido? Consulta `sys.indexes`.\n- **Permisos**: en producción, crear índices suele ser tarea del DBA. Llévale la propuesta con las cifras de antes y después medidas en un entorno de pruebas.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Propuesta de la IA, revisada: igualdad, luego rango, y columnas leídas en INCLUDE\nCREATE NONCLUSTERED INDEX IX_Pedidos_Estado_Fecha\nON dbo.Pedidos (Estado, FechaPedido)\nINCLUDE (ClienteID, Total);\n\n-- ¿Ya hay índices en la tabla?\nSELECT i.name, i.type_desc\nFROM sys.indexes AS i\nWHERE i.object_id = OBJECT_ID('dbo.Pedidos');",
+          "keyTakeaway": "Un índice se justifica con cifras de antes y después, y se revisa contra los que ya existen."
+        },
+        {
+          "id": "iad05-sec-4",
+          "title": "4. Refactorizar sin cambiar el resultado",
+          "body": "Pedir «reescribe esta consulta para que sea más legible» es una gran tarea para la IA. El riesgo es que la versión nueva **devuelva algo distinto** sin que lo notes.\n\nLa prueba es simple: ejecuta las dos versiones y compara con `EXCEPT` en ambos sentidos. Si las dos consultas devuelven 0 filas, los resultados son iguales (como conjuntos). Compara también el `COUNT(*)`, porque `EXCEPT` elimina duplicados.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Original y refactorizada guardadas en tablas temporales\nSELECT * INTO #Original FROM (/* consulta original */ SELECT 1 AS x) AS o;\nSELECT * INTO #Nueva    FROM (/* consulta nueva    */ SELECT 1 AS x) AS n;\n\nSELECT 'solo en original' AS Lado, * FROM (SELECT * FROM #Original EXCEPT SELECT * FROM #Nueva) AS a\nUNION ALL\nSELECT 'solo en nueva', * FROM (SELECT * FROM #Nueva EXCEPT SELECT * FROM #Original) AS b;\n\nSELECT (SELECT COUNT(*) FROM #Original) AS FilasOriginal,\n       (SELECT COUNT(*) FROM #Nueva)    AS FilasNueva;",
+          "keyTakeaway": "EXCEPT en los dos sentidos más un conteo de filas demuestran que la refactorización no cambió el resultado."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo trabajar con IA en explicaciones y optimización de consultas.",
+        "rules": [
+          "Pide explicaciones con estructura: propósito, pasos, supuestos y riesgos.",
+          "Para optimizar, comparte STATISTICS IO/TIME y el operador más caro del plan.",
+          "No crees índices en producción sin medir antes y después en pruebas.",
+          "Toda refactorización se valida con EXCEPT en ambos sentidos y conteo de filas."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Plantilla de verificación de refactorización\nSELECT COUNT(*) AS Diferencias FROM (\n    SELECT * FROM #Original EXCEPT SELECT * FROM #Nueva\n    UNION ALL\n    SELECT * FROM #Nueva EXCEPT SELECT * FROM #Original\n) AS d;   -- debe ser 0"
+      },
+      "comparison": {
+        "scenario": "La IA refactoriza un informe de clientes activos y el analista sube la nueva versión porque «se ve más limpia».",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Original: clientes con al menos un pedido pagado en 2025\n-- Nueva (de la IA), subida sin comparar:\nSELECT DISTINCT c.ClienteID, c.Nombre\nFROM dbo.Clientes AS c\nLEFT JOIN dbo.Pedidos AS p ON p.ClienteID = c.ClienteID\nWHERE p.FechaPedido >= '2025-01-01' OR p.Estado = 'pagado';",
+        "juniorFlaws": [
+          "El OR cambió la lógica: ahora entra cualquier pedido pagado de cualquier año.",
+          "Nadie comparó el resultado con la versión original.",
+          "El LEFT JOIN no aporta nada: el WHERE lo convierte en INNER."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "SELECT c.ClienteID, c.Nombre\nFROM dbo.Clientes AS c\nWHERE EXISTS (\n    SELECT 1 FROM dbo.Pedidos AS p\n    WHERE p.ClienteID = c.ClienteID\n      AND p.Estado = 'pagado'\n      AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\n);\n-- Verificada con EXCEPT en ambos sentidos: 0 diferencias.",
+        "intermediateBenefits": [
+          "EXISTS expresa exactamente «tiene al menos un pedido» y no necesita DISTINCT.",
+          "Las dos condiciones van con AND, como en la original.",
+          "Se demostró con EXCEPT que devuelve los mismos clientes."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad05-ej-1",
+          "title": "Práctica 1: Pide una explicación estructurada",
+          "difficulty": "Básico",
+          "prompt": "Escribe el prompt que usarías para que un modelo explique esta consulta: `WITH u AS (SELECT ClienteID, MAX(FechaPedido) AS Ultima FROM dbo.Pedidos WHERE Estado='pagado' GROUP BY ClienteID) SELECT c.Pais, COUNT(*) FROM u JOIN dbo.Clientes c ON c.ClienteID=u.ClienteID WHERE u.Ultima < DATEADD(DAY,-90,GETDATE()) GROUP BY c.Pais;`. Después escribe tú, en dos líneas, qué hace.",
+          "hint": "Usa el formato de cuatro partes del capítulo.",
+          "solutionExplanation": "La consulta cuenta, por país, los clientes cuya última compra pagada fue hace más de 90 días (clientes inactivos o en riesgo de abandono).",
+          "solutionCode": "Prompt:\nExplica esta consulta T-SQL para un analista nuevo.\n1. Propósito  2. Pasos  3. Supuestos fijos  4. Riesgos. No la reescribas.\n<consulta>\n\nMi explicación:\nCalcula la fecha de la última compra pagada de cada cliente y cuenta,\npor país, cuántos no compran desde hace más de 90 días (clientes inactivos).",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "iad05-ej-2",
+          "title": "Práctica 2: Mide antes de optimizar",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el script que mide lecturas y tiempo de la consulta de ventas por país de 2025, crea el índice sugerido en un entorno de pruebas y vuelve a medir.",
+          "hint": "SET STATISTICS IO, TIME ON antes de cada ejecución. El índice: (Estado, FechaPedido) INCLUDE (ClienteID, Total).",
+          "solutionExplanation": "Ejecutar la misma consulta antes y después del índice permite comparar las lecturas lógicas de Pedidos. Esa diferencia es el argumento para el DBA.",
+          "solutionCode": "SET STATISTICS IO, TIME ON;\n\n-- Antes\nSELECT c.Pais, SUM(p.Total) AS Ventas\nFROM dbo.Pedidos AS p JOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado' AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.Pais;\n\nCREATE NONCLUSTERED INDEX IX_Pedidos_Estado_Fecha\nON dbo.Pedidos (Estado, FechaPedido) INCLUDE (ClienteID, Total);\n\n-- Después\nSELECT c.Pais, SUM(p.Total) AS Ventas\nFROM dbo.Pedidos AS p JOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado' AND p.FechaPedido >= '2025-01-01' AND p.FechaPedido < '2026-01-01'\nGROUP BY c.Pais;\n\nSET STATISTICS IO, TIME OFF;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad05-ej-3",
+          "title": "Práctica 3: Demuestra que son iguales",
+          "difficulty": "Avanzado",
+          "prompt": "Tienes una consulta original con subconsulta correlacionada y la versión de la IA con LEFT JOIN y GROUP BY, ambas devuelven (ClienteID, NumPedidos). Escribe una sola consulta que devuelva 0 si los resultados coinciden, usando CTE en lugar de tablas temporales.",
+          "hint": "Define Original y Nueva como CTE, y cuenta las filas de los dos EXCEPT unidos.",
+          "solutionExplanation": "Si la cuenta es 0, no hay filas que estén en una versión y no en la otra. Ojo: el COUNT(p.PedidoID) del LEFT JOIN da 0 para clientes sin pedidos, igual que la subconsulta.",
+          "solutionCode": "WITH Original AS (\n    SELECT c.ClienteID,\n           (SELECT COUNT(*) FROM dbo.Pedidos AS p WHERE p.ClienteID = c.ClienteID) AS NumPedidos\n    FROM dbo.Clientes AS c\n), Nueva AS (\n    SELECT c.ClienteID, COUNT(p.PedidoID) AS NumPedidos\n    FROM dbo.Clientes AS c\n    LEFT JOIN dbo.Pedidos AS p ON p.ClienteID = c.ClienteID\n    GROUP BY c.ClienteID\n)\nSELECT COUNT(*) AS Diferencias FROM (\n    SELECT * FROM Original EXCEPT SELECT * FROM Nueva\n    UNION ALL\n    SELECT * FROM Nueva EXCEPT SELECT * FROM Original\n) AS d;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad05-q1",
+          "question": "¿Qué información hace que la IA proponga una optimización concreta?",
+          "options": [
+            "El nombre del analista que escribió la consulta original",
+            "Lecturas lógicas, tiempo y el operador más caro",
+            "La versión del sistema operativo del equipo del analista",
+            "Una captura del resultado final con sus primeras filas"
+          ],
+          "correctIndex": 1,
+          "explanation": "Las cifras de SET STATISTICS y el plan muestran dónde se gasta el tiempo; sin ellas, el consejo es genérico."
+        },
+        {
+          "id": "iad05-q2",
+          "question": "¿Cómo compruebas que una consulta refactorizada devuelve lo mismo que la original?",
+          "options": [
+            "Con EXCEPT en ambos sentidos y comparando el conteo de filas",
+            "Comprobando que la nueva versión tarda menos en ejecutarse",
+            "Revisando que ambas tengan el mismo número de líneas de código",
+            "Pidiendo al mismo modelo que confirme que son equivalentes"
+          ],
+          "correctIndex": 0,
+          "explanation": "EXCEPT encuentra filas que están en un resultado y no en el otro; el conteo cubre los duplicados que EXCEPT elimina."
+        },
+        {
+          "id": "iad05-q3",
+          "question": "La IA sugiere un índice nuevo. ¿Qué haces antes de crearlo en producción?",
+          "options": [
+            "Medir antes y después en pruebas y revisar índices existentes",
+            "Borrar los índices actuales para que no haya ningún conflicto",
+            "Crearlo enseguida, porque los índices nunca tienen un costo",
+            "Pedir al modelo que lo cree él mismo en la base de producción"
+          ],
+          "correctIndex": 0,
+          "explanation": "Cada índice cuesta en escrituras y espacio; se justifica con mediciones y no debe duplicar uno que ya existe."
+        }
+      ]
+    },
+    {
+      "id": "cap-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 3: IA y Python",
+      "title": "Limpieza de datos con pandas asistida por IA",
+      "subtitle": "Usar la IA para escribir el código de limpieza, no para limpiar a ciegas: perfil, reglas y pruebas.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Generar un perfil compacto de un DataFrame para dárselo al modelo como contexto.",
+        "Pedir funciones de limpieza pequeñas, con nombre y reglas explícitas.",
+        "Proteger la limpieza con aserciones que fallen si los datos cambian.",
+        "Registrar cuántas filas cambia cada paso para poder explicarlo."
+      ],
+      "theorySections": [
+        {
+          "id": "iad06-sec-1",
+          "title": "1. El perfil: lo que el modelo necesita saber",
+          "body": "Igual que con SQL, la IA necesita contexto. Pero en lugar de pegar el CSV (privacidad y tokens), le das un **perfil**: tipos, nulos, valores distintos y algunos ejemplos de los valores problemáticos.\n\nUn perfil de 30 líneas describe un archivo de un millón de filas. Con él, el modelo ve que `fecha` llegó como texto con dos formatos, que `monto` trae comas de miles o que `pais` tiene «RD», «Rep. Dom.» y «República Dominicana».",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\n\ndf = pd.read_csv(\"ventas_crudas.csv\", dtype=str)\n\nperfil = pd.DataFrame({\n    \"tipo\": df.dtypes.astype(str),\n    \"nulos\": df.isna().sum(),\n    \"distintos\": df.nunique(),\n    \"ejemplos\": df.apply(lambda s: s.dropna().unique()[:5].tolist()),\n})\nprint(perfil.to_string())   # esto es lo que va en el prompt",
+          "keyTakeaway": "Pasa al modelo el perfil del DataFrame, no los datos: describe el problema con pocas líneas y sin exponer personas."
+        },
+        {
+          "id": "iad06-sec-2",
+          "title": "2. Pide funciones pequeñas con reglas explícitas",
+          "body": "«Limpia este DataFrame» produce un bloque largo de código difícil de revisar. Mejor pide **una función por problema**, con la regla escrita por ti:\n\n- `normalizar_pais(s)`: «RD», «Rep. Dom.» → «República Dominicana».\n- `convertir_monto(s)`: quita «RD$» y separadores de miles, convierte a número.\n- `convertir_fecha(s)`: acepta `dd/mm/aaaa` y `aaaa-mm-dd`; lo que no se pueda convertir queda como `NaT`, no se inventa.\n\nLas reglas las decides tú porque son decisiones de negocio (¿una fecha ilegible se descarta o se revisa?). El modelo solo las convierte en código.",
+          "codeLanguage": "python",
+          "codeSnippet": "import pandas as pd\n\nMAPA_PAIS = {\"rd\": \"República Dominicana\", \"rep. dom.\": \"República Dominicana\",\n             \"república dominicana\": \"República Dominicana\", \"pr\": \"Puerto Rico\"}\n\n\ndef normalizar_pais(s: pd.Series) -> pd.Series:\n    limpio = s.str.strip().str.lower()\n    return limpio.map(MAPA_PAIS).fillna(s.str.strip())\n\n\ndef convertir_monto(s: pd.Series) -> pd.Series:\n    texto = s.str.replace(\"RD$\", \"\", regex=False).str.replace(\",\", \"\", regex=False).str.strip()\n    return pd.to_numeric(texto, errors=\"coerce\")\n\n\ndef convertir_fecha(s: pd.Series) -> pd.Series:\n    iso = pd.to_datetime(s, format=\"%Y-%m-%d\", errors=\"coerce\")\n    dmy = pd.to_datetime(s, format=\"%d/%m/%Y\", errors=\"coerce\")\n    return iso.fillna(dmy)",
+          "keyTakeaway": "Tú escribes la regla de negocio; la IA la convierte en una función pequeña que se puede probar."
+        },
+        {
+          "id": "iad06-sec-3",
+          "title": "3. Aserciones: la limpieza que se defiende sola",
+          "body": "El código de limpieza funciona con el archivo de hoy. El mes que viene llega un formato nuevo y, sin controles, pasa en silencio. Pide a la IA (o escribe tú) **aserciones** al final del proceso:\n\n- No hay montos negativos ni nulos inesperados.\n- El país solo toma valores de una lista conocida.\n- El número de filas no cayó más de lo esperado.\n\nSi una aserción falla, el proceso se detiene con un mensaje claro en lugar de producir un informe equivocado.",
+          "codeLanguage": "python",
+          "codeSnippet": "PAISES_VALIDOS = {\"República Dominicana\", \"Puerto Rico\", \"Panamá\"}\n\n\ndef validar(df, filas_originales):\n    assert df[\"monto\"].notna().all(), \"Hay montos que no se pudieron convertir\"\n    assert (df[\"monto\"] >= 0).all(), \"Hay montos negativos\"\n    desconocidos = set(df[\"pais\"]) - PAISES_VALIDOS\n    assert not desconocidos, f\"Países sin mapear: {desconocidos}\"\n    perdidas = 1 - len(df) / filas_originales\n    assert perdidas < 0.02, f\"Se descartó el {perdidas:.1%} de las filas\" ",
+          "keyTakeaway": "Las aserciones convierten un cambio silencioso en los datos en un error visible."
+        },
+        {
+          "id": "iad06-sec-4",
+          "title": "4. Registro de cambios: qué hizo cada paso",
+          "body": "En una reunión te preguntarán: «¿cuántas filas descartaste y por qué?». Si la limpieza la escribió la IA, con más razón debes poder responder.\n\nRegistra, por paso, cuántas filas cambió o eliminó. Es una tabla pequeña que acompaña al dataset limpio y que puedes copiar al informe.",
+          "codeLanguage": "python",
+          "codeSnippet": "registro = []\n\n\ndef paso(nombre, antes, despues):\n    registro.append({\"paso\": nombre, \"filas_antes\": len(antes), \"filas_despues\": len(despues)})\n    return despues\n\n\ncrudo = pd.read_csv(\"ventas_crudas.csv\", dtype=str)\ndf = crudo.copy()\ndf[\"pais\"] = normalizar_pais(df[\"pais\"])\ndf[\"monto\"] = convertir_monto(df[\"monto\"])\ndf[\"fecha\"] = convertir_fecha(df[\"fecha\"])\ndf = paso(\"descartar fechas ilegibles\", df, df[df[\"fecha\"].notna()])\ndf = paso(\"quitar duplicados exactos\", df, df.drop_duplicates())\nprint(pd.DataFrame(registro))",
+          "keyTakeaway": "Cada paso de limpieza deja constancia de cuántas filas tocó: así puedes explicarla aunque no la hayas tecleado tú."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Normas para limpiar datos con código generado por IA.",
+        "rules": [
+          "Comparte el perfil del DataFrame, no el archivo.",
+          "Una función por problema, con la regla de negocio escrita por una persona.",
+          "Lo que no se pueda convertir queda como NaN o NaT; nunca se rellena con un valor inventado.",
+          "Termina con aserciones de tipos, rangos, valores válidos y filas perdidas.",
+          "Guarda un registro de filas por paso junto al dataset limpio."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "def limpiar(crudo):\n    df = crudo.copy()\n    df[\"pais\"] = normalizar_pais(df[\"pais\"])\n    df[\"monto\"] = convertir_monto(df[\"monto\"])\n    df[\"fecha\"] = convertir_fecha(df[\"fecha\"])\n    df = df[df[\"fecha\"].notna()].drop_duplicates()\n    validar(df, len(crudo))\n    return df"
+      },
+      "comparison": {
+        "scenario": "Un analista pide «limpia este archivo» y acepta el código que rellena todo lo que falta.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "import pandas as pd\n\ndf = pd.read_csv(\"ventas_crudas.csv\")\ndf = df.fillna(0)                                   # todo lo vacío pasa a 0\ndf[\"fecha\"] = pd.to_datetime(df[\"fecha\"], errors=\"coerce\").fillna(pd.Timestamp(\"2025-01-01\"))\ndf[\"monto\"] = df[\"monto\"].astype(str).str.replace(\",\", \"\").astype(float)\ndf.to_csv(\"ventas_limpias.csv\", index=False)",
+        "juniorFlaws": [
+          "Rellena montos y países vacíos con 0: inventa datos.",
+          "Las fechas ilegibles pasan a ser el 1 de enero y distorsionan ese mes.",
+          "No hay aserciones ni registro: nadie sabe cuántas filas se tocaron.",
+          "Un formato nuevo de monto haría fallar todo o se convertiría mal en silencio."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "import pandas as pd\n\ncrudo = pd.read_csv(\"ventas_crudas.csv\", dtype=str)\ndf = crudo.copy()\ndf[\"pais\"] = normalizar_pais(df[\"pais\"])\ndf[\"monto\"] = convertir_monto(df[\"monto\"])\ndf[\"fecha\"] = convertir_fecha(df[\"fecha\"])\ndf = df[df[\"fecha\"].notna() & df[\"monto\"].notna()]\nvalidar(df, len(crudo))\nprint(f\"Filas descartadas: {len(crudo) - len(df)}\")\ndf.to_csv(\"ventas_limpias.csv\", index=False)",
+        "intermediateBenefits": [
+          "Lo que no se puede convertir se descarta y se cuenta, no se inventa.",
+          "Cada regla vive en una función con nombre que se puede probar.",
+          "Las aserciones detienen el proceso si los datos cambian de forma."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad06-ej-1",
+          "title": "Práctica 1: Perfil para el prompt",
+          "difficulty": "Básico",
+          "prompt": "Escribe una función `perfil(df)` que devuelva un DataFrame con, por columna: tipo, porcentaje de nulos (redondeado a 1 decimal), número de valores distintos y hasta 3 ejemplos de valores no nulos.",
+          "hint": "isna().mean() da la proporción de nulos; multiplica por 100.",
+          "solutionExplanation": "El porcentaje es más útil que el conteo para que el modelo juzgue si una columna está casi vacía. Tres ejemplos bastan para mostrar formatos.",
+          "solutionCode": "import pandas as pd\n\n\ndef perfil(df: pd.DataFrame) -> pd.DataFrame:\n    return pd.DataFrame({\n        \"tipo\": df.dtypes.astype(str),\n        \"pct_nulos\": (df.isna().mean() * 100).round(1),\n        \"distintos\": df.nunique(),\n        \"ejemplos\": df.apply(lambda s: s.dropna().unique()[:3].tolist()),\n    })",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad06-ej-2",
+          "title": "Práctica 2: Teléfonos en un solo formato",
+          "difficulty": "Intermedio",
+          "prompt": "La columna `telefono` trae valores como «809-555-1234», «(829) 555 1234», «8495551234» y «+1 809 555 1234». Escribe `normalizar_telefono(s)` que devuelva los 10 dígitos (sin el +1 inicial) y deje como NaN los que no tengan 10 dígitos tras limpiar.",
+          "hint": "Quita todo lo que no sea dígito con str.replace(r'\\D', '', regex=True); luego quita un 1 inicial si quedan 11 dígitos.",
+          "solutionExplanation": "Primero se dejan solo dígitos; si quedan 11 y empiezan por 1, es el código de país. Todo lo que no tenga 10 dígitos es inválido y queda NaN para revisión.",
+          "solutionCode": "import numpy as np\nimport pandas as pd\n\n\ndef normalizar_telefono(s: pd.Series) -> pd.Series:\n    digitos = s.astype(\"string\").str.replace(r\"\\D\", \"\", regex=True)\n    digitos = digitos.where(~((digitos.str.len() == 11) & digitos.str.startswith(\"1\")), digitos.str[1:])\n    return digitos.where(digitos.str.len() == 10, np.nan)",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad06-ej-3",
+          "title": "Práctica 3: Aserciones del dataset",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `validar_clientes(df)` con aserciones para: `cliente_id` sin nulos ni duplicados, `email` con una arroba cuando no es nulo, y `fecha_alta` no posterior a hoy.",
+          "hint": "is_unique, str.contains('@') y pd.Timestamp.today().",
+          "solutionExplanation": "Cada aserción tiene un mensaje que explica qué falló, así el error se entiende sin abrir el código.",
+          "solutionCode": "import pandas as pd\n\n\ndef validar_clientes(df: pd.DataFrame) -> None:\n    assert df[\"cliente_id\"].notna().all(), \"cliente_id tiene nulos\"\n    assert df[\"cliente_id\"].is_unique, \"cliente_id tiene duplicados\"\n    emails = df[\"email\"].dropna()\n    assert emails.str.contains(\"@\").all(), \"Hay emails sin arroba\"\n    assert (df[\"fecha_alta\"] <= pd.Timestamp.today()).all(), \"Hay fechas de alta en el futuro\" ",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad06-q1",
+          "question": "¿Qué conviene enviar al modelo para que escriba código de limpieza?",
+          "options": [
+            "Un perfil con tipos, nulos y ejemplos por columna",
+            "Una captura de pantalla de las primeras filas en Excel",
+            "El archivo completo con todas las filas tal como llegó",
+            "Solo el nombre del archivo y la carpeta donde se guarda"
+          ],
+          "correctIndex": 0,
+          "explanation": "El perfil describe los problemas en pocas líneas y sin exponer datos personales."
+        },
+        {
+          "id": "iad06-q2",
+          "question": "Una fecha no se puede convertir. ¿Qué hace un código de limpieza correcto?",
+          "options": [
+            "La convierte en la fecha más frecuente de toda la columna",
+            "La deja como NaT y la cuenta en el registro de descartes",
+            "La reemplaza por el primer día del año para no perderla",
+            "La cambia por la fecha de hoy para mantener la fila viva"
+          ],
+          "correctIndex": 1,
+          "explanation": "Rellenar con una fecha inventada distorsiona los resultados; marcarla y contarla permite decidir con transparencia."
+        },
+        {
+          "id": "iad06-q3",
+          "question": "¿Para qué sirven las aserciones al final de la limpieza?",
+          "options": [
+            "Para borrar las filas que no cumplen las reglas sin avisar",
+            "Para detener el proceso si los datos llegan con otra forma",
+            "Para que el código se ejecute más rápido con archivos grandes",
+            "Para que la IA aprenda los datos de la empresa con el tiempo"
+          ],
+          "correctIndex": 1,
+          "explanation": "Una aserción falla de forma visible cuando cambia el formato, en lugar de dejar pasar un dataset incorrecto."
+        }
+      ]
+    },
+    {
+      "id": "cap-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3: IA y Python",
+      "title": "Análisis exploratorio y gráficos con ayuda de IA",
+      "subtitle": "Pedir hipótesis y código de gráficos, y distinguir un patrón real de una casualidad bien contada.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Usar la IA para proponer preguntas e hipótesis a partir del perfil de un dataset.",
+        "Pedir código de gráficos con requisitos claros de tipo, ejes y título.",
+        "Comprobar con los datos cada «hallazgo» que el modelo sugiera.",
+        "Reconocer las conclusiones que un gráfico no permite sacar."
+      ],
+      "theorySections": [
+        {
+          "id": "iad07-sec-1",
+          "title": "1. Hipótesis primero, gráficos después",
+          "body": "El análisis exploratorio (EDA) se pierde fácilmente en gráficos sin rumbo. Un buen uso de la IA es pedirle **preguntas**, no respuestas: dale el perfil del dataset y el objetivo del negocio, y pídele 8 a 10 hipótesis comprobables.\n\nCada hipótesis debe decir qué columnas usa y qué gráfico o tabla la pondría a prueba. Tú eliges las tres más relevantes. Así el modelo amplía tu lista de ideas, y tú decides el foco.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Objetivo: entender por qué bajaron las ventas en septiembre.\nPerfil del dataset: <perfil>\nPropón 8 hipótesis comprobables. Para cada una indica:\n- columnas que usa\n- tabla o gráfico que la pondría a prueba\n- qué resultado la confirmaría y cuál la descartaría\nNo afirmes nada sobre los datos: solo propón.",
+          "keyTakeaway": "Pide hipótesis comprobables y no conclusiones: la IA amplía las ideas y los datos deciden."
+        },
+        {
+          "id": "iad07-sec-2",
+          "title": "2. Código de gráficos con requisitos claros",
+          "body": "«Haz un gráfico de las ventas» da cualquier cosa. Especifica:\n\n- **Tipo**: línea para tiempo, barras horizontales para comparar categorías, histograma para distribuciones, dispersión para relación entre dos números.\n- **Ejes y unidades**: «eje Y en miles de DOP».\n- **Orden**: barras ordenadas de mayor a menor.\n- **Título que diga la conclusión**, no la descripción: «Septiembre cayó un 12 % frente a agosto» en lugar de «Ventas por mes».\n\nEl modelo escribe matplotlib o seaborn muy bien cuando sabe exactamente lo que quieres.",
+          "codeLanguage": "python",
+          "codeSnippet": "import matplotlib.pyplot as plt\n\nmensual = (df[df[\"estado\"] == \"pagado\"]\n           .set_index(\"fecha\")\n           .resample(\"MS\")[\"monto\"].sum() / 1000)\n\nfig, ax = plt.subplots(figsize=(8, 4))\nax.plot(mensual.index, mensual.values, marker=\"o\")\nax.set_ylabel(\"Ventas (miles de DOP)\")\nax.set_title(\"Las ventas cayeron en septiembre y se recuperaron en octubre\")\nax.spines[[\"top\", \"right\"]].set_visible(False)\nfig.tight_layout()\nfig.savefig(\"ventas_mensuales.png\", dpi=150)",
+          "keyTakeaway": "Tipo, ejes, orden y un título con la conclusión: con eso el código del gráfico sale bien a la primera."
+        },
+        {
+          "id": "iad07-sec-3",
+          "title": "3. Comprueba cada hallazgo con los datos",
+          "body": "Si le pasas al modelo una tabla resumida y le preguntas «¿qué ves?», te dará observaciones razonables… y algunas inventadas o exageradas. Antes de repetir un hallazgo:\n\n1. **Calcula la cifra tú**: si dice «el canal web creció un 30 %», haz el `groupby`.\n2. **Mira el tamaño**: un aumento del 50 % sobre 4 pedidos no es un patrón.\n3. **Busca la explicación aburrida**: un cambio de sistema, un feriado, datos incompletos del último mes.",
+          "codeLanguage": "python",
+          "codeSnippet": "# Hallazgo sugerido: \"el canal web creció un 30 % en octubre\"\npor_canal = (df[df[\"estado\"] == \"pagado\"]\n             .assign(mes=df[\"fecha\"].dt.to_period(\"M\"))\n             .pivot_table(index=\"canal\", columns=\"mes\", values=\"monto\",\n                          aggfunc=[\"sum\", \"count\"]))\nweb = por_canal.loc[\"web\"]\ncrecimiento = web[(\"sum\", \"2025-10\")] / web[(\"sum\", \"2025-09\")] - 1\nprint(f\"Crecimiento web: {crecimiento:.1%} con {web[('count', '2025-10')]} pedidos\")",
+          "keyTakeaway": "Un hallazgo existe cuando lo calculaste tú, con suficientes casos y descartando la explicación aburrida."
+        },
+        {
+          "id": "iad07-sec-4",
+          "title": "4. Lo que un gráfico no demuestra",
+          "body": "La IA tiende a redactar conclusiones causales: «el descuento **provocó** el aumento de ventas». Un gráfico exploratorio solo muestra que dos cosas ocurren juntas. Otras causas posibles: temporada, una campaña simultánea, un cambio en la mezcla de clientes.\n\nCuando el modelo escriba un «porque», cámbialo por «coincide con» hasta que tengas un experimento (como una prueba A/B) o un análisis que controle las otras variables.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "✗ \"El nuevo diseño del carrito aumentó la conversión un 8 %.\"\n✓ \"La conversión subió un 8 % en la semana del nuevo diseño del carrito;\n   en esa semana también hubo quincena y una campaña de correo,\n   así que no podemos atribuir el aumento solo al diseño.\" ",
+          "keyTakeaway": "Correlación no es causa: cambia los «porque» del modelo por «coincide con» hasta tener un experimento."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo usar IA en análisis exploratorio sin convertir casualidades en conclusiones.",
+        "rules": [
+          "Pide hipótesis comprobables, no conclusiones.",
+          "Especifica tipo de gráfico, ejes, unidades, orden y título.",
+          "Recalcula cada cifra que el modelo mencione y anota el número de casos.",
+          "No uses lenguaje causal sin un experimento o un análisis que lo justifique."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "def comprobar(df, filtro, columna, minimo_casos=30):\n    sub = df.query(filtro)\n    n = len(sub)\n    if n < minimo_casos:\n        return f\"Solo {n} casos: insuficiente para concluir\"\n    return f\"Media de {columna}: {sub[columna].mean():,.2f} (n = {n})\" "
+      },
+      "comparison": {
+        "scenario": "El analista pega el resumen mensual en el chat, pide «conclusiones» y las copia en la presentación.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "# Respuesta del modelo copiada en la presentación:\n# \"Las ventas en Santiago crecieron un 45 % gracias a la nueva sucursal,\n#  y los clientes jóvenes prefieren pagar con tarjeta.\"\nresumen = df.groupby(\"mes\")[\"monto\"].sum()\nprint(resumen)   # el resumen no tenía ciudad ni edad",
+        "juniorFlaws": [
+          "El resumen no tenía ciudad ni edad: esas conclusiones son inventadas.",
+          "«Gracias a la nueva sucursal» es una afirmación causal sin evidencia.",
+          "No se recalculó ninguna cifra antes de presentarla."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "por_ciudad = (df[df[\"estado\"] == \"pagado\"]\n              .assign(mes=df[\"fecha\"].dt.to_period(\"M\"))\n              .groupby([\"ciudad\", \"mes\"])[\"monto\"].agg([\"sum\", \"count\"]))\nstgo = por_ciudad.loc[\"Santiago\"]\ncrec = stgo.loc[\"2025-10\", \"sum\"] / stgo.loc[\"2025-09\", \"sum\"] - 1\nprint(f\"Santiago: {crec:.1%} (n = {stgo.loc['2025-10', 'count']})\")\n# Redacción: \"Santiago creció X % en octubre, el mes en que abrió la sucursal.\" ",
+        "intermediateBenefits": [
+          "La cifra sale de un cálculo sobre las columnas reales.",
+          "Muestra el número de casos junto al porcentaje.",
+          "La redacción dice «coincide», no «gracias a»."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad07-ej-1",
+          "title": "Práctica 1: Prompt de hipótesis",
+          "difficulty": "Básico",
+          "prompt": "Tu dataset de soporte tiene `fecha`, `canal` (chat, correo, teléfono), `categoria`, `minutos_resolucion` y `satisfaccion` (1 a 5). El objetivo es entender por qué bajó la satisfacción en octubre. Escribe el prompt que pide hipótesis y escribe tú tres hipótesis con su tabla de comprobación.",
+          "hint": "Cada hipótesis: columnas, tabla o gráfico, y qué la confirmaría.",
+          "solutionExplanation": "Las hipótesis deben poder comprobarse con las columnas existentes. La tercera muestra un cambio en la mezcla, que es una explicación frecuente y aburrida.",
+          "solutionCode": "Prompt:\nObjetivo: entender por qué bajó la satisfacción en octubre.\nColumnas: fecha, canal, categoria, minutos_resolucion, satisfaccion (1-5).\nPropón 8 hipótesis comprobables con columnas, tabla o gráfico y criterio. No afirmes nada.\n\nMis hipótesis:\n1. Subió el tiempo de resolución → media de minutos_resolucion por mes; se confirma si octubre es mayor.\n2. Un canal empeoró → satisfacción media por canal y mes; se confirma si un canal cae más que el resto.\n3. Cambió la mezcla de categorías → % de tickets por categoría y mes; se confirma si crece una categoría con baja satisfacción.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "iad07-ej-2",
+          "title": "Práctica 2: Gráfico con conclusión",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el código de un gráfico de barras horizontales con la satisfacción media de octubre por canal, ordenado de menor a mayor, con el eje X de 1 a 5 y un título calculado que nombre el canal con peor satisfacción.",
+          "hint": "sort_values() y luego ax.barh. Usa idxmin() para el título.",
+          "solutionExplanation": "El título se calcula a partir de los datos, así nunca dice algo distinto de lo que muestra el gráfico.",
+          "solutionCode": "import matplotlib.pyplot as plt\n\noctubre = df[(df[\"fecha\"] >= \"2025-10-01\") & (df[\"fecha\"] < \"2025-11-01\")]\nmedia = octubre.groupby(\"canal\")[\"satisfaccion\"].mean().sort_values()\n\nfig, ax = plt.subplots(figsize=(7, 3))\nax.barh(media.index, media.values)\nax.set_xlim(1, 5)\nax.set_xlabel(\"Satisfacción media (1 a 5)\")\nax.set_title(f\"En octubre, {media.idxmin()} tuvo la satisfacción más baja ({media.min():.2f})\")\nfig.tight_layout()",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad07-ej-3",
+          "title": "Práctica 3: Comprueba el hallazgo",
+          "difficulty": "Intermedio",
+          "prompt": "El modelo afirma: «los tickets de facturación tardan el doble que el resto». Escribe el código que calcula la media y la mediana de `minutos_resolucion` para facturación y para el resto, con el número de tickets de cada grupo.",
+          "hint": "Crea una columna booleana es_facturacion y agrupa por ella.",
+          "solutionExplanation": "La mediana es menos sensible a unos pocos tickets muy largos. Si la media es el doble pero la mediana no, el «doble» lo explican unos pocos casos extremos.",
+          "solutionCode": "resumen = (df.assign(es_facturacion=df[\"categoria\"].eq(\"facturación\"))\n             .groupby(\"es_facturacion\")[\"minutos_resolucion\"]\n             .agg(media=\"mean\", mediana=\"median\", tickets=\"count\"))\nprint(resumen)\nratio = resumen.loc[True, \"media\"] / resumen.loc[False, \"media\"]\nprint(f\"Facturación tarda {ratio:.2f} veces el resto (media)\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad07-q1",
+          "question": "¿Cuál es el mejor uso de la IA al empezar un análisis exploratorio?",
+          "options": [
+            "Inventar datos de ejemplo para completar los meses faltantes",
+            "Escribir las conclusiones finales antes de calcular nada",
+            "Proponer hipótesis comprobables a partir del perfil de los datos",
+            "Elegir por ti qué cifras incluir en el informe de gerencia"
+          ],
+          "correctIndex": 2,
+          "explanation": "Las hipótesis amplían tus ideas y luego se comprueban; las conclusiones sin cálculo son el origen de los errores."
+        },
+        {
+          "id": "iad07-q2",
+          "question": "El modelo dice que una categoría «creció un 50 %». ¿Qué debes revisar junto a ese porcentaje?",
+          "options": [
+            "La longitud del nombre de la categoría en la leyenda",
+            "El color que tendrá esa categoría en el gráfico final",
+            "El número de casos sobre el que se calcula el crecimiento",
+            "Si el modelo usó la palabra crecimiento o la palabra aumento"
+          ],
+          "correctIndex": 2,
+          "explanation": "Un 50 % sobre 4 casos no es un patrón. El tamaño de la muestra dice si el cambio es fiable."
+        },
+        {
+          "id": "iad07-q3",
+          "question": "¿Qué conclusión permite un gráfico donde ventas y descuentos suben juntos?",
+          "options": [
+            "Que ambas variables dependen solo de la temporada del año",
+            "Que las ventas altas obligaron a la empresa a dar descuentos",
+            "Que coinciden en el tiempo, sin probar la causa",
+            "Que los descuentos provocaron el aumento de las ventas"
+          ],
+          "correctIndex": 2,
+          "explanation": "Un gráfico exploratorio muestra asociación. La causa requiere un experimento o un análisis que controle otras variables."
+        }
+      ]
+    },
+    {
+      "id": "cap-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3: IA y Python",
+      "title": "Llamar a un modelo desde Python para clasificar y extraer",
+      "subtitle": "Convertir texto libre en columnas: categorías, sentimiento y campos en JSON, validados y por lotes.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Hacer una llamada a la API de un modelo de lenguaje desde Python con la clave en una variable de entorno.",
+        "Pedir la respuesta en JSON con un esquema fijo y validarla antes de usarla.",
+        "Clasificar una columna de texto en categorías cerradas y guardar el resultado en un DataFrame.",
+        "Procesar miles de filas con lotes, reintentos y caché para no pagar dos veces."
+      ],
+      "theorySections": [
+        {
+          "id": "iad08-sec-1",
+          "title": "1. La primera llamada desde Python",
+          "body": "Hasta ahora usamos el chat. Para procesar una columna con miles de comentarios necesitas **llamar al modelo desde código**. Todas las APIs siguen el mismo patrón: envías mensajes, recibes texto.\n\nReglas desde el primer día:\n- La clave de API vive en una **variable de entorno** (`ANTHROPIC_API_KEY`), nunca en el código ni en el repositorio.\n- Fija el **modelo** en una constante, para saber con qué versión se generó cada resultado.\n- Limita `max_tokens`: una clasificación no necesita 4.000 tokens de respuesta.",
+          "codeLanguage": "python",
+          "codeSnippet": "import anthropic\n\nMODELO = \"claude-sonnet-5-5\"          # anota la versión usada en cada resultado\ncliente = anthropic.Anthropic()       # lee ANTHROPIC_API_KEY del entorno\n\nrespuesta = cliente.messages.create(\n    model=MODELO,\n    max_tokens=200,\n    messages=[{\"role\": \"user\",\n               \"content\": \"Resume en una frase: el envío llegó tarde pero el producto es excelente.\"}],\n)\nprint(respuesta.content[0].text)",
+          "keyTakeaway": "La clave va en el entorno, el modelo en una constante y max_tokens ajustado a la tarea."
+        },
+        {
+          "id": "iad08-sec-2",
+          "title": "2. Pedir JSON y validarlo",
+          "body": "Para guardar el resultado en columnas necesitas una **estructura fija**. Pide JSON con las claves exactas y los valores permitidos, y valida la respuesta antes de usarla:\n\n1. `json.loads` falla si el texto no es JSON.\n2. Comprueba que estén todas las claves.\n3. Comprueba que la categoría esté en la lista cerrada.\n\nSi la validación falla, no inventes un valor: marca la fila como `\"revisar\"` para que la vea una persona.",
+          "codeLanguage": "python",
+          "codeSnippet": "import json\n\nCATEGORIAS = {\"envío\", \"producto\", \"precio\", \"atención\", \"otro\"}\n\nINSTRUCCIONES = (\n    \"Clasifica el comentario de un cliente. Responde SOLO con JSON con las claves \"\n    '\"categoria\" (una de: envío, producto, precio, atención, otro) y '\n    '\"sentimiento\" (positivo, neutro o negativo).'\n)\n\n\ndef validar(texto: str) -> dict:\n    datos = json.loads(texto)\n    if set(datos) != {\"categoria\", \"sentimiento\"}:\n        raise ValueError(f\"Claves inesperadas: {set(datos)}\")\n    if datos[\"categoria\"] not in CATEGORIAS:\n        raise ValueError(f\"Categoría fuera de la lista: {datos['categoria']}\")\n    if datos[\"sentimiento\"] not in {\"positivo\", \"neutro\", \"negativo\"}:\n        raise ValueError(f\"Sentimiento inválido: {datos['sentimiento']}\")\n    return datos",
+          "keyTakeaway": "Una respuesta que no pasa la validación se marca para revisión; nunca se adivina."
+        },
+        {
+          "id": "iad08-sec-3",
+          "title": "3. Clasificar una columna completa",
+          "body": "Con una función que clasifica un texto, aplicarla a una columna es directo. Dos detalles importantes:\n\n- **Temperatura baja** (`temperature=0`) para que el mismo texto reciba siempre, o casi siempre, la misma etiqueta.\n- **Guarda el modelo y la fecha** junto a cada resultado: si dentro de seis meses cambias de modelo, sabrás qué filas comparar.",
+          "codeLanguage": "python",
+          "codeSnippet": "import json\nfrom datetime import date\n\nimport anthropic\nimport pandas as pd\n\ncliente = anthropic.Anthropic()\n\n\ndef clasificar(comentario: str) -> dict:\n    r = cliente.messages.create(\n        model=MODELO, max_tokens=100, temperature=0,\n        system=INSTRUCCIONES,\n        messages=[{\"role\": \"user\", \"content\": comentario}],\n    )\n    try:\n        return validar(r.content[0].text)\n    except (json.JSONDecodeError, ValueError):\n        return {\"categoria\": \"revisar\", \"sentimiento\": \"revisar\"}\n\n\nresultados = df[\"comentario\"].apply(clasificar).apply(pd.Series)\ndf = df.join(resultados).assign(modelo=MODELO, clasificado_el=date.today().isoformat())",
+          "keyTakeaway": "Temperatura 0, validación y la versión del modelo guardada con cada fila."
+        },
+        {
+          "id": "iad08-sec-4",
+          "title": "4. Miles de filas: caché, reintentos y costo",
+          "body": "Con 20.000 comentarios, una ejecución que falla en la fila 15.000 no puede obligarte a empezar de nuevo. Tres prácticas:\n\n- **Caché**: guarda cada resultado por un hash del texto. Si vuelves a ejecutar, solo se procesan los nuevos. Además, comentarios repetidos («ok», «gracias») se pagan una sola vez.\n- **Reintentos con espera** ante errores de red o de límite de peticiones.\n- **Estimación de costo** antes de lanzar: filas × tokens medios × precio por token. Prueba primero con 50 filas.\n\nY, como siempre, **privacidad**: quita nombres, correos y teléfonos del texto antes de enviarlo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import hashlib\nimport json\nimport time\nfrom pathlib import Path\n\nCACHE = Path(\"cache_clasificacion.jsonl\")\nhechos = {}\nif CACHE.exists():\n    for linea in CACHE.read_text(encoding=\"utf-8\").splitlines():\n        registro = json.loads(linea)\n        hechos[registro[\"hash\"]] = registro[\"resultado\"]\n\n\ndef clasificar_con_cache(texto: str) -> dict:\n    clave = hashlib.sha256(texto.encode(\"utf-8\")).hexdigest()\n    if clave in hechos:\n        return hechos[clave]\n    for intento in range(4):\n        try:\n            resultado = clasificar(texto)\n            break\n        except anthropic.APIError:\n            time.sleep(2 ** intento)\n    else:\n        resultado = {\"categoria\": \"revisar\", \"sentimiento\": \"revisar\"}\n    hechos[clave] = resultado\n    with CACHE.open(\"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps({\"hash\": clave, \"resultado\": resultado}, ensure_ascii=False) + \"\\n\")\n    return resultado",
+          "keyTakeaway": "Caché por hash, reintentos con espera y una prueba con 50 filas antes de procesar todo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Normas para procesar datos con un modelo desde código.",
+        "rules": [
+          "La clave de API solo en variables de entorno o en el gestor de secretos.",
+          "Categorías cerradas, JSON con claves fijas y validación de cada respuesta.",
+          "Las respuestas inválidas quedan como «revisar», nunca se adivinan.",
+          "Guarda el modelo y la fecha junto a cada resultado.",
+          "Anonimiza el texto, usa caché y prueba con una muestra antes del lote completo."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import re\n\ndef anonimizar(texto: str) -> str:\n    texto = re.sub(r\"[\\w.+-]+@[\\w-]+\\.[\\w.]+\", \"[EMAIL]\", texto)\n    texto = re.sub(r\"\\b\\d{3}[-\\s]?\\d{3}[-\\s]?\\d{4}\\b\", \"[TELEFONO]\", texto)\n    return texto"
+      },
+      "comparison": {
+        "scenario": "Un analista clasifica 8.000 reseñas con un bucle y copia en el código la clave que le dio TI.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "import anthropic\n\ncliente = anthropic.Anthropic(api_key=\"sk-ant-xxxxxxxxxxxxxxxx\")   # clave en el código\netiquetas = []\nfor texto in df[\"comentario\"]:\n    r = cliente.messages.create(model=\"claude-sonnet-5-5\", max_tokens=1000,\n        messages=[{\"role\": \"user\", \"content\": \"¿De qué trata esto? \" + texto}])\n    etiquetas.append(r.content[0].text)        # texto libre, sin validar\ndf[\"categoria\"] = etiquetas",
+        "juniorFlaws": [
+          "La clave queda en el código y terminará en el repositorio.",
+          "Sin categorías cerradas: cada fila recibe una frase distinta, imposible de agrupar.",
+          "Sin validación, caché ni reintentos: un error en la fila 6.000 obliga a pagar todo otra vez.",
+          "Envía el texto sin anonimizar."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "import anthropic\n\ncliente = anthropic.Anthropic()                       # clave desde el entorno\nmuestra = df.sample(50, random_state=1)\nmuestra[\"resultado\"] = muestra[\"comentario\"].map(anonimizar).map(clasificar_con_cache)\n# Revisar la muestra a mano; si está bien, procesar todo:\ndf[\"resultado\"] = df[\"comentario\"].map(anonimizar).map(clasificar_con_cache)\ndf = df.join(df.pop(\"resultado\").apply(pd.Series)).assign(modelo=MODELO)",
+        "intermediateBenefits": [
+          "La clave no aparece en el código.",
+          "Categorías cerradas y validadas: el resultado se puede agrupar.",
+          "La caché permite retomar tras un fallo sin pagar dos veces.",
+          "Se revisa una muestra de 50 filas antes de gastar en el lote completo."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "iad08-ej-1",
+          "title": "Práctica 1: Extraer campos de un correo",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una función `extraer_pedido(texto)` que pida al modelo un JSON con `numero_pedido` (texto o null), `monto` (número o null) y `motivo` (uno de: devolución, retraso, cobro, otro), y que valide tipos y valores antes de devolverlo. Si falla, devuelve todos los campos en None y motivo «revisar».",
+          "hint": "isinstance para los tipos; acuérdate de que null en JSON es None en Python.",
+          "solutionExplanation": "La validación revisa tipos además de claves: un monto que llega como texto «1,200» no es un número y se manda a revisión.",
+          "solutionCode": "import json\n\nimport anthropic\n\ncliente = anthropic.Anthropic()\nMOTIVOS = {\"devolución\", \"retraso\", \"cobro\", \"otro\"}\nSISTEMA = ('Extrae datos de un correo de cliente. Responde SOLO con JSON con las claves '\n           '\"numero_pedido\" (texto o null), \"monto\" (número o null) y '\n           '\"motivo\" (devolución, retraso, cobro u otro).')\n\n\ndef extraer_pedido(texto: str) -> dict:\n    r = cliente.messages.create(model=MODELO, max_tokens=150, temperature=0,\n                                system=SISTEMA, messages=[{\"role\": \"user\", \"content\": texto}])\n    try:\n        d = json.loads(r.content[0].text)\n        assert set(d) == {\"numero_pedido\", \"monto\", \"motivo\"}\n        assert d[\"numero_pedido\"] is None or isinstance(d[\"numero_pedido\"], str)\n        assert d[\"monto\"] is None or isinstance(d[\"monto\"], (int, float))\n        assert d[\"motivo\"] in MOTIVOS\n        return d\n    except (json.JSONDecodeError, AssertionError):\n        return {\"numero_pedido\": None, \"monto\": None, \"motivo\": \"revisar\"}",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad08-ej-2",
+          "title": "Práctica 2: Estima el costo antes de lanzar",
+          "difficulty": "Básico",
+          "prompt": "Tienes 20.000 comentarios con una media de 60 palabras. Escribe un cálculo en Python que estime el costo suponiendo 1,3 tokens por palabra, 150 tokens de instrucciones por llamada, 30 tokens de respuesta, 3 USD por millón de tokens de entrada y 15 USD por millón de salida.",
+          "hint": "Tokens de entrada por llamada = palabras × 1,3 + instrucciones.",
+          "solutionExplanation": "Unos 4,6 millones de tokens de entrada (13,8 USD) y 0,6 millones de salida (9 USD): unos 23 USD. Los precios cambian: consulta siempre los vigentes de tu proveedor.",
+          "solutionCode": "filas = 20_000\nentrada_por_llamada = 60 * 1.3 + 150\nsalida_por_llamada = 30\n\ncosto_entrada = filas * entrada_por_llamada / 1_000_000 * 3\ncosto_salida = filas * salida_por_llamada / 1_000_000 * 15\nprint(f\"Entrada: {costo_entrada:.2f} USD, salida: {costo_salida:.2f} USD, \"\n      f\"total: {costo_entrada + costo_salida:.2f} USD\")",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad08-ej-3",
+          "title": "Práctica 3: Guarda el resultado en SQL Server",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe el T-SQL de una tabla `dbo.ComentariosClasificados` para guardar el resultado: id del comentario, categoría, sentimiento, modelo, fecha de clasificación y si una persona lo revisó. Añade una restricción que limite la categoría a los valores válidos más «revisar».",
+          "hint": "CHECK (Categoria IN (...)) y un DEFAULT para la fecha.",
+          "solutionExplanation": "La restricción CHECK es una segunda barrera: aunque el código falle, la base no acepta categorías inventadas.",
+          "solutionCode": "CREATE TABLE dbo.ComentariosClasificados (\n    ComentarioID   int          NOT NULL PRIMARY KEY,\n    Categoria      varchar(20)  NOT NULL\n        CONSTRAINT CK_Comentarios_Categoria\n        CHECK (Categoria IN ('envío', 'producto', 'precio', 'atención', 'otro', 'revisar')),\n    Sentimiento    varchar(10)  NOT NULL,\n    Modelo         varchar(60)  NOT NULL,\n    ClasificadoEl  datetime2(0) NOT NULL CONSTRAINT DF_Comentarios_Fecha DEFAULT SYSDATETIME(),\n    RevisadoPorPersona bit      NOT NULL CONSTRAINT DF_Comentarios_Revisado DEFAULT 0\n);",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad08-q1",
+          "question": "¿Dónde debe estar la clave de API al llamar al modelo desde Python?",
+          "options": [
+            "En un comentario al principio del cuaderno de Jupyter",
+            "En una variable de entorno o en un gestor de secretos",
+            "Escrita en el código para que todo el equipo la tenga",
+            "En una celda del Excel con los datos que se clasifican"
+          ],
+          "correctIndex": 1,
+          "explanation": "Una clave en el código termina en el repositorio o en un correo. El entorno o el gestor de secretos la mantienen fuera."
+        },
+        {
+          "id": "iad08-q2",
+          "question": "El modelo devuelve una categoría que no está en tu lista cerrada. ¿Qué haces?",
+          "options": [
+            "Agregar esa nueva categoría a la lista de forma automática",
+            "Asignar la categoría más frecuente de toda la columna",
+            "Eliminar la fila del dataset para que no moleste",
+            "Marcar la fila como «revisar» para que la vea una persona"
+          ],
+          "correctIndex": 3,
+          "explanation": "Adivinar o borrar oculta el problema; marcarla mantiene la fila y deja la decisión a una persona."
+        },
+        {
+          "id": "iad08-q3",
+          "question": "¿Para qué sirve guardar en caché los resultados por hash del texto?",
+          "options": [
+            "Para cifrar los comentarios antes de enviarlos a la API",
+            "Para no pagar dos veces el mismo texto y retomar tras un fallo",
+            "Para que el modelo aprenda tus datos en las próximas llamadas",
+            "Para que las respuestas del modelo sean más largas y ricas"
+          ],
+          "correctIndex": 1,
+          "explanation": "Con la caché, una ejecución interrumpida continúa donde quedó, y los textos repetidos se procesan una sola vez."
+        }
+      ]
+    },
+    {
+      "id": "cap-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 4: Reportes",
+      "title": "Del resultado a la historia",
+      "subtitle": "Redactar resúmenes e insights con IA a partir de cifras calculadas, y verificar cada número del texto.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Preparar un paquete de cifras calculadas para que el modelo redacte sobre datos reales.",
+        "Pedir un resumen ejecutivo con estructura fija: hallazgo, cifra, contexto y acción.",
+        "Verificar automáticamente que cada número del texto aparezca en las cifras de origen.",
+        "Ajustar el tono y el nivel de detalle al público del informe."
+      ],
+      "theorySections": [
+        {
+          "id": "iad09-sec-1",
+          "title": "1. El modelo redacta, la base de datos calcula",
+          "body": "El error clásico es pegar una tabla de 500 filas y pedir «escribe un resumen». El modelo tendrá que **calcular de cabeza** y se equivocará en sumas, porcentajes y redondeos.\n\nEl flujo correcto es al revés:\n1. Calculas en T-SQL o pandas **todas** las cifras que el texto va a mencionar: totales, variaciones, el mayor, el menor.\n2. Las pasas al modelo como un JSON pequeño, con nombres claros.\n3. Le pides que redacte **usando solo esas cifras**.\n\nAsí el modelo hace lo que mejor sabe hacer (redactar) y la base de datos lo que mejor sabe hacer (calcular).",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Cifras del resumen mensual, calculadas en la base\nWITH Mes AS (\n    SELECT SUM(CASE WHEN FechaPedido >= '2025-10-01' THEN Total END) AS VentasOct,\n           SUM(CASE WHEN FechaPedido <  '2025-10-01' THEN Total END) AS VentasSep\n    FROM dbo.Pedidos\n    WHERE Estado = 'pagado'\n      AND FechaPedido >= '2025-09-01' AND FechaPedido < '2025-11-01'\n)\nSELECT VentasOct, VentasSep,\n       ROUND((VentasOct - VentasSep) * 100.0 / NULLIF(VentasSep, 0), 1) AS VariacionPct\nFROM Mes\nFOR JSON PATH, WITHOUT_ARRAY_WRAPPER;   -- listo para el prompt",
+          "keyTakeaway": "Calcula todas las cifras antes; el modelo solo redacta con los números que tú le das."
+        },
+        {
+          "id": "iad09-sec-2",
+          "title": "2. Estructura del resumen ejecutivo",
+          "body": "Un resumen ejecutivo útil responde a «¿y qué?» en pocas líneas. Pide siempre la misma estructura, por ejemplo tres viñetas, cada una con:\n\n- **Hallazgo** en una frase.\n- **Cifra** que lo respalda (tomada del JSON).\n- **Contexto**: comparado con qué (mes anterior, meta, mismo mes del año pasado).\n- **Acción o pregunta** que sugiere.\n\nProhíbe expresamente lo que no quieres: adjetivos exagerados («increíble», «drástico»), causas no demostradas y cifras que no estén en el JSON.",
+          "codeLanguage": "plaintext",
+          "codeSnippet": "Eres analista de datos. Redacta un resumen ejecutivo para gerencia.\nDatos (únicas cifras permitidas): {\"VentasOct\": 1184000, \"VentasSep\": 1052000,\n \"VariacionPct\": 12.5, \"TopCategoria\": \"Hogar\", \"TopCategoriaPct\": 31.2}\nFormato: 3 viñetas. Cada una: hallazgo, cifra, comparación y acción sugerida.\nReglas:\n- Usa solo las cifras del JSON, con el mismo redondeo.\n- No atribuyas causas; si sugieres una, escríbela como pregunta.\n- Sin adjetivos como \"increíble\" o \"drástico\".\n- Montos en formato RD$ 1,184,000.",
+          "keyTakeaway": "Estructura fija y prohibiciones explícitas: el texto queda comparable mes a mes."
+        },
+        {
+          "id": "iad09-sec-3",
+          "title": "3. Verificar los números del texto",
+          "body": "Aunque le prohíbas inventar, revisa. Un control simple en Python extrae todos los números del texto generado y comprueba que cada uno exista en el JSON de origen (permitiendo el formato con separadores de miles).\n\nSi aparece un número que no está en las cifras, el texto se rechaza y se regenera o se corrige a mano. Este control tarda milisegundos y evita el peor error de un informe: una cifra que nadie puede rastrear.",
+          "codeLanguage": "python",
+          "codeSnippet": "import re\n\n\ndef numeros_del_texto(texto: str) -> set[float]:\n    encontrados = re.findall(r\"\\d[\\d,]*(?:\\.\\d+)?\", texto)\n    return {float(n.replace(\",\", \"\")) for n in encontrados}\n\n\ndef cifras_no_rastreables(texto: str, cifras: dict) -> set[float]:\n    permitidos = {float(v) for v in cifras.values() if isinstance(v, (int, float))}\n    return numeros_del_texto(texto) - permitidos\n\n\nextra = cifras_no_rastreables(resumen, cifras)\nassert not extra, f\"El texto menciona cifras que no están en los datos: {extra}\" ",
+          "keyTakeaway": "Todo número del texto debe aparecer en las cifras calculadas; si no, el texto no se publica."
+        },
+        {
+          "id": "iad09-sec-4",
+          "title": "4. El mismo dato, distintos públicos",
+          "body": "Las mismas cifras se cuentan distinto para gerencia, para el equipo de ventas o para un correo a toda la empresa. Pide versiones con el público explícito:\n\n- **Gerencia**: 3 viñetas, impacto en dinero, una decisión.\n- **Equipo operativo**: más detalle, por región o producto, con próximos pasos.\n- **Comunicación general**: dos frases, sin jerga.\n\nLas cifras no cambian entre versiones: solo el nivel de detalle y el tono. Pasa el mismo control de números a cada una.",
+          "codeLanguage": "python",
+          "codeSnippet": "PUBLICOS = {\n    \"gerencia\": \"3 viñetas, impacto en dinero y una decisión sugerida.\",\n    \"operaciones\": \"5 viñetas por región con próximos pasos concretos.\",\n    \"general\": \"2 frases sencillas, sin jerga ni siglas.\",\n}\n\nversiones = {}\nfor publico, estilo in PUBLICOS.items():\n    texto = redactar(cifras, estilo)               # llamada al modelo\n    assert not cifras_no_rastreables(texto, cifras)\n    versiones[publico] = texto",
+          "keyTakeaway": "Cambia el tono y el detalle según el público, nunca las cifras."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para textos de informe redactados con IA.",
+        "rules": [
+          "Todas las cifras se calculan antes y se pasan como JSON.",
+          "El prompt prohíbe cifras ajenas al JSON y causas no demostradas.",
+          "Cada texto pasa un control automático de números antes de publicarse.",
+          "El informe indica que el texto fue redactado con ayuda de IA y revisado."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "def publicar(texto, cifras):\n    extra = cifras_no_rastreables(texto, cifras)\n    if extra:\n        raise ValueError(f\"Cifras sin origen: {extra}\")\n    return texto + \"\\n\\n_Texto redactado con ayuda de IA y revisado por el equipo de datos._\" "
+      },
+      "comparison": {
+        "scenario": "Un analista pega la exportación de ventas del mes y pide «un resumen para el gerente».",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "# Prompt: \"Aquí están las 3.200 filas de ventas de octubre (pegadas).\n# Escribe un resumen para el gerente.\"\n# Texto recibido y enviado tal cual:\n# \"Octubre fue un mes increíble: las ventas crecieron un 18 % gracias a la\n#  campaña de redes, y la categoría Hogar ya representa casi la mitad.\"",
+        "juniorFlaws": [
+          "El modelo calculó de cabeza: el 18 % y «casi la mitad» no salen de ningún cálculo.",
+          "Atribuye el crecimiento a la campaña sin evidencia.",
+          "Adjetivos exagerados y ninguna acción sugerida.",
+          "Pegó 3.200 filas con datos de clientes en el prompt."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "cifras = {\"VentasOct\": 1184000, \"VentasSep\": 1052000, \"VariacionPct\": 12.5,\n          \"TopCategoria\": \"Hogar\", \"TopCategoriaPct\": 31.2}\nresumen = redactar(cifras, \"3 viñetas para gerencia, sin causas ni adjetivos.\")\nassert not cifras_no_rastreables(resumen, cifras)\n# \"• Las ventas de octubre fueron RD$ 1,184,000, un 12.5 % más que en septiembre...\" ",
+        "intermediateBenefits": [
+          "Las cifras se calcularon en la base y el modelo solo redacta.",
+          "Un control automático garantiza que no aparezcan números inventados.",
+          "No sale ninguna fila de clientes de la empresa."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "iad09-ej-1",
+          "title": "Práctica 1: Paquete de cifras en JSON",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta T-SQL que devuelva en un solo JSON (sin corchetes externos): ventas pagadas de octubre de 2025, número de pedidos, ticket promedio redondeado a 2 decimales y la categoría con más ventas del mes.",
+          "hint": "Calcula la categoría top en una CTE con TOP (1) y únela con los totales con CROSS JOIN.",
+          "solutionExplanation": "Cada clave del JSON es una cifra que el texto podrá citar. Todo se calcula en la base, con el mismo filtro de estado y fechas.",
+          "solutionCode": "WITH Oct AS (\n    SELECT PedidoID, Total FROM dbo.Pedidos\n    WHERE Estado = 'pagado' AND FechaPedido >= '2025-10-01' AND FechaPedido < '2025-11-01'\n), Top1 AS (\n    SELECT TOP (1) pr.Categoria\n    FROM Oct AS o\n    JOIN dbo.DetallePedido AS d ON d.PedidoID = o.PedidoID\n    JOIN dbo.Productos AS pr ON pr.ProductoID = d.ProductoID\n    GROUP BY pr.Categoria\n    ORDER BY SUM(d.Cantidad * d.PrecioUnitario) DESC\n)\nSELECT (SELECT SUM(Total) FROM Oct) AS Ventas,\n       (SELECT COUNT(*) FROM Oct) AS Pedidos,\n       (SELECT ROUND(AVG(Total), 2) FROM Oct) AS TicketPromedio,\n       t.Categoria AS TopCategoria\nFROM Top1 AS t\nFOR JSON PATH, WITHOUT_ARRAY_WRAPPER;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad09-ej-2",
+          "title": "Práctica 2: Prompt del resumen",
+          "difficulty": "Básico",
+          "prompt": "Con el JSON del ejercicio anterior, escribe el prompt para un resumen dirigido al equipo de ventas: 4 viñetas, cada una con hallazgo, cifra y próximo paso, sin causas no demostradas.",
+          "hint": "Incluye el JSON, el público, el formato y las reglas.",
+          "solutionExplanation": "El prompt deja claro qué cifras están permitidas, el formato exacto y lo que está prohibido.",
+          "solutionCode": "Eres analista de datos. Redacta un resumen para el equipo de ventas.\nDatos (únicas cifras permitidas): <JSON>\nFormato: 4 viñetas. Cada una con hallazgo, cifra del JSON y próximo paso concreto.\nReglas: solo cifras del JSON con el mismo redondeo; no atribuyas causas;\nsi sugieres una causa, escríbela como pregunta; montos con formato RD$ 1,184,000.",
+          "codeLanguage": "plaintext"
+        },
+        {
+          "id": "iad09-ej-3",
+          "title": "Práctica 3: Control de porcentajes",
+          "difficulty": "Avanzado",
+          "prompt": "Mejora `cifras_no_rastreables` para que también acepte un número del texto si coincide con una cifra del JSON redondeada a 0 o 1 decimales (por ejemplo, 12.5 en el JSON y «12 %» o «12.5 %» en el texto no deberían marcarse como error, pero «18 %» sí).",
+          "hint": "Construye el conjunto de permitidos incluyendo round(v, 0) y round(v, 1) de cada cifra.",
+          "solutionExplanation": "Ampliar los permitidos con los redondeos evita falsos positivos sin dejar pasar cifras inventadas.",
+          "solutionCode": "import re\n\n\ndef cifras_no_rastreables(texto: str, cifras: dict) -> set[float]:\n    permitidos = set()\n    for v in cifras.values():\n        if isinstance(v, (int, float)):\n            permitidos |= {float(v), float(round(v, 1)), float(round(v))}\n    encontrados = re.findall(r\"\\d[\\d,]*(?:\\.\\d+)?\", texto)\n    numeros = {float(n.replace(\",\", \"\")) for n in encontrados}\n    return numeros - permitidos",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad09-q1",
+          "question": "¿Qué parte del trabajo hace el modelo al redactar un resumen de ventas?",
+          "options": [
+            "Decidir qué filtros de negocio aplicar a los pedidos del mes",
+            "Corregir los datos de la base cuando encuentra algo raro",
+            "Calcular los totales a partir de las filas pegadas en el chat",
+            "Redactar el texto con cifras que ya calculaste en la base"
+          ],
+          "correctIndex": 3,
+          "explanation": "La base calcula con exactitud; el modelo aporta la redacción. Pedirle que calcule de cabeza produce cifras erróneas."
+        },
+        {
+          "id": "iad09-q2",
+          "question": "El texto generado menciona «un 18 %» que no está en tu JSON de cifras. ¿Qué haces?",
+          "options": [
+            "Agregar el 18 % al JSON para que el control lo acepte",
+            "Rechazar el texto y regenerarlo o corregirlo a mano",
+            "Cambiar el 18 % por un número redondo más fácil de leer",
+            "Publicarlo, porque el modelo pudo calcularlo de los datos"
+          ],
+          "correctIndex": 1,
+          "explanation": "Una cifra sin origen no se puede rastrear ni defender. El texto se rechaza hasta que solo use cifras calculadas."
+        },
+        {
+          "id": "iad09-q3",
+          "question": "¿Qué cambia entre la versión para gerencia y la versión para el equipo operativo?",
+          "options": [
+            "Las cifras, que se ajustan según lo que cada público prefiere",
+            "Los filtros de negocio, que se relajan para el equipo",
+            "El periodo analizado, que se acorta para gerencia",
+            "El tono y el nivel de detalle, con las mismas cifras de origen"
+          ],
+          "correctIndex": 3,
+          "explanation": "Los datos son los mismos para todos; solo se adapta cuánto detalle y qué tono usa el texto."
+        }
+      ]
+    },
+    {
+      "id": "cap-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 4: Reportes",
+      "title": "Reportes automáticos: T-SQL, Python y un modelo",
+      "subtitle": "Un proceso programado que consulta, calcula, redacta, verifica y entrega el informe semanal.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Diseñar un proceso de informe en pasos separados: extraer, calcular, redactar, verificar y entregar.",
+        "Leer datos de SQL Server desde Python con parámetros y sin credenciales en el código.",
+        "Generar un informe en HTML con tabla, gráfico y texto redactado.",
+        "Definir qué pasa si un paso falla: el informe no sale con datos incompletos."
+      ],
+      "theorySections": [
+        {
+          "id": "iad10-sec-1",
+          "title": "1. Un proceso, cinco pasos",
+          "body": "Un informe automático confiable separa responsabilidades:\n\n1. **Extraer**: consultas T-SQL parametrizadas por fecha.\n2. **Calcular**: pandas arma las cifras y la tabla del informe.\n3. **Redactar**: el modelo escribe el resumen a partir del JSON de cifras.\n4. **Verificar**: control de números, de filas y de datos completos.\n5. **Entregar**: guardar el HTML y enviarlo o publicarlo.\n\nCada paso es una función. Si uno falla, los siguientes no se ejecutan y alguien recibe un aviso. Lo peor que puede hacer un informe automático es llegar puntual con datos equivocados.",
+          "codeLanguage": "python",
+          "codeSnippet": "def informe_semanal(inicio, fin):\n    datos = extraer(inicio, fin)\n    cifras, tabla = calcular(datos)\n    resumen = redactar(cifras)\n    verificar(datos, cifras, resumen)\n    return entregar(cifras, tabla, resumen, inicio, fin)",
+          "keyTakeaway": "Pasos separados y en orden: si uno falla, el informe no se envía."
+        },
+        {
+          "id": "iad10-sec-2",
+          "title": "2. Extraer: consultas con parámetros",
+          "body": "Las fechas del informe cambian cada semana, pero la consulta no. Usa **parámetros** en lugar de pegar fechas en el texto de la consulta:\n\n- Evita errores de formato y la inyección de SQL.\n- La consulta queda en un archivo `.sql` versionado, revisable por cualquiera.\n\nLa cadena de conexión se lee de una variable de entorno. Con `pyodbc` los parámetros se marcan con `?`.",
+          "codeLanguage": "python",
+          "codeSnippet": "import os\nfrom pathlib import Path\n\nimport pandas as pd\nimport pyodbc\n\nCONSULTA = Path(\"sql/ventas_semana.sql\").read_text(encoding=\"utf-8\")\n# sql/ventas_semana.sql:\n#   SELECT p.PedidoID, p.FechaPedido, p.Total, c.Pais\n#   FROM dbo.Pedidos AS p JOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\n#   WHERE p.Estado = 'pagado' AND p.FechaPedido >= ? AND p.FechaPedido < ?;\n\n\ndef extraer(inicio, fin) -> pd.DataFrame:\n    with pyodbc.connect(os.environ[\"CONEXION_SQL\"]) as conexion:\n        return pd.read_sql(CONSULTA, conexion, params=[inicio, fin])",
+          "keyTakeaway": "Consultas en archivos .sql con parámetros, y la conexión en una variable de entorno."
+        },
+        {
+          "id": "iad10-sec-3",
+          "title": "3. Verificar antes de entregar",
+          "body": "La verificación del informe automático junta todo lo aprendido:\n\n- **Datos completos**: ¿hay pedidos en cada día de la semana? Un día en cero suele indicar una carga fallida, no un día sin ventas.\n- **Cuadre**: el total de la tabla coincide con el total de las cifras.\n- **Texto**: cada número del resumen está en las cifras.\n- **Rango razonable**: si las ventas cambian más de un 50 % respecto a la semana anterior, el informe se retiene para revisión humana.",
+          "codeLanguage": "python",
+          "codeSnippet": "def verificar(datos, cifras, resumen):\n    dias = datos[\"FechaPedido\"].dt.date.nunique()\n    if dias < 7:\n        raise RuntimeError(f\"Solo hay datos de {dias} días: posible carga incompleta\")\n    if abs(datos[\"Total\"].sum() - cifras[\"Ventas\"]) > 0.01:\n        raise RuntimeError(\"La tabla no cuadra con las cifras\")\n    if cifras_no_rastreables(resumen, cifras):\n        raise RuntimeError(\"El resumen tiene cifras sin origen\")\n    if abs(cifras[\"VariacionPct\"]) > 50:\n        raise RuntimeError(\"Variación mayor al 50 %: requiere revisión humana\")",
+          "keyTakeaway": "Un informe que no pasa los controles no se envía: se retiene y se avisa a una persona."
+        },
+        {
+          "id": "iad10-sec-4",
+          "title": "4. Entregar y programar",
+          "body": "El informe final puede ser un HTML sencillo: título, resumen, tabla y gráfico. `DataFrame.to_html()` resuelve la tabla, y el gráfico se guarda como imagen.\n\nPara que corra solo cada lunes:\n- En un servidor Windows con SQL Server, el **Programador de tareas** o un *job* del **Agente SQL Server** que ejecute el script.\n- En otros entornos, `cron` o el orquestador de la empresa.\n\nGuarda un **registro** de cada ejecución: fecha, filas extraídas, modelo usado, resultado de la verificación. Cuando alguien pregunte por un informe de hace tres meses, podrás reconstruirlo.",
+          "codeLanguage": "python",
+          "codeSnippet": "import json\nfrom datetime import datetime\nfrom pathlib import Path\n\n\ndef entregar(cifras, tabla, resumen, inicio, fin):\n    html = f\"\"\"<h1>Ventas del {inicio} al {fin}</h1>\n<p>{resumen}</p>\n<img src=\"ventas_semana.png\" alt=\"Ventas diarias de la semana\">\n{tabla.to_html(index=False)}\n<p><small>Resumen redactado con IA ({MODELO}) y verificado automáticamente.</small></p>\"\"\"\n    destino = Path(f\"informes/ventas_{inicio}.html\")\n    destino.write_text(html, encoding=\"utf-8\")\n    with open(\"informes/registro.jsonl\", \"a\", encoding=\"utf-8\") as f:\n        f.write(json.dumps({\"ejecutado\": datetime.now().isoformat(), \"inicio\": str(inicio),\n                            \"modelo\": MODELO, \"cifras\": cifras}) + \"\\n\")\n    return destino",
+          "keyTakeaway": "Programa la ejecución y guarda un registro de cada informe para poder reconstruirlo."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Requisitos mínimos de un informe automático con IA.",
+        "rules": [
+          "Consultas versionadas en archivos .sql y siempre con parámetros.",
+          "Credenciales y claves solo en variables de entorno o en el gestor de secretos.",
+          "Controles de datos completos, cuadre, cifras del texto y variaciones extremas.",
+          "Si un control falla, no se envía nada y se avisa a una persona.",
+          "Registro de cada ejecución con fechas, modelo y cifras."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "informe-semanal/\n├── sql/ventas_semana.sql\n├── informe.py          ← extraer, calcular, redactar, verificar, entregar\n├── informes/           ← HTML generados y registro.jsonl\n└── README.md           ← cómo se ejecuta y a quién avisar si falla"
+      },
+      "comparison": {
+        "scenario": "Un informe semanal automático llega un lunes con ventas un 70 % más bajas y nadie lo nota hasta el jueves.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "import pyodbc, pandas as pd\n\nconexion = pyodbc.connect(\"Server=prod;Database=Ventas;UID=sa;PWD=Clave123\")\ndatos = pd.read_sql(f\"SELECT * FROM Pedidos WHERE FechaPedido >= '{inicio}'\", conexion)\nresumen = redactar(datos.to_string())          # el modelo recibe todas las filas\nenviar_correo(\"gerencia@empresa.com\", resumen)  # sin ninguna verificación",
+        "juniorFlaws": [
+          "Usuario sa y contraseña dentro del código.",
+          "Fecha pegada en el texto de la consulta: riesgo de inyección y de formato.",
+          "Sin control de datos completos: la carga del domingo había fallado.",
+          "El modelo recibe todas las filas y calcula de cabeza."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "def ejecutar(inicio, fin):\n    try:\n        ruta = informe_semanal(inicio, fin)\n        enviar_correo(DESTINATARIOS, adjunto=ruta)\n    except RuntimeError as error:\n        enviar_correo(EQUIPO_DATOS, asunto=\"Informe retenido\", cuerpo=str(error))",
+        "intermediateBenefits": [
+          "La conexión vive en el entorno y la consulta usa parámetros.",
+          "Los controles detectan los días sin datos y retienen el informe.",
+          "El modelo solo redacta a partir de las cifras verificadas.",
+          "El equipo de datos recibe el aviso el mismo lunes."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "iad10-ej-1",
+          "title": "Práctica 1: Consulta parametrizada",
+          "difficulty": "Básico",
+          "prompt": "Escribe el archivo `sql/ventas_por_dia.sql` con una consulta T-SQL que devuelva, por día, el número de pedidos pagados y el monto, entre dos parámetros de fecha (marcados con ?), incluyendo una fila por día aunque no haya ventas.",
+          "hint": "GENERATE_SERIES (SQL Server 2022) crea los días; une con LEFT JOIN. Los ? se pueden usar dentro de DATEDIFF.",
+          "solutionExplanation": "Al generar todos los días, un día sin ventas aparece con 0 en lugar de desaparecer, y el control de datos completos lo detecta.",
+          "solutionCode": "DECLARE @Inicio date = ?, @Fin date = ?;\n\nWITH Dias AS (\n    SELECT DATEADD(DAY, value, @Inicio) AS Dia\n    FROM GENERATE_SERIES(0, DATEDIFF(DAY, @Inicio, @Fin) - 1)\n)\nSELECT d.Dia,\n       COUNT(p.PedidoID)      AS Pedidos,\n       ISNULL(SUM(p.Total), 0) AS Monto\nFROM Dias AS d\nLEFT JOIN dbo.Pedidos AS p\n       ON p.FechaPedido >= d.Dia AND p.FechaPedido < DATEADD(DAY, 1, d.Dia)\n      AND p.Estado = 'pagado'\nGROUP BY d.Dia\nORDER BY d.Dia;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad10-ej-2",
+          "title": "Práctica 2: Función calcular",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `calcular(datos, ventas_semana_anterior)` que devuelva un diccionario de cifras (Ventas, Pedidos, TicketPromedio y VariacionPct redondeados) y una tabla de ventas por país ordenada de mayor a menor.",
+          "hint": "Usa round() en cada cifra para que coincidan con lo que el texto mostrará.",
+          "solutionExplanation": "Las cifras se redondean una sola vez aquí; el texto y la verificación usan exactamente esos valores.",
+          "solutionCode": "import pandas as pd\n\n\ndef calcular(datos: pd.DataFrame, ventas_semana_anterior: float):\n    ventas = float(datos[\"Total\"].sum())\n    cifras = {\n        \"Ventas\": round(ventas, 2),\n        \"Pedidos\": int(len(datos)),\n        \"TicketPromedio\": round(ventas / len(datos), 2) if len(datos) else 0.0,\n        \"VariacionPct\": round((ventas / ventas_semana_anterior - 1) * 100, 1),\n    }\n    tabla = (datos.groupby(\"Pais\", as_index=False)[\"Total\"].sum()\n                  .sort_values(\"Total\", ascending=False))\n    return cifras, tabla",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad10-ej-3",
+          "title": "Práctica 3: Aviso cuando falla",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una función `ejecutar_con_registro(inicio, fin)` que llame a `informe_semanal`, y en cualquier caso (éxito o error) añada una línea a `informes/registro.jsonl` con la fecha, el resultado («enviado» o «retenido») y el mensaje de error si lo hay. Si falla, debe relanzar el error.",
+          "hint": "try / except / finally, o escribe el registro en ambos caminos.",
+          "solutionExplanation": "El registro deja constancia también de los informes retenidos, que son los que más interesa revisar después.",
+          "solutionCode": "import json\nfrom datetime import datetime\n\n\ndef ejecutar_con_registro(inicio, fin):\n    entrada = {\"ejecutado\": datetime.now().isoformat(), \"inicio\": str(inicio), \"fin\": str(fin)}\n    try:\n        ruta = informe_semanal(inicio, fin)\n        entrada.update(resultado=\"enviado\", archivo=str(ruta))\n        return ruta\n    except Exception as error:\n        entrada.update(resultado=\"retenido\", error=str(error))\n        raise\n    finally:\n        with open(\"informes/registro.jsonl\", \"a\", encoding=\"utf-8\") as f:\n            f.write(json.dumps(entrada, ensure_ascii=False) + \"\\n\")",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad10-q1",
+          "question": "¿Por qué las consultas del informe usan parámetros en lugar de pegar las fechas en el texto?",
+          "options": [
+            "Para que SQL Server ignore el filtro de fechas por completo",
+            "Para que el informe se ejecute siempre con las mismas fechas",
+            "Para evitar inyección de SQL y errores de formato de fecha",
+            "Para que el modelo de lenguaje pueda leer la consulta mejor"
+          ],
+          "correctIndex": 2,
+          "explanation": "Los parámetros separan el código de los valores: no hay inyección posible y el tipo de fecha lo maneja el controlador."
+        },
+        {
+          "id": "iad10-q2",
+          "question": "El control detecta que el domingo no tiene ningún pedido. ¿Qué hace el proceso?",
+          "options": [
+            "Pide al modelo que estime cuánto se vendió ese domingo",
+            "Rellena el domingo con el promedio de los otros días",
+            "Envía el informe y añade una nota diciendo que el domingo fue flojo",
+            "Retiene el informe y avisa al equipo de datos para revisar"
+          ],
+          "correctIndex": 3,
+          "explanation": "Un día en cero suele ser una carga fallida. El informe no sale hasta que una persona lo confirme."
+        },
+        {
+          "id": "iad10-q3",
+          "question": "¿Qué conviene guardar en el registro de cada ejecución del informe?",
+          "options": [
+            "Una copia completa de la base de datos de ese día",
+            "La clave de API usada, para poder repetir la llamada después",
+            "Solo la hora de envío del correo a la lista de destinatarios",
+            "Fechas, filas, modelo usado y resultado de controles"
+          ],
+          "correctIndex": 3,
+          "explanation": "Con fechas, modelo, cifras y resultado puedes reconstruir y explicar cualquier informe pasado. Las claves nunca se registran."
+        }
+      ]
+    },
+    {
+      "id": "cap-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 5: Calidad y proyecto",
+      "title": "Evaluar y gobernar el uso de IA",
+      "subtitle": "Medir si la IA acierta con un conjunto de prueba, vigilar costos y dejar reglas claras de uso.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Construir un conjunto de prueba etiquetado por personas para medir una clasificación con IA.",
+        "Leer una matriz de confusión y calcular precisión y exhaustividad por categoría.",
+        "Comparar prompts o modelos con el mismo conjunto de prueba antes de cambiar el proceso.",
+        "Definir una política de uso: datos permitidos, revisión humana, registro y costos."
+      ],
+      "theorySections": [
+        {
+          "id": "iad11-sec-1",
+          "title": "1. El conjunto de prueba: tu regla de medir",
+          "body": "¿Cómo sabes si la clasificación del capítulo 8 funciona? Con un **conjunto de prueba** (*golden set*): 200 a 500 textos que **personas** etiquetaron con cuidado.\n\n- Elige textos al azar, más algunos casos difíciles conocidos.\n- Si dos personas no coinciden en una etiqueta, discútanlo: la regla debe quedar clara.\n- **No lo uses para escribir el prompt**: si ajustas el prompt mirando esos ejemplos, la medición deja de ser honesta. Igual que el *test* en machine learning.\n\nGuárdalo en una tabla y no lo cambies sin dejar constancia.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE dbo.ConjuntoPrueba (\n    ComentarioID      int          NOT NULL PRIMARY KEY,\n    Texto             nvarchar(max) NOT NULL,\n    CategoriaHumana   varchar(20)  NOT NULL,\n    EtiquetadoPor     varchar(50)  NOT NULL,\n    EtiquetadoEl      date         NOT NULL\n);\n\n-- Muestra al azar de 300 comentarios para etiquetar\nSELECT TOP (300) ComentarioID, Texto\nFROM dbo.Comentarios\nORDER BY NEWID();",
+          "keyTakeaway": "Sin un conjunto etiquetado por personas, «funciona bien» es solo una impresión."
+        },
+        {
+          "id": "iad11-sec-2",
+          "title": "2. Matriz de confusión, precisión y exhaustividad",
+          "body": "Compara la etiqueta del modelo con la humana. La **exactitud** global (porcentaje de aciertos) engaña si una categoría domina. Mira cada categoría:\n\n- **Precisión**: de lo que el modelo llamó «envío», ¿qué parte era envío?\n- **Exhaustividad** (*recall*): de todo lo que era envío, ¿qué parte encontró?\n\nSi te importa no perder ningún reclamo de cobro, cuida la exhaustividad de «cobro». Si cada etiqueta dispara una acción costosa, cuida la precisión. Mueve el umbral en el diagrama para ver cómo una sube cuando la otra baja.",
+          "diagram": {
+            "type": "matriz-confusion"
+          },
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Matriz de confusión en T-SQL: filas = humano, columnas = modelo\nSELECT p.CategoriaHumana,\n       SUM(IIF(c.Categoria = 'envío', 1, 0))    AS ModeloEnvio,\n       SUM(IIF(c.Categoria = 'cobro', 1, 0))    AS ModeloCobro,\n       SUM(IIF(c.Categoria = 'producto', 1, 0)) AS ModeloProducto,\n       SUM(IIF(c.Categoria NOT IN ('envío', 'cobro', 'producto'), 1, 0)) AS ModeloOtro\nFROM dbo.ConjuntoPrueba AS p\nJOIN dbo.ComentariosClasificados AS c ON c.ComentarioID = p.ComentarioID\nGROUP BY p.CategoriaHumana;",
+          "keyTakeaway": "Mide precisión y exhaustividad por categoría; la exactitud global esconde los errores de las categorías pequeñas."
+        },
+        {
+          "id": "iad11-sec-3",
+          "title": "3. Comparar prompts y modelos con la misma vara",
+          "body": "Cuando alguien propone «cambiemos el prompt» o «usemos el modelo nuevo», la respuesta es: **corramos el conjunto de prueba**. Mismos textos, misma métrica, resultados lado a lado.\n\nRegistra en cada evaluación: versión del prompt, modelo, fecha, métricas por categoría y costo. Un cambio que sube la exactitud un punto pero duplica el costo puede no valer la pena; uno que baja la exhaustividad de «cobro» puede ser inaceptable aunque la media mejore.",
+          "codeLanguage": "python",
+          "codeSnippet": "from sklearn.metrics import classification_report\n\nprueba = pd.read_sql(\"SELECT ComentarioID, Texto, CategoriaHumana FROM dbo.ConjuntoPrueba\", conexion)\n\nfor nombre, prompt in {\"v1\": PROMPT_V1, \"v2\": PROMPT_V2}.items():\n    predichas = prueba[\"Texto\"].map(lambda t: clasificar(t, prompt)[\"categoria\"])\n    print(nombre)\n    print(classification_report(prueba[\"CategoriaHumana\"], predichas, zero_division=0))",
+          "keyTakeaway": "Ningún cambio de prompt o de modelo entra en producción sin pasar por el mismo conjunto de prueba."
+        },
+        {
+          "id": "iad11-sec-4",
+          "title": "4. Gobernanza: reglas claras y registro",
+          "body": "Usar IA con datos de la empresa requiere acuerdos por escrito. Una política mínima del equipo de datos:\n\n- **Datos**: qué se puede enviar (esquema, texto anonimizado) y qué no (datos personales, salud, credenciales).\n- **Servicios aprobados**: solo los que tienen contrato y no retienen datos.\n- **Revisión humana**: obligatoria para lo que se publica o decide sobre personas.\n- **Registro**: cada llamada en producción guarda fecha, modelo, versión del prompt, tokens y costo.\n- **Presupuesto**: un tope mensual con alertas al 80 %.\n\nEl registro sirve para auditar y también para controlar el gasto mes a mes.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Costo mensual por proceso, a partir del registro de llamadas\nSELECT Proceso,\n       DATEFROMPARTS(YEAR(Fecha), MONTH(Fecha), 1) AS Mes,\n       COUNT(*)                                   AS Llamadas,\n       SUM(TokensEntrada) / 1000000.0 * 3\n     + SUM(TokensSalida)  / 1000000.0 * 15        AS CostoUSD\nFROM dbo.RegistroLlamadasIA\nGROUP BY Proceso, DATEFROMPARTS(YEAR(Fecha), MONTH(Fecha), 1)\nORDER BY Mes DESC, CostoUSD DESC;",
+          "keyTakeaway": "Política escrita, servicios aprobados, revisión humana y un registro que permite auditar y controlar el gasto."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Requisitos para que un proceso con IA pase a producción.",
+        "rules": [
+          "Existe un conjunto de prueba etiquetado por personas y separado del desarrollo del prompt.",
+          "Se reportan precisión y exhaustividad por categoría, no solo la exactitud.",
+          "Cada cambio de prompt o modelo se compara con el mismo conjunto de prueba.",
+          "Cada llamada en producción queda registrada con modelo, prompt, tokens y costo.",
+          "Hay un responsable y un presupuesto mensual con alertas."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "CREATE TABLE dbo.RegistroLlamadasIA (\n    LlamadaID      bigint IDENTITY PRIMARY KEY,\n    Fecha          datetime2(0) NOT NULL DEFAULT SYSDATETIME(),\n    Proceso        varchar(50)  NOT NULL,\n    Modelo         varchar(60)  NOT NULL,\n    VersionPrompt  varchar(20)  NOT NULL,\n    TokensEntrada  int          NOT NULL,\n    TokensSalida   int          NOT NULL,\n    Resultado      varchar(20)  NOT NULL   -- ok, revisar, error\n);"
+      },
+      "comparison": {
+        "scenario": "El equipo cambia el prompt de clasificación porque «con estos cinco ejemplos funciona mejor».",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "# Se probó el prompt nuevo con 5 comentarios elegidos a mano\nfor texto in [\"llegó tarde\", \"me cobraron doble\", \"excelente\", \"roto\", \"lento\"]:\n    print(texto, clasificar(texto, PROMPT_V2))\n# \"Se ve bien\" → se pasa a producción",
+        "juniorFlaws": [
+          "Cinco ejemplos elegidos a mano no miden nada.",
+          "No hay comparación con el prompt anterior.",
+          "No se miró la exhaustividad de «cobro», la categoría más sensible.",
+          "No queda registro de qué versión se usó desde cuándo."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "from sklearn.metrics import recall_score\n\nresultados = {}\nfor nombre, prompt in {\"v1\": PROMPT_V1, \"v2\": PROMPT_V2}.items():\n    pred = prueba[\"Texto\"].map(lambda t: clasificar(t, prompt)[\"categoria\"])\n    resultados[nombre] = recall_score(prueba[\"CategoriaHumana\"], pred,\n                                      labels=[\"cobro\"], average=\"macro\", zero_division=0)\nprint(resultados)   # se adopta v2 solo si no empeora «cobro» y mejora el resto",
+        "intermediateBenefits": [
+          "Ambos prompts se miden con el mismo conjunto etiquetado.",
+          "Se vigila la métrica de la categoría más costosa de fallar.",
+          "La decisión queda justificada con cifras."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "iad11-ej-1",
+          "title": "Práctica 1: Exactitud en T-SQL",
+          "difficulty": "Básico",
+          "prompt": "Con `dbo.ConjuntoPrueba` y `dbo.ComentariosClasificados`, escribe una consulta que devuelva el total de comentarios evaluados, los aciertos y la exactitud en porcentaje con un decimal.",
+          "hint": "SUM(IIF(...)) para los aciertos y * 100.0 para evitar la división entera.",
+          "solutionExplanation": "La exactitud es aciertos / total. Es el punto de partida, pero no basta: el siguiente ejercicio mira cada categoría.",
+          "solutionCode": "SELECT COUNT(*) AS Evaluados,\n       SUM(IIF(c.Categoria = p.CategoriaHumana, 1, 0)) AS Aciertos,\n       ROUND(SUM(IIF(c.Categoria = p.CategoriaHumana, 1, 0)) * 100.0 / NULLIF(COUNT(*), 0), 1) AS ExactitudPct\nFROM dbo.ConjuntoPrueba AS p\nJOIN dbo.ComentariosClasificados AS c ON c.ComentarioID = p.ComentarioID;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad11-ej-2",
+          "title": "Práctica 2: Precisión y exhaustividad por categoría",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe una consulta T-SQL que calcule, para cada categoría, la precisión y la exhaustividad del modelo frente a la etiqueta humana.",
+          "hint": "Precisión = aciertos de la categoría / veces que el modelo la predijo. Exhaustividad = aciertos / veces que era esa categoría. Une las categorías de ambos lados.",
+          "solutionExplanation": "Dos CTE cuentan predicciones y casos reales por categoría; los aciertos son las filas donde coinciden. NULLIF evita dividir por cero en categorías nunca predichas.",
+          "solutionCode": "WITH Pares AS (\n    SELECT p.CategoriaHumana AS Real, c.Categoria AS Predicha\n    FROM dbo.ConjuntoPrueba AS p\n    JOIN dbo.ComentariosClasificados AS c ON c.ComentarioID = p.ComentarioID\n), Categorias AS (\n    SELECT Real AS Categoria FROM Pares UNION SELECT Predicha FROM Pares\n)\nSELECT k.Categoria,\n       SUM(IIF(x.Real = k.Categoria AND x.Predicha = k.Categoria, 1, 0)) * 1.0\n         / NULLIF(SUM(IIF(x.Predicha = k.Categoria, 1, 0)), 0) AS Precision,\n       SUM(IIF(x.Real = k.Categoria AND x.Predicha = k.Categoria, 1, 0)) * 1.0\n         / NULLIF(SUM(IIF(x.Real = k.Categoria, 1, 0)), 0)     AS Exhaustividad\nFROM Categorias AS k\nCROSS JOIN Pares AS x\nGROUP BY k.Categoria\nORDER BY k.Categoria;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad11-ej-3",
+          "title": "Práctica 3: Alerta de presupuesto",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe una consulta que, con `dbo.RegistroLlamadasIA`, devuelva los procesos cuyo costo del mes en curso supera el 80 % de su presupuesto, guardado en `dbo.PresupuestoIA(Proceso, PresupuestoMensualUSD)`.",
+          "hint": "Filtra el mes actual con DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1).",
+          "solutionExplanation": "La consulta puede programarse cada día; si devuelve filas, se envía la alerta al responsable.",
+          "solutionCode": "DECLARE @InicioMes date = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1);\n\nWITH Costo AS (\n    SELECT Proceso,\n           SUM(TokensEntrada) / 1000000.0 * 3 + SUM(TokensSalida) / 1000000.0 * 15 AS CostoUSD\n    FROM dbo.RegistroLlamadasIA\n    WHERE Fecha >= @InicioMes\n    GROUP BY Proceso\n)\nSELECT c.Proceso, c.CostoUSD, b.PresupuestoMensualUSD,\n       ROUND(c.CostoUSD * 100.0 / b.PresupuestoMensualUSD, 1) AS PctUsado\nFROM Costo AS c\nJOIN dbo.PresupuestoIA AS b ON b.Proceso = c.Proceso\nWHERE c.CostoUSD > 0.8 * b.PresupuestoMensualUSD;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad11-q1",
+          "question": "¿Por qué no debes ajustar el prompt mirando los ejemplos del conjunto de prueba?",
+          "options": [
+            "Porque los modelos no aceptan ejemplos dentro del prompt",
+            "Porque el conjunto de prueba se borra después de usarlo",
+            "Porque la medición ya no reflejaría textos nuevos",
+            "Porque el conjunto de prueba solo se puede leer con T-SQL"
+          ],
+          "correctIndex": 2,
+          "explanation": "Si el prompt se adapta a esos ejemplos, la métrica sale optimista, igual que entrenar con el test en machine learning."
+        },
+        {
+          "id": "iad11-q2",
+          "question": "Importa no perder ningún reclamo de cobro. ¿Qué métrica de «cobro» vigilas?",
+          "options": [
+            "La exactitud global de todas las categorías juntas",
+            "La precisión, que mide cuántas predicciones de cobro aciertan",
+            "El número total de llamadas a la API durante el mes",
+            "La exhaustividad, que mide cuántos cobros reales se detectan"
+          ],
+          "correctIndex": 3,
+          "explanation": "La exhaustividad (recall) de «cobro» baja cuando el modelo deja reclamos de cobro sin detectar."
+        },
+        {
+          "id": "iad11-q3",
+          "question": "¿Qué debe guardar el registro de cada llamada a la IA en producción?",
+          "options": [
+            "Fecha, modelo, versión del prompt, tokens y resultado",
+            "La clave de API completa para auditar quién la usó",
+            "Solo las llamadas que terminaron con algún error",
+            "El nombre completo y el correo de cada cliente procesado"
+          ],
+          "correctIndex": 0,
+          "explanation": "Esos campos permiten auditar, comparar versiones y controlar el costo sin guardar datos personales ni secretos."
+        }
+      ]
+    },
+    {
+      "id": "cap-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 5: Calidad y proyecto",
+      "title": "Proyecto final: asistente de preguntas sobre ventas",
+      "subtitle": "Un asistente que convierte preguntas en T-SQL de solo lectura, con controles antes de ejecutar y respuestas verificables.",
+      "estimatedMinutes": 70,
+      "status": "published",
+      "objectives": [
+        "Diseñar un asistente de texto a SQL con permisos mínimos y una lista de tablas permitidas.",
+        "Validar la consulta generada antes de ejecutarla: solo SELECT, tablas permitidas y límite de filas.",
+        "Responder con la consulta, la tabla y una frase redactada a partir del resultado.",
+        "Evaluar el asistente con un conjunto de preguntas y respuestas conocidas."
+      ],
+      "theorySections": [
+        {
+          "id": "iad12-sec-1",
+          "title": "1. Arquitectura y permisos mínimos",
+          "body": "El asistente recibe una pregunta en español y devuelve una respuesta con datos. El flujo:\n\n1. **Contexto** (cap. 2): esquema de vistas permitidas y reglas de negocio.\n2. **Generación** (cap. 3): el modelo devuelve una consulta T-SQL.\n3. **Validación**: controles automáticos antes de tocar la base.\n4. **Ejecución** con un usuario de **solo lectura** sobre un esquema de vistas.\n5. **Respuesta** (cap. 9): tabla, consulta y una frase con cifras del resultado.\n\nLa seguridad no depende del prompt. Aunque el modelo escriba un `DELETE`, el usuario de la base no tiene permiso para ejecutarlo. Los controles de código son la segunda barrera, no la única.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Esquema con vistas para el asistente: solo lo que necesita, sin datos personales\nCREATE SCHEMA asistente;\nGO\nCREATE VIEW asistente.Ventas AS\nSELECT p.PedidoID, p.FechaPedido, p.Total, c.Pais, c.Segmento\nFROM dbo.Pedidos AS p\nJOIN dbo.Clientes AS c ON c.ClienteID = p.ClienteID\nWHERE p.Estado = 'pagado';\nGO\n-- Usuario de solo lectura, limitado a ese esquema\nCREATE USER asistente_lector WITHOUT LOGIN;\nGRANT SELECT ON SCHEMA::asistente TO asistente_lector;",
+          "keyTakeaway": "La primera barrera es la base de datos: un usuario de solo lectura sobre vistas sin datos personales."
+        },
+        {
+          "id": "iad12-sec-2",
+          "title": "2. Validar la consulta antes de ejecutarla",
+          "body": "Antes de enviar la consulta a SQL Server, el código comprueba:\n\n- Es **una sola** sentencia y empieza por `SELECT` o `WITH`.\n- No contiene palabras de escritura o administración (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `EXEC`, `ALTER`, `MERGE`, `GRANT`).\n- Solo menciona objetos del esquema `asistente`.\n- Tiene un límite de filas: si no trae `TOP`, se envuelve en `SELECT TOP (1000) * FROM (...) AS q`.\n\nAdemás, SQL Server puede **compilar sin ejecutar** con `SET PARSEONLY ON` o validar con `sys.dm_exec_describe_first_result_set`, que devuelve las columnas que produciría la consulta.",
+          "codeLanguage": "python",
+          "codeSnippet": "import re\n\nPROHIBIDAS = re.compile(\n    r\"\\b(insert|update|delete|drop|alter|create|exec|execute|merge|grant|revoke|truncate|into)\\b\",\n    re.IGNORECASE)\n\n\ndef validar_consulta(sql: str) -> str:\n    limpio = sql.strip().rstrip(\";\")\n    if \";\" in limpio:\n        raise ValueError(\"Solo se permite una sentencia\")\n    if not re.match(r\"^\\s*(select|with)\\b\", limpio, re.IGNORECASE):\n        raise ValueError(\"La consulta debe empezar con SELECT o WITH\")\n    if PROHIBIDAS.search(limpio):\n        raise ValueError(\"La consulta contiene una instrucción no permitida\")\n    objetos = re.findall(r\"\\b(?:from|join)\\s+([\\w\\.\\[\\]]+)\", limpio, re.IGNORECASE)\n    fuera = [o for o in objetos if not o.lower().replace(\"[\", \"\").replace(\"]\", \"\").startswith(\"asistente.\")]\n    if fuera:\n        raise ValueError(f\"Objetos no permitidos: {fuera}\")\n    return f\"SELECT TOP (1000) * FROM ({limpio}) AS q\" ",
+          "keyTakeaway": "Una sola sentencia, solo lectura, solo objetos permitidos y un límite de filas: si falla un control, no se ejecuta."
+        },
+        {
+          "id": "iad12-sec-3",
+          "title": "3. Responder con evidencia",
+          "body": "La respuesta del asistente tiene tres partes, siempre visibles:\n\n1. **La frase**: redactada por el modelo a partir del resultado, con el control de cifras del capítulo 9.\n2. **La tabla** con el resultado (o las primeras filas).\n3. **La consulta** ejecutada, para que quien pregunta pueda revisarla o reutilizarla.\n\nSi el resultado está vacío, el asistente lo dice («no hay ventas que cumplan esa condición»), no inventa una respuesta. Y si la pregunta es ambigua («¿cómo vamos?»), pide precisión en lugar de suponer.",
+          "codeLanguage": "python",
+          "codeSnippet": "def responder(pregunta: str) -> dict:\n    sql = generar_sql(pregunta)                      # modelo + contexto del esquema asistente\n    sql_seguro = validar_consulta(sql)\n    resultado = ejecutar_lectura(sql_seguro)         # usuario asistente_lector\n    if resultado.empty:\n        return {\"frase\": \"No hay datos que cumplan esa condición.\", \"sql\": sql, \"tabla\": resultado}\n    cifras = resultado.head(20).to_dict(orient=\"list\")\n    frase = redactar_respuesta(pregunta, cifras)\n    if cifras_no_rastreables(frase, aplanar(cifras)):\n        frase = \"Estos son los datos encontrados (revisa la tabla).\"\n    return {\"frase\": frase, \"sql\": sql, \"tabla\": resultado}",
+          "keyTakeaway": "Toda respuesta muestra la frase, la tabla y la consulta: quien pregunta puede comprobarla."
+        },
+        {
+          "id": "iad12-sec-4",
+          "title": "4. Evaluar el asistente",
+          "body": "Como en el capítulo 11, el asistente se mide con un **conjunto de preguntas** cuya respuesta correcta conoces: 30 a 50 preguntas reales del negocio, con la consulta aprobada por el equipo.\n\nPara cada pregunta, ejecutas la consulta del asistente y la aprobada, y comparas **resultados** (no el texto de la consulta: hay muchas formas correctas de escribir lo mismo). Usa la comparación con `EXCEPT` del capítulo 5.\n\nMétricas:\n- **% de respuestas correctas** (resultados iguales).\n- **% bloqueadas** por los controles (deberían ser pocas, y todas justificadas).\n- **% de preguntas ambiguas** en las que el asistente pidió aclaración.",
+          "codeLanguage": "python",
+          "codeSnippet": "def evaluar(preguntas: pd.DataFrame) -> pd.DataFrame:\n    filas = []\n    for _, fila in preguntas.iterrows():\n        try:\n            obtenido = ejecutar_lectura(validar_consulta(generar_sql(fila[\"pregunta\"])))\n            esperado = ejecutar_lectura(fila[\"sql_aprobado\"])\n            correcto = obtenido.reset_index(drop=True).equals(esperado.reset_index(drop=True))\n            estado = \"correcto\" if correcto else \"incorrecto\"\n        except ValueError:\n            estado = \"bloqueado\"\n        filas.append({\"pregunta\": fila[\"pregunta\"], \"estado\": estado})\n    resumen = pd.DataFrame(filas)\n    print(resumen[\"estado\"].value_counts(normalize=True).round(3))\n    return resumen",
+          "keyTakeaway": "Se compara el resultado, no el texto de la consulta, sobre un conjunto de preguntas reales del negocio."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Lista de entrega del proyecto",
+        "summary": "Lo que debe tener tu asistente para considerarlo terminado.",
+        "rules": [
+          "Usuario de base de datos de solo lectura sobre un esquema de vistas sin datos personales.",
+          "Validación de una sola sentencia, solo lectura, objetos permitidos y TOP obligatorio.",
+          "Respuesta con frase verificada, tabla y consulta ejecutada.",
+          "Conjunto de 30 o más preguntas con consulta aprobada y un informe de evaluación.",
+          "Registro de cada pregunta, consulta generada, resultado de la validación y costo."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "asistente-ventas/\n├── sql/esquema_asistente.sql   ← vistas y usuario de solo lectura\n├── contexto/                   ← esquema, relaciones y reglas (cap. 2)\n├── asistente.py                ← generar, validar, ejecutar, responder\n├── evaluacion/preguntas.csv    ← pregunta, sql_aprobado\n└── evaluacion/informe.md       ← % correctas, bloqueadas y ambiguas"
+      },
+      "comparison": {
+        "scenario": "Un primer prototipo ejecuta directamente lo que devuelve el modelo con el usuario de la aplicación.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "import pyodbc\n\nconexion = pyodbc.connect(os.environ[\"CONEXION_APP\"])   # usuario con permisos de escritura\nsql = generar_sql(pregunta)\ncursor = conexion.cursor()\ncursor.execute(sql)                                      # se ejecuta lo que sea\nprint(redactar_respuesta(pregunta, cursor.fetchall()))",
+        "juniorFlaws": [
+          "El usuario de la aplicación puede modificar o borrar datos.",
+          "No hay ninguna validación: un DELETE generado por error se ejecutaría.",
+          "Accede a todas las tablas, incluidos los datos personales.",
+          "Sin límite de filas ni control de cifras en la respuesta."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "conexion = pyodbc.connect(os.environ[\"CONEXION_ASISTENTE_LECTOR\"])  # solo SELECT en asistente.*\nsql = generar_sql(pregunta)\nsql_seguro = validar_consulta(sql)             # una sentencia, solo lectura, TOP (1000)\nresultado = pd.read_sql(sql_seguro, conexion)\nrespuesta = responder_con_evidencia(pregunta, sql, resultado)",
+        "intermediateBenefits": [
+          "Dos barreras: permisos de solo lectura y validación en código.",
+          "Solo ve vistas sin datos personales.",
+          "Las respuestas muestran la consulta y pasan el control de cifras."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "iad12-ej-1",
+          "title": "Práctica 1: Vista y permisos",
+          "difficulty": "Intermedio",
+          "prompt": "Crea la vista `asistente.VentasPorProducto` con fecha del pedido, categoría, nombre del producto, cantidad e importe de cada línea (solo pedidos pagados), y da permiso de lectura sobre ella al usuario `asistente_lector`, negándole explícitamente el acceso a `dbo.Clientes`.",
+          "hint": "GRANT SELECT ON objeto y DENY SELECT ON dbo.Clientes.",
+          "solutionExplanation": "La vista expone solo las columnas necesarias. DENY garantiza que, aunque alguien otorgue permisos amplios por error, el asistente no lea clientes.",
+          "solutionCode": "CREATE VIEW asistente.VentasPorProducto AS\nSELECT p.FechaPedido, pr.Categoria, pr.Nombre AS Producto,\n       d.Cantidad, d.Cantidad * d.PrecioUnitario AS Importe\nFROM dbo.DetallePedido AS d\nJOIN dbo.Pedidos   AS p  ON p.PedidoID   = d.PedidoID\nJOIN dbo.Productos AS pr ON pr.ProductoID = d.ProductoID\nWHERE p.Estado = 'pagado';\nGO\nGRANT SELECT ON asistente.VentasPorProducto TO asistente_lector;\nDENY  SELECT ON dbo.Clientes TO asistente_lector;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "iad12-ej-2",
+          "title": "Práctica 2: Prueba los controles",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe pruebas con `pytest` para `validar_consulta` que comprueben que: una consulta válida sobre `asistente.Ventas` pasa y lleva TOP (1000); un DELETE se rechaza; dos sentencias separadas por punto y coma se rechazan; y una consulta sobre `dbo.Clientes` se rechaza.",
+          "hint": "pytest.raises(ValueError) para los casos que deben fallar.",
+          "solutionExplanation": "Las pruebas documentan qué debe bloquear el validador y evitan que un cambio futuro lo debilite sin que nadie lo note.",
+          "solutionCode": "import pytest\n\nfrom asistente import validar_consulta\n\n\ndef test_consulta_valida():\n    sql = validar_consulta(\"SELECT Pais, SUM(Total) AS Ventas FROM asistente.Ventas GROUP BY Pais\")\n    assert sql.startswith(\"SELECT TOP (1000)\")\n\n\n@pytest.mark.parametrize(\"sql\", [\n    \"DELETE FROM asistente.Ventas\",\n    \"SELECT 1 FROM asistente.Ventas; DROP TABLE dbo.Pedidos\",\n    \"SELECT Nombre FROM dbo.Clientes\",\n])\ndef test_consultas_rechazadas(sql):\n    with pytest.raises(ValueError):\n        validar_consulta(sql)",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "iad12-ej-3",
+          "title": "Práctica 3: Conjunto de preguntas",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe tres filas del conjunto de evaluación (pregunta y consulta aprobada sobre `asistente.Ventas`) que cubran: un total por periodo, un ranking con TOP y una comparación entre dos meses. Después indica qué pregunta ambigua añadirías para comprobar que el asistente pide aclaración.",
+          "hint": "Rango semiabierto en las fechas y nombres de columna claros.",
+          "solutionExplanation": "Cubrir tipos distintos de pregunta mide el asistente en varios patrones. La pregunta ambigua comprueba que no supone una métrica por su cuenta.",
+          "solutionCode": "-- 1. ¿Cuánto se vendió en el tercer trimestre de 2025?\nSELECT SUM(Total) AS Ventas\nFROM asistente.Ventas\nWHERE FechaPedido >= '2025-07-01' AND FechaPedido < '2025-10-01';\n\n-- 2. ¿Cuáles son los 5 países con más ventas en 2025?\nSELECT TOP (5) Pais, SUM(Total) AS Ventas\nFROM asistente.Ventas\nWHERE FechaPedido >= '2025-01-01' AND FechaPedido < '2026-01-01'\nGROUP BY Pais\nORDER BY Ventas DESC;\n\n-- 3. ¿Cuánto cambiaron las ventas de octubre frente a septiembre de 2025?\nSELECT SUM(IIF(FechaPedido >= '2025-10-01', Total, 0)) AS Octubre,\n       SUM(IIF(FechaPedido <  '2025-10-01', Total, 0)) AS Septiembre\nFROM asistente.Ventas\nWHERE FechaPedido >= '2025-09-01' AND FechaPedido < '2025-11-01';\n\n-- Ambigua: \"¿Cómo va el negocio?\" → se espera que el asistente pida métrica y periodo.",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "iad12-q1",
+          "question": "¿Cuál es la barrera de seguridad más importante del asistente de texto a SQL?",
+          "options": [
+            "Una frase en el prompt que prohíbe escribir sentencias DELETE",
+            "Que el asistente responda siempre en menos de un segundo",
+            "Un mensaje de bienvenida que explica el uso correcto",
+            "Un usuario de base de datos con permisos de solo lectura"
+          ],
+          "correctIndex": 3,
+          "explanation": "El prompt puede fallar; los permisos de la base no. La validación en código es la segunda barrera."
+        },
+        {
+          "id": "iad12-q2",
+          "question": "¿Cómo evalúas si el asistente respondió bien una pregunta del conjunto de prueba?",
+          "options": [
+            "Comparando su resultado con el de la consulta aprobada",
+            "Comparando el texto de su consulta con la consulta aprobada",
+            "Comprobando que la consulta generada tenga pocas líneas",
+            "Preguntando al mismo modelo si su respuesta es correcta"
+          ],
+          "correctIndex": 0,
+          "explanation": "Hay muchas formas correctas de escribir una consulta; lo que importa es que devuelvan los mismos datos."
+        },
+        {
+          "id": "iad12-q3",
+          "question": "Un usuario pregunta «¿cómo va el negocio?». ¿Qué debe hacer el asistente?",
+          "options": [
+            "Elegir la métrica que considere más útil sin decir cuál usó",
+            "Pedir que precise la métrica y el periodo antes de consultar",
+            "Responder con una estimación general basada en otros meses",
+            "Devolver todas las tablas del esquema para que el usuario elija"
+          ],
+          "correctIndex": 1,
+          "explanation": "Ante una pregunta ambigua, suponer en silencio produce respuestas engañosas; pedir precisión es lo correcto."
+        }
+      ]
+    }
+  ]
+}
