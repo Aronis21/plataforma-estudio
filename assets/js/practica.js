@@ -34,7 +34,7 @@
 
   const NIVEL_EJ = { basico: "Básico", intermedio: "Intermedio", avanzado: "Avanzado" };
   const ORDEN_NIVEL = ["basico", "intermedio", "avanzado"];
-  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL, CASE e IIF", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana", "JSON"];
+  const CONCEPTOS = ["Consultas y filtros", "Agregación", "JOIN", "NULL, CASE e IIF", "Fechas y texto", "Subconsultas y CTE", "Funciones de ventana", "JSON", "Vistas", "Índices y sargabilidad", "Transacciones"];
   const CONCEPTOS_JS = Object.keys(JSD.lecciones);
   // Datos de cada clase de ejercicio con consola
   const CLASES = {
@@ -1371,6 +1371,13 @@
       "cap-02": ["JOIN"],
       "cap-03": ["Fechas y texto"],
       "cap-04": ["JSON"],
+    },
+    "sql-server-a-fondo": {
+      "cap-03": ["Vistas"],
+      "cap-07": ["Índices y sargabilidad"],
+      "cap-08": ["Índices y sargabilidad"],
+      "cap-11": ["Transacciones"],
+      "cap-12": ["Transacciones"],
     },
   };
   function enlacesCapitulo(cursoId, capId) {

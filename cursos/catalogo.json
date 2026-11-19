@@ -53,6 +53,24 @@
       "publicado": true
     },
     {
+      "id": "sql-server-a-fondo",
+      "archivo": "sql-server-a-fondo.json",
+      "tema": "datos",
+      "separador": "SQL Server",
+      "cuaderno": "Cuaderno del DBA",
+      "categoria": "Datos y Analítica",
+      "etiquetas": [
+        "T-SQL",
+        "Vistas",
+        "Procedimientos",
+        "Índices",
+        "Planes de ejecución",
+        "Transacciones"
+      ],
+      "color": "#C0392B",
+      "publicado": true
+    },
+    {
       "id": "programacion-desarrollo-web",
       "archivo": "programacion-desarrollo-web.json",
       "tema": "web",

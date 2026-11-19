@@ -235,3 +235,13 @@
 .dg-leyenda .b-ci { background: var(--mano); }
 .dg-leyenda .b-cd { background: var(--cta-bg); }
 .dg-panel-p { margin-top: .8rem; }
+
+/* Árbol B de un índice (indice-arbol-b) */
+.dg-arbol .ar-pag rect { fill: var(--superficie-2); stroke: var(--tinta-2); stroke-width: 1.2; transition: fill .2s; }
+.dg-arbol .ar-pag.on rect { fill: color-mix(in srgb, var(--cta-bg) 70%, transparent); stroke: var(--tinta); stroke-width: 2; }
+.dg-arbol .ar-pag text { font: 11px var(--f-mono); fill: var(--tinta); }
+.dg-arbol .ar-pag.hoja text { font-size: 10px; }
+.dg-arbol .ar-linea { stroke: var(--tinta-2); stroke-width: 1; opacity: .6; }
+.dg-arbol .ar-enlace { stroke: var(--tinta-2); stroke-width: 2; }
+.dg-panel-arbol .dg-sql { margin-bottom: .8rem; }
+.dg-explica-arbol { margin: .8rem 0 0; line-height: 1.5; }

@@ -1,0 +1,1728 @@
+{
+  "id": "sql-server-a-fondo",
+  "title": "SQL Server a fondo",
+  "subtitle": "T-SQL más allá del SELECT: vistas, procedimientos, índices, planes de ejecución y transacciones, para escribir código que aguante producción.",
+  "level": "Intermedio",
+  "author": "Plan de Estudio Autónomo",
+  "updatedAt": "2026-11-18",
+  "chapters": [
+    {
+      "id": "cap-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 1: El motor y el lenguaje T-SQL",
+      "title": "Cómo piensa SQL Server: orden lógico, esquemas y tipos de datos",
+      "subtitle": "Lo que pasa entre que escribes una consulta y recibes filas, y por qué elegir bien los tipos ahorra problemas durante años.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Explicar el orden lógico en que SQL Server evalúa las cláusulas de un SELECT.",
+        "Organizar objetos en esquemas y nombrarlos siempre con su esquema.",
+        "Elegir tipos de datos correctos para texto, fechas y dinero."
+      ],
+      "theorySections": [
+        {
+          "id": "cap01-sec-1",
+          "title": "1. El orden lógico de una consulta",
+          "body": "Escribes `SELECT … FROM … WHERE … GROUP BY … HAVING … ORDER BY`, pero SQL Server **no** lo evalúa en ese orden. El orden lógico es:\n1. `FROM` y los `JOIN`\n2. `WHERE`\n3. `GROUP BY`\n4. `HAVING`\n5. `SELECT` (aquí nacen los alias)\n6. `DISTINCT`\n7. `ORDER BY`\n8. `TOP` / `OFFSET … FETCH`\n\nDe ahí salen dos reglas que confunden a todos al principio: un alias del `SELECT` **no** existe en el `WHERE` (todavía no se ha calculado), pero **sí** existe en el `ORDER BY`. Y un filtro sobre un agregado va en `HAVING`, porque `WHERE` corre antes de agrupar.\n\nEste es el orden *lógico*. El orden *físico* (qué hace el motor de verdad) lo decide el optimizador y lo verás en el plan de ejecución del capítulo 9.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT c.pais, COUNT(*) AS pedidos\nFROM dbo.pedidos AS p\nJOIN dbo.clientes AS c ON c.id = p.cliente_id\nWHERE p.estado = 'entregado'      -- 2: antes de agrupar\nGROUP BY c.pais                   -- 3\nHAVING COUNT(*) >= 5              -- 4: el alias pedidos aún no existe\nORDER BY pedidos DESC;            -- 7: aquí el alias ya existe",
+          "keyTakeaway": "WHERE filtra filas antes de agrupar; HAVING filtra grupos después; los alias solo llegan al ORDER BY."
+        },
+        {
+          "id": "cap01-sec-2",
+          "title": "2. Bases, esquemas y nombres de dos partes",
+          "body": "Una instancia de SQL Server contiene **bases de datos**; cada base contiene **esquemas**; cada esquema contiene tablas, vistas, procedimientos y funciones. El esquema por defecto es `dbo`.\n\nUsa esquemas para agrupar por área (`ventas`, `rrhh`, `stg` para cargas) y para dar permisos de una vez: `GRANT SELECT ON SCHEMA::ventas TO analistas`.\n\nNombra siempre los objetos con **dos partes** (`ventas.pedidos`, no `pedidos`). Así el motor no tiene que buscar primero en el esquema del usuario, reutiliza mejor los planes en caché y nadie se lleva una sorpresa cuando existen dos tablas con el mismo nombre en esquemas distintos.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE SCHEMA ventas AUTHORIZATION dbo;\nGO\nCREATE TABLE ventas.pedidos (\n  id         INT IDENTITY(1,1) NOT NULL CONSTRAINT pk_pedidos PRIMARY KEY,\n  cliente_id INT NOT NULL,\n  fecha      DATE NOT NULL,\n  estado     VARCHAR(20) NOT NULL\n);\nGO\nGRANT SELECT ON SCHEMA::ventas TO analistas;",
+          "keyTakeaway": "Esquema para ordenar y dar permisos; nombre de dos partes en todo el código."
+        },
+        {
+          "id": "cap01-sec-3",
+          "title": "3. Tipos de datos que no te traicionan",
+          "body": "Un tipo mal elegido se paga en espacio, en índices más grandes y en conversiones implícitas que impiden usar índices. Las elecciones más comunes:\n- **Texto**: `VARCHAR(n)` para texto en un solo idioma o códigos; `NVARCHAR(n)` cuando puede haber cualquier carácter Unicode (nombres, mensajes). Evita `(MAX)` salvo que de verdad lo necesites.\n- **Fechas**: `DATE` si no hay hora; `DATETIME2(0..7)` en lugar del viejo `DATETIME`; `DATETIMEOFFSET` si importa la zona horaria.\n- **Dinero**: `DECIMAL(19,4)` y no `FLOAT`, que es aproximado (0.1 + 0.2 no da exactamente 0.3).\n- **Sí/no**: `BIT`. T-SQL no tiene `TRUE` ni `FALSE`: usa 1 y 0.\n- **Enteros**: `INT` sirve hasta unos 2.100 millones; para tablas de eventos usa `BIGINT` desde el inicio.\n\nCuando comparas una columna `VARCHAR` con un literal `N'…'` (Unicode), SQL Server convierte la **columna** a `NVARCHAR` fila por fila y el índice deja de servir. Que los tipos coincidan.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE ventas.facturas (\n  id          BIGINT IDENTITY(1,1) PRIMARY KEY,\n  numero      VARCHAR(20)    NOT NULL,   -- código: VARCHAR basta\n  cliente     NVARCHAR(150)  NOT NULL,   -- nombres con tildes, ñ, etc.\n  emitida_en  DATETIME2(0)   NOT NULL,   -- precisión de segundos\n  total       DECIMAL(19,4)  NOT NULL,   -- dinero exacto\n  anulada     BIT            NOT NULL DEFAULT 0\n);",
+          "keyTakeaway": "DECIMAL para dinero, DATETIME2 para fechas con hora y el mismo tipo a ambos lados de cada comparación."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos básicos que distinguen el código T-SQL profesional.",
+        "rules": [
+          "Nombra cada objeto con su esquema (`ventas.pedidos`).",
+          "Termina cada instrucción con punto y coma: algunas (como `THROW` o una CTE después de otra instrucción) lo exigen.",
+          "Escribe las palabras clave en mayúsculas y los nombres en minúsculas con guion bajo.",
+          "Evita `SELECT *` en código que se queda: lista las columnas.",
+          "Usa `DECIMAL` para importes y `DATETIME2` para marcas de tiempo."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT p.id, p.fecha, p.estado\nFROM ventas.pedidos AS p\nWHERE p.fecha >= '2026-01-01'\nORDER BY p.fecha DESC;"
+      },
+      "comparison": {
+        "scenario": "Un analista quiere los clientes con más de 5 pedidos y usa el alias del conteo en el filtro.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "SELECT cliente_id, COUNT(*) AS total\nFROM pedidos\nWHERE total > 5\nGROUP BY cliente_id;",
+        "juniorFlaws": [
+          "`WHERE` se evalúa antes del `SELECT`: el alias `total` todavía no existe y la consulta falla.",
+          "Aunque existiera, `WHERE` filtra filas, no grupos.",
+          "La tabla no lleva esquema."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "SELECT cliente_id, COUNT(*) AS total\nFROM ventas.pedidos\nGROUP BY cliente_id\nHAVING COUNT(*) > 5;",
+        "intermediateBenefits": [
+          "`HAVING` filtra los grupos después de contar.",
+          "Repite la expresión `COUNT(*)` porque el alias aún no existe en `HAVING`.",
+          "Usa el nombre de dos partes."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap01-ej-1",
+          "title": "Práctica 1: Ventas por país",
+          "difficulty": "Básico",
+          "prompt": "Con las tablas `clientes(id, pais)` y `pedidos(id, cliente_id, estado)`, muestra cada país con su número de pedidos **entregados**, solo para los países con 3 o más, ordenado de mayor a menor.",
+          "hint": "El filtro de estado va en WHERE y el de 3 o más en HAVING.",
+          "solutionExplanation": "Primero se filtran las filas entregadas, luego se agrupa por país y al final se descartan los grupos pequeños. El alias se puede usar en ORDER BY porque ese paso va después del SELECT.",
+          "solutionCode": "SELECT c.pais, COUNT(*) AS pedidos\nFROM dbo.pedidos AS p\nJOIN dbo.clientes AS c ON c.id = p.cliente_id\nWHERE p.estado = 'entregado'\nGROUP BY c.pais\nHAVING COUNT(*) >= 3\nORDER BY pedidos DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap01-ej-2",
+          "title": "Práctica 2: Corregir los tipos de una tabla",
+          "difficulty": "Intermedio",
+          "prompt": "Esta tabla se creó con prisa: `CREATE TABLE pagos (id INT, cliente VARCHAR(MAX), monto FLOAT, pagado_en DATETIME, confirmado VARCHAR(5));`. Reescríbela con tipos adecuados, clave primaria y esquema `fin`.",
+          "hint": "Piensa en dinero exacto, nombres con tildes, fecha con hora y un sí/no.",
+          "solutionExplanation": "`DECIMAL(19,4)` evita errores de redondeo, `NVARCHAR(150)` admite cualquier nombre sin el costo de `MAX`, `DATETIME2(0)` es más preciso y pequeño que `DATETIME`, y `BIT` reemplaza al texto 'true'/'false'.",
+          "solutionCode": "CREATE TABLE fin.pagos (\n  id          INT IDENTITY(1,1) NOT NULL CONSTRAINT pk_pagos PRIMARY KEY,\n  cliente     NVARCHAR(150) NOT NULL,\n  monto       DECIMAL(19,4) NOT NULL,\n  pagado_en   DATETIME2(0)  NOT NULL,\n  confirmado  BIT           NOT NULL DEFAULT 0\n);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap01-ej-3",
+          "title": "Práctica 3: Paginar resultados",
+          "difficulty": "Básico",
+          "prompt": "Muestra la **segunda página** de 10 productos ordenados por precio de mayor a menor, con las columnas `id`, `nombre` y `precio` de `dbo.productos`.",
+          "hint": "OFFSET … ROWS FETCH NEXT … ROWS ONLY exige un ORDER BY.",
+          "solutionExplanation": "La primera página salta 0 filas; la segunda salta 10. `OFFSET … FETCH` es el estándar en T-SQL para paginar y siempre necesita `ORDER BY`.",
+          "solutionCode": "SELECT id, nombre, precio\nFROM dbo.productos\nORDER BY precio DESC, id\nOFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap01-q1",
+          "question": "¿Por qué falla `SELECT precio * 2 AS doble FROM dbo.productos WHERE doble > 100`?",
+          "options": [
+            "WHERE se evalúa antes que SELECT y el alias aún no existe",
+            "WHERE solo admite comparaciones contra columnas de texto",
+            "Los alias no se pueden usar en ningún lugar de la consulta",
+            "La multiplicación no se puede usar dentro de un SELECT"
+          ],
+          "correctIndex": 0,
+          "explanation": "En el orden lógico, `WHERE` corre antes de que el `SELECT` cree el alias. El alias sí puede usarse en `ORDER BY`."
+        },
+        {
+          "id": "cap01-q2",
+          "question": "¿Qué tipo de dato conviene para guardar importes de dinero?",
+          "options": [
+            "INT, guardando el importe ya multiplicado por 10",
+            "VARCHAR(20), para respetar el formato del país",
+            "FLOAT, porque ocupa menos y admite decimales",
+            "DECIMAL(19,4), porque guarda valores exactos"
+          ],
+          "correctIndex": 3,
+          "explanation": "`FLOAT` es aproximado y acumula errores de redondeo. `DECIMAL` es exacto y es la elección estándar para dinero."
+        },
+        {
+          "id": "cap01-q3",
+          "question": "¿Qué ventaja tiene escribir `ventas.pedidos` en lugar de `pedidos`?",
+          "options": [
+            "La consulta deja de necesitar permisos de lectura sobre la tabla",
+            "SQL Server crea automáticamente un índice sobre la tabla nombrada",
+            "El motor resuelve el objeto sin ambigüedad y reutiliza mejor los planes",
+            "Permite consultar la tabla aunque esté en otra instancia del servidor"
+          ],
+          "correctIndex": 2,
+          "explanation": "El nombre de dos partes evita que el motor busque en el esquema por defecto del usuario y evita confusiones entre esquemas."
+        }
+      ]
+    },
+    {
+      "id": "cap-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 1: El motor y el lenguaje T-SQL",
+      "title": "Lotes, variables y control de flujo",
+      "subtitle": "El lado procedural de T-SQL: variables, IF, WHILE, lotes con GO y dónde guardar resultados intermedios.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Declarar y asignar variables con DECLARE, SET y SELECT.",
+        "Controlar el flujo con IF … ELSE, WHILE y BEGIN … END.",
+        "Elegir entre tabla temporal, variable de tabla y CTE para datos intermedios."
+      ],
+      "theorySections": [
+        {
+          "id": "cap02-sec-1",
+          "title": "1. Lotes y GO",
+          "body": "Un **lote** (*batch*) es el conjunto de instrucciones que el cliente envía de una vez al servidor. SQL Server compila cada lote completo antes de ejecutarlo.\n\n`GO` **no es T-SQL**: es una señal para SSMS o `sqlcmd` que dice \"aquí termina un lote\". Por eso:\n- Una variable declarada antes de `GO` deja de existir después.\n- `CREATE VIEW`, `CREATE PROCEDURE`, `CREATE FUNCTION` y `CREATE TRIGGER` deben ser la **primera** instrucción de su lote.\n- `GO 5` repite el lote anterior cinco veces (útil para cargar datos de prueba).",
+          "codeLanguage": "sql",
+          "codeSnippet": "DECLARE @hoy DATE = CAST(GETDATE() AS DATE);\nSELECT @hoy AS hoy;\nGO\n-- Aquí @hoy ya no existe: esta línea daría error\n-- SELECT @hoy;\nCREATE VIEW ventas.v_pedidos_hoy AS\nSELECT id, cliente_id FROM ventas.pedidos\nWHERE fecha = CAST(GETDATE() AS DATE);\nGO",
+          "keyTakeaway": "GO separa lotes; las variables viven dentro de su lote y cada CREATE de objeto programable empieza uno nuevo."
+        },
+        {
+          "id": "cap02-sec-2",
+          "title": "2. Variables y control de flujo",
+          "body": "Las variables empiezan con `@` y se declaran con tipo. Puedes asignarlas con `SET` (un valor) o con `SELECT` (varias a la vez desde una consulta).\n\nCuidado con `SELECT @x = col FROM tabla`: si la consulta devuelve varias filas, la variable se queda con **la última** sin avisar; si no devuelve ninguna, la variable **conserva su valor anterior**. `SET @x = (SELECT …)` en cambio falla si hay más de una fila y deja `NULL` si no hay ninguna, lo que es más seguro.\n\n`IF … ELSE` y `WHILE` controlan el flujo; si el bloque tiene más de una instrucción, envuélvelo en `BEGIN … END`. Úsalos para lógica de control (¿existe el registro?, ¿quedan lotes por procesar?), no para recorrer filas una a una: eso casi siempre se resuelve mejor con una sola consulta basada en conjuntos.",
+          "codeLanguage": "sql",
+          "codeSnippet": "DECLARE @cliente INT = 42, @pendientes INT;\n\nSET @pendientes = (SELECT COUNT(*) FROM ventas.pedidos\n                   WHERE cliente_id = @cliente AND estado = 'pendiente');\n\nIF @pendientes = 0\n  PRINT 'Sin pedidos pendientes';\nELSE\nBEGIN\n  PRINT CONCAT('Pendientes: ', @pendientes);\n  UPDATE ventas.pedidos SET estado = 'revisar'\n  WHERE cliente_id = @cliente AND estado = 'pendiente';\nEND;",
+          "keyTakeaway": "SET con subconsulta avisa si hay varias filas; SELECT @x = … se queda en silencio con la última."
+        },
+        {
+          "id": "cap02-sec-3",
+          "title": "3. Tablas temporales, variables de tabla y CTE",
+          "body": "Para guardar resultados intermedios tienes tres opciones:\n- **CTE** (`WITH x AS (…)`): no guarda nada; es una consulta con nombre que vive solo en la instrucción siguiente. Ideal para legibilidad.\n- **Tabla temporal** (`#tmp`): vive en `tempdb` hasta que se cierra la sesión o la borras. Tiene **estadísticas** y admite índices, así que el optimizador estima bien cuántas filas tiene. Es la opción por defecto para miles de filas o más.\n- **Variable de tabla** (`@t TABLE (…)`): también vive en `tempdb`, pero sin estadísticas de columnas; útil para pocas filas y no se ve afectada por un `ROLLBACK`.\n\n`##global` es una temporal visible para todas las sesiones; casi nunca la necesitas.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Tabla temporal con índice: buena para volúmenes grandes\nSELECT cliente_id, SUM(total) AS gasto\nINTO #gasto\nFROM ventas.facturas\nWHERE emitida_en >= '2026-01-01'\nGROUP BY cliente_id;\n\nCREATE CLUSTERED INDEX ix_gasto ON #gasto (cliente_id);\n\n-- Variable de tabla: pocas filas, por ejemplo una lista de parámetros\nDECLARE @vip TABLE (cliente_id INT PRIMARY KEY);\nINSERT INTO @vip SELECT cliente_id FROM #gasto WHERE gasto > 10000;\n\nDROP TABLE IF EXISTS #gasto;",
+          "keyTakeaway": "CTE para leer mejor, #temporal para volumen, @variable de tabla para pocas filas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que el código procedural siga siendo rápido y legible.",
+        "rules": [
+          "Piensa en conjuntos: un `UPDATE` con `JOIN` gana a un `WHILE` que recorre filas.",
+          "Inicializa las variables al declararlas (`DECLARE @n INT = 0`).",
+          "Usa `SET @x = (SELECT …)` cuando esperas un solo valor.",
+          "Borra tus temporales con `DROP TABLE IF EXISTS #t` al terminar.",
+          "Si un `WHILE` es inevitable, procesa por lotes (`TOP (5000)`) y no fila por fila."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "DECLARE @filas INT = 1;\nWHILE @filas > 0\nBEGIN\n  DELETE TOP (5000) FROM log.eventos\n  WHERE creado_en < DATEADD(year, -2, GETDATE());\n  SET @filas = @@ROWCOUNT;\nEND;"
+      },
+      "comparison": {
+        "scenario": "Hay que subir 5% el precio de los productos de la categoría 'Hogar'. Un junior usa un cursor.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "DECLARE @id INT;\nDECLARE c CURSOR FOR\n  SELECT id FROM dbo.productos WHERE categoria = 'Hogar';\nOPEN c;\nFETCH NEXT FROM c INTO @id;\nWHILE @@FETCH_STATUS = 0\nBEGIN\n  UPDATE dbo.productos SET precio = precio * 1.05 WHERE id = @id;\n  FETCH NEXT FROM c INTO @id;\nEND;\nCLOSE c; DEALLOCATE c;",
+        "juniorFlaws": [
+          "Hace un `UPDATE` por fila: miles de viajes al motor y bloqueos repetidos.",
+          "Es largo, fácil de romper y difícil de leer.",
+          "No hay ninguna lógica que justifique ir fila por fila."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "UPDATE dbo.productos\nSET precio = precio * 1.05\nWHERE categoria = 'Hogar';",
+        "intermediateBenefits": [
+          "Una sola instrucción basada en conjuntos.",
+          "El motor elige el mejor plan para todas las filas a la vez.",
+          "Es atómica: o se actualizan todas o ninguna."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap02-ej-1",
+          "title": "Práctica 1: Variable con el máximo",
+          "difficulty": "Básico",
+          "prompt": "Guarda en `@max_precio` el precio más alto de `dbo.productos` y luego muestra los productos que cuestan al menos el 80% de ese valor.",
+          "hint": "Usa SET @x = (SELECT MAX(…)) y después un SELECT con WHERE.",
+          "solutionExplanation": "La subconsulta devuelve un solo valor, así que `SET` es seguro. Luego la variable se usa como cualquier constante.",
+          "solutionCode": "DECLARE @max_precio DECIMAL(19,4);\nSET @max_precio = (SELECT MAX(precio) FROM dbo.productos);\n\nSELECT id, nombre, precio\nFROM dbo.productos\nWHERE precio >= @max_precio * 0.8\nORDER BY precio DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap02-ej-2",
+          "title": "Práctica 2: Insertar solo si no existe",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe un bloque que inserte la categoría `@nombre = N'Jardín'` en `dbo.categorias(nombre)` solo si no existe todavía, e imprima un mensaje en cada caso.",
+          "hint": "IF NOT EXISTS (SELECT 1 FROM …) es la forma clásica.",
+          "solutionExplanation": "`EXISTS` se detiene en la primera fila que encuentra, así que es barato. El `BEGIN … END` agrupa las dos instrucciones del caso verdadero.",
+          "solutionCode": "DECLARE @nombre NVARCHAR(50) = N'Jardín';\n\nIF NOT EXISTS (SELECT 1 FROM dbo.categorias WHERE nombre = @nombre)\nBEGIN\n  INSERT INTO dbo.categorias (nombre) VALUES (@nombre);\n  PRINT 'Categoría creada';\nEND\nELSE\n  PRINT 'La categoría ya existía';",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap02-ej-3",
+          "title": "Práctica 3: Borrado por lotes",
+          "difficulty": "Avanzado",
+          "prompt": "La tabla `log.eventos` tiene 50 millones de filas. Borra las de más de dos años en lotes de 10.000 para no llenar el registro de transacciones ni bloquear la tabla.",
+          "hint": "Combina WHILE, DELETE TOP (n) y @@ROWCOUNT.",
+          "solutionExplanation": "Cada vuelta borra como máximo 10.000 filas en su propia transacción corta. Cuando `@@ROWCOUNT` llega a 0 ya no queda nada que borrar y el bucle termina.",
+          "solutionCode": "DECLARE @borradas INT = 1;\nWHILE @borradas > 0\nBEGIN\n  DELETE TOP (10000) FROM log.eventos\n  WHERE creado_en < DATEADD(year, -2, SYSDATETIME());\n  SET @borradas = @@ROWCOUNT;\nEND;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap02-q1",
+          "question": "¿Qué es GO en un script de SQL Server?",
+          "options": [
+            "Un comando que limpia la caché de planes del servidor",
+            "Una señal de la herramienta cliente que separa lotes",
+            "Una palabra clave que ejecuta la consulta en paralelo",
+            "Una instrucción T-SQL que confirma la transacción abierta"
+          ],
+          "correctIndex": 1,
+          "explanation": "`GO` lo interpretan SSMS y `sqlcmd`; el servidor nunca lo recibe. Marca el final de un lote."
+        },
+        {
+          "id": "cap02-q2",
+          "question": "Si `SELECT @x = nombre FROM dbo.clientes WHERE pais = 'Perú'` devuelve 4 filas, ¿qué pasa?",
+          "options": [
+            "@x guarda los cuatro nombres separados por comas",
+            "@x queda en NULL porque el resultado es ambiguo",
+            "@x se queda con el valor de una de las filas sin avisar",
+            "La instrucción falla porque devuelve más de una fila"
+          ],
+          "correctIndex": 2,
+          "explanation": "La asignación con `SELECT` recorre todas las filas y deja la última que procesó. `SET @x = (SELECT …)` sí daría error."
+        },
+        {
+          "id": "cap02-q3",
+          "question": "¿Cuándo conviene una tabla temporal #t frente a una variable de tabla?",
+          "options": [
+            "Con muchas filas, porque tiene estadísticas para el optimizador",
+            "Siempre, porque sobrevive al cierre de la sesión que la creó",
+            "Con pocas filas, porque nunca escribe nada en la base tempdb",
+            "Solo dentro de vistas, porque las vistas admiten parámetros"
+          ],
+          "correctIndex": 0,
+          "explanation": "Las tablas temporales tienen estadísticas de columnas y admiten índices, por eso el optimizador estima mejor con volúmenes grandes."
+        }
+      ]
+    },
+    {
+      "id": "cap-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 2: Objetos programables",
+      "title": "Vistas: consultas con nombre, seguridad y vistas indexadas",
+      "subtitle": "Cuándo una vista simplifica y protege, cuándo esconde un problema de rendimiento y cómo materializarla con SCHEMABINDING.",
+      "estimatedMinutes": 35,
+      "status": "published",
+      "objectives": [
+        "Crear y modificar vistas con CREATE OR ALTER VIEW.",
+        "Usar vistas para exponer solo las columnas y filas que cada usuario necesita.",
+        "Saber cuándo una vista indexada vale la pena y qué exige."
+      ],
+      "theorySections": [
+        {
+          "id": "cap03-sec-1",
+          "title": "1. Qué es una vista y qué no es",
+          "body": "Una vista es una **consulta guardada con nombre**. No guarda datos: cada vez que la consultas, SQL Server sustituye su definición dentro de tu consulta y optimiza el conjunto.\n\nSirve para tres cosas:\n- **Reutilizar lógica** (la definición de \"cliente activo\" vive en un solo lugar).\n- **Simplificar** consultas con muchos `JOIN` para quien solo quiere leer.\n- **Seguridad**: das permiso sobre la vista y no sobre las tablas, y así ocultas columnas sensibles como salarios o documentos.\n\n`CREATE OR ALTER VIEW` crea la vista si no existe o la reemplaza conservando los permisos. Una vista no admite `ORDER BY` (salvo con `TOP`, y aun así no garantiza el orden de quien la consulta): ordena al consultarla.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER VIEW ventas.v_clientes_activos\nAS\nSELECT c.id, c.nombre, c.pais, MAX(p.fecha) AS ultimo_pedido\nFROM ventas.clientes AS c\nJOIN ventas.pedidos AS p ON p.cliente_id = c.id\nWHERE p.fecha >= DATEADD(day, -90, CAST(GETDATE() AS DATE))\nGROUP BY c.id, c.nombre, c.pais;\nGO\n\nSELECT TOP (10) * FROM ventas.v_clientes_activos ORDER BY ultimo_pedido DESC;",
+          "keyTakeaway": "Una vista es una consulta con nombre: no guarda datos ni garantiza orden."
+        },
+        {
+          "id": "cap03-sec-2",
+          "title": "2. Vistas que esconden problemas",
+          "body": "Las vistas se vuelven peligrosas cuando se **apilan**: una vista que lee otra vista, que lee otra con funciones escalares y `DISTINCT`. Quien la consulta ve una tabla simple, pero el optimizador recibe una consulta enorme y a veces no logra simplificarla. Si al pedir una sola columna se ejecutan siete `JOIN`, revisa la cadena de vistas.\n\nOtros dos cuidados:\n- `SELECT *` dentro de una vista guarda la lista de columnas **del momento en que se creó**; si agregas columnas a la tabla, la vista no las ve (o las desordena) hasta que ejecutas `sp_refreshview`. Lista siempre las columnas.\n- Puedes hacer `INSERT` o `UPDATE` a través de una vista simple de una sola tabla; con `WITH CHECK OPTION` impides que alguien escriba filas que la propia vista no mostraría.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER VIEW rrhh.v_empleados_ventas\nAS\nSELECT id, nombre, puesto, departamento_id\nFROM rrhh.empleados\nWHERE departamento_id = 3\nWITH CHECK OPTION;   -- no se puede mover a nadie fuera del depto. 3 a través de la vista\nGO",
+          "keyTakeaway": "Nunca SELECT * dentro de una vista y desconfía de las vistas apiladas."
+        },
+        {
+          "id": "cap03-sec-3",
+          "title": "3. Vistas indexadas",
+          "body": "Una **vista indexada** sí guarda datos: al crearle un índice clúster único, SQL Server materializa el resultado y lo mantiene al día con cada `INSERT`, `UPDATE` o `DELETE` en las tablas base. Es ideal para agregados que se leen mucho y cambian poco.\n\nRequisitos principales:\n- `WITH SCHEMABINDING`, que impide alterar las tablas base de forma que rompa la vista.\n- Nombres de dos partes y sin `SELECT *`.\n- Si hay `GROUP BY`, incluir `COUNT_BIG(*)` y no usar `AVG`, `MIN`, `MAX`, `OUTER JOIN` ni subconsultas.\n\nEl precio: cada escritura en las tablas base también actualiza la vista. En tablas con muchas escrituras puede salir caro. En ediciones distintas de Enterprise, consulta la vista con `WITH (NOEXPAND)` para que el optimizador use el índice.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER VIEW ventas.v_ventas_por_dia\nWITH SCHEMABINDING\nAS\nSELECT p.fecha,\n       SUM(d.cantidad * d.precio_unitario) AS ingreso,\n       COUNT_BIG(*) AS lineas\nFROM ventas.pedidos AS p\nJOIN ventas.detalle_pedido AS d ON d.pedido_id = p.id\nGROUP BY p.fecha;\nGO\nCREATE UNIQUE CLUSTERED INDEX ix_v_ventas_por_dia ON ventas.v_ventas_por_dia (fecha);\nGO\nSELECT fecha, ingreso FROM ventas.v_ventas_por_dia WITH (NOEXPAND)\nWHERE fecha >= '2026-06-01';",
+          "keyTakeaway": "La vista indexada es una tabla que SQL Server mantiene por ti: rápida al leer, más cara al escribir."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cómo escribir vistas que otros puedan usar sin sorpresas.",
+        "rules": [
+          "Usa `CREATE OR ALTER VIEW` para conservar permisos al cambiarla.",
+          "Lista las columnas; nunca `SELECT *` dentro de una vista.",
+          "No apiles más de dos niveles de vistas.",
+          "Da permisos sobre la vista, no sobre las tablas, cuando quieras ocultar columnas.",
+          "Ordena al consultar la vista, no dentro de ella."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "CREATE OR ALTER VIEW rrhh.v_directorio\nAS\nSELECT e.id, e.nombre, e.puesto, d.nombre AS departamento\nFROM rrhh.empleados AS e\nJOIN rrhh.departamentos AS d ON d.id = e.departamento_id;\nGO\nGRANT SELECT ON rrhh.v_directorio TO todos_los_empleados;"
+      },
+      "comparison": {
+        "scenario": "Hay que dar al equipo de soporte acceso a los empleados, pero sin el salario.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "GRANT SELECT ON rrhh.empleados TO soporte;\n-- \"Les pedimos que no miren la columna salario\"",
+        "juniorFlaws": [
+          "El permiso sobre la tabla expone todas las columnas, salario incluido.",
+          "La protección depende de la buena voluntad de cada persona.",
+          "Cualquier columna sensible que se agregue después también queda expuesta."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "CREATE OR ALTER VIEW rrhh.v_empleados_soporte\nAS\nSELECT id, nombre, puesto, departamento_id\nFROM rrhh.empleados;\nGO\nGRANT SELECT ON rrhh.v_empleados_soporte TO soporte;",
+        "intermediateBenefits": [
+          "Soporte solo puede leer las columnas que la vista expone.",
+          "Las columnas nuevas de la tabla no aparecen hasta que alguien las agregue a la vista.",
+          "El permiso es explícito y fácil de auditar."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap03-ej-1",
+          "title": "Práctica 1: Vista de pedidos con total",
+          "difficulty": "Básico",
+          "prompt": "Crea la vista `v_pedidos_total` con `id`, `cliente_id`, `fecha` y el `total` de cada pedido (suma de `cantidad * precio_unitario` de `detalle_pedido`). Luego consulta los 5 pedidos de mayor total.",
+          "hint": "GROUP BY dentro de la vista, ORDER BY al consultarla.",
+          "solutionExplanation": "La vista encapsula el cálculo del total; quien la consulta solo ve una tabla con una columna más. El orden se pide fuera, al consultarla.",
+          "solutionCode": "CREATE VIEW v_pedidos_total AS\nSELECT p.id, p.cliente_id, p.fecha,\n       SUM(d.cantidad * d.precio_unitario) AS total\nFROM pedidos AS p\nJOIN detalle_pedido AS d ON d.pedido_id = p.id\nGROUP BY p.id, p.cliente_id, p.fecha;\nGO\nSELECT TOP (5) id, cliente_id, total\nFROM v_pedidos_total\nORDER BY total DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap03-ej-2",
+          "title": "Práctica 2: Vista de seguridad",
+          "difficulty": "Intermedio",
+          "prompt": "Crea `rrhh.v_empleados_publico` que muestre `id`, `nombre`, `puesto` y el **nombre del departamento**, sin salario ni comisión, y da permiso de lectura al rol `consulta`.",
+          "hint": "JOIN con departamentos y GRANT SELECT sobre la vista.",
+          "solutionExplanation": "La vista expone solo lo público. El rol recibe permiso sobre la vista y nada sobre `rrhh.empleados`, así que no puede llegar al salario.",
+          "solutionCode": "CREATE OR ALTER VIEW rrhh.v_empleados_publico\nAS\nSELECT e.id, e.nombre, e.puesto, d.nombre AS departamento\nFROM rrhh.empleados AS e\nLEFT JOIN rrhh.departamentos AS d ON d.id = e.departamento_id;\nGO\nGRANT SELECT ON rrhh.v_empleados_publico TO consulta;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap03-ej-3",
+          "title": "Práctica 3: Convertirla en vista indexada",
+          "difficulty": "Avanzado",
+          "prompt": "Quieres materializar el ingreso por categoría de producto. Escribe la vista con lo que exige una vista indexada y su índice clúster único.",
+          "hint": "SCHEMABINDING, nombres de dos partes, COUNT_BIG(*) y nada de AVG.",
+          "solutionExplanation": "`SCHEMABINDING` ata la vista a las tablas; `COUNT_BIG(*)` es obligatorio con `GROUP BY`; el índice clúster único sobre la columna agrupada es lo que materializa los datos.",
+          "solutionCode": "CREATE OR ALTER VIEW ventas.v_ingreso_categoria\nWITH SCHEMABINDING\nAS\nSELECT pr.categoria,\n       SUM(d.cantidad * d.precio_unitario) AS ingreso,\n       COUNT_BIG(*) AS lineas\nFROM ventas.detalle_pedido AS d\nJOIN ventas.productos AS pr ON pr.id = d.producto_id\nGROUP BY pr.categoria;\nGO\nCREATE UNIQUE CLUSTERED INDEX ix_v_ingreso_categoria\n  ON ventas.v_ingreso_categoria (categoria);",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap03-q1",
+          "question": "¿Qué guarda en disco una vista normal, sin índice?",
+          "options": [
+            "Una copia completa de las filas que devuelve su consulta",
+            "Solo su definición; los datos se leen de las tablas al consultarla",
+            "Un resumen estadístico de las tablas que usa para responder rápido",
+            "Las filas del último resultado, hasta que alguien la vuelve a consultar"
+          ],
+          "correctIndex": 1,
+          "explanation": "Una vista normal es solo una consulta con nombre; la vista indexada es la que materializa datos."
+        },
+        {
+          "id": "cap03-q2",
+          "question": "¿Qué exige una vista indexada?",
+          "options": [
+            "Que solo lea una tabla sin ningún JOIN",
+            "Un ORDER BY dentro de su definición",
+            "WITH SCHEMABINDING y un índice clúster único",
+            "Usar SELECT * para incluir todas las columnas"
+          ],
+          "correctIndex": 2,
+          "explanation": "Sin `SCHEMABINDING` no se puede indexar y el primer índice debe ser clúster y único. Admite `INNER JOIN`."
+        },
+        {
+          "id": "cap03-q3",
+          "question": "¿Por qué no conviene `SELECT *` dentro de una vista?",
+          "options": [
+            "Obliga a SQL Server a ordenar el resultado por la clave",
+            "Hace que la vista se materialice en disco sin que lo pidas",
+            "Impide dar permisos de lectura sobre esa vista a otros roles",
+            "Fija las columnas del momento de creación y no ve las nuevas"
+          ],
+          "correctIndex": 3,
+          "explanation": "La lista de columnas se resuelve al crear la vista; los cambios en la tabla requieren `sp_refreshview` o recrearla."
+        }
+      ]
+    },
+    {
+      "id": "cap-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 2: Objetos programables",
+      "title": "Procedimientos almacenados I: parámetros y resultados",
+      "subtitle": "Encapsular lógica en el servidor: parámetros de entrada y salida, valores de retorno y las opciones que todo procedimiento debería llevar.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Crear procedimientos con parámetros de entrada con valor por defecto.",
+        "Devolver datos con conjuntos de resultados, parámetros OUTPUT y RETURN.",
+        "Aplicar SET NOCOUNT ON y nombres claros desde el primer procedimiento."
+      ],
+      "theorySections": [
+        {
+          "id": "cap04-sec-1",
+          "title": "1. Anatomía de un procedimiento",
+          "body": "Un procedimiento almacenado es un bloque de T-SQL con nombre que vive en la base y se ejecuta con `EXEC`. Ventajas frente a mandar el SQL desde la aplicación:\n- **Un solo lugar** para la lógica de negocio sobre los datos.\n- **Seguridad**: puedes dar `EXECUTE` sobre el procedimiento sin dar acceso a las tablas.\n- **Plan reutilizado**: se compila la primera vez y el plan queda en caché.\n- **Menos tráfico**: la aplicación manda un nombre y parámetros, no cientos de líneas.\n\nEmpieza casi siempre con `SET NOCOUNT ON`, que evita el mensaje \"(n filas afectadas)\" por cada instrucción. Ese mensaje viaja a la aplicación y algunos controladores lo confunden con un resultado.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE ventas.usp_pedidos_cliente\n  @cliente_id INT,\n  @desde      DATE = NULL          -- parámetro opcional\nAS\nBEGIN\n  SET NOCOUNT ON;\n\n  SELECT id, fecha, estado\n  FROM ventas.pedidos\n  WHERE cliente_id = @cliente_id\n    AND (@desde IS NULL OR fecha >= @desde)\n  ORDER BY fecha DESC;\nEND;\nGO\n\nEXEC ventas.usp_pedidos_cliente @cliente_id = 7;\nEXEC ventas.usp_pedidos_cliente @cliente_id = 7, @desde = '2026-03-01';",
+          "keyTakeaway": "Un procedimiento es lógica con nombre, permisos propios y plan en caché."
+        },
+        {
+          "id": "cap04-sec-2",
+          "title": "2. Tres formas de devolver información",
+          "body": "1. **Conjuntos de resultados**: cada `SELECT` sin asignación devuelve filas a quien llamó. Es lo normal para listados.\n2. **Parámetros OUTPUT**: para devolver valores sueltos, como el id recién creado. Se marcan `OUTPUT` en la definición **y** en la llamada.\n3. **RETURN**: devuelve un único entero. Por convención, `0` significa éxito y otro número un código de estado. No lo uses para devolver datos.\n\nPara obtener el id generado por un `IDENTITY` usa `SCOPE_IDENTITY()`, que se limita a tu instrucción. `@@IDENTITY` puede devolver el id que generó un trigger en otra tabla.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE ventas.usp_crear_pedido\n  @cliente_id INT,\n  @pedido_id  INT OUTPUT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  IF NOT EXISTS (SELECT 1 FROM ventas.clientes WHERE id = @cliente_id)\n    RETURN 1;                             -- código: cliente inexistente\n\n  INSERT INTO ventas.pedidos (cliente_id, fecha, estado)\n  VALUES (@cliente_id, CAST(GETDATE() AS DATE), 'pendiente');\n\n  SET @pedido_id = SCOPE_IDENTITY();\n  RETURN 0;\nEND;\nGO\n\nDECLARE @nuevo INT, @rc INT;\nEXEC @rc = ventas.usp_crear_pedido @cliente_id = 7, @pedido_id = @nuevo OUTPUT;\nSELECT @rc AS codigo, @nuevo AS pedido;",
+          "keyTakeaway": "SELECT para filas, OUTPUT para valores sueltos y RETURN solo para un código de estado."
+        },
+        {
+          "id": "cap04-sec-3",
+          "title": "3. Parámetros con valor de tabla",
+          "body": "Si la aplicación necesita mandar **muchas filas** (por ejemplo, las líneas de un pedido), no llames al procedimiento una vez por fila. Define un **tipo de tabla** y pásalo como parámetro `READONLY`: todas las filas viajan en una sola llamada y se insertan con una sola instrucción.\n\nNombra los procedimientos con un prefijo propio como `usp_` o simplemente con verbo y objeto. **Nunca** uses `sp_`: SQL Server busca primero los procedimientos `sp_` en la base `master`, lo que cuesta tiempo y puede ejecutar uno del sistema con el mismo nombre.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TYPE ventas.tipo_lineas AS TABLE (\n  producto_id INT NOT NULL,\n  cantidad    INT NOT NULL\n);\nGO\nCREATE OR ALTER PROCEDURE ventas.usp_agregar_lineas\n  @pedido_id INT,\n  @lineas    ventas.tipo_lineas READONLY\nAS\nBEGIN\n  SET NOCOUNT ON;\n  INSERT INTO ventas.detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario)\n  SELECT @pedido_id, l.producto_id, l.cantidad, p.precio\n  FROM @lineas AS l\n  JOIN ventas.productos AS p ON p.id = l.producto_id;\nEND;",
+          "keyTakeaway": "Muchas filas viajan en un parámetro de tabla, no en un bucle de llamadas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Lo mínimo que debe tener cualquier procedimiento en producción.",
+        "rules": [
+          "Empieza con `SET NOCOUNT ON`.",
+          "Usa `CREATE OR ALTER` y nombre de dos partes.",
+          "No uses el prefijo `sp_` en tus procedimientos.",
+          "Llama con parámetros con nombre (`@cliente_id = 7`), no por posición.",
+          "Usa `SCOPE_IDENTITY()` y no `@@IDENTITY`."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "CREATE OR ALTER PROCEDURE rrhh.usp_empleados_depto\n  @departamento_id INT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SELECT id, nombre, puesto\n  FROM rrhh.empleados\n  WHERE departamento_id = @departamento_id;\nEND;"
+      },
+      "comparison": {
+        "scenario": "La aplicación necesita el id del cliente recién creado.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "CREATE PROCEDURE sp_nuevo_cliente @nombre NVARCHAR(100)\nAS\nINSERT INTO clientes (nombre) VALUES (@nombre);\nSELECT @@IDENTITY;",
+        "juniorFlaws": [
+          "El prefijo `sp_` hace que SQL Server busque primero en `master`.",
+          "`@@IDENTITY` puede devolver un id generado por un trigger en otra tabla.",
+          "Sin `SET NOCOUNT ON` ni esquema, y el id llega como un conjunto de resultados suelto."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "CREATE OR ALTER PROCEDURE ventas.usp_crear_cliente\n  @nombre     NVARCHAR(100),\n  @cliente_id INT OUTPUT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  INSERT INTO ventas.clientes (nombre) VALUES (@nombre);\n  SET @cliente_id = SCOPE_IDENTITY();\nEND;",
+        "intermediateBenefits": [
+          "El id llega en un parámetro `OUTPUT` claro.",
+          "`SCOPE_IDENTITY()` solo ve la inserción de este procedimiento.",
+          "Nombre con esquema y prefijo propio."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap04-ej-1",
+          "title": "Práctica 1: Procedimiento de búsqueda",
+          "difficulty": "Básico",
+          "prompt": "Crea `ventas.usp_productos_categoria` que reciba `@categoria` y un `@precio_max` opcional, y devuelva los productos activos de esa categoría ordenados por precio.",
+          "hint": "Un parámetro con valor por defecto NULL y la condición (@p IS NULL OR …).",
+          "solutionExplanation": "Cuando `@precio_max` es NULL la condición se cumple siempre; cuando trae valor, filtra. `SET NOCOUNT ON` evita mensajes innecesarios.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE ventas.usp_productos_categoria\n  @categoria  NVARCHAR(50),\n  @precio_max DECIMAL(19,4) = NULL\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SELECT id, nombre, precio\n  FROM ventas.productos\n  WHERE categoria = @categoria\n    AND activo = 1\n    AND (@precio_max IS NULL OR precio <= @precio_max)\n  ORDER BY precio;\nEND;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap04-ej-2",
+          "title": "Práctica 2: Contar con OUTPUT",
+          "difficulty": "Intermedio",
+          "prompt": "Crea `rrhh.usp_resumen_depto` que reciba `@departamento_id` y devuelva en dos parámetros OUTPUT el número de empleados y el salario promedio. Muestra cómo llamarlo.",
+          "hint": "Puedes asignar los dos OUTPUT en un solo SELECT.",
+          "solutionExplanation": "Aquí `SELECT @a = …, @b = …` es seguro porque la consulta agregada siempre devuelve exactamente una fila.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE rrhh.usp_resumen_depto\n  @departamento_id INT,\n  @empleados       INT OUTPUT,\n  @salario_medio   DECIMAL(19,2) OUTPUT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SELECT @empleados = COUNT(*), @salario_medio = AVG(salario * 1.0)\n  FROM rrhh.empleados\n  WHERE departamento_id = @departamento_id;\nEND;\nGO\nDECLARE @n INT, @s DECIMAL(19,2);\nEXEC rrhh.usp_resumen_depto @departamento_id = 2, @empleados = @n OUTPUT, @salario_medio = @s OUTPUT;\nSELECT @n AS empleados, @s AS salario_medio;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap04-ej-3",
+          "title": "Práctica 3: Código de retorno",
+          "difficulty": "Intermedio",
+          "prompt": "Modifica un procedimiento `ventas.usp_cancelar_pedido @pedido_id` para que devuelva 1 si el pedido no existe, 2 si ya estaba entregado y 0 si lo cancela.",
+          "hint": "Comprueba los casos de error antes del UPDATE y usa RETURN en cada uno.",
+          "solutionExplanation": "Los `RETURN` tempranos dejan el camino feliz al final y limpio. Quien llama lee el código con `EXEC @rc = …`.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE ventas.usp_cancelar_pedido\n  @pedido_id INT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  DECLARE @estado VARCHAR(20) = (SELECT estado FROM ventas.pedidos WHERE id = @pedido_id);\n\n  IF @estado IS NULL RETURN 1;\n  IF @estado = 'entregado' RETURN 2;\n\n  UPDATE ventas.pedidos SET estado = 'cancelado' WHERE id = @pedido_id;\n  RETURN 0;\nEND;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap04-q1",
+          "question": "¿Para qué sirve `SET NOCOUNT ON` al inicio de un procedimiento?",
+          "options": [
+            "Evita enviar el mensaje de filas afectadas tras cada instrucción",
+            "Desactiva el conteo de filas que hace COUNT(*) en las consultas",
+            "Impide que el procedimiento modifique más de una fila a la vez",
+            "Hace que el procedimiento se recompile en cada ejecución"
+          ],
+          "correctIndex": 0,
+          "explanation": "Los mensajes \"(n filas afectadas)\" generan tráfico y confunden a algunos controladores. NOCOUNT no cambia el resultado de COUNT(*)."
+        },
+        {
+          "id": "cap04-q2",
+          "question": "¿Por qué no nombrar un procedimiento propio como `sp_algo`?",
+          "options": [
+            "SQL Server busca primero los sp_ en la base master",
+            "Los procedimientos sp_ no pueden devolver filas",
+            "Los nombres que empiezan por sp_ no admiten parámetros",
+            "El prefijo sp_ obliga a ejecutarlo como administrador"
+          ],
+          "correctIndex": 0,
+          "explanation": "El prefijo `sp_` está reservado para procedimientos del sistema; usarlo añade una búsqueda en `master` y riesgo de choque de nombres."
+        },
+        {
+          "id": "cap04-q3",
+          "question": "¿Cuál es la forma correcta de devolver el id recién insertado?",
+          "options": [
+            "Consultar MAX(id) de la tabla justo después",
+            "Leer @@ROWCOUNT en cuanto termina el INSERT",
+            "Asignar SCOPE_IDENTITY() a un parámetro OUTPUT",
+            "Devolver @@IDENTITY con la instrucción RETURN"
+          ],
+          "correctIndex": 2,
+          "explanation": "`SCOPE_IDENTITY()` solo ve tu inserción. `MAX(id)` falla con usuarios simultáneos y `@@ROWCOUNT` es el número de filas, no el id."
+        }
+      ]
+    },
+    {
+      "id": "cap-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2: Objetos programables",
+      "title": "Procedimientos almacenados II: errores y SQL dinámico seguro",
+      "subtitle": "TRY/CATCH, THROW y cómo construir consultas dinámicas sin abrir la puerta a la inyección SQL.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Capturar errores con TRY … CATCH y volver a lanzarlos con THROW.",
+        "Leer la información del error con ERROR_NUMBER, ERROR_MESSAGE y compañía.",
+        "Escribir SQL dinámico parametrizado con sp_executesql y QUOTENAME."
+      ],
+      "theorySections": [
+        {
+          "id": "cap05-sec-1",
+          "title": "1. TRY … CATCH y THROW",
+          "body": "Cuando una instrucción dentro de `BEGIN TRY` falla, el control salta a `BEGIN CATCH`. Allí puedes registrar el error, deshacer la transacción y avisar a quien llamó.\n\nDentro del `CATCH` tienes funciones con el detalle: `ERROR_NUMBER()`, `ERROR_MESSAGE()`, `ERROR_LINE()`, `ERROR_PROCEDURE()`, `ERROR_SEVERITY()`.\n\n**Regla de oro**: no te tragues el error. Si después de registrarlo no puedes resolverlo, vuelve a lanzarlo con `THROW;` (sin argumentos), que conserva el número y el mensaje originales. La instrucción anterior a `THROW` debe terminar en punto y coma.\n\nPara lanzar tus propios errores de negocio usa `THROW 50001, 'mensaje', 1;` (números de 50000 en adelante). `RAISERROR` es la forma antigua.",
+          "codeLanguage": "sql",
+          "codeSnippet": "BEGIN TRY\n  INSERT INTO ventas.pedidos (cliente_id, fecha, estado)\n  VALUES (9999, '2026-11-18', 'pendiente');   -- cliente inexistente: viola la FK\nEND TRY\nBEGIN CATCH\n  INSERT INTO log.errores (numero, mensaje, linea, procedimiento, ocurrido_en)\n  VALUES (ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE(), SYSDATETIME());\n  THROW;   -- relanza el error original\nEND CATCH;",
+          "keyTakeaway": "Registra en el CATCH y relanza con THROW; un CATCH vacío esconde errores."
+        },
+        {
+          "id": "cap05-sec-2",
+          "title": "2. Validaciones de negocio con THROW",
+          "body": "Un procedimiento debe comprobar sus reglas **antes** de escribir y fallar con un mensaje claro. Así la aplicación recibe un error con número propio que puede traducir para el usuario.\n\nAlgunos errores no los captura `TRY … CATCH`: los de compilación en el mismo lote (por ejemplo, un nombre de tabla mal escrito que no se puede resolver) y los de severidad 20 o más, que cierran la conexión. Por eso un script con una tabla inexistente puede fallar aunque esté dentro de `TRY`.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE fin.usp_transferir\n  @origen INT, @destino INT, @monto DECIMAL(19,4)\nAS\nBEGIN\n  SET NOCOUNT ON;\n  IF @monto <= 0\n    THROW 50001, 'El monto debe ser positivo.', 1;\n  IF @origen = @destino\n    THROW 50002, 'La cuenta de origen y destino son la misma.', 1;\n  IF (SELECT saldo FROM fin.cuentas WHERE id = @origen) < @monto\n    THROW 50003, 'Saldo insuficiente.', 1;\n  -- … el movimiento va en el capítulo 11, dentro de una transacción\nEND;",
+          "keyTakeaway": "Valida primero y lanza errores propios (50000+) con mensajes que se entienden."
+        },
+        {
+          "id": "cap05-sec-3",
+          "title": "3. SQL dinámico sin inyección",
+          "body": "A veces la consulta cambia según los parámetros (filtros opcionales, columna de orden elegida por el usuario). Construirla concatenando texto con valores del usuario abre la puerta a la **inyección SQL**: si alguien escribe `'; DROP TABLE clientes; --` en un buscador, ese texto se ejecuta.\n\nLa forma segura:\n- Los **valores** van como parámetros de `sp_executesql`, nunca concatenados.\n- Los **nombres** (columnas, tablas) no se pueden parametrizar: valídalos contra una lista permitida y envuélvelos con `QUOTENAME()`.\n\nAdemás, `sp_executesql` con parámetros reutiliza el plan entre llamadas; `EXEC(@sql)` con valores pegados genera un plan nuevo para cada valor distinto.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE ventas.usp_buscar_clientes\n  @pais   NVARCHAR(50) = NULL,\n  @nombre NVARCHAR(100) = NULL,\n  @orden  SYSNAME = N'nombre'\nAS\nBEGIN\n  SET NOCOUNT ON;\n  IF @orden NOT IN (N'nombre', N'pais', N'fecha_registro')\n    THROW 50010, 'Columna de orden no permitida.', 1;\n\n  DECLARE @sql NVARCHAR(MAX) = N'SELECT id, nombre, pais FROM ventas.clientes WHERE 1 = 1';\n  IF @pais   IS NOT NULL SET @sql += N' AND pais = @pais';\n  IF @nombre IS NOT NULL SET @sql += N' AND nombre LIKE @nombre + N''%''';\n  SET @sql += N' ORDER BY ' + QUOTENAME(@orden) + N';';\n\n  EXEC sys.sp_executesql @sql,\n       N'@pais NVARCHAR(50), @nombre NVARCHAR(100)',\n       @pais = @pais, @nombre = @nombre;\nEND;",
+          "keyTakeaway": "Valores como parámetros de sp_executesql; nombres validados y con QUOTENAME."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que los errores se vean y el SQL dinámico sea seguro.",
+        "rules": [
+          "Todo procedimiento que escribe datos tiene `TRY … CATCH`.",
+          "Nunca dejes un `CATCH` vacío: registra y relanza con `THROW`.",
+          "Usa números de error de 50000 en adelante para tus reglas de negocio.",
+          "Jamás concatenes valores del usuario en una cadena de SQL.",
+          "Nombres dinámicos: lista permitida + `QUOTENAME()`."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "BEGIN TRY\n  EXEC fin.usp_transferir @origen = 1, @destino = 2, @monto = 150;\nEND TRY\nBEGIN CATCH\n  SELECT ERROR_NUMBER() AS numero, ERROR_MESSAGE() AS mensaje;\n  THROW;\nEND CATCH;"
+      },
+      "comparison": {
+        "scenario": "Un buscador de productos arma la consulta pegando el texto del usuario.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "CREATE PROCEDURE ventas.usp_buscar @texto NVARCHAR(100)\nAS\nDECLARE @sql NVARCHAR(MAX) =\n  N'SELECT id, nombre FROM ventas.productos WHERE nombre LIKE ''%' + @texto + N'%''';\nEXEC (@sql);",
+        "juniorFlaws": [
+          "Si `@texto` trae una comilla y otra instrucción, se ejecuta tal cual: inyección SQL.",
+          "Cada búsqueda distinta compila un plan nuevo y llena la caché.",
+          "No hay ninguna razón para que esta consulta sea dinámica."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "CREATE OR ALTER PROCEDURE ventas.usp_buscar @texto NVARCHAR(100)\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SELECT id, nombre\n  FROM ventas.productos\n  WHERE nombre LIKE N'%' + @texto + N'%';\nEND;",
+        "intermediateBenefits": [
+          "El valor nunca se convierte en código: viaja como parámetro.",
+          "Un solo plan para todas las búsquedas.",
+          "Si de verdad hiciera falta SQL dinámico, se usaría `sp_executesql` con `@texto` como parámetro."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap05-ej-1",
+          "title": "Práctica 1: Registrar y relanzar",
+          "difficulty": "Básico",
+          "prompt": "Envuelve un `DELETE FROM ventas.clientes WHERE id = @id;` en `TRY … CATCH` de modo que, si falla (por ejemplo, porque el cliente tiene pedidos), se guarde el error en `log.errores` y se relance.",
+          "hint": "INSERT en el CATCH con las funciones ERROR_*, y luego THROW;",
+          "solutionExplanation": "El borrado puede fallar por la clave foránea. El `CATCH` deja constancia del error y `THROW;` lo devuelve intacto a quien llamó.",
+          "solutionCode": "DECLARE @id INT = 5;\nBEGIN TRY\n  DELETE FROM ventas.clientes WHERE id = @id;\nEND TRY\nBEGIN CATCH\n  INSERT INTO log.errores (numero, mensaje, ocurrido_en)\n  VALUES (ERROR_NUMBER(), ERROR_MESSAGE(), SYSDATETIME());\n  THROW;\nEND CATCH;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap05-ej-2",
+          "title": "Práctica 2: Validar antes de escribir",
+          "difficulty": "Intermedio",
+          "prompt": "Crea `rrhh.usp_subir_salario @empleado_id, @porcentaje` que lance el error 50020 si el porcentaje no está entre 0 y 30, y 50021 si el empleado no existe. Si todo está bien, aplica la subida.",
+          "hint": "Dos IF con THROW antes del UPDATE.",
+          "solutionExplanation": "Las reglas se comprueban antes de tocar datos. Cada error tiene su número, lo que permite a la aplicación mostrar un mensaje distinto para cada caso.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE rrhh.usp_subir_salario\n  @empleado_id INT, @porcentaje DECIMAL(5,2)\nAS\nBEGIN\n  SET NOCOUNT ON;\n  IF @porcentaje NOT BETWEEN 0 AND 30\n    THROW 50020, 'El porcentaje debe estar entre 0 y 30.', 1;\n  IF NOT EXISTS (SELECT 1 FROM rrhh.empleados WHERE id = @empleado_id)\n    THROW 50021, 'El empleado no existe.', 1;\n\n  UPDATE rrhh.empleados\n  SET salario = salario * (1 + @porcentaje / 100)\n  WHERE id = @empleado_id;\nEND;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap05-ej-3",
+          "title": "Práctica 3: Orden dinámico seguro",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe la parte de un procedimiento que ordena `ventas.productos` por la columna que llega en `@orden` (solo se permiten `nombre`, `precio` o `categoria`) y en la dirección `@dir` (`ASC` o `DESC`).",
+          "hint": "Ni la columna ni la dirección pueden ir como parámetro: valida ambas.",
+          "solutionExplanation": "La columna pasa por una lista permitida y `QUOTENAME`; la dirección se elige con un `IIF` entre dos literales fijos, así ningún texto del usuario llega al SQL.",
+          "solutionCode": "IF @orden NOT IN (N'nombre', N'precio', N'categoria')\n  THROW 50030, 'Columna de orden no permitida.', 1;\n\nDECLARE @sql NVARCHAR(MAX) =\n  N'SELECT id, nombre, categoria, precio FROM ventas.productos ORDER BY '\n  + QUOTENAME(@orden) + IIF(@dir = N'DESC', N' DESC', N' ASC') + N';';\n\nEXEC sys.sp_executesql @sql;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap05-q1",
+          "question": "¿Qué hace `THROW;` sin argumentos dentro de un bloque CATCH?",
+          "options": [
+            "Termina el bloque CATCH sin informar el error a quien llamó",
+            "Relanza el error capturado con su número y mensaje originales",
+            "Lanza un error genérico con el número 50000 y sin mensaje",
+            "Reintenta la instrucción que falló dentro del bloque TRY"
+          ],
+          "correctIndex": 1,
+          "explanation": "`THROW;` sin argumentos solo se puede usar dentro de `CATCH` y propaga el error original."
+        },
+        {
+          "id": "cap05-q2",
+          "question": "¿Cuál es la forma segura de pasar un valor del usuario a SQL dinámico?",
+          "options": [
+            "Como parámetro de sp_executesql",
+            "Concatenado y envuelto en QUOTENAME",
+            "Como texto dentro de EXEC(@sql)",
+            "Concatenado tras duplicar las comillas"
+          ],
+          "correctIndex": 0,
+          "explanation": "Solo los parámetros separan por completo datos y código. `QUOTENAME` es para nombres de objetos, no para valores."
+        },
+        {
+          "id": "cap05-q3",
+          "question": "¿Qué errores NO captura un bloque TRY … CATCH en el mismo lote?",
+          "options": [
+            "Los de compilación, como un objeto que no se puede resolver",
+            "Las divisiones por cero dentro de una consulta SELECT",
+            "Los de clave foránea al insertar una fila sin su padre",
+            "Los errores de negocio lanzados con THROW 50001 en el TRY"
+          ],
+          "correctIndex": 0,
+          "explanation": "Los errores de compilación o de resolución diferida en el mismo nivel no pasan por el `CATCH`; tampoco los de severidad 20 o más."
+        }
+      ]
+    },
+    {
+      "id": "cap-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 2: Objetos programables",
+      "title": "Funciones y disparadores",
+      "subtitle": "Funciones escalares y de tabla, por qué unas se integran en el plan y otras no, y cómo escribir triggers que no se vuelvan una trampa.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Distinguir funciones escalares, de tabla en línea y de varias instrucciones.",
+        "Reemplazar funciones escalares lentas por funciones de tabla en línea con CROSS APPLY.",
+        "Escribir triggers que trabajen por conjuntos con inserted y deleted."
+      ],
+      "theorySections": [
+        {
+          "id": "cap06-sec-1",
+          "title": "1. Tipos de funciones",
+          "body": "SQL Server tiene tres tipos de funciones de usuario:\n- **Escalar**: devuelve un valor. Cómoda, pero históricamente se ejecuta **una vez por fila** y bloquea el paralelismo. SQL Server 2019 puede integrarlas en el plan (*inlining*) solo si cumplen ciertas condiciones.\n- **De tabla en línea** (*inline TVF*): un `RETURN (SELECT …)` de una sola consulta. El optimizador la trata como una vista con parámetros y la integra en el plan. Es la más rápida.\n- **De tabla de varias instrucciones** (*multi-statement TVF*): llena una variable de tabla con varias instrucciones. El optimizador estima mal cuántas filas devuelve.\n\nLas funciones no pueden modificar datos ni usar `TRY … CATCH`: para eso están los procedimientos.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Escalar: cómoda pero se evalúa fila a fila\nCREATE OR ALTER FUNCTION ventas.fn_total_pedido (@pedido_id INT)\nRETURNS DECIMAL(19,4)\nAS\nBEGIN\n  RETURN (SELECT SUM(cantidad * precio_unitario)\n          FROM ventas.detalle_pedido WHERE pedido_id = @pedido_id);\nEND;\nGO\n-- De tabla en línea: el optimizador la integra en el plan\nCREATE OR ALTER FUNCTION ventas.tvf_total_pedido (@pedido_id INT)\nRETURNS TABLE\nAS\nRETURN (SELECT SUM(cantidad * precio_unitario) AS total\n        FROM ventas.detalle_pedido WHERE pedido_id = @pedido_id);",
+          "keyTakeaway": "Si puedes escribirla como una sola consulta, hazla función de tabla en línea."
+        },
+        {
+          "id": "cap06-sec-2",
+          "title": "2. CROSS APPLY con funciones de tabla",
+          "body": "`CROSS APPLY` ejecuta una función de tabla (o una subconsulta) **por cada fila** de la izquierda, pasándole valores de esa fila. Con una función en línea, el optimizador la desarma y suele producir el mismo plan que un `JOIN` bien escrito.\n\n`OUTER APPLY` hace lo mismo pero conserva las filas de la izquierda cuando la función no devuelve nada (como un `LEFT JOIN`).\n\nUn uso clásico: \"los 3 últimos pedidos de cada cliente\", que con `JOIN` es incómodo y con `APPLY` y `TOP` es directo.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SELECT p.id, p.fecha, t.total\nFROM ventas.pedidos AS p\nCROSS APPLY ventas.tvf_total_pedido(p.id) AS t\nWHERE p.fecha >= '2026-06-01';\n\n-- Los 3 últimos pedidos de cada cliente\nSELECT c.nombre, u.id, u.fecha\nFROM ventas.clientes AS c\nCROSS APPLY (SELECT TOP (3) id, fecha FROM ventas.pedidos\n             WHERE cliente_id = c.id ORDER BY fecha DESC) AS u;",
+          "keyTakeaway": "APPLY pasa columnas de cada fila a una función o subconsulta; OUTER APPLY conserva las filas sin resultado."
+        },
+        {
+          "id": "cap06-sec-3",
+          "title": "3. Triggers con inserted y deleted",
+          "body": "Un **trigger** `AFTER INSERT, UPDATE, DELETE` se ejecuta automáticamente tras la instrucción, **una vez por instrucción**, no una vez por fila. Dentro tienes dos tablas virtuales:\n- `inserted`: las filas nuevas (o el valor nuevo en un `UPDATE`).\n- `deleted`: las filas borradas (o el valor anterior en un `UPDATE`).\n\nEl error más común es escribir el trigger como si hubiera una sola fila (`SELECT @id = id FROM inserted`): funciona en pruebas y falla en silencio cuando alguien actualiza 500 filas a la vez.\n\nUsa triggers para auditoría y reglas que no se pueden expresar con restricciones. Para validar valores, una restricción `CHECK` o `FOREIGN KEY` es más simple y más rápida. El trigger corre dentro de la misma transacción: si es lento, toda escritura en la tabla se vuelve lenta.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER TRIGGER rrhh.tr_empleados_auditoria_salario\nON rrhh.empleados\nAFTER UPDATE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  IF NOT UPDATE(salario) RETURN;\n\n  INSERT INTO rrhh.auditoria_salarios (empleado_id, salario_antes, salario_despues, cambiado_en, usuario)\n  SELECT d.id, d.salario, i.salario, SYSDATETIME(), SUSER_SNAME()\n  FROM inserted AS i\n  JOIN deleted  AS d ON d.id = i.id\n  WHERE i.salario <> d.salario;\nEND;",
+          "keyTakeaway": "Un trigger recibe todas las filas afectadas a la vez: escríbelo con JOIN sobre inserted y deleted."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para funciones y triggers que no degradan el servidor.",
+        "rules": [
+          "Prefiere funciones de tabla en línea a escalares y de varias instrucciones.",
+          "No llames funciones escalares que leen tablas dentro de `WHERE` o `SELECT` de consultas grandes.",
+          "Escribe los triggers siempre para varias filas.",
+          "Antes de un trigger, considera una restricción `CHECK`, `DEFAULT` o `FOREIGN KEY`.",
+          "Mantén los triggers cortos: corren dentro de la transacción de quien escribe."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "ALTER TABLE ventas.productos\n  ADD CONSTRAINT ck_productos_precio CHECK (precio >= 0);\n-- Una restricción es más simple y rápida que un trigger que valida el precio"
+      },
+      "comparison": {
+        "scenario": "Un trigger debe marcar la fecha de modificación de los productos actualizados.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "CREATE TRIGGER tr_productos_mod ON ventas.productos AFTER UPDATE\nAS\nBEGIN\n  DECLARE @id INT;\n  SELECT @id = id FROM inserted;\n  UPDATE ventas.productos SET modificado_en = GETDATE() WHERE id = @id;\nEND;",
+        "juniorFlaws": [
+          "Supone una sola fila: si se actualizan 200 productos, solo marca uno.",
+          "No avisa del problema; el error pasa desapercibido durante meses.",
+          "Le falta `SET NOCOUNT ON` y el esquema en el nombre."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "CREATE OR ALTER TRIGGER ventas.tr_productos_mod ON ventas.productos AFTER UPDATE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  UPDATE p SET modificado_en = SYSDATETIME()\n  FROM ventas.productos AS p\n  JOIN inserted AS i ON i.id = p.id;\nEND;",
+        "intermediateBenefits": [
+          "Marca todas las filas afectadas por la instrucción.",
+          "Una sola actualización basada en conjuntos.",
+          "Sin mensajes de filas afectadas extra."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap06-ej-1",
+          "title": "Práctica 1: Función de tabla en línea",
+          "difficulty": "Básico",
+          "prompt": "Crea `rrhh.tvf_empleados_depto(@departamento_id)` que devuelva `id`, `nombre` y `salario` de los empleados de ese departamento, y úsala para listar los del departamento 2.",
+          "hint": "RETURNS TABLE AS RETURN (SELECT …).",
+          "solutionExplanation": "Una función de tabla en línea es una vista con parámetros: se consulta en el `FROM` como si fuera una tabla.",
+          "solutionCode": "CREATE OR ALTER FUNCTION rrhh.tvf_empleados_depto (@departamento_id INT)\nRETURNS TABLE\nAS\nRETURN (SELECT id, nombre, salario\n        FROM rrhh.empleados\n        WHERE departamento_id = @departamento_id);\nGO\nSELECT * FROM rrhh.tvf_empleados_depto(2) ORDER BY salario DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap06-ej-2",
+          "title": "Práctica 2: El empleado mejor pagado de cada departamento",
+          "difficulty": "Intermedio",
+          "prompt": "Usa `CROSS APPLY` con `TOP (1)` para mostrar, por cada departamento, su nombre y el empleado con mayor salario.",
+          "hint": "La subconsulta del APPLY filtra por d.id y ordena por salario DESC.",
+          "solutionExplanation": "Para cada fila de departamentos, el `APPLY` busca su empleado mejor pagado. Con `OUTER APPLY` aparecerían también los departamentos sin empleados.",
+          "solutionCode": "SELECT d.nombre AS departamento, t.nombre AS empleado, t.salario\nFROM rrhh.departamentos AS d\nCROSS APPLY (SELECT TOP (1) e.nombre, e.salario\n             FROM rrhh.empleados AS e\n             WHERE e.departamento_id = d.id\n             ORDER BY e.salario DESC) AS t;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap06-ej-3",
+          "title": "Práctica 3: Trigger de auditoría de borrados",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe un trigger que, al borrar pedidos, copie las filas borradas a `ventas.pedidos_borrados` con la fecha y el usuario que borró.",
+          "hint": "AFTER DELETE y un INSERT … SELECT desde deleted.",
+          "solutionExplanation": "La tabla `deleted` contiene todas las filas borradas por la instrucción, así que un único `INSERT … SELECT` las guarda todas.",
+          "solutionCode": "CREATE OR ALTER TRIGGER ventas.tr_pedidos_borrados\nON ventas.pedidos\nAFTER DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  INSERT INTO ventas.pedidos_borrados (id, cliente_id, fecha, estado, borrado_en, usuario)\n  SELECT id, cliente_id, fecha, estado, SYSDATETIME(), SUSER_SNAME()\n  FROM deleted;\nEND;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap06-q1",
+          "question": "¿Qué tipo de función suele rendir mejor en consultas grandes?",
+          "options": [
+            "La de tabla en línea, porque se integra en el plan",
+            "Todas rinden igual, porque se compilan del mismo modo",
+            "La escalar, porque devuelve un único valor por fila",
+            "La de varias instrucciones, porque usa una tabla propia"
+          ],
+          "correctIndex": 0,
+          "explanation": "La función de tabla en línea se expande dentro de la consulta como una vista; las otras dos suelen ejecutarse aparte."
+        },
+        {
+          "id": "cap06-q2",
+          "question": "Un UPDATE modifica 300 filas de una tabla con un trigger AFTER UPDATE. ¿Cuántas veces se ejecuta el trigger?",
+          "options": [
+            "Ninguna, porque solo se dispara con una fila a la vez",
+            "Una vez, con las 300 filas en inserted y deleted",
+            "300 veces, una por cada fila modificada en la tabla",
+            "Dos veces, una para inserted y otra para deleted"
+          ],
+          "correctIndex": 1,
+          "explanation": "Los triggers de SQL Server son por instrucción. Por eso deben escribirse para varias filas."
+        },
+        {
+          "id": "cap06-q3",
+          "question": "¿Qué diferencia hay entre CROSS APPLY y OUTER APPLY?",
+          "options": [
+            "OUTER APPLY ejecuta la parte derecha una sola vez para toda la tabla",
+            "OUTER APPLY conserva las filas cuando la parte derecha no devuelve nada",
+            "CROSS APPLY solo admite funciones y OUTER APPLY solo admite subconsultas",
+            "CROSS APPLY devuelve las filas de la derecha que no tienen pareja"
+          ],
+          "correctIndex": 1,
+          "explanation": "Es la misma diferencia que entre `INNER JOIN` y `LEFT JOIN`."
+        }
+      ]
+    },
+    {
+      "id": "cap-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3: Índices y planes de ejecución",
+      "title": "Cómo se guardan los datos: páginas, heaps e índices",
+      "subtitle": "Lo que hay debajo de una tabla: páginas de 8 KB, montones sin orden y el árbol B que hace posibles las búsquedas rápidas.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es una página y por qué SQL Server mide el trabajo en páginas leídas.",
+        "Diferenciar un heap, un índice clúster y un índice no clúster.",
+        "Recorrer un árbol B y distinguir una búsqueda (Seek) de un recorrido completo (Scan)."
+      ],
+      "theorySections": [
+        {
+          "id": "cap07-sec-1",
+          "title": "1. Páginas: la unidad de trabajo",
+          "body": "SQL Server guarda todo en **páginas de 8 KB**. Una fila no se lee sola: se lee la página entera donde está. Ocho páginas forman una *extensión* (64 KB).\n\nPor eso el costo de una consulta se mide en **lecturas lógicas** (páginas leídas desde memoria) y **lecturas físicas** (páginas que hubo que traer del disco). `SET STATISTICS IO ON` te dice cuántas páginas leyó cada tabla, y es la métrica más útil para comparar dos versiones de una consulta: no depende de lo ocupado que esté el servidor en ese momento.\n\nFilas más anchas significan menos filas por página, más páginas y más lecturas. Elegir bien los tipos (capítulo 1) también es rendimiento.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SET STATISTICS IO ON;\n\nSELECT id, nombre FROM ventas.clientes WHERE pais = 'Perú';\n\n-- Pestaña Mensajes:\n-- Table 'clientes'. Scan count 1, logical reads 1245, physical reads 0 …\n\nSET STATISTICS IO OFF;",
+          "keyTakeaway": "El motor trabaja en páginas de 8 KB; menos páginas leídas es una consulta más rápida."
+        },
+        {
+          "id": "cap07-sec-2",
+          "title": "2. Heap, índice clúster e índice no clúster",
+          "body": "- Un **heap** es una tabla sin índice clúster: las filas quedan donde caben, sin orden. Para encontrar algo hay que leerlo todo (*Table Scan*).\n- Un **índice clúster** **es** la tabla, ordenada por su clave y organizada como árbol B. Solo puede haber uno por tabla. Por defecto, la `PRIMARY KEY` crea el clúster.\n- Un **índice no clúster** es una estructura aparte, también en árbol B, con la clave del índice y un puntero a la fila: la clave del clúster (o la dirección física si la tabla es un heap). Puede haber muchos.\n\nUna buena clave de clúster es **estrecha, única, estable e incremental**: un `INT IDENTITY` o un `BIGINT` cumplen las cuatro. Un `UNIQUEIDENTIFIER` con `NEWID()` es ancho y aleatorio: cada inserción cae en una página al azar y la parte (*page split*), lo que fragmenta el índice.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE TABLE ventas.pedidos (\n  id         INT IDENTITY(1,1) NOT NULL,\n  cliente_id INT NOT NULL,\n  fecha      DATE NOT NULL,\n  estado     VARCHAR(20) NOT NULL,\n  CONSTRAINT pk_pedidos PRIMARY KEY CLUSTERED (id)   -- la tabla se ordena por id\n);\n\nCREATE NONCLUSTERED INDEX ix_pedidos_cliente\n  ON ventas.pedidos (cliente_id);                     -- estructura aparte que apunta a id",
+          "keyTakeaway": "El índice clúster es la tabla ordenada; los no clúster son atajos que apuntan a ella."
+        },
+        {
+          "id": "cap07-sec-3",
+          "title": "3. El árbol B: Seek frente a Scan",
+          "body": "Un índice se organiza como un **árbol B**: una página raíz, uno o más niveles intermedios y el nivel hoja. Cada página intermedia dice \"las claves de tal a tal están en esta página de abajo\".\n\n- Un **Index Seek** baja por el árbol: raíz, intermedia, hoja. Con un millón de filas el árbol suele tener 3 o 4 niveles, así que encontrar una fila cuesta unas 3 o 4 lecturas.\n- Un **Index Scan** recorre todo el nivel hoja de principio a fin.\n- Un **Range Scan** (que en el plan también aparece como Seek) baja hasta la primera clave del rango y desde ahí avanza por las hojas, que están enlazadas entre sí.\n\nUn Scan no siempre es malo: si vas a devolver la mitad de la tabla, recorrerla es lo más barato. Es malo cuando buscabas unas pocas filas.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Seek: baja por el árbol del índice clúster hasta id = 5000\nSELECT * FROM ventas.pedidos WHERE id = 5000;\n\n-- Seek de rango: baja hasta 5000 y avanza por las hojas\nSELECT * FROM ventas.pedidos WHERE id BETWEEN 5000 AND 5100;\n\n-- Scan: no hay índice que empiece por estado, hay que leer todas las hojas\nSELECT * FROM ventas.pedidos WHERE estado = 'pendiente';",
+          "keyTakeaway": "Seek baja por el árbol en pocas lecturas; Scan recorre todas las hojas.",
+          "diagram": {
+            "type": "indice-arbol-b"
+          }
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Decisiones de almacenamiento que conviene tomar al crear la tabla.",
+        "rules": [
+          "Toda tabla permanente lleva un índice clúster, salvo una razón medida para no tenerlo.",
+          "Clave de clúster estrecha, única, estable e incremental.",
+          "Evita `NEWID()` como clave de clúster; si necesitas GUID, usa `NEWSEQUENTIALID()` o un clúster sobre otra columna.",
+          "Compara versiones de una consulta por lecturas lógicas, no solo por tiempo."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "CREATE TABLE app.sesiones (\n  id         BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT pk_sesiones PRIMARY KEY CLUSTERED,\n  token      UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),\n  usuario_id INT NOT NULL,\n  creada_en  DATETIME2(0) NOT NULL\n);\nCREATE UNIQUE NONCLUSTERED INDEX ux_sesiones_token ON app.sesiones (token);"
+      },
+      "comparison": {
+        "scenario": "Una tabla de eventos usa un GUID aleatorio como clave primaria clúster.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "CREATE TABLE app.eventos (\n  id    UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID() PRIMARY KEY,\n  tipo  VARCHAR(30) NOT NULL,\n  fecha DATETIME2(0) NOT NULL\n);",
+        "juniorFlaws": [
+          "Cada inserción cae en un punto aleatorio del índice y parte páginas.",
+          "16 bytes por clave, copiados en cada índice no clúster de la tabla.",
+          "El índice se fragmenta rápido y las lecturas por rango de fecha no ayudan."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "CREATE TABLE app.eventos (\n  id         BIGINT IDENTITY(1,1) NOT NULL CONSTRAINT pk_eventos PRIMARY KEY CLUSTERED,\n  id_publico UNIQUEIDENTIFIER NOT NULL DEFAULT NEWID(),\n  tipo       VARCHAR(30) NOT NULL,\n  fecha      DATETIME2(0) NOT NULL\n);\nCREATE UNIQUE INDEX ux_eventos_publico ON app.eventos (id_publico);",
+        "intermediateBenefits": [
+          "Las inserciones van siempre al final: sin divisiones de página.",
+          "Clave de 8 bytes en lugar de 16 en todos los índices.",
+          "El GUID sigue disponible para exponerlo fuera, con su propio índice."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap07-ej-1",
+          "title": "Práctica 1: Medir lecturas",
+          "difficulty": "Básico",
+          "prompt": "Activa `STATISTICS IO`, ejecuta dos consultas sobre `ventas.pedidos` (una por `id = 100` y otra por `estado = 'pendiente'`) y explica cuál debería leer menos páginas y por qué.",
+          "hint": "La tabla tiene clúster sobre id y ningún índice sobre estado.",
+          "solutionExplanation": "La búsqueda por `id` baja por el árbol del clúster en 2 o 3 lecturas. La de `estado` no tiene índice que empiece por esa columna y debe recorrer todas las hojas.",
+          "solutionCode": "SET STATISTICS IO ON;\nSELECT * FROM ventas.pedidos WHERE id = 100;              -- Seek: pocas lecturas\nSELECT * FROM ventas.pedidos WHERE estado = 'pendiente';  -- Scan: todas las páginas\nSET STATISTICS IO OFF;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap07-ej-2",
+          "title": "Práctica 2: Ver los índices de una tabla",
+          "difficulty": "Intermedio",
+          "prompt": "Consulta las vistas del sistema para listar los índices de `ventas.pedidos` con su tipo y si son únicos.",
+          "hint": "sys.indexes tiene name, type_desc e is_unique; filtra con OBJECT_ID.",
+          "solutionExplanation": "`sys.indexes` tiene una fila por índice (y una fila HEAP si la tabla no tiene clúster). `type_desc` dice si es CLUSTERED o NONCLUSTERED.",
+          "solutionCode": "SELECT i.name, i.type_desc, i.is_unique, i.is_primary_key\nFROM sys.indexes AS i\nWHERE i.object_id = OBJECT_ID(N'ventas.pedidos')\nORDER BY i.index_id;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap07-ej-3",
+          "title": "Práctica 3: Elegir la clave de clúster",
+          "difficulty": "Intermedio",
+          "prompt": "Una tabla `fin.movimientos` recibe 2 millones de filas al día y casi siempre se consulta por rango de `fecha`. Propón su clave primaria y su índice clúster.",
+          "hint": "La clave primaria y el clúster no tienen que ser la misma columna.",
+          "solutionExplanation": "La clave primaria puede ser un `BIGINT IDENTITY` no clúster, y el clúster ir sobre `(fecha, id)`: incremental, único gracias al id, y ordenado por la columna de los rangos.",
+          "solutionCode": "CREATE TABLE fin.movimientos (\n  id     BIGINT IDENTITY(1,1) NOT NULL,\n  cuenta INT NOT NULL,\n  fecha  DATETIME2(0) NOT NULL,\n  monto  DECIMAL(19,4) NOT NULL,\n  CONSTRAINT pk_movimientos PRIMARY KEY NONCLUSTERED (id)\n);\nCREATE UNIQUE CLUSTERED INDEX cx_movimientos_fecha ON fin.movimientos (fecha, id);",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap07-q1",
+          "question": "¿Cuánto mide una página de datos en SQL Server?",
+          "options": [
+            "512 bytes",
+            "64 KB",
+            "8 KB",
+            "1 MB"
+          ],
+          "correctIndex": 2,
+          "explanation": "Todo se guarda en páginas de 8 KB; 64 KB es una extensión de ocho páginas."
+        },
+        {
+          "id": "cap07-q2",
+          "question": "¿Cuántos índices clúster puede tener una tabla?",
+          "options": [
+            "Ninguno si la tabla ya tiene una clave primaria",
+            "Hasta mil, igual que los índices no clúster",
+            "Uno, porque el clúster es la propia tabla ordenada",
+            "Uno por cada columna que forme parte de la clave"
+          ],
+          "correctIndex": 2,
+          "explanation": "El índice clúster define el orden físico de la tabla, así que solo puede haber uno."
+        },
+        {
+          "id": "cap07-q3",
+          "question": "En un índice de un millón de filas, ¿cuántas páginas lee un Index Seek de una sola fila?",
+          "options": [
+            "Siempre exactamente una sola página",
+            "La mitad de las páginas, en promedio",
+            "Unas pocas, una por cada nivel del árbol",
+            "Todas las páginas del nivel hoja del índice"
+          ],
+          "correctIndex": 2,
+          "explanation": "El árbol suele tener 3 o 4 niveles; el Seek lee una página por nivel."
+        }
+      ]
+    },
+    {
+      "id": "cap-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3: Índices y planes de ejecución",
+      "title": "Diseño de índices y consultas sargables",
+      "subtitle": "Qué columnas van en la clave y en qué orden, cuándo usar INCLUDE e índices filtrados, y cómo escribir filtros que el índice pueda usar.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Ordenar las columnas de un índice compuesto según los filtros de la consulta.",
+        "Crear índices de cobertura con INCLUDE e índices filtrados.",
+        "Reescribir filtros no sargables para que permitan un Seek."
+      ],
+      "theorySections": [
+        {
+          "id": "cap08-sec-1",
+          "title": "1. Índices compuestos y el orden de sus columnas",
+          "body": "Un índice sobre `(cliente_id, fecha)` está ordenado primero por cliente y, dentro de cada cliente, por fecha. Como una guía telefónica ordenada por apellido y luego por nombre: sirve para buscar por apellido, o por apellido y nombre, pero **no** para buscar solo por nombre.\n\nReglas para elegir el orden:\n1. Primero las columnas que se filtran por **igualdad** (`=`).\n2. Después la columna de **rango** (`>`, `BETWEEN`, `LIKE 'abc%'`) o la del `ORDER BY`.\n3. Lo que va después de un rango ya no sirve para buscar, solo para leer.\n\nUn índice sobre `(cliente_id, fecha)` hace innecesario otro solo sobre `(cliente_id)`: el primero ya cubre ese caso.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Consulta frecuente\nSELECT id, fecha, estado\nFROM ventas.pedidos\nWHERE cliente_id = @cliente AND fecha >= @desde\nORDER BY fecha;\n\n-- Igualdad primero, rango después: Seek y además ya sale ordenado por fecha\nCREATE INDEX ix_pedidos_cliente_fecha ON ventas.pedidos (cliente_id, fecha);",
+          "keyTakeaway": "Igualdad primero, luego rango u orden; la primera columna decide si el índice se puede usar."
+        },
+        {
+          "id": "cap08-sec-2",
+          "title": "2. Cobertura con INCLUDE e índices filtrados",
+          "body": "Si el índice no tiene todas las columnas que pide la consulta, el motor hace un **Key Lookup** por cada fila: vuelve al clúster a buscar lo que falta. Con 20 filas no importa; con 50.000 es el cuello de botella.\n\n`INCLUDE` añade columnas **solo al nivel hoja** del índice: no sirven para buscar, pero evitan el Lookup. Es más barato que meterlas en la clave.\n\nUn **índice filtrado** lleva un `WHERE` y solo contiene las filas que lo cumplen. Si el 98% de los pedidos está 'entregado' y solo consultas los 'pendiente', un índice filtrado es pequeño, barato de mantener y muy rápido.\n\nCada índice acelera lecturas pero encarece cada `INSERT`, `UPDATE` y `DELETE`. Antes de crear uno nuevo, revisa si puedes ampliar uno existente.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Cubre la consulta del apartado anterior: estado ya no requiere Key Lookup\nCREATE INDEX ix_pedidos_cliente_fecha\n  ON ventas.pedidos (cliente_id, fecha)\n  INCLUDE (estado)\n  WITH (DROP_EXISTING = ON);\n\n-- Índice filtrado: solo los pendientes\nCREATE INDEX ix_pedidos_pendientes\n  ON ventas.pedidos (fecha)\n  INCLUDE (cliente_id)\n  WHERE estado = 'pendiente';",
+          "keyTakeaway": "Clave para buscar, INCLUDE para devolver, WHERE para indexar solo lo que consultas."
+        },
+        {
+          "id": "cap08-sec-3",
+          "title": "3. Filtros sargables",
+          "body": "Un filtro es **sargable** (*Search ARGument ABLE*) cuando el motor puede usar el índice para buscar. La regla: **deja la columna sola** a un lado del operador.\n\nNo sargables, con su alternativa:\n- `YEAR(fecha) = 2026` → `fecha >= '2026-01-01' AND fecha < '2027-01-01'`\n- `CAST(creado_en AS DATE) = '2026-03-10'` → rango de ese día (SQL Server tolera este caso concreto, pero el rango es la costumbre segura)\n- `LEFT(nombre, 3) = 'Ana'` → `nombre LIKE 'Ana%'`\n- `precio * 1.18 > 100` → `precio > 100 / 1.18`\n- `ISNULL(comision, 0) > 0` → `comision > 0`\n- `LIKE '%ana'` no es sargable: el comodín al inicio obliga a recorrer todo.\n\nOjo también con las **conversiones implícitas**: comparar una columna `VARCHAR` con un parámetro `NVARCHAR` convierte la columna y anula el Seek.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- No sargable: aplica YEAR() a cada fila y recorre el índice entero\nSELECT id FROM ventas.pedidos WHERE YEAR(fecha) = 2026 AND MONTH(fecha) = 3;\n\n-- Sargable: Seek de rango sobre fecha\nSELECT id FROM ventas.pedidos\nWHERE fecha >= '2026-03-01' AND fecha < '2026-04-01';",
+          "keyTakeaway": "Si envuelves la columna en una función o una operación, el índice ya no puede buscar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para diseñar índices que se usan y no estorban.",
+        "rules": [
+          "Diseña el índice para las consultas frecuentes, no para todas.",
+          "Igualdad primero, rango después; las columnas devueltas en `INCLUDE`.",
+          "Revisa índices duplicados o que empiezan igual antes de crear otro.",
+          "Usa rangos semiabiertos (`>=` inicio y `<` fin) para fechas.",
+          "Que el tipo del parámetro coincida con el de la columna."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT id, cliente_id, fecha\nFROM ventas.pedidos\nWHERE estado = 'pendiente'\n  AND fecha >= '2026-11-01' AND fecha < '2026-12-01';"
+      },
+      "comparison": {
+        "scenario": "Buscar los empleados que ingresaron en 2025.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "SELECT id, nombre\nFROM rrhh.empleados\nWHERE YEAR(fecha_ingreso) = 2025;",
+        "juniorFlaws": [
+          "`YEAR()` se aplica a la columna en cada fila.",
+          "Un índice sobre `fecha_ingreso` solo puede recorrerse entero, no buscarse.",
+          "Con millones de filas la diferencia es de segundos frente a milisegundos."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "SELECT id, nombre\nFROM rrhh.empleados\nWHERE fecha_ingreso >= '2025-01-01'\n  AND fecha_ingreso <  '2026-01-01';",
+        "intermediateBenefits": [
+          "La columna queda sola: el índice puede hacer un Seek de rango.",
+          "El rango semiabierto incluye todo 2025 sin preocuparse por horas.",
+          "Devuelve exactamente las mismas filas."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap08-ej-1",
+          "title": "Práctica 1: Reescribir tres filtros",
+          "difficulty": "Básico",
+          "prompt": "Haz sargables estos filtros sobre `dbo.clientes`: `LEFT(nombre, 1) = 'M'`, `YEAR(fecha_registro) = 2024` y `ISNULL(ciudad, '') = 'Lima'`.",
+          "hint": "LIKE con comodín al final, rango de fechas y quitar la función.",
+          "solutionExplanation": "`ISNULL(ciudad, '') = 'Lima'` equivale a `ciudad = 'Lima'`, porque un NULL convertido en vacío nunca será 'Lima'. Las tres versiones dejan la columna sola.",
+          "solutionCode": "SELECT id, nombre FROM dbo.clientes WHERE nombre LIKE 'M%';\n\nSELECT id, nombre FROM dbo.clientes\nWHERE fecha_registro >= '2024-01-01' AND fecha_registro < '2025-01-01';\n\nSELECT id, nombre FROM dbo.clientes WHERE ciudad = 'Lima';",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap08-ej-2",
+          "title": "Práctica 2: Índice para una consulta",
+          "difficulty": "Intermedio",
+          "prompt": "Diseña el índice ideal para: `SELECT fecha, monto FROM app.eventos WHERE usuario_id = @u AND tipo = 'compra' AND fecha >= @desde ORDER BY fecha;`",
+          "hint": "Dos igualdades, un rango que además es el orden, y una columna que solo se devuelve.",
+          "solutionExplanation": "Las dos columnas de igualdad van primero, luego `fecha` (rango y orden, así no hace falta ordenar) y `monto` en `INCLUDE` para evitar el Key Lookup.",
+          "solutionCode": "CREATE INDEX ix_eventos_usuario_tipo_fecha\n  ON app.eventos (usuario_id, tipo, fecha)\n  INCLUDE (monto);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap08-ej-3",
+          "title": "Práctica 3: Índice filtrado",
+          "difficulty": "Avanzado",
+          "prompt": "Solo el 1% de los empleados tiene comisión y hay un informe diario que los lista por departamento. Crea un índice filtrado para ese informe y escribe la consulta que lo aprovecha.",
+          "hint": "WHERE comision IS NOT NULL en el índice y la misma condición en la consulta.",
+          "solutionExplanation": "El índice solo guarda el 1% de las filas. Para que el optimizador lo use, la consulta debe incluir una condición compatible con el filtro del índice.",
+          "solutionCode": "CREATE INDEX ix_empleados_con_comision\n  ON rrhh.empleados (departamento_id)\n  INCLUDE (nombre, comision)\n  WHERE comision IS NOT NULL;\n\nSELECT departamento_id, nombre, comision\nFROM rrhh.empleados\nWHERE comision IS NOT NULL\nORDER BY departamento_id;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap08-q1",
+          "question": "Hay un índice sobre (pais, ciudad). ¿Qué consulta puede hacer un Seek con él?",
+          "options": [
+            "WHERE UPPER(pais) = 'PERÚ' AND ciudad = 'Lima'",
+            "WHERE pais = 'Perú' AND ciudad = 'Lima'",
+            "WHERE ciudad = 'Lima' OR ciudad = 'Cusco'",
+            "WHERE pais LIKE '%rú' AND ciudad = 'Lima'"
+          ],
+          "correctIndex": 1,
+          "explanation": "El índice está ordenado primero por país; sin filtrar por la primera columna, o si se envuelve en una función o se usa un comodín inicial, no se puede buscar."
+        },
+        {
+          "id": "cap08-q2",
+          "question": "¿Qué consigue INCLUDE en un índice no clúster?",
+          "options": [
+            "Ordena el resultado de la consulta por esas columnas",
+            "Permite buscar por esas columnas igual que por la clave",
+            "Hace que el índice solo contenga las filas que cumplen un filtro",
+            "Evita el Key Lookup al guardar columnas extra en el nivel hoja"
+          ],
+          "correctIndex": 3,
+          "explanation": "Las columnas incluidas viajan con el índice para devolverlas, pero no forman parte de la clave de búsqueda."
+        },
+        {
+          "id": "cap08-q3",
+          "question": "¿Cuál de estos filtros es sargable?",
+          "options": [
+            "DATEDIFF(day, fecha, GETDATE()) BETWEEN 0 AND 30",
+            "fecha >= '2026-01-01' AND fecha < '2026-02-01'",
+            "MONTH(fecha) = 1 AND YEAR(fecha) = 2026",
+            "FORMAT(fecha, 'yyyy-MM-dd') LIKE '2026-01-%'"
+          ],
+          "correctIndex": 1,
+          "explanation": "Solo el rango deja la columna sin transformar. Las otras tres aplican una función a la columna en cada fila."
+        }
+      ]
+    },
+    {
+      "id": "cap-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3: Índices y planes de ejecución",
+      "title": "Leer un plan de ejecución",
+      "subtitle": "Cómo abrir el plan, en qué orden leerlo y qué operadores y avisos señalan un problema.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Obtener el plan estimado y el real, y saber cuándo usar cada uno.",
+        "Reconocer los operadores principales: Seek, Scan, Key Lookup y los tres tipos de JOIN.",
+        "Detectar diferencias entre filas estimadas y reales, y los avisos del plan."
+      ],
+      "theorySections": [
+        {
+          "id": "cap09-sec-1",
+          "title": "1. Plan estimado, plan real y estadísticas de ejecución",
+          "body": "El **optimizador** genera varios planes posibles, estima el costo de cada uno con las estadísticas de los datos y elige el más barato. Puedes verlo de dos formas:\n- **Plan estimado** (Ctrl + L en SSMS): sin ejecutar la consulta. Sirve para consultas que tardan horas o que modifican datos.\n- **Plan real** (Ctrl + M y ejecutar): incluye las **filas reales** que pasaron por cada operador. Es el que necesitas para diagnosticar.\n\nAcompáñalo con `SET STATISTICS IO, TIME ON` para tener lecturas y tiempo de CPU. En Azure Data Studio o SSMS también puedes guardar el plan como `.sqlplan` para compartirlo.",
+          "codeLanguage": "sql",
+          "codeSnippet": "SET STATISTICS IO, TIME ON;\n-- En SSMS: Ctrl + M para incluir el plan real\n\nSELECT c.pais, SUM(d.cantidad * d.precio_unitario) AS ingreso\nFROM ventas.pedidos AS p\nJOIN ventas.clientes AS c       ON c.id = p.cliente_id\nJOIN ventas.detalle_pedido AS d ON d.pedido_id = p.id\nWHERE p.fecha >= '2026-06-01'\nGROUP BY c.pais;\n\nSET STATISTICS IO, TIME OFF;",
+          "keyTakeaway": "El plan real es el que diagnostica: trae filas reales junto a las estimadas."
+        },
+        {
+          "id": "cap09-sec-2",
+          "title": "2. Operadores que tienes que reconocer",
+          "body": "El plan se lee **de derecha a izquierda** (de donde salen los datos hacia el `SELECT`) y el grosor de las flechas indica cuántas filas pasan.\n- **Index Seek / Clustered Index Seek**: búsqueda en el árbol. Normalmente bueno.\n- **Index Scan / Clustered Index Scan / Table Scan**: recorrido completo. Sospechoso si al final salen pocas filas.\n- **Key Lookup** (o *RID Lookup* en un heap): volver al clúster por columnas que faltan. Caro si se repite miles de veces; se arregla con `INCLUDE`.\n- **Nested Loops**: por cada fila de arriba busca en la de abajo. Ideal con pocas filas.\n- **Hash Match**: construye una tabla hash con una entrada. Bueno para muchas filas sin orden; pide memoria.\n- **Merge Join**: une dos entradas ya ordenadas por la clave del JOIN. Muy eficiente si el orden viene gratis de un índice.\n- **Sort**: ordenar cuesta memoria y CPU; un índice con el orden adecuado lo evita.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Esta consulta suele dar Index Seek + Key Lookup + Nested Loops\nSELECT id, fecha, estado      -- estado no está en el índice\nFROM ventas.pedidos\nWHERE cliente_id = 42;\n\n-- Con estado en INCLUDE desaparece el Key Lookup\nCREATE INDEX ix_pedidos_cliente ON ventas.pedidos (cliente_id)\n  INCLUDE (fecha, estado) WITH (DROP_EXISTING = ON);",
+          "keyTakeaway": "Lee de derecha a izquierda, sigue las flechas gruesas y desconfía de Lookups repetidos y Scans que devuelven poco."
+        },
+        {
+          "id": "cap09-sec-3",
+          "title": "3. Estimado frente a real y los avisos",
+          "body": "En cada operador del plan real compara **Estimated Number of Rows** con **Actual Number of Rows**. Si difieren en un factor de 10 o más, el optimizador decidió con información equivocada: quizá eligió Nested Loops pensando en 10 filas cuando llegaron 2 millones. Las causas típicas son estadísticas viejas, filtros no sargables, funciones escalares, variables de tabla y el *parameter sniffing* (capítulo 10).\n\nFíjate también en los **triángulos amarillos** de aviso:\n- *Implicit conversion*: una conversión de tipos que puede impedir el Seek.\n- *Spill to tempdb* en un Sort o Hash: la memoria concedida no alcanzó y escribió en disco.\n- *Missing index*: SQL Server sugiere un índice. Tómalo como pista, no como orden: suele proponer columnas de más y no mira los índices que ya tienes.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Aviso de conversión implícita: codigo es VARCHAR y el parámetro NVARCHAR\nDECLARE @codigo NVARCHAR(20) = N'A-1001';\nSELECT id FROM ventas.productos WHERE codigo = @codigo;\n\n-- Arreglo: el parámetro con el mismo tipo que la columna\nDECLARE @codigo2 VARCHAR(20) = 'A-1001';\nSELECT id FROM ventas.productos WHERE codigo = @codigo2;",
+          "keyTakeaway": "Si filas estimadas y reales difieren mucho, el problema está en la información del optimizador, no en el operador."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Método para revisar el plan de una consulta lenta.",
+        "rules": [
+          "Usa el plan real y `STATISTICS IO` antes de opinar.",
+          "Empieza por el operador de mayor costo y las flechas más gruesas.",
+          "Compara filas estimadas y reales en cada operador importante.",
+          "Revisa todos los avisos amarillos.",
+          "Cambia una cosa a la vez y vuelve a medir lecturas."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SET STATISTICS IO, TIME ON;\n-- 1) Ejecutar con plan real (Ctrl + M)\n-- 2) Anotar lecturas lógicas por tabla\n-- 3) Aplicar UN cambio (índice, reescritura del filtro…)\n-- 4) Repetir y comparar\nSET STATISTICS IO, TIME OFF;"
+      },
+      "comparison": {
+        "scenario": "La consulta de un informe tarda 40 segundos y el plan sugiere un índice faltante.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "-- Se crea, sin más, el índice que sugiere el plan:\nCREATE INDEX ix_sugerido ON ventas.pedidos (estado)\n  INCLUDE (id, cliente_id, fecha, total, canal, notas, direccion, telefono);",
+        "juniorFlaws": [
+          "Copia todas las columnas que pide la consulta, incluidas columnas anchas como `notas`.",
+          "No revisa si ya existe un índice parecido que solo había que ampliar.",
+          "No mide antes ni después: nadie sabe si mejoró ni cuánto cuesta en escrituras."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- 1) Medir: SET STATISTICS IO ON + plan real\n-- 2) Ver índices existentes en sys.indexes\n-- 3) Ampliar el que ya empieza por estado, con lo justo\nCREATE INDEX ix_pedidos_estado_fecha ON ventas.pedidos (estado, fecha)\n  INCLUDE (cliente_id, total)\n  WITH (DROP_EXISTING = ON);\n-- 4) Volver a medir y comparar lecturas",
+        "intermediateBenefits": [
+          "El índice contiene solo lo que la consulta usa de verdad.",
+          "No duplica estructuras que ya existían.",
+          "La mejora queda medida en lecturas lógicas."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap09-ej-1",
+          "title": "Práctica 1: Leer un plan",
+          "difficulty": "Básico",
+          "prompt": "Un plan muestra, de derecha a izquierda: *Index Seek (ix_pedidos_cliente)* con 1.200 filas, *Key Lookup (pk_pedidos)* ejecutado 1.200 veces y *Nested Loops*. ¿Qué está pasando y cómo lo arreglarías?",
+          "hint": "El Key Lookup busca columnas que el índice no tiene.",
+          "solutionExplanation": "El índice encuentra las filas, pero por cada una vuelve al clúster a buscar columnas que faltan. Añadir esas columnas en `INCLUDE` elimina los 1.200 Lookups.",
+          "solutionCode": "-- Las columnas que pide el SELECT y no estaban en el índice, en INCLUDE\nCREATE INDEX ix_pedidos_cliente\n  ON ventas.pedidos (cliente_id)\n  INCLUDE (fecha, estado)\n  WITH (DROP_EXISTING = ON);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap09-ej-2",
+          "title": "Práctica 2: Estimación equivocada",
+          "difficulty": "Intermedio",
+          "prompt": "En el plan real, un Index Seek estima 15 filas y devuelve 480.000; justo después hay un Nested Loops. Explica el riesgo y escribe la primera instrucción que ejecutarías.",
+          "hint": "¿De qué depende la estimación?",
+          "solutionExplanation": "Con 15 filas estimadas, Nested Loops parece barato; con 480.000 reales, hace 480.000 búsquedas. La causa más frecuente son estadísticas desactualizadas, así que lo primero es actualizarlas y volver a medir.",
+          "solutionCode": "UPDATE STATISTICS ventas.pedidos WITH FULLSCAN;\n-- Después: volver a ejecutar con el plan real y comparar estimadas y reales",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap09-ej-3",
+          "title": "Práctica 3: Quitar un Sort",
+          "difficulty": "Avanzado",
+          "prompt": "`SELECT id, fecha FROM ventas.pedidos WHERE cliente_id = @c ORDER BY fecha DESC;` muestra un Sort con aviso de spill. Hay un índice sobre `(cliente_id)`. ¿Cómo lo evitas?",
+          "hint": "Si el índice ya trae el orden, no hace falta ordenar.",
+          "solutionExplanation": "Con `(cliente_id, fecha)` el índice entrega las filas de cada cliente ya ordenadas por fecha. SQL Server puede leerlo hacia atrás para el `DESC`, así que el Sort desaparece.",
+          "solutionCode": "CREATE INDEX ix_pedidos_cliente\n  ON ventas.pedidos (cliente_id, fecha)\n  WITH (DROP_EXISTING = ON);",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap09-q1",
+          "question": "¿Qué aporta el plan real que no tiene el plan estimado?",
+          "options": [
+            "El texto de la consulta con los parámetros resueltos",
+            "Una sugerencia de índice para cada tabla de la consulta",
+            "La lista de índices que existen en cada tabla usada",
+            "El número real de filas que pasó por cada operador"
+          ],
+          "correctIndex": 3,
+          "explanation": "El plan estimado ya trae sugerencias y estructura; solo el real muestra cuántas filas pasaron de verdad."
+        },
+        {
+          "id": "cap09-q2",
+          "question": "¿Qué significa un Key Lookup en el plan?",
+          "options": [
+            "El índice clúster está fragmentado y hay que reconstruirlo",
+            "El motor vuelve al clúster por columnas que el índice no tiene",
+            "El optimizador no encontró ningún índice útil para el filtro",
+            "La consulta busca una sola fila por su clave primaria exacta"
+          ],
+          "correctIndex": 1,
+          "explanation": "El Key Lookup complementa un Seek en un índice no clúster; se evita con columnas en `INCLUDE`."
+        },
+        {
+          "id": "cap09-q3",
+          "question": "El plan estima 20 filas y llegan 2 millones. ¿Cuál es la causa más probable?",
+          "options": [
+            "El servidor tiene poca memoria RAM para esa consulta",
+            "La consulta devuelve demasiadas columnas en el SELECT final",
+            "Falta un índice clúster en la tabla más pequeña del JOIN",
+            "Estadísticas desactualizadas o un filtro difícil de estimar"
+          ],
+          "correctIndex": 3,
+          "explanation": "La estimación sale de las estadísticas; una gran diferencia indica que el optimizador decidió con datos equivocados."
+        }
+      ]
+    },
+    {
+      "id": "cap-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 3: Índices y planes de ejecución",
+      "title": "Estadísticas, parameter sniffing y Query Store",
+      "subtitle": "De dónde saca el optimizador sus números, por qué la misma consulta a veces vuela y a veces se arrastra, y cómo volver atrás un plan malo.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar qué son las estadísticas y cuándo se actualizan.",
+        "Reconocer el parameter sniffing y conocer sus remedios.",
+        "Usar Query Store para encontrar regresiones y forzar un plan."
+      ],
+      "theorySections": [
+        {
+          "id": "cap10-sec-1",
+          "title": "1. Estadísticas: el mapa del optimizador",
+          "body": "Una **estadística** es un histograma de hasta 200 pasos que resume cómo se distribuyen los valores de una columna, más la densidad (cuántos valores distintos hay). Con ella el optimizador estima cuántas filas devolverá cada filtro.\n\nSQL Server crea estadísticas automáticamente para cada índice y para columnas que usas en filtros. Las actualiza solo cuando cambia una parte de la tabla (en versiones recientes, un umbral que crece con el tamaño). En tablas enormes que reciben datos nuevos por fecha, las filas más recientes pueden **no estar en el histograma** y el optimizador estima 1 fila para \"lo de hoy\".\n\nMantenimiento habitual: `UPDATE STATISTICS` programado (por ejemplo, de noche) en las tablas grandes que más cambian.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Ver el histograma de una estadística\nDBCC SHOW_STATISTICS ('ventas.pedidos', 'ix_pedidos_cliente_fecha') WITH HISTOGRAM;\n\n-- Cuándo se actualizó cada estadística y cuántas filas cambiaron desde entonces\nSELECT s.name, p.last_updated, p.rows, p.modification_counter\nFROM sys.stats AS s\nCROSS APPLY sys.dm_db_stats_properties(s.object_id, s.stats_id) AS p\nWHERE s.object_id = OBJECT_ID(N'ventas.pedidos');\n\nUPDATE STATISTICS ventas.pedidos WITH FULLSCAN;",
+          "keyTakeaway": "Las estimaciones salen de las estadísticas: si están viejas, el plan se elige a ciegas."
+        },
+        {
+          "id": "cap10-sec-2",
+          "title": "2. Parameter sniffing",
+          "body": "La primera vez que se ejecuta un procedimiento, SQL Server **mira el valor** de los parámetros, compila un plan óptimo para ese valor y lo guarda en caché. Las siguientes llamadas reutilizan ese plan.\n\nCasi siempre es bueno. El problema aparece con datos **desiguales**: si la primera llamada fue para un cliente con 3 pedidos, el plan elegido (Seek + Nested Loops) es pésimo para el cliente con 2 millones. Síntoma típico: \"ayer iba bien y hoy va lento\", y se arregla solo al reiniciar o al recompilar.\n\nRemedios, de más localizado a más general:\n- `OPTION (RECOMPILE)` en la consulta problemática: plan nuevo en cada ejecución (cuesta CPU de compilación).\n- `OPTION (OPTIMIZE FOR (@p UNKNOWN))`: plan basado en la densidad media, no en un valor.\n- Separar en dos procedimientos para los casos grandes y pequeños.\n- Forzar con Query Store el plan bueno.\n\nSQL Server 2022 trae *Parameter Sensitive Plan optimization*, que guarda varios planes según el valor.",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE ventas.usp_pedidos_cliente @cliente_id INT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SELECT id, fecha, estado\n  FROM ventas.pedidos\n  WHERE cliente_id = @cliente_id\n  OPTION (RECOMPILE);   -- plan a la medida de cada cliente\nEND;\nGO\n-- Para limpiar el plan en caché de un procedimiento concreto\nEXEC sys.sp_recompile N'ventas.usp_pedidos_cliente';",
+          "keyTakeaway": "Un plan que es bueno para un valor puede ser terrible para otro: así se ve el parameter sniffing."
+        },
+        {
+          "id": "cap10-sec-3",
+          "title": "3. Query Store: la caja negra de las consultas",
+          "body": "**Query Store** guarda por base de datos el texto de cada consulta, los planes que ha usado y sus métricas en el tiempo (duración, CPU, lecturas). Está activado por defecto desde SQL Server 2022.\n\nCon él puedes:\n- Ver las consultas que más recursos consumen en un periodo.\n- Detectar **regresiones**: la consulta cambió de plan y empeoró.\n- **Forzar** el plan bueno con `sp_query_store_force_plan` mientras investigas la causa.\n\nForzar un plan es un parche: anótalo y revísalo, porque si cambian los índices el plan forzado puede dejar de ser válido.",
+          "codeLanguage": "sql",
+          "codeSnippet": "ALTER DATABASE CURRENT SET QUERY_STORE = ON;\n\n-- Las 10 consultas con más CPU total en Query Store\nSELECT TOP (10) q.query_id, p.plan_id,\n       SUM(rs.count_executions) AS ejecuciones,\n       SUM(rs.avg_cpu_time * rs.count_executions) / 1000 AS cpu_ms,\n       MAX(qt.query_sql_text) AS texto\nFROM sys.query_store_query AS q\nJOIN sys.query_store_query_text AS qt ON qt.query_text_id = q.query_text_id\nJOIN sys.query_store_plan AS p ON p.query_id = q.query_id\nJOIN sys.query_store_runtime_stats AS rs ON rs.plan_id = p.plan_id\nGROUP BY q.query_id, p.plan_id\nORDER BY cpu_ms DESC;\n\n-- Forzar el plan bueno de una consulta con regresión\nEXEC sys.sp_query_store_force_plan @query_id = 42, @plan_id = 7;",
+          "keyTakeaway": "Query Store muestra qué plan usó cada consulta y cuándo empeoró, y permite volver al bueno."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Prácticas para un rendimiento estable en el tiempo.",
+        "rules": [
+          "Mantén Query Store activo en todas las bases de producción.",
+          "Programa la actualización de estadísticas en tablas grandes con muchos cambios.",
+          "Ante un \"ayer iba bien\", sospecha primero de parameter sniffing o estadísticas.",
+          "Usa `OPTION (RECOMPILE)` en consultas puntuales, no en todo el servidor.",
+          "Documenta cada plan forzado y revísalo tras cambiar índices."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Rutina nocturna para las tablas más cambiantes\nUPDATE STATISTICS ventas.pedidos WITH SAMPLE 25 PERCENT;\nUPDATE STATISTICS app.eventos    WITH SAMPLE 10 PERCENT;"
+      },
+      "comparison": {
+        "scenario": "Un procedimiento se volvió lento de repente y alguien limpia la caché de todo el servidor.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "DBCC FREEPROCCACHE;   -- borra TODOS los planes del servidor\n-- \"Ya va rápido otra vez\"",
+        "juniorFlaws": [
+          "Obliga a recompilar todas las consultas de todas las bases: picos de CPU.",
+          "No explica la causa: el problema volverá en cuanto se guarde otro plan malo.",
+          "No deja rastro de qué plan era el malo ni cuál el bueno."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- 1) Buscar la consulta en Query Store y comparar sus planes\n-- 2) Forzar el plan bueno mientras se investiga\nEXEC sys.sp_query_store_force_plan @query_id = 42, @plan_id = 7;\n-- 3) Corregir la causa: estadísticas, índice o OPTION (RECOMPILE) en esa consulta\nUPDATE STATISTICS ventas.pedidos WITH FULLSCAN;",
+        "intermediateBenefits": [
+          "Actúa solo sobre la consulta afectada.",
+          "Deja registro de los planes y del cambio.",
+          "Ataca la causa, no el síntoma."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap10-ej-1",
+          "title": "Práctica 1: ¿Cuándo se actualizaron?",
+          "difficulty": "Básico",
+          "prompt": "Escribe una consulta que muestre, para cada estadística de `app.eventos`, su nombre, la fecha de última actualización y cuántas filas cambiaron desde entonces.",
+          "hint": "sys.stats con CROSS APPLY sys.dm_db_stats_properties.",
+          "solutionExplanation": "`modification_counter` dice cuántas modificaciones hubo desde la última actualización: si es alto en relación con `rows`, conviene actualizar.",
+          "solutionCode": "SELECT s.name, p.last_updated, p.rows, p.modification_counter\nFROM sys.stats AS s\nCROSS APPLY sys.dm_db_stats_properties(s.object_id, s.stats_id) AS p\nWHERE s.object_id = OBJECT_ID(N'app.eventos')\nORDER BY p.modification_counter DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap10-ej-2",
+          "title": "Práctica 2: Diagnosticar sniffing",
+          "difficulty": "Intermedio",
+          "prompt": "`EXEC ventas.usp_pedidos_cliente @cliente_id = 1` (2 millones de pedidos) tarda 50 s, pero si antes se ejecuta con `@cliente_id = 7` (3 pedidos) y luego con 1, también tarda. Si primero se ejecuta con 1 va en 3 s. Explica lo que pasa y aplica un remedio en la consulta.",
+          "hint": "El orden de las llamadas decide qué plan queda en caché.",
+          "solutionExplanation": "La primera llamada fija el plan. Si fue para un cliente pequeño, el plan con Nested Loops se reutiliza para el grande y es desastroso. `OPTIMIZE FOR UNKNOWN` evita que el plan dependa del primer valor; `RECOMPILE` sería otra opción si el procedimiento se llama pocas veces.",
+          "solutionCode": "SELECT id, fecha, estado\nFROM ventas.pedidos\nWHERE cliente_id = @cliente_id\nOPTION (OPTIMIZE FOR (@cliente_id UNKNOWN));",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap10-ej-3",
+          "title": "Práctica 3: Regresión en Query Store",
+          "difficulty": "Avanzado",
+          "prompt": "Escribe una consulta a Query Store que liste las consultas con **más de un plan**, con el número de planes y la duración media de cada uno, para detectar regresiones.",
+          "hint": "Agrupa por query_id y plan_id y cuenta los planes por consulta con una ventana.",
+          "solutionExplanation": "Una consulta con dos planes de duración muy distinta es candidata a regresión. El plan con menor duración es el que forzarías.",
+          "solutionCode": "WITH planes AS (\n  SELECT p.query_id, p.plan_id,\n         AVG(rs.avg_duration) / 1000 AS duracion_ms,\n         COUNT(*) OVER (PARTITION BY p.query_id) AS n_planes\n  FROM sys.query_store_plan AS p\n  JOIN sys.query_store_runtime_stats AS rs ON rs.plan_id = p.plan_id\n  GROUP BY p.query_id, p.plan_id\n)\nSELECT query_id, plan_id, n_planes, duracion_ms\nFROM planes\nWHERE n_planes > 1\nORDER BY query_id, duracion_ms;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap10-q1",
+          "question": "¿Qué usa el optimizador para estimar cuántas filas devolverá un filtro?",
+          "options": [
+            "El número de páginas libres en el archivo de datos",
+            "La cantidad de memoria libre que tiene el servidor",
+            "Las estadísticas, con su histograma de valores",
+            "El tiempo que tardó la última ejecución de la consulta"
+          ],
+          "correctIndex": 2,
+          "explanation": "El histograma y la densidad de las estadísticas son la base de toda estimación de cardinalidad."
+        },
+        {
+          "id": "cap10-q2",
+          "question": "¿Qué es el parameter sniffing?",
+          "options": [
+            "Cambiar de plan automáticamente en cada nueva ejecución",
+            "Validar el tipo de cada parámetro antes de ejecutar la consulta",
+            "Un ataque que lee los parámetros enviados por otra sesión",
+            "Compilar el plan con el primer valor recibido y reutilizarlo"
+          ],
+          "correctIndex": 3,
+          "explanation": "El plan se optimiza para el valor de la primera llamada y queda en caché para las siguientes."
+        },
+        {
+          "id": "cap10-q3",
+          "question": "¿Para qué sirve forzar un plan con Query Store?",
+          "options": [
+            "Para actualizar las estadísticas de la consulta elegida",
+            "Para crear los índices que el plan sugiere como faltantes",
+            "Para obligar al servidor a recompilar todas sus consultas",
+            "Para fijar un plan conocido como bueno tras una regresión"
+          ],
+          "correctIndex": 3,
+          "explanation": "Forzar un plan es un remedio inmediato y localizado; la causa se investiga después."
+        }
+      ]
+    },
+    {
+      "id": "cap-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 4: Transacciones y concurrencia",
+      "title": "Transacciones: todo o nada",
+      "subtitle": "ACID en la práctica: BEGIN TRAN, COMMIT y ROLLBACK, XACT_ABORT, transacciones anidadas y el patrón seguro dentro de un procedimiento.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Explicar las propiedades ACID con ejemplos concretos.",
+        "Agrupar varias instrucciones en una transacción y deshacerla ante un error.",
+        "Aplicar el patrón TRY/CATCH + XACT_ABORT en procedimientos que escriben datos."
+      ],
+      "theorySections": [
+        {
+          "id": "cap11-sec-1",
+          "title": "1. ACID y las transacciones implícitas",
+          "body": "Una **transacción** es un grupo de cambios que se confirma entero o no se aplica en absoluto. Sus propiedades, **ACID**:\n- **Atomicidad**: todo o nada. Si la transferencia descuenta de una cuenta pero falla al abonar en la otra, se deshace el descuento.\n- **Consistencia**: al terminar se cumplen todas las restricciones (claves, `CHECK`).\n- **Aislamiento**: otras sesiones no ven cambios a medias (con matices que verás en el capítulo 12).\n- **Durabilidad**: lo confirmado sobrevive a un apagón, porque se escribió antes en el registro de transacciones.\n\nPor defecto SQL Server está en modo *autocommit*: cada instrucción suelta es su propia transacción. Un `UPDATE` de 10.000 filas que falla en la fila 9.000 no deja 8.999 cambiadas: se deshace entero. Pero **dos** instrucciones seguidas son dos transacciones independientes.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Dos transacciones separadas: si el segundo UPDATE falla, el primero ya quedó hecho\nUPDATE fin.cuentas SET saldo = saldo - 100 WHERE id = 1;\nUPDATE fin.cuentas SET saldo = saldo + 100 WHERE id = 2;\n\n-- Una sola transacción: las dos o ninguna\nBEGIN TRANSACTION;\n  UPDATE fin.cuentas SET saldo = saldo - 100 WHERE id = 1;\n  UPDATE fin.cuentas SET saldo = saldo + 100 WHERE id = 2;\nCOMMIT TRANSACTION;",
+          "keyTakeaway": "Cada instrucción suelta es atómica; para que varias lo sean juntas, necesitas BEGIN TRAN."
+        },
+        {
+          "id": "cap11-sec-2",
+          "title": "2. BEGIN, COMMIT, ROLLBACK y XACT_ABORT",
+          "body": "`BEGIN TRAN` abre la transacción, `COMMIT` la confirma y `ROLLBACK` la deshace.\n\nUn detalle que sorprende: **un error no deshace la transacción por sí solo**. Muchos errores (una clave duplicada, una FK violada) solo abortan la instrucción que falló; las anteriores siguen pendientes y, si el script continúa hasta el `COMMIT`, se confirman a medias.\n\n`SET XACT_ABORT ON` cambia eso: ante casi cualquier error en tiempo de ejecución, SQL Server deshace la transacción completa y corta el lote. Es la primera línea recomendada en todo procedimiento que abre transacciones.\n\n`@@TRANCOUNT` dice cuántas transacciones hay abiertas en la sesión, y `XACT_STATE()` si la transacción se puede confirmar (1), está condenada y solo admite rollback (-1) o no hay ninguna (0).",
+          "codeLanguage": "sql",
+          "codeSnippet": "SET XACT_ABORT ON;\nBEGIN TRAN;\n  INSERT INTO ventas.pedidos (cliente_id, fecha, estado) VALUES (7, '2026-11-18', 'pendiente');\n  INSERT INTO ventas.pedidos (cliente_id, fecha, estado) VALUES (9999, '2026-11-18', 'pendiente'); -- FK falla\nCOMMIT;\n-- Con XACT_ABORT ON, el primer INSERT también se deshace.\n-- Sin él, el primero se quedaría pendiente y el COMMIT lo confirmaría.\n\nSELECT @@TRANCOUNT AS abiertas;   -- 0",
+          "keyTakeaway": "Sin XACT_ABORT, un error puede dejar la transacción abierta con la mitad del trabajo hecho."
+        },
+        {
+          "id": "cap11-sec-3",
+          "title": "3. El patrón seguro en un procedimiento",
+          "body": "El patrón estándar combina todo lo anterior:\n1. `SET NOCOUNT ON` y `SET XACT_ABORT ON`.\n2. Validaciones antes de abrir la transacción (no bloquees nada mientras compruebas).\n3. `BEGIN TRY` → `BEGIN TRAN` → cambios → `COMMIT`.\n4. En el `CATCH`: si `@@TRANCOUNT > 0`, `ROLLBACK`; luego `THROW`.\n\nMantén las transacciones **cortas**: mientras están abiertas retienen bloqueos y otras sesiones esperan. Nunca esperes una respuesta del usuario, una llamada a una API o un archivo con una transacción abierta.\n\nLas transacciones \"anidadas\" no existen de verdad: un `BEGIN TRAN` interno solo suma 1 a `@@TRANCOUNT`, el `COMMIT` interno resta 1 y **cualquier** `ROLLBACK` deshace todo hasta el inicio. Para deshacer solo una parte existen los puntos de guardado (`SAVE TRAN`).",
+          "codeLanguage": "sql",
+          "codeSnippet": "CREATE OR ALTER PROCEDURE fin.usp_transferir\n  @origen INT, @destino INT, @monto DECIMAL(19,4)\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SET XACT_ABORT ON;\n  IF @monto <= 0 THROW 50001, 'El monto debe ser positivo.', 1;\n\n  BEGIN TRY\n    BEGIN TRAN;\n      UPDATE fin.cuentas SET saldo = saldo - @monto\n      WHERE id = @origen AND saldo >= @monto;\n      IF @@ROWCOUNT = 0 THROW 50003, 'Saldo insuficiente o cuenta inexistente.', 1;\n\n      UPDATE fin.cuentas SET saldo = saldo + @monto WHERE id = @destino;\n      IF @@ROWCOUNT = 0 THROW 50004, 'La cuenta de destino no existe.', 1;\n\n      INSERT INTO fin.movimientos (cuenta, fecha, monto) VALUES\n        (@origen, SYSDATETIME(), -@monto), (@destino, SYSDATETIME(), @monto);\n    COMMIT;\n  END TRY\n  BEGIN CATCH\n    IF @@TRANCOUNT > 0 ROLLBACK;\n    THROW;\n  END CATCH;\nEND;",
+          "keyTakeaway": "XACT_ABORT ON, TRY con la transacción dentro, y en el CATCH: ROLLBACK si hay algo abierto y THROW."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas para que ninguna operación quede a medias.",
+        "rules": [
+          "Todo procedimiento que abre una transacción empieza con `SET XACT_ABORT ON`.",
+          "En el `CATCH`, comprueba `@@TRANCOUNT > 0` antes del `ROLLBACK` y termina con `THROW`.",
+          "Valida antes de abrir la transacción y mantenla lo más corta posible.",
+          "Comprueba `@@ROWCOUNT` cuando un cambio que debía afectar filas no afectó ninguna.",
+          "Antes de un `UPDATE` o `DELETE` manual en producción, ábrelo dentro de una transacción y revisa el resultado."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "BEGIN TRAN;\n  UPDATE ventas.productos SET precio = precio * 1.10 WHERE categoria = 'Hogar';\n  SELECT @@ROWCOUNT AS filas;   -- ¿son las que esperabas?\n-- Si sí: COMMIT;   si no: ROLLBACK;"
+      },
+      "comparison": {
+        "scenario": "Un script de cierre mensual mueve los pedidos entregados al histórico y luego los borra.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "INSERT INTO ventas.pedidos_historico\nSELECT * FROM ventas.pedidos WHERE estado = 'entregado';\n\nDELETE FROM ventas.pedidos WHERE estado = 'entregado';",
+        "juniorFlaws": [
+          "Son dos transacciones: si el `DELETE` falla, hay pedidos duplicados en ambas tablas.",
+          "Si el `INSERT` falla, el `DELETE` igual se ejecuta y se pierden los pedidos.",
+          "Entre las dos instrucciones pueden entregarse pedidos nuevos y borrarse sin pasar al histórico."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "SET XACT_ABORT ON;\nBEGIN TRY\n  BEGIN TRAN;\n    DELETE FROM ventas.pedidos\n    OUTPUT deleted.id, deleted.cliente_id, deleted.fecha, deleted.estado\n      INTO ventas.pedidos_historico (id, cliente_id, fecha, estado)\n    WHERE estado = 'entregado';\n  COMMIT;\nEND TRY\nBEGIN CATCH\n  IF @@TRANCOUNT > 0 ROLLBACK;\n  THROW;\nEND CATCH;",
+        "intermediateBenefits": [
+          "Una sola instrucción con `OUTPUT … INTO`: lo que se borra es exactamente lo que se archiva.",
+          "La transacción y `XACT_ABORT` garantizan todo o nada.",
+          "El error no se pierde: se relanza a quien ejecutó el cierre."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap11-ej-1",
+          "title": "Práctica 1: Probar antes de confirmar",
+          "difficulty": "Básico",
+          "prompt": "Sube un 10% el salario de los empleados del departamento 2 dentro de una transacción, muestra cómo quedaron y **deshaz** el cambio.",
+          "hint": "BEGIN TRAN, UPDATE, SELECT y ROLLBACK.",
+          "solutionExplanation": "Dentro de la transacción ves tus propios cambios. `ROLLBACK` los descarta, así que la tabla queda como estaba. Es la forma segura de ensayar un cambio manual.",
+          "solutionCode": "BEGIN TRAN;\n  UPDATE rrhh.empleados SET salario = salario * 1.10 WHERE departamento_id = 2;\n  SELECT id, nombre, salario FROM rrhh.empleados WHERE departamento_id = 2;\nROLLBACK;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap11-ej-2",
+          "title": "Práctica 2: Procedimiento con el patrón completo",
+          "difficulty": "Intermedio",
+          "prompt": "Escribe `ventas.usp_cerrar_pedido @pedido_id` que, en una transacción, marque el pedido como 'entregado' y descuente del stock (`ventas.productos.stock`) las cantidades de sus líneas. Si algo falla, nada debe cambiar.",
+          "hint": "XACT_ABORT, TRY, BEGIN TRAN, dos UPDATE, COMMIT; en el CATCH ROLLBACK y THROW.",
+          "solutionExplanation": "Las dos actualizaciones van en la misma transacción. Si el stock quedara negativo (por una restricción `CHECK`) o el pedido no existiera, el `CATCH` deshace todo y relanza el error.",
+          "solutionCode": "CREATE OR ALTER PROCEDURE ventas.usp_cerrar_pedido @pedido_id INT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  SET XACT_ABORT ON;\n  BEGIN TRY\n    BEGIN TRAN;\n      UPDATE ventas.pedidos SET estado = 'entregado' WHERE id = @pedido_id;\n      IF @@ROWCOUNT = 0 THROW 50040, 'El pedido no existe.', 1;\n\n      UPDATE pr SET stock = pr.stock - d.cantidad\n      FROM ventas.productos AS pr\n      JOIN ventas.detalle_pedido AS d ON d.producto_id = pr.id\n      WHERE d.pedido_id = @pedido_id;\n    COMMIT;\n  END TRY\n  BEGIN CATCH\n    IF @@TRANCOUNT > 0 ROLLBACK;\n    THROW;\n  END CATCH;\nEND;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap11-ej-3",
+          "title": "Práctica 3: Punto de guardado",
+          "difficulty": "Avanzado",
+          "prompt": "En una carga, quieres insertar un lote de clientes y luego intentar un lote opcional de direcciones. Si las direcciones fallan, se deshacen solo ellas y los clientes se confirman. Escríbelo con `SAVE TRAN`.",
+          "hint": "SAVE TRAN nombre y ROLLBACK TRAN nombre. No uses XACT_ABORT ON aquí: condenaría la transacción entera.",
+          "solutionExplanation": "`ROLLBACK TRAN punto` vuelve al punto de guardado sin cerrar la transacción. Con `XACT_ABORT ON` el error condenaría toda la transacción, por eso aquí se comprueba `XACT_STATE()`.",
+          "solutionCode": "BEGIN TRAN;\n  INSERT INTO ventas.clientes (nombre, pais) SELECT nombre, pais FROM stg.clientes;\n  SAVE TRAN antes_direcciones;\n  BEGIN TRY\n    INSERT INTO ventas.direcciones (cliente_id, linea) SELECT cliente_id, linea FROM stg.direcciones;\n  END TRY\n  BEGIN CATCH\n    IF XACT_STATE() = 1 ROLLBACK TRAN antes_direcciones;\n    ELSE IF XACT_STATE() = -1 BEGIN ROLLBACK; THROW; END;\n  END CATCH;\nCOMMIT;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap11-q1",
+          "question": "Sin XACT_ABORT, un INSERT viola una clave foránea dentro de BEGIN TRAN y el script sigue hasta COMMIT. ¿Qué pasa?",
+          "options": [
+            "El COMMIT falla y la transacción se queda abierta",
+            "Se confirma también la fila que violó la clave foránea",
+            "Se confirman las instrucciones que sí funcionaron",
+            "Se deshace la transacción completa automáticamente"
+          ],
+          "correctIndex": 2,
+          "explanation": "Muchos errores solo abortan la instrucción que falló. Con `XACT_ABORT ON` se deshace todo."
+        },
+        {
+          "id": "cap11-q2",
+          "question": "¿Qué hace ROLLBACK dentro de una transacción \"anidada\" con @@TRANCOUNT = 2?",
+          "options": [
+            "Resta 1 a @@TRANCOUNT y deja lo demás pendiente",
+            "Deshace solo lo hecho desde el BEGIN TRAN interno",
+            "Da error porque primero hay que hacer un COMMIT",
+            "Deshace todo hasta el BEGIN TRAN más externo"
+          ],
+          "correctIndex": 3,
+          "explanation": "Las transacciones anidadas no son reales: un `ROLLBACK` sin nombre deshace todo y deja `@@TRANCOUNT` en 0."
+        },
+        {
+          "id": "cap11-q3",
+          "question": "¿Por qué conviene que las transacciones sean cortas?",
+          "options": [
+            "Porque retienen bloqueos y hacen esperar a otras sesiones",
+            "Porque el registro solo guarda las últimas diez transacciones",
+            "Porque cada transacción abierta reinicia las estadísticas",
+            "Porque SQL Server cancela las que duran más de un minuto"
+          ],
+          "correctIndex": 0,
+          "explanation": "Mientras la transacción está abierta, los bloqueos de escritura se mantienen; cuanto más dura, más esperas y riesgo de deadlocks."
+        }
+      ]
+    },
+    {
+      "id": "cap-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 4: Transacciones y concurrencia",
+      "title": "Bloqueos, niveles de aislamiento y deadlocks",
+      "subtitle": "Qué ve cada sesión mientras otra escribe, cuánto cuesta cada nivel de aislamiento y cómo diagnosticar y evitar los interbloqueos.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Describir los bloqueos compartidos y exclusivos y por qué una sesión espera a otra.",
+        "Comparar READ COMMITTED, RCSI, SNAPSHOT, REPEATABLE READ y SERIALIZABLE.",
+        "Explicar los riesgos de NOLOCK y cómo prevenir y diagnosticar deadlocks."
+      ],
+      "theorySections": [
+        {
+          "id": "cap12-sec-1",
+          "title": "1. Bloqueos y esperas",
+          "body": "Para garantizar el aislamiento, SQL Server pone **bloqueos** sobre filas, páginas o tablas:\n- **Compartido (S)**: al leer. Varios lectores pueden tenerlo a la vez.\n- **Exclusivo (X)**: al escribir. Nadie más puede leer (en el nivel por defecto) ni escribir esa fila hasta el final de la transacción.\n- **Actualización (U)**: mientras busca la fila que va a modificar, para evitar que dos sesiones se crucen.\n\nSi una sesión pide un bloqueo incompatible con uno existente, **espera**. Eso es *blocking*, y es normal mientras dure poco. Se vuelve un problema cuando una transacción larga mantiene bloqueos exclusivos y forma una cola.\n\nSi una instrucción bloquea demasiadas filas (unas 5.000), SQL Server puede **escalar** a un bloqueo de tabla completa.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- ¿Quién está bloqueando a quién ahora mismo?\nSELECT r.session_id, r.blocking_session_id, r.wait_type, r.wait_time,\n       t.text AS consulta\nFROM sys.dm_exec_requests AS r\nCROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t\nWHERE r.blocking_session_id <> 0;",
+          "keyTakeaway": "Lectores comparten, escritores excluyen; el problema es cuánto tiempo se retiene el bloqueo."
+        },
+        {
+          "id": "cap12-sec-2",
+          "title": "2. Niveles de aislamiento y versiones de filas",
+          "body": "El nivel de aislamiento decide qué anomalías aceptas a cambio de menos esperas:\n- **READ UNCOMMITTED** (o `WITH (NOLOCK)`): lee sin pedir bloqueos. Puede ver datos que luego se deshacen (*lecturas sucias*) y, durante divisiones de página, **saltarse filas o leerlas dos veces**.\n- **READ COMMITTED** (por defecto): solo lee datos confirmados; los lectores esperan a los escritores.\n- **READ COMMITTED SNAPSHOT (RCSI)**: igual que el anterior, pero en vez de esperar lee la **última versión confirmada** guardada en tempdb. Lectores y escritores dejan de bloquearse. Es el valor por defecto en Azure SQL Database.\n- **SNAPSHOT**: toda la transacción ve los datos como estaban al empezar. Si intentas modificar una fila que otro cambió entretanto, recibes un error de conflicto.\n- **REPEATABLE READ** y **SERIALIZABLE**: retienen los bloqueos de lectura hasta el final; SERIALIZABLE además bloquea rangos para impedir filas fantasma. Más correctos, mucho más bloqueo.\n\nPara la mayoría de aplicaciones, **RCSI** es la mejor relación entre corrección y concurrencia. El costo es el espacio en tempdb para las versiones.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Activar RCSI en la base (requiere unos segundos sin otras conexiones)\nALTER DATABASE tienda SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;\n\n-- Permitir y usar SNAPSHOT en una transacción concreta\nALTER DATABASE tienda SET ALLOW_SNAPSHOT_ISOLATION ON;\nSET TRANSACTION ISOLATION LEVEL SNAPSHOT;\nBEGIN TRAN;\n  SELECT SUM(saldo) FROM fin.cuentas;   -- foto consistente al inicio\n  SELECT COUNT(*)   FROM fin.cuentas;   -- misma foto\nCOMMIT;",
+          "keyTakeaway": "RCSI evita que lectores y escritores se bloqueen sin aceptar lecturas sucias como NOLOCK."
+        },
+        {
+          "id": "cap12-sec-3",
+          "title": "3. Deadlocks: cómo se forman y cómo evitarlos",
+          "body": "Un **deadlock** (interbloqueo) ocurre cuando dos sesiones se esperan mutuamente: A tiene la fila 1 y quiere la 2; B tiene la 2 y quiere la 1. Ninguna puede avanzar. SQL Server lo detecta en segundos, elige una **víctima**, deshace su transacción y le devuelve el **error 1205**. La otra continúa.\n\nCómo reducirlos:\n- Accede a las tablas y filas **siempre en el mismo orden** en todo el código.\n- Transacciones cortas y con índices adecuados, para bloquear menos filas durante menos tiempo.\n- RCSI elimina los deadlocks entre lectores y escritores.\n- Como el error 1205 es transitorio, la aplicación puede **reintentar** la transacción un par de veces.\n\nPara diagnosticar, la sesión de eventos extendidos `system_health` guarda el grafo XML de cada deadlock reciente.",
+          "codeLanguage": "sql",
+          "codeSnippet": "-- Grafos de los deadlocks recientes guardados por system_health\nSELECT x.ev.value('@timestamp', 'datetime2') AS ocurrido,\n       x.ev.query('.') AS grafo\nFROM (\n  SELECT CAST(target_data AS XML) AS td\n  FROM sys.dm_xe_session_targets AS t\n  JOIN sys.dm_xe_sessions AS s ON s.address = t.event_session_address\n  WHERE s.name = 'system_health' AND t.target_name = 'ring_buffer'\n) AS d\nCROSS APPLY d.td.nodes('RingBufferTarget/event[@name=\"xml_deadlock_report\"]') AS x(ev);",
+          "keyTakeaway": "Mismo orden de acceso, transacciones cortas y reintento ante el error 1205."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Reglas de concurrencia para aplicaciones con muchos usuarios.",
+        "rules": [
+          "Prefiere RCSI a sembrar `WITH (NOLOCK)` por todo el código.",
+          "No uses NOLOCK en consultas cuyos números importan (dinero, inventario, informes).",
+          "Accede a las tablas siempre en el mismo orden.",
+          "Reintenta automáticamente ante el error 1205.",
+          "Vigila `blocking_session_id` antes de culpar al hardware."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "DECLARE @intento INT = 1;\nWHILE @intento <= 3\nBEGIN\n  BEGIN TRY\n    EXEC fin.usp_transferir @origen = 1, @destino = 2, @monto = 50;\n    BREAK;\n  END TRY\n  BEGIN CATCH\n    IF ERROR_NUMBER() <> 1205 OR @intento = 3 THROW;\n    SET @intento += 1;\n    WAITFOR DELAY '00:00:00.200';\n  END CATCH;\nEND;"
+      },
+      "comparison": {
+        "scenario": "Un informe de ventas se queda esperando a las escrituras, y alguien añade NOLOCK.",
+        "juniorLabel": "Error de Junior",
+        "juniorCode": "SELECT SUM(d.cantidad * d.precio_unitario) AS ventas_del_mes\nFROM ventas.detalle_pedido AS d WITH (NOLOCK)\nJOIN ventas.pedidos AS p WITH (NOLOCK) ON p.id = d.pedido_id\nWHERE p.fecha >= '2026-11-01';",
+        "juniorFlaws": [
+          "Puede sumar ventas de transacciones que luego se deshacen.",
+          "Durante divisiones de página puede contar filas dos veces o saltárselas.",
+          "El total cambia de una ejecución a otra sin que nadie sepa por qué."
+        ],
+        "intermediateLabel": "Solución correcta",
+        "intermediateCode": "-- Una sola vez, en la base:\nALTER DATABASE tienda SET READ_COMMITTED_SNAPSHOT ON WITH ROLLBACK IMMEDIATE;\n\n-- El informe, sin pistas de bloqueo:\nSELECT SUM(d.cantidad * d.precio_unitario) AS ventas_del_mes\nFROM ventas.detalle_pedido AS d\nJOIN ventas.pedidos AS p ON p.id = d.pedido_id\nWHERE p.fecha >= '2026-11-01';",
+        "intermediateBenefits": [
+          "El informe ya no espera a los escritores: lee la última versión confirmada.",
+          "Solo cuenta datos confirmados, una sola vez cada fila.",
+          "Se arregla para todas las consultas a la vez, no consulta por consulta."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "cap12-ej-1",
+          "title": "Práctica 1: Encontrar al bloqueador",
+          "difficulty": "Básico",
+          "prompt": "Escribe una consulta que muestre las sesiones que están esperando a otra, con el id de la sesión bloqueadora, el tipo de espera y el texto de la consulta que espera.",
+          "hint": "sys.dm_exec_requests y sys.dm_exec_sql_text con CROSS APPLY.",
+          "solutionExplanation": "`blocking_session_id` distinto de 0 indica que la sesión está esperando. La sesión bloqueadora suele ser una transacción abierta que nadie confirmó.",
+          "solutionCode": "SELECT r.session_id, r.blocking_session_id, r.wait_type,\n       r.wait_time / 1000.0 AS segundos, t.text AS consulta\nFROM sys.dm_exec_requests AS r\nCROSS APPLY sys.dm_exec_sql_text(r.sql_handle) AS t\nWHERE r.blocking_session_id <> 0\nORDER BY r.wait_time DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap12-ej-2",
+          "title": "Práctica 2: Provocar y evitar un deadlock",
+          "difficulty": "Intermedio",
+          "prompt": "Describe con código dos transacciones que provocan un deadlock al actualizar `fin.cuentas` 1 y 2, y luego reescríbelas para que no pueda ocurrir.",
+          "hint": "El problema es el orden en que cada sesión toca las filas.",
+          "solutionExplanation": "Si cada sesión toma las filas en orden contrario, se esperan mutuamente. Si las dos actualizan primero la cuenta de menor id, una simplemente espera a la otra y no hay ciclo.",
+          "solutionCode": "-- Sesión A                                   -- Sesión B\n-- BEGIN TRAN;                                 -- BEGIN TRAN;\n-- UPDATE fin.cuentas … WHERE id = 1;          -- UPDATE fin.cuentas … WHERE id = 2;\n-- UPDATE fin.cuentas … WHERE id = 2; (espera) -- UPDATE fin.cuentas … WHERE id = 1; (deadlock)\n\n-- Arreglo: las dos tocan las cuentas en el mismo orden (menor id primero)\nBEGIN TRAN;\n  UPDATE fin.cuentas SET saldo = saldo - 10 WHERE id = 1;\n  UPDATE fin.cuentas SET saldo = saldo + 10 WHERE id = 2;\nCOMMIT;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "cap12-ej-3",
+          "title": "Práctica 3: Elegir el nivel de aislamiento",
+          "difficulty": "Avanzado",
+          "prompt": "Un proceso de cierre suma los saldos de 10.000 cuentas y luego los compara con el total de movimientos. Mientras corre, siguen entrando transferencias. Elige el nivel de aislamiento y escribe el bloque.",
+          "hint": "Las dos consultas deben ver la misma foto de los datos sin bloquear las transferencias.",
+          "solutionExplanation": "Con `SNAPSHOT`, ambas consultas leen los datos tal como estaban al empezar la transacción, así que el cuadre es coherente. Las transferencias siguen escribiendo sin esperar al cierre.",
+          "solutionCode": "ALTER DATABASE CURRENT SET ALLOW_SNAPSHOT_ISOLATION ON;\nGO\nSET TRANSACTION ISOLATION LEVEL SNAPSHOT;\nBEGIN TRAN;\n  DECLARE @saldos DECIMAL(19,4) = (SELECT SUM(saldo) FROM fin.cuentas);\n  DECLARE @movs   DECIMAL(19,4) = (SELECT SUM(monto) FROM fin.movimientos);\n  SELECT @saldos AS saldos, @movs AS movimientos, @saldos - @movs AS diferencia;\nCOMMIT;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "cap12-q1",
+          "question": "¿Qué riesgo tiene leer con WITH (NOLOCK)?",
+          "options": [
+            "Bloquear la tabla completa hasta que termine la lectura",
+            "Obligar a recompilar el plan de la consulta en cada uso",
+            "Provocar un deadlock cada vez que hay escrituras activas",
+            "Ver datos no confirmados y contar filas dos veces o ninguna"
+          ],
+          "correctIndex": 3,
+          "explanation": "NOLOCK es READ UNCOMMITTED: no pide bloqueos y por eso puede leer cambios que se deshacen o filas que se mueven."
+        },
+        {
+          "id": "cap12-q2",
+          "question": "¿Qué cambia al activar READ COMMITTED SNAPSHOT (RCSI)?",
+          "options": [
+            "Los lectores leen la última versión confirmada sin esperar",
+            "Los escritores dejan de pedir bloqueos exclusivos al cambiar",
+            "Todas las transacciones pasan a ser de tipo SERIALIZABLE",
+            "Las lecturas pueden ver datos que aún no se confirmaron"
+          ],
+          "correctIndex": 0,
+          "explanation": "RCSI guarda versiones en tempdb; los lectores usan la última confirmada en lugar de esperar al bloqueo exclusivo."
+        },
+        {
+          "id": "cap12-q3",
+          "question": "¿Qué hace SQL Server al detectar un deadlock?",
+          "options": [
+            "Deja ambas sesiones esperando hasta que un administrador intervenga",
+            "Elige una víctima, deshace su transacción y devuelve el error 1205",
+            "Reinicia el servicio para liberar todos los bloqueos pendientes",
+            "Confirma las dos transacciones en el orden en que empezaron"
+          ],
+          "correctIndex": 1,
+          "explanation": "El monitor de bloqueos rompe el ciclo eligiendo la víctima más barata de deshacer; la otra sesión continúa."
+        }
+      ]
+    }
+  ]
+}

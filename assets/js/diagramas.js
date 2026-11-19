@@ -703,9 +703,72 @@
   }
 
   // ---------------------------------------------------------------------------
+  // 5. Árbol B de un índice: Seek, Seek de rango y Scan (interactivo)
+  // ---------------------------------------------------------------------------
+  const ARBOL_MODOS = [
+    {
+      id: "seek", nombre: "Index Seek", sql: "WHERE id = 450",
+      paginas: { raiz: true, inter: [1], hojas: [4] },
+      texto: "Baja por el árbol: la raíz dice que 450 está en la página intermedia 301–600, y esa dice que está en la hoja 401–500. Tres páginas leídas, sin importar cuántas filas tenga la tabla.",
+    },
+    {
+      id: "rango", nombre: "Seek de rango", sql: "WHERE id BETWEEN 450 AND 650",
+      paginas: { raiz: true, inter: [1], hojas: [4, 5, 6] },
+      texto: "Baja hasta la primera clave del rango (450) y desde ahí avanza por las hojas, que están enlazadas entre sí, hasta pasar de 650. No vuelve a subir al árbol: cinco páginas.",
+    },
+    {
+      id: "scan", nombre: "Index Scan", sql: "WHERE estado = 'pendiente'",
+      paginas: { raiz: false, inter: [], hojas: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+      texto: "El índice está ordenado por id, no por estado, así que no sirve para buscar: hay que leer todas las hojas, de la primera a la última. Con millones de filas son miles de páginas.",
+    },
+  ];
+  function svgArbol(m) {
+    const W = 560, hojaW = 54, gap = 7, x0 = (W - (9 * hojaW + 8 * gap)) / 2;
+    const yR = 8, yI = 78, yH = 150, alto = 34;
+    const on = (c) => (c ? " on" : "");
+    const interW = 120, interX = [x0 + 40, (W - interW) / 2, W - x0 - 40 - interW];
+    let h = "";
+    // Líneas padre → hijo
+    interX.forEach((x) => { h += `<line class="ar-linea" x1="${W / 2}" y1="${yR + alto}" x2="${x + interW / 2}" y2="${yI}"/>`; });
+    for (let k = 0; k < 9; k++) {
+      const xh = x0 + k * (hojaW + gap);
+      const xi = interX[Math.floor(k / 3)] + interW / 2;
+      h += `<line class="ar-linea" x1="${xi}" y1="${yI + alto}" x2="${xh + hojaW / 2}" y2="${yH}"/>`;
+      if (k < 8) h += `<line class="ar-enlace" x1="${xh + hojaW}" y1="${yH + alto / 2}" x2="${xh + hojaW + gap}" y2="${yH + alto / 2}"/>`;
+    }
+    // Páginas
+    const raizW = 140;
+    h += `<g class="ar-pag${on(m.paginas.raiz)}"><rect x="${(W - raizW) / 2}" y="${yR}" width="${raizW}" height="${alto}" rx="4"/><text x="${W / 2}" y="${yR + 21}" text-anchor="middle">raíz · 1–900</text></g>`;
+    interX.forEach((x, i) => {
+      h += `<g class="ar-pag${on(m.paginas.inter.includes(i))}"><rect x="${x}" y="${yI}" width="${interW}" height="${alto}" rx="4"/><text x="${x + interW / 2}" y="${yI + 21}" text-anchor="middle">${i * 300 + 1}–${(i + 1) * 300}</text></g>`;
+    });
+    for (let k = 0; k < 9; k++) {
+      const xh = x0 + k * (hojaW + gap);
+      h += `<g class="ar-pag hoja${on(m.paginas.hojas.includes(k))}"><rect x="${xh}" y="${yH}" width="${hojaW}" height="${alto}" rx="4"/><text x="${xh + hojaW / 2}" y="${yH + 21}" text-anchor="middle">${k * 100 + 1}–${(k + 1) * 100}</text></g>`;
+    }
+    return `<svg class="dg-svg dg-arbol" viewBox="0 0 ${W} ${yH + alto + 6}" role="img" aria-label="Árbol B de un índice sobre id: raíz, 3 páginas intermedias y 9 hojas. Resaltadas, las páginas que lee ${esc(m.nombre)}">${h}</svg>`;
+  }
+  function panelArbol(m) {
+    const n = (m.paginas.raiz ? 1 : 0) + m.paginas.inter.length + m.paginas.hojas.length;
+    return `<pre class="dg-sql"><code>SELECT * FROM ventas.pedidos\n${esc(m.sql)};</code></pre>
+      ${svgArbol(m)}
+      <p class="dg-explica-arbol"><strong>${n} páginas leídas.</strong> ${esc(m.texto)}</p>`;
+  }
+  function htmlArbol() {
+    const m0 = ARBOL_MODOS[0];
+    return `<figure class="diagrama" data-diagrama="indice-arbol-b">
+      <div class="dg-botones" role="group" aria-label="Elige cómo se lee el índice">
+        ${ARBOL_MODOS.map((m) => `<button type="button" class="dg-btn" data-arbol="${m.id}" aria-pressed="${m === m0}">${esc(m.nombre)}</button>`).join("")}
+      </div>
+      <div class="dg-panel-arbol" aria-live="polite">${panelArbol(m0)}</div>
+      <figcaption>Índice clúster sobre <code>id</code> con 900 filas repartidas en 9 páginas hoja. Las páginas resaltadas son las que el motor tiene que leer en cada caso.</figcaption>
+    </figure>`;
+  }
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
+    "indice-arbol-b": htmlArbol,
     "venn-joins": htmlVennJoins,
     regresion: htmlRegresion,
     "matriz-confusion": htmlConfusion,
@@ -725,6 +788,17 @@
   }
 
   function activar(raiz) {
+    (raiz || document).querySelectorAll('[data-diagrama="indice-arbol-b"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-arbol]");
+        if (!b) return;
+        const m = ARBOL_MODOS.find((x) => x.id === b.dataset.arbol);
+        fig.querySelectorAll("[data-arbol]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-arbol").innerHTML = panelArbol(m);
+      });
+    });
     activarDag(raiz);
     (raiz || document).querySelectorAll('[data-diagrama="venn-joins"]').forEach((fig) => {
       if (fig.dataset.listo) return;

@@ -343,6 +343,21 @@
     const { texto: t0, guardados } = enmascarar(sql);
     let t = t0.replace(/^\s*GO\s*;?\s*$/gim, "");
 
+    // Objetos y transacciones (curso SQL Server a fondo)
+    // dbo.tabla → tabla; CREATE OR ALTER VIEW / ALTER VIEW → DROP VIEW IF EXISTS + CREATE VIEW
+    t = t.replace(/\bdbo\s*\.\s*/gi, "");
+    t = t.replace(/\b(?:CREATE\s+OR\s+ALTER|ALTER)\s+VIEW\s+([^\s(]+)/gi, "DROP VIEW IF EXISTS $1; CREATE VIEW $1");
+    // [NON]CLUSTERED se quita; INCLUDE (…) no existe en SQLite: se ignora con aviso
+    t = t.replace(/\s+(?:NON)?CLUSTERED\b/gi, "");
+    if (/\bINCLUDE\s*\([^)]*\)/i.test(t)) {
+      t = t.replace(/\bINCLUDE\s*\([^)]*\)/gi, "");
+      avisos.push("INCLUDE (…) se ignora en esta consola; en SQL Server sí añade esas columnas al índice.");
+    }
+    // DROP INDEX [IF EXISTS] ix ON tabla → DROP INDEX [IF EXISTS] ix
+    t = t.replace(/\bDROP\s+INDEX\s+(IF\s+EXISTS\s+)?([^\s;]+)\s+ON\s+[^\s;]+/gi, "DROP INDEX $1$2");
+    // BEGIN TRAN / COMMIT TRAN / ROLLBACK TRAN → forma completa
+    t = t.replace(/\bBEGIN\s+TRAN(?:SACTION)?\b/gi, "BEGIN TRANSACTION").replace(/\b(COMMIT|ROLLBACK)\s+TRAN(?:SACTION)?\b/gi, "$1");
+
     // CROSS APPLY OPENJSON(x[, ruta]) AS a → JOIN json_each(x[, ruta]) AS a
     // OUTER APPLY OPENJSON(…) AS a       → LEFT JOIN json_each(…) AS a ON 1 = 1
     t = reemplazarLlamadas(t, "OPENJSON", (_, dentro, resto, antes) => {
@@ -455,6 +470,9 @@
     if ((x = m.match(/no such function: (\w+)/i))) return `La función ${x[1].replace(/^T_/, "")} no existe en T-SQL o no está disponible en esta consola. Revisa la ayuda de equivalencias.`;
     if ((x = m.match(/no such column: ([\w.]+)/i))) return `No existe la columna ${x[1]}. Revisa el nombre en las tablas de la derecha (o el alias de la tabla).`;
     if ((x = m.match(/no such table: (\w+)/i))) return `No existe la tabla ${x[1]}. Revisa el nombre en la lista de tablas.`;
+    if ((x = m.match(/(view|index|table) (\w+) already exists/i))) return `${{ view: "La vista", index: "El índice", table: "La tabla" }[x[1].toLowerCase()]} ${x[2]} ya existe en esta consola. Usa CREATE OR ALTER VIEW, DROP … IF EXISTS antes de crearlo, o restaura la base.`;
+    if (/within a transaction/i.test(m)) return "Ya hay una transacción abierta en esta consola. Ciérrala con COMMIT o ROLLBACK antes de empezar otra.";
+    if (/no transaction is active/i.test(m)) return "No hay ninguna transacción abierta: COMMIT y ROLLBACK necesitan un BEGIN TRAN antes.";
     if (/misuse of aggregate/i.test(m)) return "Usaste una función de agregación (SUM, COUNT…) donde no se puede, por ejemplo dentro de WHERE. Para filtrar grupos usa HAVING.";
     if (/Parte de fecha no válida/i.test(m)) return m + ". Usa year, quarter, month, week, day, hour, minute o second.";
     if (/syntax error/i.test(m)) return `Error de sintaxis (${m.replace(/^.*?near/i, "cerca de")}). Revisa comas, paréntesis y palabras clave.`;

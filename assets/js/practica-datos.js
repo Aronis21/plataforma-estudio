@@ -649,6 +649,160 @@ window.PracticaDatos = {
    "solucion": "WITH calendario AS (SELECT DATEADD(day, gs.value, CAST('2026-03-01' AS DATE)) AS dia FROM GENERATE_SERIES(0, 30) AS gs) SELECT c.dia, COUNT(e.id) AS compras FROM calendario AS c LEFT JOIN eventos AS e ON CAST(e.fecha AS DATE) = c.dia AND e.tipo = 'compra' GROUP BY c.dia ORDER BY c.dia;",
    "orden": true,
    "pista": "Arma el calendario con `DATEADD(day, gs.value, '2026-03-01')` sobre `GENERATE_SERIES(0, 30)` y haz `LEFT JOIN` a las compras. El filtro de tipo va en el `ON`, no en el `WHERE`, para no perder los días vacíos."
-  }
+  },
+ {
+  "id": "v01",
+  "base": "tienda",
+  "nivel": "basico",
+  "concepto": "Vistas",
+  "titulo": "Tu primera vista",
+  "enunciado": "Crea la vista `v_productos_activos` con `id`, `nombre`, `categoria` y `precio` de los productos **activos**. Después consúltala para mostrar los de la categoría **Electrónica**, del más caro al más barato. Recuerda: `CREATE VIEW` debe ir solo en su lote, así que sepáralo de la consulta con una línea `GO`. Columnas: id, nombre, categoria, precio.",
+  "solucion": "CREATE VIEW v_productos_activos AS\nSELECT id, nombre, categoria, precio FROM productos WHERE activo = 1;\nGO\nSELECT id, nombre, categoria, precio FROM v_productos_activos WHERE categoria = 'Electrónica' ORDER BY precio DESC;",
+  "orden": true,
+  "pista": "Primero `CREATE VIEW v_productos_activos AS SELECT … WHERE activo = 1;`, luego una línea con `GO` y por último el `SELECT` sobre la vista con su `WHERE` y `ORDER BY`."
+ },
+ {
+  "id": "v02",
+  "base": "tienda",
+  "nivel": "intermedio",
+  "concepto": "Vistas",
+  "titulo": "Vista con el total de cada pedido",
+  "enunciado": "Crea la vista `v_pedidos_total` con `id`, `cliente_id`, `fecha` y el `total` de cada pedido (suma de `cantidad * precio_unitario` de `detalle_pedido`). Luego usa la vista para mostrar los **5 pedidos de mayor total** (si empatan, por `id`). Columnas: id, cliente_id, total.",
+  "solucion": "CREATE VIEW v_pedidos_total AS\nSELECT p.id, p.cliente_id, p.fecha, SUM(d.cantidad * d.precio_unitario) AS total\nFROM pedidos AS p JOIN detalle_pedido AS d ON d.pedido_id = p.id\nGROUP BY p.id, p.cliente_id, p.fecha;\nGO\nSELECT TOP (5) id, cliente_id, total FROM v_pedidos_total ORDER BY total DESC, id;",
+  "orden": true,
+  "pista": "El `GROUP BY` va dentro de la vista; el `TOP (5)` y el `ORDER BY` van en la consulta que lee la vista."
+ },
+ {
+  "id": "v03",
+  "base": "rrhh",
+  "nivel": "intermedio",
+  "concepto": "Vistas",
+  "titulo": "Vista sin datos sensibles",
+  "enunciado": "Recursos humanos quiere un directorio sin salarios. Crea la vista `v_directorio` con `id`, `nombre`, `puesto` y el **nombre del departamento** (columna `departamento`), incluyendo a quien no tiene departamento. Luego cuenta con ella cuántas personas hay en cada departamento. Columnas: departamento, personas.",
+  "solucion": "CREATE VIEW v_directorio AS\nSELECT e.id, e.nombre, e.puesto, d.nombre AS departamento\nFROM empleados AS e LEFT JOIN departamentos AS d ON d.id = e.departamento_id;\nGO\nSELECT departamento, COUNT(*) AS personas FROM v_directorio GROUP BY departamento;",
+  "orden": false,
+  "pista": "`LEFT JOIN` a `departamentos` para no perder a quien tiene `departamento_id` NULL. La vista no expone `salario` ni `comision`."
+ },
+ {
+  "id": "v04",
+  "base": "app",
+  "nivel": "avanzado",
+  "concepto": "Vistas",
+  "titulo": "Cambiar una vista con CREATE OR ALTER",
+  "enunciado": "Crea con `CREATE OR ALTER VIEW` la vista `v_ingresos_pais` con, por país del usuario, el número de **compras** y el **ingreso** (suma de `monto`). Luego consúltala ordenando por ingreso de mayor a menor. Columnas: pais, compras, ingreso.",
+  "solucion": "CREATE OR ALTER VIEW v_ingresos_pais AS\nSELECT u.pais, COUNT(*) AS compras, SUM(e.monto) AS ingreso\nFROM eventos AS e JOIN usuarios AS u ON u.id = e.usuario_id\nWHERE e.tipo = 'compra'\nGROUP BY u.pais;\nGO\nSELECT pais, compras, ingreso FROM v_ingresos_pais ORDER BY ingreso DESC;",
+  "orden": true,
+  "pista": "`CREATE OR ALTER VIEW` crea la vista o la reemplaza si ya existe, así puedes ejecutar tu script varias veces. Filtra `tipo = 'compra'` dentro de la vista."
+ },
+ {
+  "id": "ix01",
+  "base": "tienda",
+  "nivel": "basico",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "Un rango en lugar de MONTH()",
+  "enunciado": "Crea el índice `ix_pedidos_fecha` sobre `pedidos(fecha)` y muestra los pedidos de **marzo de 2026** con un filtro **sargable** (sin funciones sobre `fecha`), ordenados por fecha e id. Columnas: id, cliente_id, fecha.",
+  "solucion": "CREATE INDEX ix_pedidos_fecha ON pedidos (fecha);\nSELECT id, cliente_id, fecha FROM pedidos\nWHERE fecha >= '2026-03-01' AND fecha < '2026-04-01'\nORDER BY fecha, id;",
+  "orden": true,
+  "pista": "`YEAR(fecha) = 2026 AND MONTH(fecha) = 3` da lo mismo, pero impide el Seek. Usa `fecha >= '2026-03-01' AND fecha < '2026-04-01'`."
+ },
+ {
+  "id": "ix02",
+  "base": "tienda",
+  "nivel": "basico",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "LIKE en lugar de LEFT()",
+  "enunciado": "Crea un índice sobre `clientes(nombre)` y muestra los clientes cuyo nombre **empieza por 'M'** sin aplicar funciones a la columna, ordenados por nombre. Columnas: id, nombre.",
+  "solucion": "CREATE INDEX ix_clientes_nombre ON clientes (nombre);\nSELECT id, nombre FROM clientes WHERE nombre LIKE 'M%' ORDER BY nombre;",
+  "orden": true,
+  "pista": "`LEFT(nombre, 1) = 'M'` no es sargable; `nombre LIKE 'M%'` sí, porque el comodín va al final."
+ },
+ {
+  "id": "ix03",
+  "base": "rrhh",
+  "nivel": "intermedio",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "Ingresos de un año sin YEAR()",
+  "enunciado": "Crea un índice sobre `empleados(fecha_ingreso)` y lista quién ingresó en **2024**, con un filtro sargable, ordenado por fecha de ingreso. Columnas: nombre, puesto, fecha_ingreso.",
+  "solucion": "CREATE INDEX ix_empleados_ingreso ON empleados (fecha_ingreso);\nSELECT nombre, puesto, fecha_ingreso FROM empleados\nWHERE fecha_ingreso >= '2024-01-01' AND fecha_ingreso < '2025-01-01'\nORDER BY fecha_ingreso;",
+  "orden": true,
+  "pista": "Rango semiabierto: desde el 1 de enero de 2024 (incluido) hasta el 1 de enero de 2025 (excluido)."
+ },
+ {
+  "id": "ix04",
+  "base": "tienda",
+  "nivel": "intermedio",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "Índice compuesto: igualdad y luego rango",
+  "enunciado": "Crea el índice `ix_pedidos_cliente_fecha` sobre `pedidos` pensado para buscar por cliente y rango de fechas, con `estado` en `INCLUDE`. Después muestra los pedidos del **cliente 19** desde el **1 de marzo de 2026**, ordenados por fecha. Columnas: id, fecha, estado.",
+  "solucion": "CREATE NONCLUSTERED INDEX ix_pedidos_cliente_fecha ON pedidos (cliente_id, fecha) INCLUDE (estado);\nSELECT id, fecha, estado FROM pedidos\nWHERE cliente_id = 19 AND fecha >= '2026-03-01'\nORDER BY fecha;",
+  "orden": true,
+  "pista": "La columna de igualdad (`cliente_id`) va primero en la clave y la de rango (`fecha`) después; `estado` solo se devuelve, así que va en `INCLUDE`. La consola ignora `INCLUDE`, pero en SQL Server evita el Key Lookup."
+ },
+ {
+  "id": "ix05",
+  "base": "rrhh",
+  "nivel": "avanzado",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "Índice filtrado para pocos datos",
+  "enunciado": "Solo unos pocos empleados tienen comisión. Crea un **índice filtrado** `ix_empleados_comision` sobre `empleados(departamento_id)` que contenga solo las filas con comisión, y escribe la consulta que lo aprovecha: nombre y comisión de quienes la tienen, de mayor a menor comisión. Columnas: nombre, comision.",
+  "solucion": "CREATE INDEX ix_empleados_comision ON empleados (departamento_id) WHERE comision IS NOT NULL;\nSELECT nombre, comision FROM empleados WHERE comision IS NOT NULL ORDER BY comision DESC;",
+  "orden": true,
+  "pista": "El índice lleva `WHERE comision IS NOT NULL` al final. Para que SQL Server lo use, la consulta debe incluir la misma condición. Ojo: `ISNULL(comision, 0) > 0` no sería sargable."
+ },
+ {
+  "id": "ix06",
+  "base": "app",
+  "nivel": "avanzado",
+  "concepto": "Índices y sargabilidad",
+  "titulo": "Una semana de compras, sin CAST sobre la columna",
+  "enunciado": "Crea un índice sobre `eventos(tipo, fecha)` y cuenta las **compras** de la semana del **9 al 15 de marzo de 2026** (ambos días completos) y su ingreso total, sin aplicar funciones a `fecha` (que guarda también la hora). Columnas: compras, ingreso.",
+  "solucion": "CREATE INDEX ix_eventos_tipo_fecha ON eventos (tipo, fecha);\nSELECT COUNT(*) AS compras, SUM(monto) AS ingreso FROM eventos\nWHERE tipo = 'compra' AND fecha >= '2026-03-09' AND fecha < '2026-03-16';",
+  "orden": false,
+  "pista": "Con hora en la columna, el límite superior es el **día siguiente** sin incluir: `fecha < '2026-03-16'`. Así entra todo el día 15, hasta el último segundo."
+ },
+ {
+  "id": "tr01",
+  "base": "rrhh",
+  "nivel": "basico",
+  "concepto": "Transacciones",
+  "titulo": "Ensayar un cambio y deshacerlo",
+  "enunciado": "Dentro de una transacción, sube un **10%** el salario del departamento 2 (Datos), muestra cómo quedaron sus empleados y termina con `ROLLBACK` para no guardar nada. Columnas: id, nombre, salario.",
+  "solucion": "BEGIN TRAN;\nUPDATE empleados SET salario = salario * 1.10 WHERE departamento_id = 2;\nSELECT id, nombre, salario FROM empleados WHERE departamento_id = 2;\nROLLBACK;",
+  "orden": false,
+  "pista": "`BEGIN TRAN;` → `UPDATE` → `SELECT` (aquí ves los salarios nuevos) → `ROLLBACK;`. El resultado que cuenta es el del `SELECT`."
+ },
+ {
+  "id": "tr02",
+  "base": "rrhh",
+  "nivel": "intermedio",
+  "concepto": "Transacciones",
+  "titulo": "Comprobar que ROLLBACK lo deshace todo",
+  "enunciado": "Abre una transacción, **borra** a todos los empleados del departamento 5 (Soporte), deshaz la transacción y **después** demuestra que siguen ahí mostrando los empleados de ese departamento. Columnas: id, nombre, puesto.",
+  "solucion": "BEGIN TRAN;\nDELETE FROM empleados WHERE departamento_id = 5;\nROLLBACK;\nSELECT id, nombre, puesto FROM empleados WHERE departamento_id = 5;",
+  "orden": false,
+  "pista": "El `SELECT` va **después** del `ROLLBACK`: debe devolver las mismas filas que antes del `DELETE`."
+ },
+ {
+  "id": "tr03",
+  "base": "tienda",
+  "nivel": "intermedio",
+  "concepto": "Transacciones",
+  "titulo": "Pedido y detalle juntos",
+  "enunciado": "Registra en **una sola transacción** el pedido `id = 9001` del cliente 7, con fecha `'2026-06-30'` y estado `'pendiente'`, y sus dos líneas: 2 unidades del producto 1 y 1 unidad del producto 3, cada una al **precio actual** del producto. Confirma con `COMMIT` y muestra el total del pedido. Columnas: pedido_id, total.",
+  "solucion": "BEGIN TRAN;\nINSERT INTO pedidos (id, cliente_id, fecha, estado) VALUES (9001, 7, '2026-06-30', 'pendiente');\nINSERT INTO detalle_pedido (pedido_id, producto_id, cantidad, precio_unitario)\nSELECT 9001, id, IIF(id = 1, 2, 1), precio FROM productos WHERE id IN (1, 3);\nCOMMIT;\nSELECT pedido_id, SUM(cantidad * precio_unitario) AS total FROM detalle_pedido WHERE pedido_id = 9001 GROUP BY pedido_id;",
+  "orden": false,
+  "pista": "El precio se toma de `productos` con `INSERT … SELECT`. Si una de las inserciones fallara, sin la transacción quedaría un pedido sin líneas o líneas sin pedido."
+ },
+ {
+  "id": "tr04",
+  "base": "tienda",
+  "nivel": "avanzado",
+  "concepto": "Transacciones",
+  "titulo": "Cierre de pendientes viejos",
+  "enunciado": "En una transacción, cambia a `'cancelado'` los pedidos **pendientes** con fecha **anterior al 1 de abril de 2026**, confirma con `COMMIT` y muestra cuántos pedidos hay ahora en cada estado. Columnas: estado, pedidos.",
+  "solucion": "BEGIN TRAN;\nUPDATE pedidos SET estado = 'cancelado' WHERE estado = 'pendiente' AND fecha < '2026-04-01';\nCOMMIT;\nSELECT estado, COUNT(*) AS pedidos FROM pedidos GROUP BY estado;",
+  "orden": false,
+  "pista": "El filtro combina estado y fecha (sargable). Tras el `COMMIT`, agrupa por `estado` para ver el resultado."
+ }
  ]
 };
