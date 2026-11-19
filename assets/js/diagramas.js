@@ -765,6 +765,111 @@
     </figure>`;
   }
   // ---------------------------------------------------------------------------
+  // 10. Boosting árbol a árbol (interactivo)
+  // ---------------------------------------------------------------------------
+  // Temperatura del día (x) y ventas de helados (y): relación no lineal
+  const BOOST = [[2, 12], [4, 14], [6, 13], [8, 18], [10, 21], [12, 20], [14, 30], [16, 34], [18, 33], [20, 41], [22, 47], [24, 45], [26, 38], [28, 35], [30, 33]];
+  const BOOST_LR = 0.5, BOOST_MAX = 8;
+
+  // Ajusta árboles de un solo corte (stumps) en secuencia sobre los residuos
+  function boostingPasos(pts, rondas, lr) {
+    const media = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+    const pred = pts.map(() => media);
+    const pasos = [{ pred: pred.slice(), corte: null }];
+    for (let r = 0; r < rondas; r++) {
+      const res = pts.map((p, i) => p[1] - pred[i]);
+      let mejor = null;
+      for (let k = 1; k < pts.length; k++) {
+        const izq = res.slice(0, k), der = res.slice(k);
+        const mi = izq.reduce((a, b) => a + b, 0) / izq.length, md = der.reduce((a, b) => a + b, 0) / der.length;
+        const sse = izq.reduce((a, b) => a + (b - mi) ** 2, 0) + der.reduce((a, b) => a + (b - md) ** 2, 0);
+        if (!mejor || sse < mejor.sse) mejor = { sse, k, mi, md };
+      }
+      for (let i = 0; i < pts.length; i++) pred[i] += lr * (i < mejor.k ? mejor.mi : mejor.md);
+      pasos.push({ pred: pred.slice(), corte: (pts[mejor.k - 1][0] + pts[mejor.k][0]) / 2 });
+    }
+    return pasos;
+  }
+  const PASOS_BOOST = boostingPasos(BOOST, BOOST_MAX, BOOST_LR);
+
+  function panelBoosting(n) {
+    const paso = PASOS_BOOST[n];
+    const W = 360, H = 220, m = 34;
+    const X = (x) => m + (x / 32) * (W - m - 10), Y = (y) => H - m - (y / 52) * (H - m - 10);
+    const rmse = Math.sqrt(BOOST.reduce((a, p, i) => a + (p[1] - paso.pred[i]) ** 2, 0) / BOOST.length);
+    // Predicción en escalones: cada punto manda hasta la mitad del camino al siguiente
+    let d = "";
+    BOOST.forEach(([x], i) => {
+      const x1 = i === 0 ? 1 : (BOOST[i - 1][0] + x) / 2, x2 = i === BOOST.length - 1 ? 31 : (x + BOOST[i + 1][0]) / 2;
+      d += `${i === 0 ? "M" : "L"}${X(x1)},${Y(paso.pred[i])} L${X(x2)},${Y(paso.pred[i])} `;
+    });
+    const res = BOOST.map(([x, y], i) => `<line class="residuo" x1="${X(x)}" y1="${Y(y)}" x2="${X(x)}" y2="${Y(paso.pred[i])}"/>`).join("");
+    const pts = BOOST.map(([x, y]) => `<circle class="punto" cx="${X(x)}" cy="${Y(y)}" r="4"/>`).join("");
+    const corte = paso.corte == null ? "" : `<line class="corte" x1="${X(paso.corte)}" y1="8" x2="${X(paso.corte)}" y2="${H - m}"/>`;
+    const texto = n === 0
+      ? "Con 0 árboles el modelo predice el promedio para todos. Los residuos (líneas punteadas) son enormes."
+      : `El árbol ${n} solo hace un corte (línea vertical) y aprende a corregir los residuos que ${n === 1 ? "dejó el promedio inicial" : `dejaron los ${n - 1} árboles previos`}. Se suma a la predicción multiplicado por la tasa de aprendizaje (${BOOST_LR}).`;
+    return `<svg class="dg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Ventas de helados según temperatura y predicción del boosting con ${n} árboles">
+        <line class="eje" x1="${m}" y1="${H - m}" x2="${W - 8}" y2="${H - m}"/>
+        <line class="eje" x1="${m}" y1="8" x2="${m}" y2="${H - m}"/>
+        ${corte}${res}
+        <path class="recta" fill="none" d="${d}"/>
+        ${pts}
+        <text x="${W / 2}" y="${H - 8}" text-anchor="middle">temperatura (°C)</text>
+        <text x="12" y="${H / 2}" text-anchor="middle" transform="rotate(-90 12 ${H / 2})">ventas</text>
+      </svg>
+      <div class="dg-metricas"><span><strong>Árboles</strong> ${n}</span><span><strong>RMSE</strong> ${rmse.toFixed(2)}</span></div>
+      <p class="dg-explica-b">${esc(texto)}</p>`;
+  }
+
+  function htmlBoosting() {
+    return `<figure class="diagrama" data-diagrama="boosting">
+      <label class="dg-umbral">Número de árboles: <strong data-valor>0</strong>
+        <input type="range" min="0" max="${BOOST_MAX}" step="1" value="0" aria-label="Número de árboles del boosting">
+      </label>
+      <div class="dg-panel-b" aria-live="polite">${panelBoosting(0)}</div>
+      <figcaption>Mueve el control: cada árbol nuevo es pequeño y torpe por sí solo, pero se enfoca en lo que los anteriores todavía fallan. Con suficientes árboles la escalera sigue la curva; con demasiados empezaría a seguir también el ruido.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 11. Validación temporal: ventana expansiva o deslizante (interactivo)
+  // ---------------------------------------------------------------------------
+  const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  const VENTANAS = {
+    expansiva: { nombre: "Ventana expansiva", texto: "Cada ronda entrena con todo el pasado disponible y prueba en el mes siguiente. Usa más datos a medida que avanza; es lo habitual cuando el pasado lejano sigue siendo útil." },
+    deslizante: { nombre: "Ventana deslizante", texto: "Cada ronda entrena solo con los últimos 6 meses. Sirve cuando el negocio cambia y los datos viejos ya no representan el presente." },
+    hueco: { nombre: "Con hueco", texto: "Entre el entrenamiento y la prueba se deja un mes sin usar. Imita la realidad cuando los datos llegan con retraso o predices con un mes de anticipación." },
+  };
+
+  function panelTemporal(tipo) {
+    const W = 360, x0 = 52, celda = (W - x0 - 4) / 12, fila = 24;
+    let h = MESES.map((mes, i) => `<text x="${x0 + i * celda + celda / 2}" y="12" text-anchor="middle">${mes}</text>`).join("");
+    for (let r = 0; r < 4; r++) {
+      const y = 20 + r * fila, prueba = 8 + r, hueco = tipo === "hueco" ? 1 : 0;
+      const fin = prueba - hueco, ini = tipo === "deslizante" ? fin - 6 : 0;
+      h += `<text x="0" y="${y + 14}">ronda ${r + 1}</text>`;
+      for (let i = 0; i < 12; i++) {
+        const cls = i === prueba ? "b-test" : i >= ini && i < fin ? "b-train" : i >= fin && i < prueba ? "b-hueco" : "b-nada";
+        h += `<rect x="${x0 + i * celda}" y="${y}" width="${celda - 2}" height="18" class="${cls}"/>`;
+      }
+    }
+    const H = 20 + 4 * fila + 4;
+    return `<svg class="dg-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(VENTANAS[tipo].nombre)}: 4 rondas de entrenamiento y prueba ordenadas en el tiempo">${h}</svg>
+      <p class="dg-explica-b">${esc(VENTANAS[tipo].texto)}</p>`;
+  }
+
+  function htmlTemporal() {
+    const botones = Object.entries(VENTANAS).map(([id, v], i) => `<button type="button" class="dg-btn" data-ventana="${id}" aria-pressed="${i === 0}">${esc(v.nombre)}</button>`).join("");
+    return `<figure class="diagrama" data-diagrama="validacion-temporal">
+      <div class="dg-botones" role="group" aria-label="Tipo de ventana">${botones}</div>
+      <div class="dg-panel-t" aria-live="polite">${panelTemporal("expansiva")}</div>
+      <div class="dg-leyenda"><span><i class="b-train"></i>entrena</span><span><i class="b-test"></i>prueba</span><span><i class="b-hueco"></i>hueco sin usar</span></div>
+      <figcaption>En una serie temporal nunca se valida con datos anteriores a los de entrenamiento: cada ronda prueba siempre en el futuro de lo que vio. Nada de mezclar al azar.</figcaption>
+    </figure>`;
+  }
+
+  // ---------------------------------------------------------------------------
   // Registro
   // ---------------------------------------------------------------------------
   const TIPOS = {
@@ -780,6 +885,8 @@
     "dag-airflow": htmlDag,
     "ramas-git": htmlRamas,
     "pipeline-cicd": htmlPipeline,
+    boosting: htmlBoosting,
+    "validacion-temporal": htmlTemporal,
   };
 
   function html(spec) {
@@ -874,6 +981,26 @@
         if (nueva) nueva.focus();
       });
     });
+    (raiz || document).querySelectorAll('[data-diagrama="boosting"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      const inp = fig.querySelector("input[type=range]");
+      inp.addEventListener("input", () => {
+        const n = Number(inp.value);
+        fig.querySelector("[data-valor]").textContent = String(n);
+        fig.querySelector(".dg-panel-b").innerHTML = panelBoosting(n);
+      });
+    });
+    (raiz || document).querySelectorAll('[data-diagrama="validacion-temporal"]').forEach((fig) => {
+      if (fig.dataset.listo) return;
+      fig.dataset.listo = "1";
+      fig.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-ventana]");
+        if (!b) return;
+        fig.querySelectorAll("[data-ventana]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        fig.querySelector(".dg-panel-t").innerHTML = panelTemporal(b.dataset.ventana);
+      });
+    });
   }
 
   function activarDag(raiz) {
@@ -913,5 +1040,5 @@
     });
   }
 
-  window.Diagramas = { html, activar, ESTRELLA, estadoEstrella, CALC, svgVenn, JOINS, filasJoin, ajusteLineal, REG, CLIENTES_CHURN };
+  window.Diagramas = { html, activar, ESTRELLA, estadoEstrella, CALC, svgVenn, JOINS, filasJoin, ajusteLineal, REG, CLIENTES_CHURN, boostingPasos, BOOST };
 })();

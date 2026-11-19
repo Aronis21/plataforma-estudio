@@ -245,3 +245,9 @@
 .dg-arbol .ar-enlace { stroke: var(--tinta-2); stroke-width: 2; }
 .dg-panel-arbol .dg-sql { margin-bottom: .8rem; }
 .dg-explica-arbol { margin: .8rem 0 0; line-height: 1.5; }
+
+/* Boosting y validación temporal */
+.dg-svg .corte { stroke: var(--tinta); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.dg-explica-b { margin: .6rem 0 0; line-height: 1.5; }
+.dg-svg .b-hueco, .dg-leyenda .b-hueco { fill: color-mix(in srgb, var(--tinta-2) 35%, transparent); background: color-mix(in srgb, var(--tinta-2) 35%, transparent); }
+.dg-svg .b-nada { fill: none; stroke: var(--borde); stroke-width: 1; }

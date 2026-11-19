@@ -71,6 +71,23 @@
       "publicado": true
     },
     {
+      "id": "machine-learning-completo",
+      "archivo": "machine-learning-completo.json",
+      "tema": "datos",
+      "separador": "Machine learning",
+      "cuaderno": "Cuaderno de modelos",
+      "categoria": "Datos y Analítica",
+      "etiquetas": [
+        "Python",
+        "scikit-learn",
+        "Boosting",
+        "T-SQL",
+        "MLOps"
+      ],
+      "color": "#F0B429",
+      "publicado": true
+    },
+    {
       "id": "programacion-desarrollo-web",
       "archivo": "programacion-desarrollo-web.json",
       "tema": "web",
