@@ -1366,6 +1366,12 @@
 
   // Botón "Practicar este tema" en la pestaña Ejercicios de cada capítulo
   const TEMAS_CAPITULO = {
+    "fundamentos": {
+      "cap-07": ["Consultas y filtros"],
+      "cap-08": ["NULL, CASE e IIF", "Fechas y texto"],
+      "cap-09": ["Agregación"],
+      "cap-10": ["JOIN"],
+    },
     "analista-datos-intermedio": {
       "cap-01": ["Subconsultas y CTE", "Funciones de ventana"],
       "cap-02": ["JOIN"],

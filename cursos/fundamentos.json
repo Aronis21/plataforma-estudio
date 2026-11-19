@@ -1,0 +1,2211 @@
+{
+  "id": "fundamentos",
+  "title": "Fundamentos: nivelación desde cero",
+  "subtitle": "Terminal, lógica, tablas, Excel, SQL básico en T-SQL, Python, HTML y JavaScript, y estadística descriptiva: todo lo que suponen los demás cursos, en 15 capítulos.",
+  "level": "Principiante",
+  "author": "Aronis",
+  "updatedAt": "2026-11-19",
+  "chapters": [
+    {
+      "id": "cap-01",
+      "order": 1,
+      "kind": "chapter",
+      "code": "Cap. 01",
+      "module": "Módulo 0 · Antes de empezar",
+      "title": "Cómo usar este curso y qué curso sigue después",
+      "subtitle": "El mapa de rutas de la plataforma, cómo estudiar cada capítulo y una prueba de nivel para saber qué puedes saltar.",
+      "estimatedMinutes": 30,
+      "status": "published",
+      "objectives": [
+        "Ubicar este curso dentro de las rutas de Datos, Web e IA de la plataforma.",
+        "Saber qué conocimientos supone cada curso y en qué capítulo de este curso los aprendes.",
+        "Usar la prueba de nivel (pestaña Examen) para decidir qué capítulos estudiar y cuáles repasar rápido.",
+        "Seguir una rutina de estudio: leer, escribir el código a mano, hacer los ejercicios y luego el examen."
+      ],
+      "theorySections": [
+        {
+          "id": "fn01-sec-1",
+          "title": "1. Por qué existe este curso",
+          "body": "Los cursos de la plataforma están escritos para alguien que ya sabe lo básico. Por ejemplo, el capítulo 1 de **Analista de Datos Intermedio** empieza con CTEs y funciones de ventana, y da por hecho que ya escribes `SELECT`, `WHERE`, `GROUP BY` y `JOIN` sin pensarlo. **Power BI**, **Ingeniería de datos** y **SQL Server a fondo** suponen lo mismo. **Back-end** y **Nube y DevOps** suponen que sabes moverte en una terminal.\n\nEste curso cubre justo ese hueco. Al terminarlo podrás:\n\n- Usar archivos, carpetas y la terminal sin miedo.\n- Pensar un problema como pasos (lógica) y un conjunto de datos como tabla.\n- Resolver cálculos en Excel con fórmulas y tablas dinámicas.\n- Escribir consultas T-SQL de lectura, agregación y unión, y crear tablas.\n- Leer y escribir Python y JavaScript sencillos.\n- Resumir datos con estadística descriptiva.",
+          "keyTakeaway": "Este curso no reemplaza a los demás: los prepara. Cada capítulo termina diciendo en qué curso usarás lo aprendido."
+        },
+        {
+          "id": "fn01-sec-2",
+          "title": "2. El mapa de rutas",
+          "body": "Después de este curso puedes seguir por tres caminos. Lo que tienes que dominar antes de cada uno:\n\n- **Analista de Datos Intermedio**: caps. 4, 5, 6, 7 a 11, 12 y 14.\n- **Power BI y DAX**: caps. 4, 5, 6 y 7 a 10.\n- **SQL Server a fondo** e **Ingeniería de datos**: caps. 2 y 7 a 11.\n- **Machine learning completo**: primero Analista (sus caps. 20 y 21), y de aquí los caps. 12 y 14.\n- **Programación y Desarrollo Web**: caps. 2, 3 y 13.\n- **Back-end y APIs**, **TypeScript y React**: caps. 2, 3, 13 y luego el curso de Web; Back-end además los caps. 7 a 11.\n- **Nube y DevOps**: cap. 2 y luego el curso de Web.\n- **Inteligencia Artificial**: puedes empezarlo ya; **IA aplicada a datos** pide los caps. 7 a 12.",
+          "codeSnippet": "Fundamentos (este curso)\n├── Datos:  Analista ─► Machine learning\n│           Power BI · SQL Server a fondo · Ingeniería de datos\n├── Web:    Programación Web ─► TypeScript y React\n│                            ─► Back-end y APIs ─► Nube y DevOps\n└── IA:     Inteligencia Artificial ─► IA aplicada a datos",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "No hace falta terminar los 15 capítulos para empezar otro curso: mira la lista y estudia solo los que pide tu siguiente paso."
+        },
+        {
+          "id": "fn01-sec-3",
+          "title": "3. Cómo estudiar cada capítulo y la prueba de nivel",
+          "body": "Cada capítulo tiene la misma estructura: **Teoría** (tres secciones con código), **Estándar** (las reglas que usa un profesional), **Comparación** (forma incorrecta frente a correcta), **Ejercicios** (con pista y solución ocultas) y **Examen**.\n\nUna rutina que funciona:\n\n1) Lee una sección y **escribe el código a mano**, no lo copies.\n2) Intenta cada ejercicio sin abrir la pista. Si te atascas más de 10 minutos, ábrela.\n3) Haz el examen al final. Si fallas una pregunta, vuelve a la sección que indica la explicación.\n\n**Prueba de nivel**: el examen de este capítulo no evalúa este capítulo. Son 10 preguntas, una por tema del curso. La explicación de cada una dice qué capítulo estudiar si la fallaste. Si aciertas todas las de SQL, por ejemplo, puedes repasar los caps. 7 a 11 en diagonal y pasar al proyecto.\n\n**Lo usarás en:** todos los cursos: este capítulo es tu mapa. Vuelve a él cuando termines un módulo para ver qué curso se te abre.",
+          "keyTakeaway": "Haz la prueba de nivel ahora, antes de leer nada más. Te ahorra horas en lo que ya sabes."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hábitos que hacen que lo aprendido se quede.",
+        "rules": [
+          "Escribe el código a mano; copiar y pegar no deja memoria.",
+          "Ejecuta cada ejemplo y cambia una cosa para ver qué pasa.",
+          "Anota en tu cuaderno (la libreta de la página) el error que más te costó y cómo lo resolviste.",
+          "Estudia poco y seguido: 30 minutos diarios rinden más que 4 horas un sábado.",
+          "No avances con un examen por debajo de 2 de 3: repasa primero."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Plan de una semana (30–45 min por día)\nLunes     Prueba de nivel + Cap. 2\nMartes    Cap. 3\nMiércoles Cap. 4\nJueves    Cap. 5\nViernes   Cap. 6\nSábado    Repaso de los exámenes fallados\nDomingo   Descanso"
+      },
+      "exercises": [
+        {
+          "id": "fn01-ej-1",
+          "title": "Práctica 1: Tu ruta personal",
+          "difficulty": "Básico",
+          "prompt": "Elige el curso que quieres hacer después de este. Con el mapa de la sección 2, escribe la lista de capítulos de Fundamentos que necesitas y ordénalos.",
+          "hint": "Busca tu curso en la lista de la sección 2 y copia los capítulos que pide. Agrega siempre el 15 (proyecto) al final.",
+          "solutionExplanation": "Ejemplo para Analista: 4, 5, 6, 7, 8, 9, 10, 11, 12, 14 y 15. Para Web: 2, 3, 13 y 15. Lo importante es que la lista salga del mapa y no de lo que te parece más fácil."
+        },
+        {
+          "id": "fn01-ej-2",
+          "title": "Práctica 2: Prueba de nivel",
+          "difficulty": "Básico",
+          "prompt": "Haz el examen de este capítulo sin consultar nada. Anota qué preguntas fallaste y, con la explicación de cada una, qué capítulo te toca estudiar.",
+          "hint": "El examen está en la pestaña Examen de este capítulo. Cada explicación termina con «Si fallaste, estudia el Cap. X».",
+          "solutionExplanation": "Cruza esta lista con la de la práctica 1: los capítulos que aparecen en las dos son tu prioridad. Los que acertaste y tu ruta pide, repásalos rápido."
+        },
+        {
+          "id": "fn01-ej-3",
+          "title": "Práctica 3: Tu calendario",
+          "difficulty": "Básico",
+          "prompt": "Arma un calendario de dos semanas con tus capítulos prioritarios, 30 a 45 minutos por día, y deja un día de repaso por semana.",
+          "hint": "Un capítulo por día es buen ritmo. Los capítulos de SQL (7 a 11) son los más largos: dales un día entero a cada uno.",
+          "solutionExplanation": "Un buen calendario es concreto (qué capítulo, qué día) y tiene repaso. Si en una semana no cumples, no lo rehagas: mueve todo un día y sigue."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn01-q1",
+          "question": "Prueba de nivel · Terminal. ¿Qué hace el comando `cd ..`?",
+          "options": [
+            "Vuelve a la carpeta personal del usuario",
+            "Borra la carpeta actual y todo su contenido",
+            "Lista los archivos ocultos de la carpeta actual",
+            "Sube a la carpeta que contiene a la carpeta actual"
+          ],
+          "correctIndex": 3,
+          "explanation": "`..` significa «la carpeta de arriba». Si fallaste, estudia el Cap. 02."
+        },
+        {
+          "id": "fn01-q2",
+          "question": "Prueba de nivel · Lógica. Si `x = 7`, ¿qué imprime: si x > 5 y x < 10 → «A», si no → «B»?",
+          "options": [
+            "A, porque 7 cumple las dos condiciones",
+            "Nada, porque falta un caso para x = 7",
+            "B, porque 7 no es mayor que 10",
+            "A y B, porque se evalúan ambas ramas"
+          ],
+          "correctIndex": 0,
+          "explanation": "Con «y» deben cumplirse las dos condiciones, y 7 las cumple. Si fallaste, estudia el Cap. 03."
+        },
+        {
+          "id": "fn01-q3",
+          "question": "Prueba de nivel · Tablas. Una tabla tiene una fila por cada producto vendido en cada pedido. ¿Cuál es su granularidad?",
+          "options": [
+            "Una fila por cliente",
+            "Una fila por pedido y producto",
+            "Una fila por pedido",
+            "Una fila por producto"
+          ],
+          "correctIndex": 1,
+          "explanation": "La granularidad es lo que representa una fila. Si fallaste, estudia el Cap. 04."
+        },
+        {
+          "id": "fn01-q4",
+          "question": "Prueba de nivel · Excel. Copias `=B2*$E$1` una fila hacia abajo. ¿Qué fórmula queda?",
+          "options": [
+            "=B2*$E$1",
+            "=B3*$E$1",
+            "=B3*$E$2",
+            "=C2*$E$1"
+          ],
+          "correctIndex": 1,
+          "explanation": "El `$` fija la referencia; `B2` es relativa y baja a `B3`. Si fallaste, estudia el Cap. 05."
+        },
+        {
+          "id": "fn01-q5",
+          "question": "Prueba de nivel · SQL. ¿Qué consulta devuelve los clientes de Perú?",
+          "options": [
+            "SELECT nombre WHERE pais = 'Perú' FROM clientes;",
+            "SELECT nombre FROM clientes WHERE pais = 'Perú';",
+            "SELECT nombre FROM clientes ORDER BY 'Perú';",
+            "SELECT nombre FROM clientes HAVING pais = 'Perú';"
+          ],
+          "correctIndex": 1,
+          "explanation": "Las filas se filtran con `WHERE`, después de `FROM`. Si fallaste, estudia el Cap. 07."
+        },
+        {
+          "id": "fn01-q6",
+          "question": "Prueba de nivel · SQL. ¿Qué devuelve `WHERE ciudad = NULL`?",
+          "options": [
+            "Las filas sin ciudad registrada",
+            "Ninguna fila: NULL se compara con IS NULL",
+            "Todas las filas de la tabla",
+            "Un error de sintaxis al ejecutar"
+          ],
+          "correctIndex": 1,
+          "explanation": "Comparar con `= NULL` nunca es verdadero. Si fallaste, estudia el Cap. 08."
+        },
+        {
+          "id": "fn01-q7",
+          "question": "Prueba de nivel · SQL. Quieres los países con más de 3 clientes. ¿Dónde va `COUNT(*) > 3`?",
+          "options": [
+            "En WHERE, antes de GROUP BY pais",
+            "En SELECT, como una columna más",
+            "En HAVING, después de GROUP BY pais",
+            "En ORDER BY, al final de la consulta"
+          ],
+          "correctIndex": 2,
+          "explanation": "Las condiciones sobre grupos van en `HAVING`. Si fallaste, estudia el Cap. 09."
+        },
+        {
+          "id": "fn01-q8",
+          "question": "Prueba de nivel · SQL. Quieres todos los clientes, tengan o no pedidos. ¿Qué JOIN usas desde clientes?",
+          "options": [
+            "CROSS JOIN pedidos",
+            "INNER JOIN pedidos",
+            "JOIN pedidos con WHERE",
+            "LEFT JOIN pedidos"
+          ],
+          "correctIndex": 3,
+          "explanation": "`LEFT JOIN` conserva todas las filas de la izquierda. Si fallaste, estudia el Cap. 10."
+        },
+        {
+          "id": "fn01-q9",
+          "question": "Prueba de nivel · Python. ¿Qué imprime `print(len([3, 5, 8]))`?",
+          "options": [
+            "3",
+            "[3, 5, 8]",
+            "8",
+            "16"
+          ],
+          "correctIndex": 0,
+          "explanation": "`len` cuenta los elementos de la lista. Si fallaste, estudia el Cap. 12."
+        },
+        {
+          "id": "fn01-q10",
+          "question": "Prueba de nivel · Estadística. Sueldos: 1, 1, 2, 2, 20 (miles). ¿Qué medida representa mejor el sueldo típico?",
+          "options": [
+            "La suma, que es 26",
+            "La media, que es 5,2",
+            "El máximo, que es 20",
+            "La mediana, que es 2"
+          ],
+          "correctIndex": 3,
+          "explanation": "Un valor extremo arrastra la media; la mediana no se mueve. Si fallaste, estudia el Cap. 14."
+        }
+      ]
+    },
+    {
+      "id": "cap-02",
+      "order": 2,
+      "kind": "chapter",
+      "code": "Cap. 02",
+      "module": "Módulo 0 · Antes de empezar",
+      "title": "Tu computadora: archivos, carpetas, rutas y la terminal básica",
+      "subtitle": "Extensiones, rutas absolutas y relativas, y los diez comandos de terminal que piden los cursos de Web, Back-end y DevOps.",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Distinguir un archivo de una carpeta y leer su extensión para saber qué programa lo abre.",
+        "Escribir rutas absolutas y relativas en Windows y en Linux/macOS.",
+        "Moverte en la terminal con `pwd`, `ls`, `cd` y crear, copiar, mover y borrar archivos.",
+        "Ejecutar un programa desde la terminal y leer un mensaje de error."
+      ],
+      "theorySections": [
+        {
+          "id": "fn02-sec-1",
+          "title": "1. Archivos, carpetas y extensiones",
+          "body": "Todo lo que guardas es un **archivo** dentro de una **carpeta** (también llamada directorio). Las carpetas forman un árbol: una carpeta puede tener otras carpetas dentro.\n\nLa **extensión** es lo que va después del último punto del nombre y le dice al sistema qué tipo de contenido tiene:\n\n- `.xlsx`, `.csv`: hojas de cálculo y datos tabulares. Un CSV es **texto plano**: lo puedes abrir con el Bloc de notas.\n- `.sql`, `.py`, `.js`, `.html`, `.css`: código. También son texto plano.\n- `.json`: datos estructurados en texto (los cursos de esta plataforma son archivos JSON).\n- `.pbix`, `.docx`, `.png`: binarios; no se leen con un editor de texto.\n\nActiva en tu explorador la opción **Mostrar extensiones de archivo**. Sin ella, `informe.csv.txt` aparece como `informe.csv` y no entiendes por qué no abre bien.",
+          "codeSnippet": "proyecto-ventas/\n├── datos/\n│   ├── ventas_2026.csv      ← texto: se abre con Excel o un editor\n│   └── clientes.xlsx        ← binario: solo con Excel\n├── consultas/\n│   └── ventas_por_pais.sql\n├── analisis.py\n└── README.md",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "La extensión dice qué hay dentro. Los archivos de código y los CSV son texto plano: cualquier editor los abre."
+        },
+        {
+          "id": "fn02-sec-2",
+          "title": "2. Rutas absolutas y relativas",
+          "body": "Una **ruta** es la dirección de un archivo.\n\n- **Absoluta**: empieza en la raíz del disco. En Windows `C:\\Users\\ana\\proyecto\\datos\\ventas.csv`; en Linux y macOS `/home/ana/proyecto/datos/ventas.csv`.\n- **Relativa**: empieza en la carpeta donde estás. Si estás en `proyecto`, la ruta relativa es `datos/ventas.csv`.\n\nDos atajos: `.` es la carpeta actual y `..` es la carpeta de arriba. Desde `proyecto/consultas`, el CSV está en `../datos/ventas.csv`.\n\nEn código conviene usar **rutas relativas**: así el proyecto funciona en cualquier computadora. Una ruta absoluta con tu nombre de usuario se rompe en la máquina de otro.\n\nWindows separa con `\\` y Linux con `/`. Python, Node y Git aceptan `/` también en Windows, así que úsala siempre en código.",
+          "codeSnippet": "import pandas as pd\n\n# Mal: solo funciona en la computadora de Ana\n# df = pd.read_csv(\"C:\\\\Users\\\\ana\\\\proyecto\\\\datos\\\\ventas.csv\")\n\n# Bien: relativa a la carpeta del proyecto\ndf = pd.read_csv(\"datos/ventas.csv\")\nprint(df.shape)",
+          "codeLanguage": "python",
+          "keyTakeaway": "Usa rutas relativas con `/` en tu código. Una ruta con tu nombre de usuario dentro es un error esperando a pasar."
+        },
+        {
+          "id": "fn02-sec-3",
+          "title": "3. La terminal: diez comandos que bastan",
+          "body": "La **terminal** (o consola) es una ventana donde das órdenes escribiendo. En Windows usa **Git Bash** o **PowerShell**; en macOS y Linux, **Terminal**. Siempre estás «parado» en una carpeta.\n\n- `pwd`: muestra en qué carpeta estás.\n- `ls`: lista lo que hay (en PowerShell también funciona; en CMD es `dir`).\n- `cd carpeta`: entra a una carpeta. `cd ..` sube una. `cd ~` va a tu carpeta personal.\n- `mkdir nombre`: crea una carpeta.\n- `touch archivo.txt`: crea un archivo vacío (Git Bash, Linux, macOS).\n- `cp origen destino`: copia. `mv origen destino`: mueve o renombra.\n- `rm archivo`: borra **sin papelera**. Úsalo con cuidado.\n- `cat archivo`: muestra el contenido de un archivo de texto.\n\nPara ejecutar un programa escribes su nombre y sus argumentos: `python analisis.py`, `node servidor.js`, `git status`. Si sale `command not found` o «no se reconoce como comando», el programa no está instalado o no está en el **PATH** (la lista de carpetas donde el sistema busca programas).\n\nTecla clave: **Tab** autocompleta nombres. Y la flecha ↑ repite el comando anterior.\n\n**Lo usarás en:** Programación Web (abrir el proyecto en VS Code y la terminal), Back-end y APIs (npm y node), Nube y DevOps (Linux, Git y Docker) y Analista (rutas de archivos en Python).",
+          "codeSnippet": "pwd                      # /home/ana\nmkdir proyecto-ventas\ncd proyecto-ventas\nmkdir datos consultas\ntouch README.md\nls                       # consultas  datos  README.md\ncp ~/Descargas/ventas.csv datos/\nmv datos/ventas.csv datos/ventas_2026.csv\ncat README.md\ncd ..                    # vuelve a /home/ana",
+          "codeLanguage": "bash",
+          "keyTakeaway": "pwd, ls y cd te orientan; mkdir, cp y mv organizan; rm borra para siempre. Tab y ↑ te ahorran la mitad de las teclas."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Orden en las carpetas desde el primer día.",
+        "rules": [
+          "Nombres sin espacios, tildes ni eñes: `ventas_2026.csv`, no `Ventas año 2026 (final).csv`.",
+          "Una carpeta por proyecto, con subcarpetas `datos`, `consultas`, `notebooks` o `src`.",
+          "Rutas relativas en el código; nunca `C:\\Users\\tu-nombre`.",
+          "Antes de `rm`, ejecuta `ls` con el mismo patrón para ver qué vas a borrar.",
+          "Muestra siempre las extensiones de archivo en el explorador."
+        ],
+        "codeLanguage": "bash",
+        "referenceCode": "# Ver primero qué se va a borrar\nls datos/*.tmp\n# Si la lista es la esperada, recién borra\nrm datos/*.tmp"
+      },
+      "comparison": {
+        "scenario": "Un analista guarda sus archivos y los comparte con un compañero.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "Escritorio/\n├── Nuevo documento (3).xlsx\n├── ventas FINAL final2.csv\n├── consulta.sql\n├── consulta (copia).sql\n└── script.py   ← lee \"C:\\Users\\pedro\\Escritorio\\ventas FINAL final2.csv\"",
+        "juniorFlaws": [
+          "Nombres con espacios y versiones que no se distinguen.",
+          "Todo mezclado en el escritorio, sin carpeta de proyecto.",
+          "El script usa una ruta absoluta: en otra computadora no encuentra el archivo."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "analisis-ventas/\n├── datos/\n│   └── ventas_2026_06.csv\n├── consultas/\n│   └── ventas_por_pais.sql\n├── analisis.py   ← lee \"datos/ventas_2026_06.csv\"\n└── README.md",
+        "intermediateBenefits": [
+          "Cada cosa en su carpeta y con un nombre que dice qué es.",
+          "Ruta relativa: el proyecto funciona en cualquier máquina.",
+          "El README explica cómo ejecutarlo."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn02-ej-1",
+          "title": "Práctica 1: Rutas",
+          "difficulty": "Básico",
+          "prompt": "Estás en `/home/ana/proyecto/consultas`. Escribe la ruta relativa hacia: a) `/home/ana/proyecto/datos/ventas.csv`; b) `/home/ana/proyecto/README.md`; c) `/home/ana/fotos/logo.png`.",
+          "hint": "Cada `..` sube un nivel. Desde `consultas`, un `..` te deja en `proyecto`.",
+          "solutionExplanation": "a) `../datos/ventas.csv`; b) `../README.md`; c) `../../fotos/logo.png` (dos niveles arriba llegas a `/home/ana`)."
+        },
+        {
+          "id": "fn02-ej-2",
+          "title": "Práctica 2: Arma la estructura",
+          "difficulty": "Básico",
+          "prompt": "Con la terminal, crea una carpeta `fundamentos` con las subcarpetas `excel`, `sql` y `python`, y un archivo vacío `notas.md` dentro de `fundamentos`. Luego lista el contenido.",
+          "hint": "`mkdir` acepta varios nombres a la vez. Usa `touch` para el archivo.",
+          "solutionExplanation": "Si `touch` no existe en tu terminal (CMD), usa Git Bash o PowerShell con `New-Item notas.md`.",
+          "solutionCode": "mkdir fundamentos\ncd fundamentos\nmkdir excel sql python\ntouch notas.md\nls",
+          "codeLanguage": "bash"
+        },
+        {
+          "id": "fn02-ej-3",
+          "title": "Práctica 3: Renombra y ordena",
+          "difficulty": "Intermedio",
+          "prompt": "En `fundamentos` hay un archivo `Consulta Nueva (1).sql`. Renómbralo a `primera_consulta.sql` y muévelo a la carpeta `sql` en un solo comando. Después confirma que está ahí.",
+          "hint": "`mv` mueve y renombra a la vez. Si el nombre tiene espacios, ponlo entre comillas.",
+          "solutionExplanation": "Las comillas evitan que la terminal lea `Consulta`, `Nueva` y `(1).sql` como tres archivos distintos.",
+          "solutionCode": "mv \"Consulta Nueva (1).sql\" sql/primera_consulta.sql\nls sql",
+          "codeLanguage": "bash"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn02-q1",
+          "question": "Estás en `/home/ana/proyecto/notebooks`. ¿Cuál es la ruta relativa a `/home/ana/proyecto/datos/ventas.csv`?",
+          "options": [
+            "./datos/ventas.csv",
+            "datos/ventas.csv",
+            "../datos/ventas.csv",
+            "/datos/ventas.csv"
+          ],
+          "correctIndex": 2,
+          "explanation": "Primero subes a `proyecto` con `..` y luego entras a `datos`."
+        },
+        {
+          "id": "fn02-q2",
+          "question": "¿Por qué conviene usar rutas relativas en el código?",
+          "options": [
+            "Porque así los archivos ocupan menos espacio",
+            "Porque se ejecutan más rápido que las absolutas",
+            "Porque Windows no acepta rutas absolutas en código",
+            "Porque el proyecto funciona igual en otra computadora"
+          ],
+          "correctIndex": 3,
+          "explanation": "Una ruta absoluta incluye tu usuario y tu disco; en otra máquina no existe."
+        },
+        {
+          "id": "fn02-q3",
+          "question": "La terminal responde `python: command not found`. ¿Qué significa lo más probable?",
+          "options": [
+            "Falta escribir la extensión .py al comando",
+            "Python no está instalado o no está en el PATH",
+            "El script de Python tiene un error de sintaxis",
+            "El archivo .py no está en la carpeta actual"
+          ],
+          "correctIndex": 1,
+          "explanation": "El sistema no encontró el programa `python` en ninguna carpeta del PATH."
+        }
+      ]
+    },
+    {
+      "id": "cap-03",
+      "order": 3,
+      "kind": "chapter",
+      "code": "Cap. 03",
+      "module": "Módulo 1 · Lógica y datos",
+      "title": "Lógica de programación: variables, condiciones, ciclos y funciones",
+      "subtitle": "Los cuatro bloques con los que se escribe cualquier programa, explicados en pseudocódigo y luego en Python y JavaScript.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Guardar y cambiar valores en variables y reconocer sus tipos: número, texto y booleano.",
+        "Escribir condiciones con `si / si no` y operadores de comparación y lógicos.",
+        "Repetir pasos con ciclos `para cada` y `mientras`, y saber cuándo usar cada uno.",
+        "Agrupar pasos en funciones con parámetros y valor de retorno."
+      ],
+      "theorySections": [
+        {
+          "id": "fn03-sec-1",
+          "title": "1. Variables y tipos",
+          "body": "Un programa es una lista de pasos que la computadora sigue en orden. Para recordar datos entre un paso y otro usa **variables**: una caja con nombre que guarda un valor.\n\nLos tipos básicos son:\n\n- **Número**: `25`, `3.75`.\n- **Texto** (string): `\"Lima\"`. Siempre entre comillas.\n- **Booleano**: `verdadero` o `falso` (`True`/`False` en Python, `true`/`false` en JavaScript).\n\nEl tipo importa: `\"5\" + \"3\"` es `\"53\"` (une textos), mientras que `5 + 3` es `8`. Muchos errores de principiante vienen de un número que en realidad se leyó como texto, por ejemplo desde un CSV.\n\nUna variable puede cambiar: `total = total + precio` toma el valor viejo, le suma y lo guarda de nuevo.",
+          "codeSnippet": "precio = 59.9          # número decimal\ncantidad = 3           # número entero\nproducto = \"Audífonos\" # texto\nen_oferta = True       # booleano\n\ntotal = precio * cantidad\nprint(producto, total)  # Audífonos 179.7\n\nprint(\"5\" + \"3\")        # 53  (texto)\nprint(5 + 3)            # 8   (número)",
+          "codeLanguage": "python",
+          "keyTakeaway": "Cada valor tiene un tipo. Si un número viene entre comillas es texto, y se comporta distinto."
+        },
+        {
+          "id": "fn03-sec-2",
+          "title": "2. Condiciones",
+          "body": "Una **condición** decide qué camino seguir. En pseudocódigo:\n\n`si condición entonces … si no …`\n\nLas condiciones se arman con **comparaciones**: `==` (igual), `!=` (distinto), `>`, `<`, `>=`, `<=`. Ojo: `=` guarda un valor y `==` compara.\n\nSe combinan con **operadores lógicos**:\n\n- `y` (`and` / `&&`): verdadero si **las dos** se cumplen.\n- `o` (`or` / `||`): verdadero si **al menos una** se cumple.\n- `no` (`not` / `!`): invierte.\n\nCuando hay varios casos, se encadenan con `si no, si …` (`elif` en Python, `else if` en JavaScript). El orden importa: se ejecuta **solo la primera** rama que se cumple.",
+          "codeSnippet": "monto = 1250\n\nif monto >= 1000:\n    segmento = \"grande\"\nelif monto >= 300:\n    segmento = \"mediano\"\nelse:\n    segmento = \"pequeño\"\n\nprint(segmento)  # grande\n\n# Combinar condiciones\npais = \"Perú\"\nif pais == \"Perú\" and monto > 1000:\n    print(\"Cliente prioritario en Perú\")",
+          "codeLanguage": "python",
+          "keyTakeaway": "Solo se ejecuta la primera rama verdadera: ordena los casos del más exigente al menos exigente."
+        },
+        {
+          "id": "fn03-sec-3",
+          "title": "3. Ciclos y funciones",
+          "body": "Un **ciclo** repite pasos.\n\n- **Para cada** (`for`): recorre una lista elemento por elemento. Úsalo cuando sabes sobre qué cosas repetir.\n- **Mientras** (`while`): repite mientras una condición sea verdadera. Úsalo cuando no sabes cuántas vueltas habrá. Si la condición nunca se vuelve falsa, el ciclo no termina (ciclo infinito).\n\nUn patrón que verás en todos los cursos es el **acumulador**: una variable que empieza en 0 y se va sumando dentro del ciclo.\n\nUna **función** es un bloque de pasos con nombre que recibe datos (**parámetros**) y devuelve un resultado (**return**). Sirve para no repetir código y para darle nombre a una idea. Una buena función hace una sola cosa.\n\nEl mismo programa en JavaScript se ve casi igual: cambian las llaves `{ }` en lugar de la sangría, y `function` en lugar de `def`.\n\n**Lo usarás en:** Programación Web (JavaScript esencial), TypeScript y React, Back-end y APIs, y Analista (Python). En SQL la lógica de `si` reaparece como `CASE` (Cap. 08).",
+          "codeSnippet": "def total_con_iva(montos, tasa=0.18):\n    \"\"\"Suma los montos y les agrega el impuesto.\"\"\"\n    total = 0                 # acumulador\n    for m in montos:\n        total = total + m\n    return round(total * (1 + tasa), 2)\n\nventas = [120, 80, 300]\nprint(total_con_iva(ventas))        # 590.0\nprint(total_con_iva(ventas, 0.16))  # 580.0\n\n# En JavaScript:\n# function totalConIva(montos, tasa = 0.18) {\n#   let total = 0;\n#   for (const m of montos) { total = total + m; }\n#   return Math.round(total * (1 + tasa) * 100) / 100;\n# }",
+          "codeLanguage": "python",
+          "keyTakeaway": "Ciclo para recorrer, acumulador para sumar, función para darle nombre y reutilizar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Código que otra persona (o tú en un mes) entiende al primer vistazo.",
+        "rules": [
+          "Nombres que dicen qué guardan: `total_ventas`, no `x` ni `dato2`.",
+          "Una función hace una sola cosa y su nombre es un verbo: `calcular_total`.",
+          "Evita números mágicos: guarda `TASA_IVA = 0.18` en una variable con nombre.",
+          "Prueba la función con un caso que puedas calcular a mano.",
+          "Si un `if` tiene más de tres niveles de sangría, divídelo en funciones."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "TASA_IVA = 0.18\n\ndef calcular_total(montos):\n    return round(sum(montos) * (1 + TASA_IVA), 2)\n\n# Caso calculado a mano: 100 + 100 = 200; 200 * 1.18 = 236\nassert calcular_total([100, 100]) == 236.0"
+      },
+      "comparison": {
+        "scenario": "Clasificar un monto en grande, mediano o pequeño.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "def f(x):\n    if x >= 300:\n        return \"mediano\"\n    elif x >= 1000:\n        return \"grande\"\n    else:\n        return \"pequeño\"\n\nprint(f(1500))  # mediano  ✗",
+        "juniorFlaws": [
+          "El caso más exigente (>= 1000) está después: nunca se alcanza.",
+          "Nombres `f` y `x` no dicen nada.",
+          "No hay una prueba que hubiera mostrado el error."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "def clasificar_monto(monto):\n    if monto >= 1000:\n        return \"grande\"\n    elif monto >= 300:\n        return \"mediano\"\n    return \"pequeño\"\n\nassert clasificar_monto(1500) == \"grande\"\nassert clasificar_monto(500) == \"mediano\"\nassert clasificar_monto(50) == \"pequeño\"",
+        "intermediateBenefits": [
+          "Los casos van de más exigente a menos exigente.",
+          "El nombre explica qué hace la función.",
+          "Tres pruebas cubren las tres ramas."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "fn03-ej-1",
+          "title": "Práctica 1: Aprobado o no",
+          "difficulty": "Básico",
+          "prompt": "Escribe una función `estado(nota)` que devuelva «aprobado» si la nota es 70 o más, «recuperación» si está entre 50 y 69, y «reprobado» si es menor que 50. Pruébala con 85, 60 y 30.",
+          "hint": "Ordena las condiciones de mayor a menor y usa `elif`.",
+          "solutionExplanation": "Al ordenar de mayor a menor no hace falta escribir `nota >= 50 and nota < 70`: si llegó a la segunda rama, ya sabes que es menor que 70.",
+          "solutionCode": "def estado(nota):\n    if nota >= 70:\n        return \"aprobado\"\n    elif nota >= 50:\n        return \"recuperación\"\n    return \"reprobado\"\n\nprint(estado(85), estado(60), estado(30))",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "fn03-ej-2",
+          "title": "Práctica 2: Contar y sumar",
+          "difficulty": "Básico",
+          "prompt": "Dada la lista `ventas = [120, 0, 75, 300, 0, 45]`, recorre la lista con un ciclo y calcula: el total vendido, cuántas ventas fueron mayores que 0 y el promedio de esas ventas mayores que 0.",
+          "hint": "Usa dos acumuladores: uno para la suma y otro para el conteo. Divide al final.",
+          "solutionExplanation": "Total 540, 4 ventas con monto, promedio 135. Fíjate que el promedio se calcula solo sobre las ventas que cumplen la condición.",
+          "solutionCode": "ventas = [120, 0, 75, 300, 0, 45]\ntotal = 0\nconteo = 0\nfor v in ventas:\n    total = total + v\n    if v > 0:\n        conteo = conteo + 1\nprint(total, conteo, total / conteo)  # 540 4 135.0",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "fn03-ej-3",
+          "title": "Práctica 3: Mientras no llegue a la meta",
+          "difficulty": "Intermedio",
+          "prompt": "Ahorras 150 por mes y tu meta es 2.000. Con un ciclo `while`, calcula cuántos meses necesitas y cuánto tendrás ahorrado al llegar.",
+          "hint": "La condición del `while` es «mientras lo ahorrado sea menor que la meta». Suma 150 y cuenta un mes en cada vuelta.",
+          "solutionExplanation": "Se necesitan 14 meses y tendrás 2.100. Un `while` sirve aquí porque no sabes de antemano cuántas vueltas habrá.",
+          "solutionCode": "meta = 2000\nahorro = 0\nmeses = 0\nwhile ahorro < meta:\n    ahorro = ahorro + 150\n    meses = meses + 1\nprint(meses, ahorro)  # 14 2100",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn03-q1",
+          "question": "¿Qué imprime `print(\"7\" + \"3\")` en Python?",
+          "options": [
+            "73",
+            "7 3",
+            "Un error de tipo",
+            "10"
+          ],
+          "correctIndex": 0,
+          "explanation": "Con comillas son textos, y `+` entre textos los une."
+        },
+        {
+          "id": "fn03-q2",
+          "question": "En un `if / elif / else`, ¿cuántas ramas se ejecutan?",
+          "options": [
+            "Solo la primera cuya condición es verdadera",
+            "Siempre la última, que es el else",
+            "Todas las que tengan condición verdadera",
+            "Ninguna si hay más de una verdadera"
+          ],
+          "correctIndex": 0,
+          "explanation": "Por eso los casos más exigentes van primero."
+        },
+        {
+          "id": "fn03-q3",
+          "question": "¿Cuándo conviene un `while` en lugar de un `for`?",
+          "options": [
+            "Cuando no sabes de antemano cuántas vueltas habrá",
+            "Cuando quieres que el ciclo vaya más rápido",
+            "Cuando recorres los elementos de una lista",
+            "Cuando el ciclo necesita un acumulador"
+          ],
+          "correctIndex": 0,
+          "explanation": "`for` recorre una colección conocida; `while` repite hasta que se cumple una condición."
+        }
+      ]
+    },
+    {
+      "id": "cap-04",
+      "order": 4,
+      "kind": "chapter",
+      "code": "Cap. 04",
+      "module": "Módulo 1 · Lógica y datos",
+      "title": "Pensar en tablas: filas, columnas, tipos, claves y granularidad",
+      "subtitle": "Cómo se organiza un conjunto de datos, qué es una clave y por qué la primera pregunta siempre es «¿qué representa una fila?».",
+      "estimatedMinutes": 40,
+      "status": "published",
+      "objectives": [
+        "Describir una tabla por sus filas, columnas y tipos de dato.",
+        "Identificar la granularidad de una tabla: qué representa exactamente una fila.",
+        "Reconocer claves primarias y foráneas y cómo relacionan tablas.",
+        "Detectar problemas típicos: columnas mezcladas, valores vacíos y datos repetidos."
+      ],
+      "theorySections": [
+        {
+          "id": "fn04-sec-1",
+          "title": "1. Filas, columnas y tipos",
+          "body": "Casi todos los datos de trabajo son **tablas**. Una tabla tiene:\n\n- **Columnas**: cada una es un atributo con nombre y un **tipo** (número entero, decimal, texto, fecha, booleano).\n- **Filas**: cada una es un registro, un «caso».\n\nUna tabla bien hecha sigue tres reglas, que se llaman datos **ordenados** (tidy):\n\n1) Cada columna es una sola variable.\n2) Cada fila es una sola observación.\n3) Cada celda tiene un solo valor.\n\nSi una celda dice `\"Lima, Perú\"` está mezclando ciudad y país; si una columna se llama `ventas_ene`, `ventas_feb`… el mes es un dato escondido en el nombre de la columna. Ambas cosas complican cualquier análisis.",
+          "codeSnippet": "Tabla clientes (base «tienda» de la consola de Práctica)\n\n id | nombre        | ciudad       | pais      | fecha_registro | segmento\n----+---------------+--------------+-----------+----------------+----------\n  1 | Ana Torres    | Lima         | Perú      | 2026-02-14     | minorista\n  2 | Luis Pérez    | Buenos Aires | Argentina | 2025-10-02     | empresa\n  6 | Jorge Castro  | (vacío)      | México    | 2024-09-28     | mayorista\n\nTipos: id = entero · nombre, ciudad, pais, segmento = texto · fecha_registro = fecha",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Una columna = una variable con un tipo; una fila = un caso; una celda = un valor."
+        },
+        {
+          "id": "fn04-sec-2",
+          "title": "2. Granularidad: qué representa una fila",
+          "body": "La **granularidad** (o grano) es la respuesta a «¿qué es exactamente una fila?». Es la pregunta más importante antes de sumar, contar o unir tablas.\n\nEn la base «tienda»:\n\n- `clientes`: una fila por cliente.\n- `pedidos`: una fila por pedido.\n- `detalle_pedido`: una fila **por producto dentro de cada pedido**. Un pedido con 3 productos ocupa 3 filas.\n\nSi cuentas filas de `detalle_pedido` creyendo que cuentas pedidos, el número sale inflado. Si sumas una columna que se repite en varias filas (por ejemplo el total del pedido copiado en cada línea), la cifra se multiplica.\n\nEl curso de Analista empieza justamente por aquí: «declara la granularidad antes de cualquier JOIN o agregación».",
+          "codeSnippet": "detalle_pedido (grano: pedido × producto)\n\n pedido_id | producto_id | cantidad | precio_unitario\n-----------+-------------+----------+----------------\n         1 |           4 |        2 |            9.9\n         1 |           9 |        1 |            7.5\n         2 |           1 |        1 |           59.9\n\n¿Cuántos pedidos hay? 2  (no 3: el pedido 1 tiene dos filas)",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Antes de contar o sumar, di en voz alta qué es una fila. Contar filas no siempre es contar cosas."
+        },
+        {
+          "id": "fn04-sec-3",
+          "title": "3. Claves y relaciones",
+          "body": "Una **clave primaria** es la columna (o columnas) que identifica cada fila sin repetirse y sin vacíos: `clientes.id`, `pedidos.id`. El nombre no sirve como clave: puede haber dos «Ana Torres».\n\nUna **clave foránea** es una columna que apunta a la clave primaria de otra tabla: `pedidos.cliente_id` apunta a `clientes.id`. Así se **relacionan** las tablas sin copiar los datos del cliente en cada pedido.\n\nLas relaciones más comunes son **uno a muchos**: un cliente tiene muchos pedidos, pero cada pedido es de un solo cliente. En un diagrama se dibuja con `1` en un lado y `*` (o ∞) en el otro.\n\nEsta idea es la base de los JOIN de SQL (Cap. 10), del BUSCARX de Excel (Cap. 05) y del modelo estrella de Power BI.\n\n**Lo usarás en:** Analista (granularidad desde la Intro y en todo el Módulo 2), Power BI (modelo estrella y relaciones), SQL Server a fondo (tipos de datos) e Ingeniería de datos (tablas de hechos y dimensiones).",
+          "codeSnippet": "clientes (1) ───────< pedidos (*) ───────< detalle_pedido (*) >─────── (1) productos\n   id  ◄── cliente_id     id  ◄── pedido_id        producto_id ──►  id\n\nUn cliente → muchos pedidos · un pedido → muchas líneas · un producto → muchas líneas",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "La clave primaria identifica; la foránea relaciona. Nunca uses el nombre como identificador."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Antes de analizar una tabla nueva, documenta su forma.",
+        "rules": [
+          "Escribe en una línea la granularidad: «una fila por …».",
+          "Identifica la clave primaria y comprueba que no se repite.",
+          "Anota el tipo de cada columna y cuáles admiten vacíos.",
+          "Si un dato está escondido en el nombre de una columna (meses, años), pásalo a filas.",
+          "Usa identificadores, no nombres, para relacionar tablas."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Ficha de la tabla pedidos\n- Grano: una fila por pedido\n- Clave primaria: id\n- Claves foráneas: cliente_id → clientes.id\n- Columnas: fecha (fecha, obligatoria), estado (texto: pendiente, enviado, entregado, cancelado)\n- Vacíos permitidos: ninguno"
+      },
+      "comparison": {
+        "scenario": "Registrar ventas mensuales por vendedor.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": " vendedor          | ene  | feb  | mar\n-------------------+------+------+------\n Ana Torres (Lima) | 1200 | 980  | 1500\n Luis Pérez        | 800  |      | 1100",
+        "juniorFlaws": [
+          "El mes está escondido en el nombre de la columna: agregar abril cambia la tabla.",
+          "La celda «Ana Torres (Lima)» mezcla nombre y ciudad.",
+          "No hay identificador: dos vendedores homónimos se confunden.",
+          "La celda vacía no dice si es 0 o falta el dato."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": " vendedor_id | mes     | ventas\n-------------+---------+--------\n           1 | 2026-01 |   1200\n           1 | 2026-02 |    980\n           1 | 2026-03 |   1500\n           2 | 2026-01 |    800\n           2 | 2026-02 |      0\n           2 | 2026-03 |   1100",
+        "intermediateBenefits": [
+          "Grano claro: una fila por vendedor y mes.",
+          "Agregar meses es agregar filas, no columnas.",
+          "La ciudad vive en la tabla de vendedores, unida por vendedor_id.",
+          "El 0 es explícito."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn04-ej-1",
+          "title": "Práctica 1: Encuentra el grano",
+          "difficulty": "Básico",
+          "prompt": "Di la granularidad de cada tabla: a) registro de asistencia con columnas `empleado_id, fecha, hora_entrada, hora_salida`; b) `producto_id, nombre, precio`; c) `tienda_id, producto_id, fecha, unidades_vendidas`.",
+          "hint": "Pregúntate qué combinación de columnas no se puede repetir.",
+          "solutionExplanation": "a) Una fila por empleado y día. b) Una fila por producto. c) Una fila por tienda, producto y día. La combinación de columnas que no se repite es también la clave primaria."
+        },
+        {
+          "id": "fn04-ej-2",
+          "title": "Práctica 2: Ordena la tabla",
+          "difficulty": "Intermedio",
+          "prompt": "Una hoja tiene las columnas `Cliente | Teléfonos | Compras 2025 | Compras 2026`, con celdas como `\"Ana Torres\" | \"999111222 / 988777666\" | 3 | 5`. Propón tablas ordenadas que guarden lo mismo.",
+          "hint": "Hay un dato repetido en una celda y un dato (el año) escondido en los nombres de columna.",
+          "solutionExplanation": "Tres tablas: `clientes(id, nombre)`, `telefonos(cliente_id, telefono)` con una fila por teléfono y `compras_anuales(cliente_id, anio, compras)` con una fila por cliente y año. Así cada celda tiene un valor y agregar 2027 es agregar filas."
+        },
+        {
+          "id": "fn04-ej-3",
+          "title": "Práctica 3: Claves",
+          "difficulty": "Intermedio",
+          "prompt": "En la base «tienda», ¿qué columnas de `detalle_pedido` son claves foráneas y hacia dónde apuntan? ¿Qué combinación de columnas podría ser su clave primaria?",
+          "hint": "Mira qué columnas terminan en `_id`.",
+          "solutionExplanation": "`pedido_id → pedidos.id` y `producto_id → productos.id`. La clave primaria puede ser la combinación `(pedido_id, producto_id)`, si un producto aparece una sola vez por pedido. Una clave de varias columnas se llama clave compuesta."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn04-q1",
+          "question": "¿Qué significa la granularidad de una tabla?",
+          "options": [
+            "Lo que representa exactamente cada fila",
+            "El tipo de dato de la columna principal",
+            "El número total de filas que tiene",
+            "El nivel de detalle de los nombres de columna"
+          ],
+          "correctIndex": 0,
+          "explanation": "El grano responde «una fila por …» y decide cómo se puede contar y sumar."
+        },
+        {
+          "id": "fn04-q2",
+          "question": "¿Por qué el nombre del cliente no es buena clave primaria?",
+          "options": [
+            "Porque ocupa más espacio que un número",
+            "Porque SQL no permite claves de texto",
+            "Porque puede repetirse entre clientes distintos",
+            "Porque los textos no se pueden ordenar"
+          ],
+          "correctIndex": 2,
+          "explanation": "Una clave primaria no se repite nunca; dos personas pueden llamarse igual."
+        },
+        {
+          "id": "fn04-q3",
+          "question": "Una tabla tiene columnas `ventas_ene`, `ventas_feb`, `ventas_mar`. ¿Cuál es el problema?",
+          "options": [
+            "Faltan columnas para los meses restantes",
+            "Las ventas deberían estar en otra tabla",
+            "El mes es un dato escondido en el nombre de la columna",
+            "Los nombres de columna son demasiado largos"
+          ],
+          "correctIndex": 2,
+          "explanation": "En datos ordenados el mes es una columna y cada mes es una fila."
+        }
+      ]
+    },
+    {
+      "id": "cap-05",
+      "order": 5,
+      "kind": "chapter",
+      "code": "Cap. 05",
+      "module": "Módulo 2 · Excel",
+      "title": "Excel esencial: referencias, SI, SUMAR.SI.CONJUNTO y BUSCARX",
+      "subtitle": "Las fórmulas que resuelven el 80 % del trabajo diario y que Power BI y SQL repiten con otro nombre.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Escribir fórmulas con referencias relativas, absolutas y mixtas y copiarlas sin romperlas.",
+        "Tomar decisiones en una celda con `SI`, `Y` y `O`.",
+        "Sumar, contar y promediar con condiciones usando `SUMAR.SI.CONJUNTO`, `CONTAR.SI.CONJUNTO` y `PROMEDIO.SI.CONJUNTO`.",
+        "Traer datos de otra tabla con `BUSCARX` y manejar el caso «no encontrado»."
+      ],
+      "theorySections": [
+        {
+          "id": "fn05-sec-1",
+          "title": "1. Fórmulas y referencias",
+          "body": "Toda fórmula empieza con `=`. Las celdas se nombran por columna y fila: `B2`.\n\nCuando copias una fórmula, Excel **mueve las referencias** en la misma dirección. Eso es una **referencia relativa** y casi siempre es lo que quieres: `=B2*C2` copiada hacia abajo se vuelve `=B3*C3`.\n\nA veces una celda debe quedar fija, por ejemplo la tasa de impuesto en `F1`. Para eso se usa `$`:\n\n- `$F$1`: **absoluta**, no se mueve nunca.\n- `$F1`: fija la columna, la fila se mueve.\n- `F$1`: fija la fila, la columna se mueve.\n\nLa tecla **F4** recorre las cuatro opciones mientras editas.\n\nConvierte tus datos en **Tabla** (Ctrl+T). Las fórmulas se escriben con nombres, como `=[@Cantidad]*[@Precio]`, se copian solas a filas nuevas y no dependen de letras de columna.",
+          "codeSnippet": "    A           B          C         D                 \n1  Producto    Cantidad   Precio    Total             F1: 0.18 (IVA)\n2  Audífonos   2          59.9      =B2*C2*(1+$F$1)\n3  Teclado     1          89.5      =B3*C3*(1+$F$1)   ← copiada: B y C bajan, $F$1 queda\n\nEn una Tabla de Excel llamada Ventas:\n=[@Cantidad]*[@Precio]*(1+IVA)          (IVA = nombre definido para F1)",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Relativa para lo que cambia por fila; `$` para lo que debe quedar fijo. Mejor aún: Tablas y nombres."
+        },
+        {
+          "id": "fn05-sec-2",
+          "title": "2. Decisiones con SI, Y, O",
+          "body": "`SI(prueba; valor_si_verdadero; valor_si_falso)` es el `if` del capítulo 3 dentro de una celda.\n\n- `=SI(D2>=1000; \"grande\"; \"normal\")`\n- Con dos condiciones a la vez: `=SI(Y(D2>=1000; E2=\"Perú\"); \"prioritario\"; \"\")`.\n- Con una u otra: `=SI(O(E2=\"Perú\"; E2=\"Chile\"); \"Pacífico\"; \"otro\")`.\n\nCuando hay varios casos, en lugar de anidar `SI` dentro de `SI` usa `SI.CONJUNTO` (Excel 2019 y 365), que evalúa en orden y devuelve el primero verdadero:\n\n`=SI.CONJUNTO(D2>=1000; \"grande\"; D2>=300; \"mediano\"; VERDADERO; \"pequeño\")`\n\nEl último par `VERDADERO; …` hace de «si no».\n\nNota: según la configuración regional, el separador de argumentos es `;` (español) o `,` (inglés). Los nombres también cambian: `SI` es `IF`, `BUSCARX` es `XLOOKUP`.",
+          "codeSnippet": "=SI(D2>=1000; \"grande\"; \"normal\")\n=SI(Y(D2>=1000; E2=\"Perú\"); \"prioritario\"; \"\")\n=SI.CONJUNTO(D2>=1000; \"grande\"; D2>=300; \"mediano\"; VERDADERO; \"pequeño\")\n\nEn inglés:  =IFS(D2>=1000, \"grande\", D2>=300, \"mediano\", TRUE, \"pequeño\")",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "SI.CONJUNTO reemplaza a los SI anidados. Igual que en programación, el caso más exigente va primero."
+        },
+        {
+          "id": "fn05-sec-3",
+          "title": "3. Sumar con condiciones y buscar en otra tabla",
+          "body": "Las funciones **.SI.CONJUNTO** agregan solo las filas que cumplen condiciones:\n\n- `SUMAR.SI.CONJUNTO(rango_suma; rango_criterio1; criterio1; …)`\n- `CONTAR.SI.CONJUNTO(rango_criterio1; criterio1; …)`\n- `PROMEDIO.SI.CONJUNTO(rango_promedio; rango_criterio1; criterio1; …)`\n\nLos criterios aceptan comparaciones como texto: `\">=1000\"`, `\"<>cancelado\"`.\n\n**BUSCARX** trae un dato de otra tabla usando una clave, como el `cliente_id` del capítulo 4:\n\n`BUSCARX(valor_buscado; columna_donde_buscar; columna_a_devolver; si_no_encuentra)`\n\nA diferencia del viejo `BUSCARV`, no depende del número de columna, busca hacia la izquierda y su cuarto argumento evita el `#N/D`. Si no tienes Excel 365, la combinación equivalente es `INDICE` + `COINCIDIR`.\n\nEsto es exactamente lo que harás en SQL con `SUM … WHERE … GROUP BY` (Cap. 09) y `JOIN` (Cap. 10).\n\n**Lo usarás en:** Programación Web (módulo de datos e importación de Excel), Power BI (Power Query y DAX piensan igual: CALCULATE es un SUMAR.SI.CONJUNTO con esteroides) y Analista (reconciliar totales).",
+          "codeSnippet": "Hoja Pedidos (Tabla «Pedidos»): Fecha | ClienteID | Pais | Estado | Total\nHoja Clientes (Tabla «Clientes»): ClienteID | Nombre | Segmento\n\nTotal vendido en Perú sin cancelados:\n=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"Perú\"; Pedidos[Estado]; \"<>cancelado\")\n\nCuántos pedidos de más de 500:\n=CONTAR.SI.CONJUNTO(Pedidos[Total]; \">500\")\n\nNombre del cliente en la fila de pedidos:\n=BUSCARX([@ClienteID]; Clientes[ClienteID]; Clientes[Nombre]; \"sin cliente\")",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "SUMAR.SI.CONJUNTO es un GROUP BY con filtro; BUSCARX es un JOIN de una columna. Los verás otra vez en SQL."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Hojas que otra persona puede auditar.",
+        "rules": [
+          "Convierte los datos en Tabla (Ctrl+T) antes de escribir fórmulas.",
+          "Las constantes (tasas, metas) van en una celda con nombre, nunca escritas dentro de la fórmula.",
+          "Usa BUSCARX con el cuarto argumento para que un faltante se vea como texto y no como #N/D.",
+          "Separa hojas: datos crudos, cálculos y resumen.",
+          "Comprueba el total: la suma por categorías debe dar igual que el total general."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Control de cuadre en el resumen:\nB10  =SUMA(Resumen[Total])                → suma por países\nB11  =SUMA(Pedidos[Total])                → total general\nB12  =SI(B10=B11; \"✓ cuadra\"; \"✗ revisar\")"
+      },
+      "comparison": {
+        "scenario": "Calcular el total con IVA en 500 filas y traer el nombre del cliente.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "D2: =B2*C2*1.18\nE2: =BUSCARV(A2; Clientes!A:D; 3; FALSO)\n\n(se copian a mano hasta la fila 500)",
+        "juniorFlaws": [
+          "La tasa 1.18 está escrita en cada fórmula: si cambia, hay que editar 500 celdas.",
+          "BUSCARV depende del número de columna 3: insertar una columna rompe todo.",
+          "Un cliente que no existe muestra #N/D y ensucia los totales.",
+          "Las filas nuevas no tienen fórmula."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "Tabla «Ventas», nombre IVA = 0.18\n[Total]:   =[@Cantidad]*[@Precio]*(1+IVA)\n[Cliente]: =BUSCARX([@ClienteID]; Clientes[ClienteID]; Clientes[Nombre]; \"sin cliente\")",
+        "intermediateBenefits": [
+          "La tasa vive en un solo lugar con nombre.",
+          "BUSCARX devuelve la columna por nombre, no por posición.",
+          "Los faltantes se ven como «sin cliente» y se pueden filtrar.",
+          "La Tabla copia la fórmula a cada fila nueva."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn05-ej-1",
+          "title": "Práctica 1: Referencias",
+          "difficulty": "Básico",
+          "prompt": "En `G1` está la meta mensual (1.000). En la columna B tienes ventas por día (B2:B31). Escribe en C2 una fórmula que diga «cumple» si la venta del día es al menos 1/30 de la meta, y que puedas copiar hasta C31.",
+          "hint": "La meta debe quedar fija al copiar: necesita `$` en columna y fila.",
+          "solutionExplanation": "`=SI(B2>=$G$1/30; \"cumple\"; \"no cumple\")`. Si escribieras `G1` sin `$`, al copiar hacia abajo pasaría a `G2`, `G3`… que están vacías."
+        },
+        {
+          "id": "fn05-ej-2",
+          "title": "Práctica 2: Totales con condiciones",
+          "difficulty": "Intermedio",
+          "prompt": "Con la Tabla `Pedidos(Fecha, ClienteID, Pais, Estado, Total)`, escribe fórmulas para: a) total de Chile; b) cantidad de pedidos cancelados; c) promedio de los pedidos de México que no están cancelados.",
+          "hint": "Para «no está cancelado» el criterio es `\"<>cancelado\"`.",
+          "solutionExplanation": "a) `=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"Chile\")`\nb) `=CONTAR.SI.CONJUNTO(Pedidos[Estado]; \"cancelado\")`\nc) `=PROMEDIO.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"México\"; Pedidos[Estado]; \"<>cancelado\")`"
+        },
+        {
+          "id": "fn05-ej-3",
+          "title": "Práctica 3: Buscar el segmento",
+          "difficulty": "Intermedio",
+          "prompt": "En la Tabla `Pedidos` agrega una columna `Segmento` que traiga el segmento del cliente desde la Tabla `Clientes(ClienteID, Nombre, Segmento)`. Si el cliente no existe, debe mostrar «revisar». Luego cuenta cuántos pedidos quedaron en «revisar».",
+          "hint": "BUSCARX con cuatro argumentos; después un CONTAR.SI.CONJUNTO sobre la nueva columna.",
+          "solutionExplanation": "`=BUSCARX([@ClienteID]; Clientes[ClienteID]; Clientes[Segmento]; \"revisar\")` y `=CONTAR.SI.CONJUNTO(Pedidos[Segmento]; \"revisar\")`. Ese conteo es un control de calidad: debería ser 0. Si no lo es, hay pedidos de clientes que no están en la tabla de clientes."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn05-q1",
+          "question": "Copias `=B2*$F$1` dos filas hacia abajo. ¿Qué fórmula queda?",
+          "options": [
+            "=B4*$F$3",
+            "=D2*$F$1",
+            "=B2*$F$1",
+            "=B4*$F$1"
+          ],
+          "correctIndex": 3,
+          "explanation": "`B2` es relativa y baja dos filas; `$F$1` es absoluta y no cambia."
+        },
+        {
+          "id": "fn05-q2",
+          "question": "¿Qué ventaja tiene BUSCARX frente a BUSCARV?",
+          "options": [
+            "Devuelve una columna por referencia y no por su número",
+            "Solo funciona con números, por eso es más rápida",
+            "Calcula sumas además de traer el valor",
+            "Permite buscar sin tener una columna clave"
+          ],
+          "correctIndex": 0,
+          "explanation": "BUSCARV usa un número de columna que se rompe al insertar columnas; BUSCARX recibe el rango a devolver."
+        },
+        {
+          "id": "fn05-q3",
+          "question": "¿Qué fórmula suma el Total de los pedidos de Perú que no están cancelados?",
+          "options": [
+            "=CONTAR.SI.CONJUNTO(Total; Pais; \"Perú\"; Estado; \"<>cancelado\")",
+            "=SUMAR.SI.CONJUNTO(Total; Pais; \"Perú\"; Estado; \"<>cancelado\")",
+            "=SI(Pais=\"Perú\"; SUMA(Total); \"<>cancelado\")",
+            "=SUMAR.SI.CONJUNTO(Pais; \"Perú\"; Estado; \"cancelado\"; Total)"
+          ],
+          "correctIndex": 1,
+          "explanation": "El primer argumento es el rango a sumar; luego van pares rango-criterio."
+        }
+      ]
+    },
+    {
+      "id": "cap-06",
+      "order": 6,
+      "kind": "chapter",
+      "code": "Cap. 06",
+      "module": "Módulo 2 · Excel",
+      "title": "Limpiar datos y hacer tablas dinámicas",
+      "subtitle": "Quitar duplicados, arreglar textos y fechas, y resumir miles de filas en segundos con una tabla dinámica.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Detectar y corregir los problemas más comunes: espacios, mayúsculas, duplicados, números guardados como texto y fechas mal leídas.",
+        "Usar funciones de texto (`ESPACIOS`, `NOMPROPIO`, `IZQUIERDA`, `TEXTO`) y herramientas como Texto en columnas.",
+        "Construir una tabla dinámica con filas, columnas, valores y filtros.",
+        "Leer una tabla dinámica y comprobar que su total cuadra con los datos."
+      ],
+      "theorySections": [
+        {
+          "id": "fn06-sec-1",
+          "title": "1. Los cinco problemas de siempre",
+          "body": "Los datos reales llegan sucios. Antes de calcular, revisa:\n\n1) **Espacios de más**: `\"Lima \"` y `\"Lima\"` parecen iguales pero no lo son. `=ESPACIOS(A2)` quita los sobrantes.\n2) **Mayúsculas inconsistentes**: `perú`, `PERÚ`, `Perú`. `=NOMPROPIO(A2)` o `=MAYUSC(A2)` los unifica.\n3) **Duplicados**: Datos → Quitar duplicados. Antes, cuenta con `CONTAR.SI.CONJUNTO` cuáles se repiten para saber qué vas a borrar.\n4) **Números como texto**: aparecen alineados a la izquierda con un triángulo verde. No suman. Se arreglan con Datos → Texto en columnas → Finalizar, o con `=VALOR(A2)`.\n5) **Fechas mal leídas**: `03/04/2026` puede ser 3 de abril o 4 de marzo según la configuración. Comprueba con `=DIA(A2)` y `=MES(A2)`.\n\nRegla de oro: **no limpies sobre los datos originales**. Trabaja en columnas nuevas o en otra hoja, y deja el crudo intacto.",
+          "codeSnippet": "A (crudo)         B (limpio)\n\"  lima \"          =NOMPROPIO(ESPACIOS(A2))        → \"Lima\"\n\"1.250\" (texto)    =VALOR(SUSTITUIR(A3; \".\"; \"\"))   → 1250\n\"ana@MAIL.com\"     =MINUSC(A4)                      → \"ana@mail.com\"\n\nContar repetidos por correo:\n=CONTAR.SI.CONJUNTO([Correo]; [@Correo])   → mayor que 1 = duplicado",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Limpia en columnas nuevas y deja el dato crudo intacto: así puedes rehacer la limpieza si te equivocas."
+        },
+        {
+          "id": "fn06-sec-2",
+          "title": "2. Partir y unir textos",
+          "body": "A veces una columna trae dos datos juntos, como `\"Lima, Perú\"` o un código `\"PE-2026-0001\"`.\n\n- **Texto en columnas** (Datos → Texto en columnas): parte por un separador. Rápido, pero no se actualiza si cambian los datos.\n- Fórmulas que sí se actualizan: `IZQUIERDA(A2; 2)`, `DERECHA(A2; 4)`, `EXTRAE(A2; 4; 4)`, `HALLAR(\",\"; A2)` para encontrar la posición del separador. En Excel 365, `DIVIDIRTEXTO(A2; \",\")` parte en varias columnas de una vez.\n- Para unir: `=A2 & \" \" & B2` o `=CONCAT(A2; \" \"; B2)`.\n- Para dar formato a una fecha o número como texto: `=TEXTO(A2; \"aaaa-mm\")` devuelve `2026-03`, útil para agrupar por mes.\n\nEn Power BI harás lo mismo con Power Query, y en SQL con `LEFT`, `SUBSTRING` y `CHARINDEX` (Cap. 08).",
+          "codeSnippet": "A2 = \"PE-2026-0001\"\n=IZQUIERDA(A2; 2)                 → \"PE\"   (país)\n=EXTRAE(A2; 4; 4)                 → \"2026\" (año)\n=DERECHA(A2; 4)                   → \"0001\" (número)\n\nA3 = \"Lima, Perú\"\n=IZQUIERDA(A3; HALLAR(\",\"; A3)-1) → \"Lima\"\n=ESPACIOS(EXTRAE(A3; HALLAR(\",\"; A3)+1; 100)) → \"Perú\"\n\n=TEXTO(FECHA(2026;3;15); \"aaaa-mm\") → \"2026-03\"",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Una celda, un dato. Si vienen juntos, pártelos con fórmulas para que la limpieza se repita sola."
+        },
+        {
+          "id": "fn06-sec-3",
+          "title": "3. Tablas dinámicas",
+          "body": "Una **tabla dinámica** resume una tabla grande arrastrando campos a cuatro zonas:\n\n- **Filas**: lo que quieres en cada fila del resumen (país, mes).\n- **Columnas**: lo que quieres abrir en columnas (estado, segmento).\n- **Valores**: lo que se calcula (suma de Total, cuenta de Pedido). Clic derecho → Configuración de campo de valor para elegir Suma, Cuenta, Promedio, Máx.\n- **Filtros**: lo que restringe todo el resumen (año = 2026).\n\nPasos: clic dentro de la Tabla → Insertar → Tabla dinámica → arrastra los campos. Si agregas datos a la Tabla de origen, clic derecho → **Actualizar**.\n\nUna tabla dinámica es un `GROUP BY` sin escribir código. Por eso es el puente perfecto hacia SQL y Power BI: los campos de **Filas** son las columnas del `GROUP BY` y los de **Valores** son el `SUM` o el `COUNT`.\n\nCuidado con la granularidad (Cap. 04): si tu origen tiene una fila por línea de pedido, «Cuenta de Pedido» cuenta líneas, no pedidos.\n\n**Lo usarás en:** Power BI (Power Query limpia igual, y una matriz es una tabla dinámica), Analista (calidad de datos en el Módulo 2) e Ingeniería de datos (pruebas de calidad).",
+          "codeSnippet": "Origen: Tabla Pedidos (Fecha, Pais, Estado, Total)\n\nFiltros:  Estado = (todo menos cancelado)\nFilas:    Pais\nColumnas: Mes (agrupado desde Fecha)\nValores:  Suma de Total\n\n             | ene   | feb   | mar   | Total\nArgentina    | 320   | 0     | 410   | 730\nChile        | 150   | 220   | 0     | 370\nPerú         | 980   | 640   | 1200  | 2820\nTotal general| 1450  | 860   | 1610  | 3920\n\nEquivale en SQL a: SELECT pais, mes, SUM(total) … GROUP BY pais, mes",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Filas = GROUP BY, Valores = SUM/COUNT, Filtros = WHERE. Siempre compara el Total general con la suma del origen."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Limpieza repetible y resúmenes confiables.",
+        "rules": [
+          "Nunca edites la hoja de datos crudos: limpia en columnas o en hojas nuevas.",
+          "Anota cada paso de limpieza en una hoja «Notas» para poder repetirlo el mes siguiente.",
+          "Antes de quitar duplicados, cuéntalos y decide cuál conservar.",
+          "Crea las tablas dinámicas sobre una Tabla de Excel, no sobre un rango fijo.",
+          "Compara el total de la dinámica con la suma de la columna de origen."
+        ],
+        "codeLanguage": "plaintext",
+        "referenceCode": "Hoja Notas — limpieza de ventas_junio.csv\n1. ESPACIOS + NOMPROPIO sobre Ciudad y Pais\n2. VALOR(SUSTITUIR(Total; \".\"; \"\")) para quitar el separador de miles\n3. 14 duplicados por (Fecha, ClienteID, Total): se conserva el primero\n4. Control: suma de Total limpio = 48.230 = suma de la dinámica ✓"
+      },
+      "comparison": {
+        "scenario": "Preparar el reporte mensual de ventas por país.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "1. Abrir ventas.csv y corregir a mano las ciudades mal escritas.\n2. Borrar filas que «parecen» repetidas.\n3. Escribir a mano en otra hoja los totales por país con =SUMA(D2:D40), =SUMA(D41:D95)…",
+        "juniorFlaws": [
+          "Las correcciones a mano no se pueden repetir ni revisar.",
+          "Se borran datos sin saber cuántos ni por qué.",
+          "Los rangos fijos dejan fuera las filas nuevas y dependen del orden.",
+          "No hay control de que el total cuadre."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "1. Pegar el CSV en la hoja Crudo (sin tocar).\n2. Hoja Limpio: Tabla con columnas calculadas ESPACIOS/NOMPROPIO/VALOR.\n3. Contar duplicados, quitarlos y anotarlo en Notas.\n4. Tabla dinámica sobre Limpio: Filas = País, Valores = Suma de Total.\n5. Control: Total general = SUMA(Limpio[Total]).",
+        "intermediateBenefits": [
+          "El crudo se conserva y la limpieza se repite el próximo mes.",
+          "Cada decisión queda anotada.",
+          "La dinámica se actualiza con un clic.",
+          "El control de cuadre detecta errores antes de enviar."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn06-ej-1",
+          "title": "Práctica 1: Limpia la columna País",
+          "difficulty": "Básico",
+          "prompt": "La columna A tiene: `\" perú\"`, `\"PERU\"`, `\"Perú \"`, `\"chile\"`, `\"Chile\"`. Escribe una fórmula para la columna B que deje todos los valores en un formato único. ¿Qué problema queda sin resolver?",
+          "hint": "Combina ESPACIOS con NOMPROPIO.",
+          "solutionExplanation": "`=NOMPROPIO(ESPACIOS(A2))` deja `Perú`, `Peru`, `Perú`, `Chile`, `Chile`. Queda `Peru` sin tilde: las fórmulas no adivinan ortografía. Se arregla con `SUSTITUIR` o con una tabla de equivalencias y BUSCARX."
+        },
+        {
+          "id": "fn06-ej-2",
+          "title": "Práctica 2: Mes desde la fecha",
+          "difficulty": "Básico",
+          "prompt": "Tienes fechas en la columna A. Crea una columna B con el texto `aaaa-mm` de cada fecha, para poder agrupar por mes. Luego explica por qué no conviene escribir el mes a mano.",
+          "hint": "La función TEXTO recibe un formato entre comillas.",
+          "solutionExplanation": "`=TEXTO(A2; \"aaaa-mm\")`. Escribirlo a mano produce errores y no se actualiza si llegan datos nuevos. (En Excel en inglés el formato es `\"yyyy-mm\"`.)"
+        },
+        {
+          "id": "fn06-ej-3",
+          "title": "Práctica 3: Arma la dinámica",
+          "difficulty": "Intermedio",
+          "prompt": "Con una Tabla `Pedidos(Fecha, Pais, Segmento, Estado, Total)`, describe la tabla dinámica que responde: «¿cuánto vendió cada segmento en cada país, sin contar cancelados?». Indica qué campo va en cada zona y cómo comprobarías que el total es correcto.",
+          "hint": "Una pregunta «por X y por Y» pone X en Filas y Y en Columnas. Lo que se excluye va en Filtros.",
+          "solutionExplanation": "Filtros: Estado (desmarcar cancelado). Filas: Pais. Columnas: Segmento. Valores: Suma de Total. Control: el Total general debe ser igual a `=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Estado]; \"<>cancelado\")`."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn06-q1",
+          "question": "Una columna de montos está alineada a la izquierda y no suma. ¿Qué pasa?",
+          "options": [
+            "La tabla dinámica no está actualizada",
+            "Hay celdas vacías en medio del rango",
+            "Los números están guardados como texto",
+            "La columna tiene formato de moneda"
+          ],
+          "correctIndex": 2,
+          "explanation": "Excel alinea el texto a la izquierda. Se convierte con VALOR o Texto en columnas."
+        },
+        {
+          "id": "fn06-q2",
+          "question": "En una tabla dinámica, ¿a qué parte de una consulta SQL equivale la zona Filas?",
+          "options": [
+            "Al ORDER BY",
+            "Al JOIN",
+            "Al WHERE",
+            "Al GROUP BY"
+          ],
+          "correctIndex": 3,
+          "explanation": "Los campos de Filas son las columnas por las que se agrupa."
+        },
+        {
+          "id": "fn06-q3",
+          "question": "¿Por qué no se debe limpiar directamente sobre los datos crudos?",
+          "options": [
+            "Porque las fórmulas de limpieza son más lentas ahí",
+            "Porque se pierde el original y no se puede rehacer la limpieza",
+            "Porque Excel no permite editar datos importados",
+            "Porque las tablas dinámicas no leen datos editados"
+          ],
+          "correctIndex": 1,
+          "explanation": "Con el crudo intacto puedes revisar, corregir y repetir cada paso."
+        }
+      ]
+    },
+    {
+      "id": "cap-07",
+      "order": 7,
+      "kind": "chapter",
+      "code": "Cap. 07",
+      "module": "Módulo 3 · SQL básico (T-SQL)",
+      "title": "Tu primera consulta: SELECT, FROM, WHERE, ORDER BY y TOP",
+      "subtitle": "Pedirle filas y columnas a una base de datos, filtrarlas y ordenarlas en T-SQL, el dialecto de SQL Server.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Explicar qué es una base de datos relacional y qué hace una consulta SQL.",
+        "Elegir columnas con `SELECT`, renombrarlas con `AS` y calcular columnas nuevas.",
+        "Filtrar filas con `WHERE` usando comparaciones, `AND`, `OR`, `IN`, `BETWEEN` y `LIKE`.",
+        "Ordenar con `ORDER BY` y limitar con `TOP` y `DISTINCT`."
+      ],
+      "theorySections": [
+        {
+          "id": "fn07-sec-1",
+          "title": "1. Qué es SQL y la forma de una consulta",
+          "body": "Una **base de datos relacional** guarda tablas como las del capítulo 4, relacionadas por claves. **SQL** es el lenguaje para pedirle datos. **T-SQL** es el dialecto de Microsoft SQL Server, el que usan todos los cursos de esta plataforma.\n\nUna consulta de lectura tiene esta forma: `SELECT columnas FROM tabla WHERE condición ORDER BY columna;`\n\n- `SELECT` elige **columnas**. `*` significa todas (útil para mirar, no para trabajar).\n- `FROM` dice de qué tabla.\n- `AS` le pone otro nombre a una columna del resultado.\n- Puedes calcular: `cantidad * precio_unitario AS importe`.\n\nSQL no distingue mayúsculas en las palabras clave, pero por costumbre se escriben en MAYÚSCULAS y los nombres en minúsculas. El `;` cierra la consulta.\n\nLos ejemplos usan la base **tienda** de la consola de Práctica: `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)`, `productos(id, nombre, categoria, precio, activo)`, `pedidos(id, cliente_id, fecha, estado)` y `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)`. Puedes ejecutarlos ahí mismo.",
+          "codeSnippet": "-- Todas las columnas (solo para explorar)\nSELECT * FROM productos;\n\n-- Columnas elegidas, renombradas y una calculada\nSELECT nombre        AS producto,\n       categoria,\n       precio,\n       precio * 1.18 AS precio_con_iva\nFROM productos;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "SELECT elige columnas, FROM elige la tabla. Escribe las columnas que necesitas en vez de `*`."
+        },
+        {
+          "id": "fn07-sec-2",
+          "title": "2. Filtrar filas con WHERE",
+          "body": "`WHERE` deja pasar solo las filas que cumplen la condición. Los operadores son los del capítulo 3:\n\n- Comparar: `=`, `<>` (distinto), `>`, `<`, `>=`, `<=`. Los textos y fechas van entre comillas simples: `'Perú'`, `'2026-03-01'`.\n- Combinar: `AND`, `OR`, `NOT`. Usa paréntesis cuando mezcles `AND` y `OR`.\n- `IN ('Perú', 'Chile')`: igual a cualquiera de la lista.\n- `BETWEEN 10 AND 50`: entre dos valores, **ambos incluidos**.\n- `LIKE 'Mon%'`: patrón de texto. `%` es «cualquier cosa» y `_` es «un carácter».\n\nPara fechas, la forma segura es un rango **cerrado al inicio y abierto al final**: `fecha >= '2026-03-01' AND fecha < '2026-04-01'`. Así no dependes de si la fecha tiene hora.",
+          "codeSnippet": "-- Productos de Electrónica que cuestan menos de 100\nSELECT nombre, precio\nFROM productos\nWHERE categoria = 'Electrónica'\n  AND precio < 100;\n\n-- Clientes de Perú o Chile del segmento empresa\nSELECT nombre, pais\nFROM clientes\nWHERE pais IN ('Perú', 'Chile')\n  AND segmento = 'empresa';\n\n-- Pedidos de marzo de 2026\nSELECT id, cliente_id, fecha\nFROM pedidos\nWHERE fecha >= '2026-03-01' AND fecha < '2026-04-01';",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Texto y fechas entre comillas simples; rangos de fecha con `>=` inicio y `<` fin."
+        },
+        {
+          "id": "fn07-sec-3",
+          "title": "3. Ordenar, limitar y quitar repetidos",
+          "body": "- `ORDER BY columna` ordena de menor a mayor (`ASC`, por defecto). `DESC` ordena de mayor a menor. Puedes ordenar por varias columnas: `ORDER BY pais, nombre`.\n- `TOP (n)` devuelve solo las primeras n filas. Siempre va con `ORDER BY`: sin orden, «los primeros» son cualquiera. Otros motores usan `LIMIT`, que **no existe en T-SQL**.\n- `DISTINCT` quita filas repetidas del resultado: `SELECT DISTINCT pais FROM clientes` lista cada país una vez.\n\nEl orden en que se **escribe** una consulta no es el orden en que se **ejecuta**. SQL Server hace: `FROM` → `WHERE` → `SELECT` → `ORDER BY`. Por eso un alias creado en `SELECT` se puede usar en `ORDER BY` pero no en `WHERE`. El curso SQL Server a fondo empieza justo explicando este orden.\n\n**Lo usarás en:** Analista (todo el Módulo 1), SQL Server a fondo (Cap. 01 parte del orden lógico), Power BI (consultas nativas en Power Query), Ingeniería de datos y Back-end (consultas desde Node).",
+          "codeSnippet": "-- Los 3 productos más caros\nSELECT TOP (3) nombre, precio\nFROM productos\nORDER BY precio DESC;\n\n-- Países con clientes, sin repetir, en orden alfabético\nSELECT DISTINCT pais\nFROM clientes\nORDER BY pais;\n\n-- El alias se puede usar en ORDER BY (se evalúa después de SELECT)\nSELECT nombre, precio * 1.18 AS con_iva\nFROM productos\nORDER BY con_iva DESC;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "TOP siempre con ORDER BY. Orden de ejecución: FROM, WHERE, SELECT, ORDER BY."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Consultas legibles y seguras desde el principio.",
+        "rules": [
+          "Escribe la lista de columnas; usa `SELECT *` solo para explorar.",
+          "Una cláusula por línea y sangría en las condiciones.",
+          "Paréntesis siempre que mezcles AND con OR.",
+          "TOP siempre acompañado de ORDER BY.",
+          "Rangos de fecha semiabiertos: `>= inicio AND < fin`."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT TOP (10)\n       nombre,\n       pais,\n       fecha_registro\nFROM clientes\nWHERE (pais = 'Perú' OR pais = 'Chile')\n  AND fecha_registro >= '2026-01-01'\nORDER BY fecha_registro DESC;"
+      },
+      "comparison": {
+        "scenario": "Listar los clientes de Perú o Chile que son del segmento empresa.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "SELECT *\nFROM clientes\nWHERE pais = 'Perú' OR pais = 'Chile' AND segmento = 'empresa'\nLIMIT 10;",
+        "juniorFlaws": [
+          "AND se evalúa antes que OR: trae todos los de Perú, sean del segmento que sean.",
+          "LIMIT no existe en T-SQL: la consulta falla.",
+          "`SELECT *` trae columnas que no se necesitan.",
+          "Sin ORDER BY, «los primeros 10» son al azar."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "SELECT TOP (10) nombre, pais, segmento\nFROM clientes\nWHERE pais IN ('Perú', 'Chile')\n  AND segmento = 'empresa'\nORDER BY nombre;",
+        "intermediateBenefits": [
+          "IN agrupa los países y evita el problema de precedencia.",
+          "TOP con ORDER BY da un resultado estable.",
+          "Solo las columnas necesarias."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "fn07-ej-1",
+          "title": "Práctica 1: Productos baratos",
+          "difficulty": "Básico",
+          "prompt": "Lista nombre, categoría y precio de los productos activos (`activo = 1`) que cuestan 20 o menos, del más barato al más caro.",
+          "hint": "Dos condiciones con AND y ORDER BY sin DESC.",
+          "solutionExplanation": "Filtra con WHERE y ordena ascendente.",
+          "solutionCode": "SELECT nombre, categoria, precio\nFROM productos\nWHERE activo = 1\n  AND precio <= 20\nORDER BY precio;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn07-ej-2",
+          "title": "Práctica 2: Clientes por nombre",
+          "difficulty": "Básico",
+          "prompt": "Lista los clientes cuyo nombre empieza con «Ma» y los clientes de ciudades que terminan en «a», con su nombre y ciudad, ordenados por nombre.",
+          "hint": "Dos condiciones LIKE unidas por OR: `'Ma%'` y `'%a'`.",
+          "solutionExplanation": "`%` reemplaza cualquier cantidad de caracteres, incluso ninguno.",
+          "solutionCode": "SELECT nombre, ciudad\nFROM clientes\nWHERE nombre LIKE 'Ma%'\n   OR ciudad LIKE '%a'\nORDER BY nombre;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn07-ej-3",
+          "title": "Práctica 3: Últimos pedidos entregados",
+          "difficulty": "Intermedio",
+          "prompt": "Muestra los 5 pedidos entregados más recientes del primer trimestre de 2026 (enero a marzo), con id, cliente_id y fecha.",
+          "hint": "Rango de fechas semiabierto, filtro por estado, TOP (5) y ORDER BY fecha DESC.",
+          "solutionExplanation": "El fin del rango es `'2026-04-01'` con `<`, así se incluye todo el 31 de marzo.",
+          "solutionCode": "SELECT TOP (5) id, cliente_id, fecha\nFROM pedidos\nWHERE estado = 'entregado'\n  AND fecha >= '2026-01-01'\n  AND fecha <  '2026-04-01'\nORDER BY fecha DESC;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn07-q1",
+          "question": "¿Cómo se piden las 5 primeras filas en T-SQL?",
+          "options": [
+            "SELECT FIRST 5 … ORDER BY …",
+            "SELECT … WHERE ROWNUM <= 5",
+            "SELECT … ORDER BY … LIMIT 5",
+            "SELECT TOP (5) … ORDER BY …"
+          ],
+          "correctIndex": 3,
+          "explanation": "T-SQL usa TOP; LIMIT es de MySQL y PostgreSQL."
+        },
+        {
+          "id": "fn07-q2",
+          "question": "¿Qué devuelve `WHERE precio BETWEEN 10 AND 20`?",
+          "options": [
+            "Precios desde 10 hasta 20, ambos incluidos",
+            "Precios mayores que 10 y menores que 20",
+            "Precios iguales a 10 o iguales a 20",
+            "Precios desde 10 hasta 19, sin incluir 20"
+          ],
+          "correctIndex": 0,
+          "explanation": "BETWEEN incluye los dos extremos."
+        },
+        {
+          "id": "fn07-q3",
+          "question": "¿Por qué no puedes usar en WHERE un alias creado en SELECT?",
+          "options": [
+            "Porque WHERE se ejecuta antes que SELECT",
+            "Porque los alias solo valen para números",
+            "Porque WHERE solo acepta columnas de texto",
+            "Porque los alias necesitan corchetes en WHERE"
+          ],
+          "correctIndex": 0,
+          "explanation": "Orden lógico: FROM, WHERE, SELECT, ORDER BY. En WHERE el alias todavía no existe."
+        }
+      ]
+    },
+    {
+      "id": "cap-08",
+      "order": 8,
+      "kind": "chapter",
+      "code": "Cap. 08",
+      "module": "Módulo 3 · SQL básico (T-SQL)",
+      "title": "Texto, fechas, NULL y CASE",
+      "subtitle": "Las funciones de todos los días en T-SQL y cómo no caer en las trampas del valor NULL.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Transformar texto con `UPPER`, `LEN`, `LEFT`, `SUBSTRING`, `REPLACE`, `TRIM` y `CONCAT`.",
+        "Extraer partes de una fecha y calcular diferencias con `YEAR`, `MONTH`, `DATEADD` y `DATEDIFF`.",
+        "Entender qué es NULL, filtrarlo con `IS NULL` y reemplazarlo con `ISNULL` o `COALESCE`.",
+        "Crear categorías con `CASE WHEN` e `IIF`."
+      ],
+      "theorySections": [
+        {
+          "id": "fn08-sec-1",
+          "title": "1. Funciones de texto y fecha",
+          "body": "**Texto** (las mismas ideas que en Excel, Cap. 06):\n\n- `UPPER(x)`, `LOWER(x)`: mayúsculas y minúsculas.\n- `LEN(x)`: largo. `TRIM(x)`: quita espacios de los extremos.\n- `LEFT(x, n)`, `RIGHT(x, n)`, `SUBSTRING(x, inicio, largo)`.\n- `REPLACE(x, 'a', 'b')`, `CHARINDEX(',', x)` (posición de un texto).\n- `CONCAT(a, ' ', b)` une textos y trata NULL como vacío.\n\n**Fechas**:\n\n- `GETDATE()`: fecha y hora actuales. `CAST(GETDATE() AS date)`: solo la fecha.\n- `YEAR(f)`, `MONTH(f)`, `DAY(f)`.\n- `DATEADD(MONTH, -1, f)`: suma o resta unidades.\n- `DATEDIFF(DAY, f1, f2)`: diferencia entre dos fechas.\n- `FORMAT(f, 'yyyy-MM')`: fecha como texto (cómodo, pero lento en tablas grandes).\n\nUna regla que el curso de Analista repite: **no envuelvas la columna en una función dentro del WHERE** si puedes evitarlo. `WHERE YEAR(fecha) = 2026` funciona, pero impide usar índices; `WHERE fecha >= '2026-01-01' AND fecha < '2027-01-01'` es igual de claro y más rápido.",
+          "codeSnippet": "SELECT nombre,\n       UPPER(pais)                       AS pais_mayus,\n       LEFT(nombre, CHARINDEX(' ', nombre) - 1) AS primer_nombre,\n       YEAR(fecha_registro)              AS anio_alta,\n       DATEDIFF(DAY, fecha_registro, '2026-06-30') AS dias_como_cliente\nFROM clientes\nWHERE fecha_registro >= '2025-01-01';",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Las funciones van cómodas en SELECT. En WHERE, prefiere comparar la columna limpia con un rango."
+        },
+        {
+          "id": "fn08-sec-2",
+          "title": "2. NULL: el valor que no es valor",
+          "body": "**NULL** significa «desconocido» o «sin dato». No es 0 ni texto vacío. En la base tienda, algunos clientes tienen `ciudad` en NULL.\n\nTres trampas:\n\n1) **Comparar**: `ciudad = NULL` nunca es verdadero, ni siquiera cuando la ciudad es NULL. Se usa `ciudad IS NULL` o `IS NOT NULL`.\n2) **Operar**: cualquier cuenta con NULL da NULL. `precio + NULL` es NULL.\n3) **Contar y promediar**: `COUNT(*)` cuenta filas, pero `COUNT(ciudad)` cuenta solo las que no son NULL. `AVG` ignora los NULL (Cap. 09).\n\nPara reemplazarlo:\n\n- `ISNULL(ciudad, 'sin ciudad')`: propia de T-SQL, dos argumentos.\n- `COALESCE(a, b, c)`: estándar, devuelve el primero que no sea NULL.\n\nY lo contrario, `NULLIF(x, 0)`, convierte un 0 en NULL: sirve para evitar la división por cero (`total / NULLIF(cantidad, 0)`).",
+          "codeSnippet": "-- ✗ No devuelve nada\nSELECT nombre FROM clientes WHERE ciudad = NULL;\n\n-- ✓ Clientes sin ciudad\nSELECT nombre, pais FROM clientes WHERE ciudad IS NULL;\n\n-- Reemplazar para mostrar\nSELECT nombre,\n       ISNULL(ciudad, 'sin ciudad')   AS ciudad,\n       COALESCE(ciudad, pais)         AS ubicacion\nFROM clientes;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "NULL se pregunta con IS NULL y se reemplaza con ISNULL o COALESCE. Con `=` nunca coincide."
+        },
+        {
+          "id": "fn08-sec-3",
+          "title": "3. Categorías con CASE e IIF",
+          "body": "`CASE` es el `SI.CONJUNTO` de Excel y el `if/elif/else` de Python dentro de una consulta. Evalúa las condiciones **en orden** y devuelve la primera que se cumple: `CASE WHEN condición1 THEN valor1 WHEN condición2 THEN valor2 ELSE valor_por_defecto END`.\n\nSin `ELSE`, lo que no cumple ninguna condición queda en NULL.\n\nPara un solo caso de sí/no, T-SQL tiene `IIF(condición, si_verdadero, si_falso)`.\n\nCASE se usa en `SELECT` para crear columnas, en `ORDER BY` para un orden a medida, y dentro de `SUM` para contar condicionalmente (lo verás en el Cap. 09).\n\n**Lo usarás en:** Analista (Cap. 03 de fechas y texto, limpieza en el Módulo 2), SQL Server a fondo (tipos y sargabilidad), Ingeniería de datos (limpieza en staging) e IA aplicada a datos (revisar consultas generadas).",
+          "codeSnippet": "SELECT nombre,\n       precio,\n       CASE\n         WHEN precio >= 100 THEN 'alto'\n         WHEN precio >= 30  THEN 'medio'\n         ELSE 'bajo'\n       END AS rango_precio,\n       IIF(activo = 1, 'sí', 'no') AS en_venta\nFROM productos\nORDER BY precio DESC;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "CASE evalúa de arriba abajo y se queda con la primera condición verdadera. Pon siempre un ELSE."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Funciones sin sorpresas.",
+        "rules": [
+          "Pregunta por NULL con IS NULL, nunca con `=`.",
+          "Todo CASE lleva ELSE, aunque sea `ELSE 'otro'`.",
+          "Divide con NULLIF en el denominador para evitar la división por cero.",
+          "En WHERE, compara la columna con un rango en lugar de envolverla en YEAR o FORMAT.",
+          "Decide y documenta qué significa NULL en cada columna: «sin dato» no es lo mismo que «no aplica»."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT p.id,\n       SUM(d.cantidad * d.precio_unitario) / NULLIF(SUM(d.cantidad), 0) AS precio_medio\nFROM pedidos AS p\nJOIN detalle_pedido AS d ON d.pedido_id = p.id\nWHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\nGROUP BY p.id;"
+      },
+      "comparison": {
+        "scenario": "Contar clientes sin ciudad y clasificarlos por antigüedad.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "SELECT nombre,\n       CASE WHEN DATEDIFF(DAY, fecha_registro, GETDATE()) > 365 THEN 'antiguo'\n            WHEN DATEDIFF(DAY, fecha_registro, GETDATE()) > 730 THEN 'muy antiguo' END AS tipo\nFROM clientes\nWHERE ciudad = NULL;",
+        "juniorFlaws": [
+          "`= NULL` no devuelve ninguna fila.",
+          "El caso «muy antiguo» nunca se alcanza: va después del más amplio.",
+          "Sin ELSE, los clientes nuevos quedan en NULL."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "SELECT nombre,\n       CASE WHEN DATEDIFF(DAY, fecha_registro, GETDATE()) > 730 THEN 'muy antiguo'\n            WHEN DATEDIFF(DAY, fecha_registro, GETDATE()) > 365 THEN 'antiguo'\n            ELSE 'nuevo' END AS tipo\nFROM clientes\nWHERE ciudad IS NULL;",
+        "intermediateBenefits": [
+          "IS NULL encuentra los clientes sin ciudad.",
+          "Los casos van del más exigente al menos exigente.",
+          "ELSE cubre a todos los demás."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "fn08-ej-1",
+          "title": "Práctica 1: Ciudad o país",
+          "difficulty": "Básico",
+          "prompt": "Lista nombre y una columna `ubicacion` que muestre la ciudad del cliente o, si no tiene, el texto «(país) sin ciudad», por ejemplo «México sin ciudad».",
+          "hint": "COALESCE con CONCAT como segundo argumento.",
+          "solutionExplanation": "CONCAT arma el texto alternativo y COALESCE lo usa solo cuando la ciudad es NULL.",
+          "solutionCode": "SELECT nombre,\n       COALESCE(ciudad, CONCAT(pais, ' sin ciudad')) AS ubicacion\nFROM clientes;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn08-ej-2",
+          "title": "Práctica 2: Antigüedad del cliente",
+          "difficulty": "Intermedio",
+          "prompt": "Para cada cliente, muestra nombre, fecha de registro y una columna `antiguedad` con «nuevo» si se registró en 2026, «reciente» si fue en 2025 y «veterano» si fue antes.",
+          "hint": "CASE con condiciones sobre fecha_registro, de la más reciente a la más antigua.",
+          "solutionExplanation": "Se compara con fechas de corte en lugar de usar YEAR, que también funcionaría.",
+          "solutionCode": "SELECT nombre,\n       fecha_registro,\n       CASE\n         WHEN fecha_registro >= '2026-01-01' THEN 'nuevo'\n         WHEN fecha_registro >= '2025-01-01' THEN 'reciente'\n         ELSE 'veterano'\n       END AS antiguedad\nFROM clientes\nORDER BY fecha_registro DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn08-ej-3",
+          "title": "Práctica 3: Días hasta hoy",
+          "difficulty": "Intermedio",
+          "prompt": "Muestra los pedidos pendientes con su id, fecha y cuántos días llevan pendientes al 30 de junio de 2026. Ordénalos del más antiguo al más nuevo.",
+          "hint": "DATEDIFF(DAY, fecha, '2026-06-30').",
+          "solutionExplanation": "Usar una fecha fija hace que el resultado sea reproducible; en producción usarías `CAST(GETDATE() AS date)`.",
+          "solutionCode": "SELECT id,\n       fecha,\n       DATEDIFF(DAY, fecha, '2026-06-30') AS dias_pendiente\nFROM pedidos\nWHERE estado = 'pendiente'\nORDER BY fecha;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn08-q1",
+          "question": "¿Qué devuelve `SELECT 10 + NULL`?",
+          "options": [
+            "10",
+            "Un error de tipo de dato",
+            "NULL",
+            "0"
+          ],
+          "correctIndex": 2,
+          "explanation": "Cualquier operación con NULL da NULL."
+        },
+        {
+          "id": "fn08-q2",
+          "question": "¿Qué condición encuentra los clientes sin ciudad?",
+          "options": [
+            "WHERE ciudad = ''",
+            "WHERE ciudad IS NULL",
+            "WHERE ciudad = 0",
+            "WHERE ciudad = NULL"
+          ],
+          "correctIndex": 1,
+          "explanation": "NULL se pregunta con IS NULL; un texto vacío es un valor distinto."
+        },
+        {
+          "id": "fn08-q3",
+          "question": "Un CASE sin ELSE recibe una fila que no cumple ninguna condición. ¿Qué devuelve?",
+          "options": [
+            "NULL",
+            "Un texto vacío",
+            "Un error al ejecutar",
+            "El valor del primer WHEN"
+          ],
+          "correctIndex": 0,
+          "explanation": "Por eso conviene poner siempre un ELSE explícito."
+        }
+      ]
+    },
+    {
+      "id": "cap-09",
+      "order": 9,
+      "kind": "chapter",
+      "code": "Cap. 09",
+      "module": "Módulo 3 · SQL básico (T-SQL)",
+      "title": "Agrupar: COUNT, SUM, AVG, GROUP BY y HAVING",
+      "subtitle": "De miles de filas a un resumen: contar, sumar y promediar por grupo, y filtrar grupos.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Usar las funciones de agregación `COUNT`, `SUM`, `AVG`, `MIN` y `MAX`.",
+        "Agrupar con `GROUP BY` y saber qué columnas pueden ir en el SELECT.",
+        "Filtrar grupos con `HAVING` y distinguirlo de `WHERE`.",
+        "Contar con condición usando `SUM(CASE …)` y `COUNT(DISTINCT …)`."
+      ],
+      "theorySections": [
+        {
+          "id": "fn09-sec-1",
+          "title": "1. Agregaciones sobre toda la tabla",
+          "body": "Una **función de agregación** toma muchas filas y devuelve un solo valor:\n\n- `COUNT(*)`: número de filas. `COUNT(columna)`: filas donde la columna no es NULL. `COUNT(DISTINCT columna)`: valores distintos.\n- `SUM(x)`, `AVG(x)`, `MIN(x)`, `MAX(x)`.\n\nSin `GROUP BY`, la agregación resume **toda** la tabla (después del WHERE) en una sola fila.\n\nAtención con `AVG` sobre enteros: en T-SQL `AVG` de una columna entera devuelve un entero (trunca). Multiplica por `1.0` para obtener decimales: `AVG(cantidad * 1.0)`.\n\nY recuerda la granularidad: en `detalle_pedido`, `COUNT(*)` cuenta líneas; para contar pedidos usa `COUNT(DISTINCT pedido_id)`.",
+          "codeSnippet": "SELECT COUNT(*)                    AS lineas,\n       COUNT(DISTINCT pedido_id)   AS pedidos,\n       SUM(cantidad)               AS unidades,\n       SUM(cantidad * precio_unitario) AS importe,\n       AVG(cantidad * 1.0)         AS unidades_por_linea\nFROM detalle_pedido;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "COUNT(*) cuenta filas; COUNT(DISTINCT x) cuenta cosas distintas. Mira el grano antes de elegir."
+        },
+        {
+          "id": "fn09-sec-2",
+          "title": "2. GROUP BY: un resumen por grupo",
+          "body": "`GROUP BY` parte las filas en grupos y calcula la agregación **en cada grupo**. Es la tabla dinámica del capítulo 6 escrita en SQL.\n\nLa regla de oro: **en el SELECT solo pueden ir columnas del GROUP BY o agregaciones**. Si pides `nombre` agrupando por `pais`, SQL Server da error, porque cada país tiene muchos nombres y no sabe cuál mostrar.\n\nSe puede agrupar por varias columnas (`GROUP BY pais, segmento`): habrá un grupo por cada combinación que exista.\n\nOrden de ejecución completo: `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`.",
+          "codeSnippet": "-- Clientes por país y segmento\nSELECT pais,\n       segmento,\n       COUNT(*) AS clientes\nFROM clientes\nGROUP BY pais, segmento\nORDER BY pais, clientes DESC;\n\n-- Pedidos por estado\nSELECT estado, COUNT(*) AS pedidos\nFROM pedidos\nGROUP BY estado;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Lo que no está en el GROUP BY tiene que ir dentro de una agregación."
+        },
+        {
+          "id": "fn09-sec-3",
+          "title": "3. HAVING y conteos condicionales",
+          "body": "`WHERE` filtra **filas** antes de agrupar; `HAVING` filtra **grupos** después de agrupar. Por eso las condiciones sobre `COUNT` o `SUM` van en HAVING.\n\n- «Pedidos de 2026» → WHERE (es una condición de cada fila).\n- «Países con más de 3 clientes» → HAVING (es una condición del grupo).\n\nUn truco que usarás mucho es contar o sumar con condición dentro de la misma consulta, con `SUM(CASE WHEN … THEN 1 ELSE 0 END)`. Así obtienes varias columnas de resumen en una sola pasada, como las columnas de una tabla dinámica.\n\n**Lo usarás en:** Analista (agregaciones en todo el curso y métricas del Módulo 5), Power BI (medidas DAX como SUM y COUNTROWS), Ingeniería de datos (tablas agregadas) y SQL Server a fondo (vistas de resumen).",
+          "codeSnippet": "-- Países con más de 3 clientes\nSELECT pais, COUNT(*) AS clientes\nFROM clientes\nGROUP BY pais\nHAVING COUNT(*) > 3\nORDER BY clientes DESC;\n\n-- Por mes: total de pedidos y cuántos se cancelaron\nSELECT MONTH(fecha) AS mes,\n       COUNT(*) AS pedidos,\n       SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) AS cancelados\nFROM pedidos\nWHERE fecha >= '2026-01-01' AND fecha < '2026-07-01'\nGROUP BY MONTH(fecha)\nORDER BY mes;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "WHERE filtra filas, HAVING filtra grupos. SUM(CASE …) arma columnas condicionales."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Resúmenes que cuadran.",
+        "rules": [
+          "Declara el grano del resultado: «una fila por país y mes».",
+          "Usa COUNT(DISTINCT id) cuando cuentes entidades en una tabla de detalle.",
+          "Condiciones de fila en WHERE, de grupo en HAVING.",
+          "Multiplica por 1.0 antes de AVG o de dividir enteros.",
+          "Compara la suma de los grupos con el total sin agrupar."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- Control: la suma por estado debe igualar el total\nSELECT SUM(pedidos) AS suma_grupos\nFROM (SELECT estado, COUNT(*) AS pedidos FROM pedidos GROUP BY estado) AS t;\n\nSELECT COUNT(*) AS total FROM pedidos;"
+      },
+      "comparison": {
+        "scenario": "Encontrar los clientes con 2 pedidos o más.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "SELECT cliente_id, nombre, COUNT(*) AS pedidos\nFROM pedidos\nWHERE COUNT(*) >= 2\nGROUP BY cliente_id;",
+        "juniorFlaws": [
+          "COUNT en WHERE da error: el grupo todavía no existe.",
+          "`nombre` no está en pedidos ni en el GROUP BY.",
+          "No dice en qué orden mostrar el resultado."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "SELECT cliente_id, COUNT(*) AS pedidos\nFROM pedidos\nGROUP BY cliente_id\nHAVING COUNT(*) >= 2\nORDER BY pedidos DESC;",
+        "intermediateBenefits": [
+          "HAVING filtra después de agrupar.",
+          "El SELECT solo tiene la columna agrupada y la agregación.",
+          "Para mostrar el nombre se une con clientes (Cap. 10)."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "fn09-ej-1",
+          "title": "Práctica 1: Productos por categoría",
+          "difficulty": "Básico",
+          "prompt": "Para cada categoría de productos, muestra cuántos productos tiene, el precio mínimo, el máximo y el promedio redondeado a 2 decimales. Ordena por cantidad de productos, de mayor a menor.",
+          "hint": "GROUP BY categoria y ROUND(AVG(precio), 2).",
+          "solutionExplanation": "Cada fila del resultado es una categoría.",
+          "solutionCode": "SELECT categoria,\n       COUNT(*)              AS productos,\n       MIN(precio)           AS minimo,\n       MAX(precio)           AS maximo,\n       ROUND(AVG(precio), 2) AS promedio\nFROM productos\nGROUP BY categoria\nORDER BY productos DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn09-ej-2",
+          "title": "Práctica 2: Pedidos grandes",
+          "difficulty": "Intermedio",
+          "prompt": "Desde `detalle_pedido`, lista los pedidos cuyo importe total (cantidad × precio_unitario) supera 200, con su importe, del mayor al menor.",
+          "hint": "Agrupa por pedido_id y filtra el SUM en HAVING.",
+          "solutionExplanation": "El importe es una condición del grupo, por eso va en HAVING y no en WHERE.",
+          "solutionCode": "SELECT pedido_id,\n       SUM(cantidad * precio_unitario) AS importe\nFROM detalle_pedido\nGROUP BY pedido_id\nHAVING SUM(cantidad * precio_unitario) > 200\nORDER BY importe DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn09-ej-3",
+          "title": "Práctica 3: Estados por mes",
+          "difficulty": "Intermedio",
+          "prompt": "Arma un resumen con una fila por mes de 2026 y columnas: total de pedidos, entregados, pendientes y cancelados.",
+          "hint": "Un SUM(CASE …) por cada estado.",
+          "solutionExplanation": "Es una tabla dinámica con Filas = mes y Columnas = estado, escrita en SQL.",
+          "solutionCode": "SELECT MONTH(fecha) AS mes,\n       COUNT(*) AS pedidos,\n       SUM(CASE WHEN estado = 'entregado' THEN 1 ELSE 0 END) AS entregados,\n       SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,\n       SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) AS cancelados\nFROM pedidos\nWHERE fecha >= '2026-01-01' AND fecha < '2027-01-01'\nGROUP BY MONTH(fecha)\nORDER BY mes;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn09-q1",
+          "question": "¿Dónde va la condición «solo países con más de 3 clientes»?",
+          "options": [
+            "En ORDER BY, porque ordena por cantidad",
+            "En HAVING, porque es una condición sobre el grupo",
+            "En WHERE, porque filtra antes de agrupar",
+            "En SELECT, como una columna calculada"
+          ],
+          "correctIndex": 1,
+          "explanation": "COUNT(*) solo existe después de agrupar, y eso lo filtra HAVING."
+        },
+        {
+          "id": "fn09-q2",
+          "question": "Agrupas por `pais` y pones `nombre` en el SELECT sin agregarlo. ¿Qué pasa?",
+          "options": [
+            "Ignora la columna nombre y sigue",
+            "Error: nombre no está en el GROUP BY ni en una agregación",
+            "Muestra todos los nombres separados por comas",
+            "Muestra el primer nombre de cada país"
+          ],
+          "correctIndex": 1,
+          "explanation": "SQL Server no elige un valor por ti: exige agruparlo o agregarlo."
+        },
+        {
+          "id": "fn09-q3",
+          "question": "En `detalle_pedido` (una fila por producto de cada pedido), ¿cómo cuentas pedidos?",
+          "options": [
+            "COUNT(*)",
+            "COUNT(DISTINCT pedido_id)",
+            "COUNT(producto_id)",
+            "SUM(pedido_id)"
+          ],
+          "correctIndex": 1,
+          "explanation": "Un pedido con varios productos ocupa varias filas; DISTINCT lo cuenta una vez."
+        }
+      ]
+    },
+    {
+      "id": "cap-10",
+      "order": 10,
+      "kind": "chapter",
+      "code": "Cap. 10",
+      "module": "Módulo 3 · SQL básico (T-SQL)",
+      "title": "Unir tablas: INNER JOIN y LEFT JOIN",
+      "subtitle": "Combinar clientes, pedidos y productos con claves, sin perder filas ni duplicarlas.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Unir dos tablas con `INNER JOIN` usando la clave foránea.",
+        "Conservar todas las filas de una tabla con `LEFT JOIN` y encontrar las que no tienen pareja.",
+        "Encadenar tres o más tablas con alias.",
+        "Prever cuántas filas devuelve un JOIN según la granularidad de cada tabla."
+      ],
+      "theorySections": [
+        {
+          "id": "fn10-sec-1",
+          "title": "1. INNER JOIN y LEFT JOIN en un dibujo",
+          "body": "Un **JOIN** pega columnas de dos tablas en una misma fila cuando sus claves coinciden. Es el BUSCARX del capítulo 5, pero para muchas columnas y muchas filas a la vez.\n\n- **INNER JOIN**: solo las filas que tienen pareja en **ambas** tablas. Un cliente sin pedidos no aparece.\n- **LEFT JOIN**: **todas** las filas de la tabla de la izquierda; si no tienen pareja, las columnas de la derecha llegan en NULL.\n\nLa condición de unión va en `ON`: `ON p.cliente_id = c.id`. Los **alias** (`clientes AS c`) acortan los nombres y dejan claro de qué tabla viene cada columna.\n\nUsa el diagrama: elige cada tipo de JOIN y mira qué filas sobreviven. Fíjate en que Ana aparece una vez por cada pedido: el JOIN **repite** al cliente tantas veces como pedidos tenga.",
+          "codeSnippet": "-- Solo clientes con pedidos\nSELECT c.nombre, p.id AS pedido_id, p.fecha\nFROM clientes AS c\nINNER JOIN pedidos AS p ON p.cliente_id = c.id;\n\n-- Todos los clientes; pedido_id en NULL si no compraron\nSELECT c.nombre, p.id AS pedido_id, p.fecha\nFROM clientes AS c\nLEFT JOIN pedidos AS p ON p.cliente_id = c.id;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "INNER = solo coincidencias. LEFT = todo lo de la izquierda, con NULL donde no hay pareja.",
+          "diagram": {
+            "type": "venn-joins"
+          }
+        },
+        {
+          "id": "fn10-sec-2",
+          "title": "2. Encontrar lo que falta y encadenar tablas",
+          "body": "Un uso muy común del LEFT JOIN es encontrar **lo que no tiene pareja**: clientes sin pedidos, productos que nunca se vendieron. Se hace con `LEFT JOIN` y luego `WHERE derecha.id IS NULL` (un **anti-join**).\n\nPara llegar de clientes a productos hay que pasar por pedidos y detalle_pedido: se **encadenan** JOINs, uno por cada relación del diagrama del capítulo 4. Cada `ON` usa la clave que une ese par de tablas.\n\nCuidado: si en un LEFT JOIN pones una condición sobre la tabla de la derecha en el WHERE (por ejemplo `WHERE p.estado = 'entregado'`), eliminas las filas con NULL y lo conviertes, sin querer, en un INNER JOIN. Esa condición va en el `ON`.",
+          "codeSnippet": "-- Productos que nunca se vendieron\nSELECT pr.nombre\nFROM productos AS pr\nLEFT JOIN detalle_pedido AS d ON d.producto_id = pr.id\nWHERE d.producto_id IS NULL;\n\n-- Cuatro tablas: qué compró cada cliente\nSELECT c.nombre, p.fecha, pr.nombre AS producto, d.cantidad\nFROM clientes AS c\nJOIN pedidos        AS p  ON p.cliente_id = c.id\nJOIN detalle_pedido AS d  ON d.pedido_id  = p.id\nJOIN productos      AS pr ON pr.id        = d.producto_id\nORDER BY c.nombre, p.fecha;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "LEFT JOIN + IS NULL encuentra lo que falta. Las condiciones sobre la tabla derecha de un LEFT van en ON."
+        },
+        {
+          "id": "fn10-sec-3",
+          "title": "3. JOIN y agregación: el error de la duplicación",
+          "body": "Un JOIN cambia la granularidad del resultado: después de unir clientes con pedidos, hay **una fila por pedido**, no por cliente. Si luego sumas una columna que era del cliente (por ejemplo un límite de crédito), la sumas tantas veces como pedidos tenga.\n\nAntes de agregar después de un JOIN, pregúntate: ¿cuál es ahora el grano? Y comprueba con un conteo: `COUNT(*)` antes y después del JOIN.\n\nPara mostrar el nombre del cliente junto a su total, agrupa por el **id y el nombre** (dos clientes pueden llamarse igual), y suma columnas que pertenezcan al grano del resultado, como el importe de cada línea.\n\n**Lo usarás en:** Analista (Cap. 02 entero es JOINs, con este mismo diagrama), Power BI (relaciones del modelo), Ingeniería de datos (cargas con MERGE), Back-end (consultas con datos relacionados) y los ejercicios de JOIN de la consola de Práctica.",
+          "codeSnippet": "-- Ventas por cliente (sin cancelados), incluidos los que no compraron\nSELECT c.id,\n       c.nombre,\n       COUNT(DISTINCT p.id)                         AS pedidos,\n       ISNULL(SUM(d.cantidad * d.precio_unitario), 0) AS importe\nFROM clientes AS c\nLEFT JOIN pedidos AS p\n       ON p.cliente_id = c.id AND p.estado <> 'cancelado'\nLEFT JOIN detalle_pedido AS d ON d.pedido_id = p.id\nGROUP BY c.id, c.nombre\nORDER BY importe DESC;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Después de un JOIN, el grano cambia. Cuenta filas antes y después y agrupa por id, no solo por nombre."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "JOINs que no pierden ni duplican filas.",
+        "rules": [
+          "Alias cortos y prefijo en cada columna: `c.nombre`, `p.fecha`.",
+          "Escribe la condición de unión completa en ON, con la clave foránea.",
+          "Condiciones sobre la tabla derecha de un LEFT JOIN van en ON, no en WHERE.",
+          "Cuenta filas antes y después de cada JOIN.",
+          "Agrupa por la clave (id) además del nombre."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "SELECT COUNT(*) AS antes FROM pedidos;\n\nSELECT COUNT(*) AS despues\nFROM pedidos AS p\nJOIN clientes AS c ON c.id = p.cliente_id;   -- debe ser igual: cada pedido tiene un cliente"
+      },
+      "comparison": {
+        "scenario": "Listar todos los clientes con sus pedidos entregados (si los tienen).",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "SELECT nombre, id, fecha\nFROM clientes\nLEFT JOIN pedidos ON cliente_id = id\nWHERE estado = 'entregado';",
+        "juniorFlaws": [
+          "`id` es ambiguo: existe en las dos tablas y la consulta falla.",
+          "El filtro en WHERE elimina a los clientes sin pedidos: el LEFT se vuelve INNER.",
+          "Sin alias no se sabe de qué tabla es cada columna."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "SELECT c.nombre, p.id AS pedido_id, p.fecha\nFROM clientes AS c\nLEFT JOIN pedidos AS p\n       ON p.cliente_id = c.id\n      AND p.estado = 'entregado'\nORDER BY c.nombre;",
+        "intermediateBenefits": [
+          "Alias y prefijos eliminan la ambigüedad.",
+          "El filtro en ON conserva a todos los clientes.",
+          "Los clientes sin pedidos entregados aparecen con NULL."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "fn10-ej-1",
+          "title": "Práctica 1: Pedidos con nombre",
+          "difficulty": "Básico",
+          "prompt": "Lista id del pedido, fecha, estado y nombre del cliente de todos los pedidos de abril de 2026, ordenados por fecha.",
+          "hint": "INNER JOIN de pedidos con clientes por cliente_id.",
+          "solutionExplanation": "Cada pedido tiene exactamente un cliente, así que el resultado tiene tantas filas como pedidos de abril.",
+          "solutionCode": "SELECT p.id, p.fecha, p.estado, c.nombre\nFROM pedidos AS p\nJOIN clientes AS c ON c.id = p.cliente_id\nWHERE p.fecha >= '2026-04-01' AND p.fecha < '2026-05-01'\nORDER BY p.fecha;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn10-ej-2",
+          "title": "Práctica 2: Clientes sin compras",
+          "difficulty": "Intermedio",
+          "prompt": "Lista los clientes que no tienen ningún pedido, con su nombre y país.",
+          "hint": "LEFT JOIN de clientes a pedidos y quédate con las filas donde el pedido es NULL.",
+          "solutionExplanation": "Este patrón se llama anti-join. La alternativa con `NOT EXISTS` la verás en Analista.",
+          "solutionCode": "SELECT c.nombre, c.pais\nFROM clientes AS c\nLEFT JOIN pedidos AS p ON p.cliente_id = c.id\nWHERE p.id IS NULL;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn10-ej-3",
+          "title": "Práctica 3: Ventas por categoría y país",
+          "difficulty": "Intermedio",
+          "prompt": "Calcula el importe vendido (cantidad × precio_unitario) por país del cliente y categoría del producto, sin pedidos cancelados. Ordena por país y luego por importe de mayor a menor.",
+          "hint": "Necesitas las cuatro tablas. Filtra el estado en WHERE (aquí todos son INNER JOIN) y agrupa por país y categoría.",
+          "solutionExplanation": "Con INNER JOIN el filtro en WHERE es correcto. El grano del resultado es país × categoría.",
+          "solutionCode": "SELECT c.pais,\n       pr.categoria,\n       SUM(d.cantidad * d.precio_unitario) AS importe\nFROM detalle_pedido AS d\nJOIN pedidos   AS p  ON p.id  = d.pedido_id\nJOIN clientes  AS c  ON c.id  = p.cliente_id\nJOIN productos AS pr ON pr.id = d.producto_id\nWHERE p.estado <> 'cancelado'\nGROUP BY c.pais, pr.categoria\nORDER BY c.pais, importe DESC;",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn10-q1",
+          "question": "Quieres todos los productos, se hayan vendido o no. ¿Qué JOIN usas desde productos hacia detalle_pedido?",
+          "options": [
+            "INNER JOIN",
+            "CROSS JOIN",
+            "Un JOIN con WHERE IS NOT NULL",
+            "LEFT JOIN"
+          ],
+          "correctIndex": 3,
+          "explanation": "LEFT JOIN conserva todas las filas de la tabla de la izquierda."
+        },
+        {
+          "id": "fn10-q2",
+          "question": "Un cliente tiene 3 pedidos. Tras `clientes JOIN pedidos`, ¿cuántas filas tiene ese cliente?",
+          "options": [
+            "1, porque es un solo cliente",
+            "4, el cliente más sus pedidos",
+            "3, una por pedido",
+            "0, porque hay más de un pedido"
+          ],
+          "correctIndex": 2,
+          "explanation": "El JOIN repite al cliente por cada pedido: cambia el grano a uno por pedido."
+        },
+        {
+          "id": "fn10-q3",
+          "question": "En un LEFT JOIN de clientes a pedidos, pones `WHERE p.estado = 'entregado'`. ¿Qué pasa?",
+          "options": [
+            "Se pierden los clientes sin pedidos y actúa como un INNER JOIN",
+            "Se muestran todos los clientes con estado en NULL",
+            "La consulta da error porque estado está en pedidos",
+            "Se duplican los clientes con pedidos entregados"
+          ],
+          "correctIndex": 0,
+          "explanation": "Las filas sin pareja tienen estado NULL y no pasan el WHERE. Esa condición va en ON."
+        }
+      ]
+    },
+    {
+      "id": "cap-11",
+      "order": 11,
+      "kind": "chapter",
+      "code": "Cap. 11",
+      "module": "Módulo 3 · SQL básico (T-SQL)",
+      "title": "Crear tablas y modificar datos: CREATE TABLE, INSERT, UPDATE y DELETE",
+      "subtitle": "Del lado que escribe: definir tablas con tipos y claves, insertar filas y cambiar datos sin desastres.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Crear una tabla con `CREATE TABLE`, tipos de datos, clave primaria, `NOT NULL` y clave foránea.",
+        "Insertar filas con `INSERT INTO … VALUES` e `INSERT INTO … SELECT`.",
+        "Cambiar y borrar filas con `UPDATE` y `DELETE` siempre con `WHERE`.",
+        "Proteger los cambios con una transacción y revisarlos antes de confirmar."
+      ],
+      "theorySections": [
+        {
+          "id": "fn11-sec-1",
+          "title": "1. CREATE TABLE: tipos y reglas",
+          "body": "Crear una tabla es poner por escrito lo del capítulo 4: columnas, tipos, clave y relaciones.\n\nTipos de T-SQL más usados:\n\n- `INT` (enteros), `DECIMAL(10,2)` (dinero: 10 dígitos, 2 decimales; no uses `FLOAT` para dinero).\n- `NVARCHAR(100)`: texto con tildes y eñes, hasta 100 caracteres.\n- `DATE` (fecha), `DATETIME2` (fecha y hora), `BIT` (0/1).\n\nReglas (restricciones):\n\n- `PRIMARY KEY`: identifica cada fila. `IDENTITY(1,1)` genera el número solo.\n- `NOT NULL`: la columna es obligatoria.\n- `FOREIGN KEY … REFERENCES`: solo acepta valores que existan en la otra tabla.\n- `DEFAULT`: valor si no se indica otro. `CHECK`: condición que debe cumplirse.\n\nEn un SQL Server real las tablas viven en un **esquema**: `dbo.pagos`. En la consola de Práctica puedes omitirlo.",
+          "codeSnippet": "CREATE TABLE pagos (\n    id         INT IDENTITY(1,1) PRIMARY KEY,\n    pedido_id  INT            NOT NULL REFERENCES pedidos(id),\n    fecha      DATE           NOT NULL,\n    monto      DECIMAL(10,2)  NOT NULL CHECK (monto > 0),\n    metodo     NVARCHAR(20)   NOT NULL DEFAULT 'tarjeta'\n);",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Los tipos y las restricciones son tu primera línea de calidad de datos: la base rechaza lo que no cumple."
+        },
+        {
+          "id": "fn11-sec-2",
+          "title": "2. INSERT: agregar filas",
+          "body": "- `INSERT INTO tabla (col1, col2) VALUES (v1, v2), (v3, v4);` inserta una o varias filas. **Siempre** escribe la lista de columnas: si mañana alguien agrega una columna, tu INSERT sigue funcionando.\n- La columna `IDENTITY` no se escribe: la base la llena.\n- `INSERT INTO tabla (cols) SELECT …` inserta el resultado de una consulta. Es la base de las cargas de datos que verás en Ingeniería de datos.\n\nSi una fila viola una restricción (un `pedido_id` que no existe, un monto negativo, un NOT NULL vacío), la base la rechaza con un error que dice cuál restricción falló. Lee el mensaje: casi siempre dice exactamente qué pasó.",
+          "codeSnippet": "INSERT INTO pagos (pedido_id, fecha, monto, metodo)\nVALUES (1, '2026-01-07', 19.80, 'tarjeta'),\n       (2, '2026-01-06', 59.90, 'transferencia');\n\n-- Copiar a una tabla de respaldo el resultado de una consulta\nCREATE TABLE clientes_peru (id INT PRIMARY KEY, nombre NVARCHAR(100) NOT NULL);\n\nINSERT INTO clientes_peru (id, nombre)\nSELECT id, nombre\nFROM clientes\nWHERE pais = 'Perú';",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Escribe siempre la lista de columnas en el INSERT. Los errores de restricción son avisos útiles, no estorbos."
+        },
+        {
+          "id": "fn11-sec-3",
+          "title": "3. UPDATE y DELETE sin desastres",
+          "body": "`UPDATE` cambia valores y `DELETE` borra filas. Los dos afectan **a todas las filas que cumplan el WHERE**, y sin WHERE afectan a **toda la tabla**.\n\nUn procedimiento seguro en cuatro pasos:\n\n1) Escribe primero un `SELECT` con el mismo WHERE y mira cuántas filas salen.\n2) Abre una transacción: `BEGIN TRANSACTION;`\n3) Ejecuta el UPDATE o DELETE y compara el número de «filas afectadas» con el del SELECT.\n4) Si coincide, `COMMIT;`. Si no, `ROLLBACK;` y nada cambió.\n\nEl curso SQL Server a fondo profundiza en transacciones y bloqueos; con este hábito ya evitas el error más caro de un principiante.\n\n**Lo usarás en:** SQL Server a fondo (tipos, procedimientos y transacciones), Ingeniería de datos (cargas e INSERT … SELECT, MERGE), Back-end y APIs (CRUD desde Node con mssql) y Power BI (entender de dónde salen las tablas).",
+          "codeSnippet": "-- 1) Mirar\nSELECT id, estado FROM pedidos\nWHERE estado = 'pendiente' AND fecha < '2026-03-01';\n\n-- 2-4) Cambiar con red de seguridad\nBEGIN TRANSACTION;\n\nUPDATE pedidos\nSET estado = 'cancelado'\nWHERE estado = 'pendiente' AND fecha < '2026-03-01';\n\n-- ¿Las filas afectadas coinciden con el SELECT? Entonces:\nCOMMIT;\n-- Si no: ROLLBACK;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "Primero SELECT, luego UPDATE/DELETE con el mismo WHERE dentro de una transacción. Nunca sin WHERE."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Cambios de datos que se pueden deshacer y auditar.",
+        "rules": [
+          "Toda tabla tiene clave primaria y tipos precisos (DECIMAL para dinero, DATE para fechas).",
+          "INSERT siempre con lista de columnas.",
+          "Antes de UPDATE o DELETE, el mismo WHERE en un SELECT.",
+          "Cambios en producción dentro de BEGIN TRANSACTION, con COMMIT solo si las filas afectadas coinciden.",
+          "Guarda el script de cada cambio en un archivo .sql con fecha y motivo."
+        ],
+        "codeLanguage": "sql",
+        "referenceCode": "-- 2026-06-30 · Cancelar pendientes de más de 4 meses (pedido de operaciones)\nBEGIN TRANSACTION;\nUPDATE pedidos SET estado = 'cancelado'\nWHERE estado = 'pendiente' AND fecha < '2026-03-01';\n-- esperado: 4 filas\nCOMMIT;"
+      },
+      "comparison": {
+        "scenario": "Corregir el precio de un producto.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "UPDATE productos\nSET precio = 49.90;",
+        "juniorFlaws": [
+          "Sin WHERE: cambia el precio de todos los productos.",
+          "No hay forma de deshacerlo sin un respaldo.",
+          "Nadie revisó cuántas filas iba a tocar."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "SELECT id, nombre, precio FROM productos WHERE id = 1;   -- 1 fila\n\nBEGIN TRANSACTION;\nUPDATE productos\nSET precio = 49.90\nWHERE id = 1;\n-- (1 fila afectada) ✓\nCOMMIT;",
+        "intermediateBenefits": [
+          "El WHERE usa la clave primaria: toca exactamente una fila.",
+          "El SELECT previo confirma qué se va a cambiar.",
+          "La transacción permite ROLLBACK si algo no cuadra."
+        ],
+        "codeLanguage": "sql"
+      },
+      "exercises": [
+        {
+          "id": "fn11-ej-1",
+          "title": "Práctica 1: Tabla de proveedores",
+          "difficulty": "Básico",
+          "prompt": "Crea una tabla `proveedores` con: id autonumérico como clave primaria, nombre obligatorio de hasta 100 caracteres, país obligatorio, correo opcional y fecha de alta obligatoria con valor por defecto la fecha de hoy.",
+          "hint": "IDENTITY(1,1) PRIMARY KEY, NVARCHAR, NOT NULL y DEFAULT (CAST(GETDATE() AS date)).",
+          "solutionExplanation": "El correo no lleva NOT NULL porque es opcional.",
+          "solutionCode": "CREATE TABLE proveedores (\n    id         INT IDENTITY(1,1) PRIMARY KEY,\n    nombre     NVARCHAR(100) NOT NULL,\n    pais       NVARCHAR(50)  NOT NULL,\n    correo     NVARCHAR(150) NULL,\n    fecha_alta DATE          NOT NULL DEFAULT (CAST(GETDATE() AS date))\n);",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn11-ej-2",
+          "title": "Práctica 2: Insertar y comprobar",
+          "difficulty": "Básico",
+          "prompt": "Inserta dos proveedores en una sola instrucción, uno con correo y otro sin correo, sin indicar el id ni la fecha de alta. Luego consulta la tabla.",
+          "hint": "Lista de columnas sin id ni fecha_alta; para el correo vacío usa NULL.",
+          "solutionExplanation": "La base asigna el id con IDENTITY y la fecha con DEFAULT.",
+          "solutionCode": "INSERT INTO proveedores (nombre, pais, correo)\nVALUES (N'Distribuidora Andina', N'Perú', N'ventas@andina.example'),\n       (N'Importadora Sur',      N'Chile', NULL);\n\nSELECT * FROM proveedores;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn11-ej-3",
+          "title": "Práctica 3: Desactivar productos con cuidado",
+          "difficulty": "Intermedio",
+          "prompt": "Hay que desactivar (`activo = 0`) los productos de la categoría Papelería que cuestan menos de 10. Escribe el procedimiento seguro completo.",
+          "hint": "SELECT con el WHERE, transacción, UPDATE con el mismo WHERE y COMMIT.",
+          "solutionExplanation": "Si el SELECT devuelve 1 fila, el UPDATE debe decir «1 fila afectada» antes de confirmar.",
+          "solutionCode": "SELECT id, nombre, precio FROM productos\nWHERE categoria = 'Papelería' AND precio < 10;\n\nBEGIN TRANSACTION;\nUPDATE productos\nSET activo = 0\nWHERE categoria = 'Papelería' AND precio < 10;\nCOMMIT;   -- o ROLLBACK si el número de filas no coincide",
+          "codeLanguage": "sql"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn11-q1",
+          "question": "¿Qué tipo de dato conviene para guardar montos de dinero en T-SQL?",
+          "options": [
+            "NVARCHAR(20)",
+            "INT",
+            "DECIMAL(10,2)",
+            "FLOAT"
+          ],
+          "correctIndex": 2,
+          "explanation": "DECIMAL guarda valores exactos; FLOAT tiene errores de redondeo."
+        },
+        {
+          "id": "fn11-q2",
+          "question": "¿Qué pasa si ejecutas `DELETE FROM pedidos;` sin WHERE?",
+          "options": [
+            "Da error porque falta la condición",
+            "Se borra solo la última fila insertada",
+            "Se borran todas las filas de la tabla",
+            "Se borra la tabla y su estructura"
+          ],
+          "correctIndex": 2,
+          "explanation": "Sin WHERE, DELETE afecta a todas las filas. La estructura queda; para borrarla se usa DROP TABLE."
+        },
+        {
+          "id": "fn11-q3",
+          "question": "¿Por qué conviene escribir la lista de columnas en un INSERT?",
+          "options": [
+            "Para que la base genere el id automáticamente",
+            "Porque sin ella el INSERT es más lento",
+            "Porque T-SQL no acepta INSERT sin columnas",
+            "Para que siga funcionando si la tabla cambia de columnas"
+          ],
+          "correctIndex": 3,
+          "explanation": "Sin lista, el INSERT depende del orden y número exacto de columnas de la tabla."
+        }
+      ]
+    },
+    {
+      "id": "cap-12",
+      "order": 12,
+      "kind": "chapter",
+      "code": "Cap. 12",
+      "module": "Módulo 4 · Programar",
+      "title": "Python básico: listas, diccionarios, funciones y tu primer CSV con pandas",
+      "subtitle": "Lo mínimo de Python para seguir el Módulo 3 de Analista: estructuras de datos, control de flujo y una tabla con pandas.",
+      "estimatedMinutes": 55,
+      "status": "published",
+      "objectives": [
+        "Ejecutar Python en un notebook o con `python archivo.py` e instalar paquetes con `pip`.",
+        "Usar listas y diccionarios, y recorrerlos con `for`.",
+        "Escribir funciones con parámetros por defecto y f-strings para mostrar resultados.",
+        "Leer un CSV con pandas y hacer filtros, columnas nuevas y agrupaciones básicas."
+      ],
+      "theorySections": [
+        {
+          "id": "fn12-sec-1",
+          "title": "1. Dónde se escribe Python y los tipos de siempre",
+          "body": "Python se puede usar de dos formas:\n\n- **Notebook** (Jupyter, VS Code o Google Colab): celdas que ejecutas una por una y ves el resultado debajo. Ideal para explorar datos.\n- **Script**: un archivo `.py` que ejecutas en la terminal con `python analisis.py` (Cap. 02). Ideal para procesos que se repiten.\n\nLos paquetes se instalan desde la terminal: `pip install pandas`.\n\nYa conoces la lógica del capítulo 3. En Python, además de números, textos y booleanos, hay dos estructuras clave:\n\n- **Lista** `[ ]`: una secuencia ordenada. Se accede por posición empezando en 0: `ventas[0]`. `len(ventas)` da el tamaño y `ventas.append(x)` agrega al final.\n- **Diccionario** `{ }`: pares clave → valor, como una fila con nombres de columna. `cliente[\"pais\"]`.\n\nUna lista de diccionarios es, en el fondo, una tabla: cada diccionario es una fila.\n\nLos **f-strings** arman textos con variables: `f\"Total: {total:.2f}\"` muestra el número con 2 decimales.",
+          "codeSnippet": "ventas = [120, 80, 300]\nventas.append(45)\nprint(ventas[0], len(ventas))   # 120 4\n\ncliente = {\"id\": 1, \"nombre\": \"Ana Torres\", \"pais\": \"Perú\"}\nprint(cliente[\"pais\"])           # Perú\ncliente[\"segmento\"] = \"minorista\"   # agrega una clave\n\n# Una lista de diccionarios es una tabla\nclientes = [\n    {\"nombre\": \"Ana Torres\", \"pais\": \"Perú\"},\n    {\"nombre\": \"Luis Pérez\", \"pais\": \"Argentina\"},\n]\nfor c in clientes:\n    print(f\"{c['nombre']} vive en {c['pais']}\")",
+          "codeLanguage": "python",
+          "keyTakeaway": "Lista = secuencia por posición (desde 0). Diccionario = valores por nombre. Lista de diccionarios = tabla."
+        },
+        {
+          "id": "fn12-sec-2",
+          "title": "2. Funciones y comprensiones",
+          "body": "Las funciones se definen con `def`, como en el capítulo 3. Dos detalles útiles:\n\n- **Parámetros por defecto**: `def con_iva(monto, tasa=0.18)` se puede llamar sin la tasa.\n- **Docstring**: el texto entre `\"\"\"` debajo del `def` explica qué hace.\n\nUna **comprensión de lista** crea una lista nueva a partir de otra en una sola línea: `[expresión for x in lista if condición]`. Es un filtro y una transformación a la vez, y la verás mucho en el código de los cursos.\n\nPara errores esperables (un archivo que no existe, un texto que no es número) se usa `try / except`, que atrapa el error y deja seguir al programa.",
+          "codeSnippet": "def con_iva(monto, tasa=0.18):\n    \"\"\"Devuelve el monto con impuesto, redondeado a 2 decimales.\"\"\"\n    return round(monto * (1 + tasa), 2)\n\nventas = [120, 0, 75, 300]\ncon_impuesto = [con_iva(v) for v in ventas if v > 0]\nprint(con_impuesto)   # [141.6, 88.5, 354.0]\n\ntextos = [\"10\", \"20\", \"n/d\", \"5\"]\nnumeros = []\nfor t in textos:\n    try:\n        numeros.append(int(t))\n    except ValueError:\n        print(f\"Se omite el valor no numérico: {t}\")\nprint(sum(numeros))   # 35",
+          "codeLanguage": "python",
+          "keyTakeaway": "Comprensión de lista = filtrar y transformar en una línea. try/except para errores que sabes que pueden pasar."
+        },
+        {
+          "id": "fn12-sec-3",
+          "title": "3. pandas: una tabla en Python",
+          "body": "**pandas** es la librería para trabajar con tablas en Python. Su objeto principal es el **DataFrame**: filas y columnas, como una hoja de Excel o una tabla SQL.\n\nLo básico, comparado con lo que ya sabes:\n\n- Leer: `pd.read_csv(\"datos/pedidos.csv\")` (ruta relativa, Cap. 02).\n- Mirar: `df.head()`, `df.shape` (filas, columnas), `df.info()` (tipos y nulos).\n- Elegir columnas: `df[[\"pais\", \"total\"]]` → `SELECT pais, total`.\n- Filtrar: `df[df[\"pais\"] == \"Perú\"]` → `WHERE pais = 'Perú'`. Varias condiciones con `&` y paréntesis.\n- Columna nueva: `df[\"con_iva\"] = df[\"total\"] * 1.18`.\n- Agrupar: `df.groupby(\"pais\")[\"total\"].sum()` → `GROUP BY pais` con `SUM(total)`.\n- Ordenar: `df.sort_values(\"total\", ascending=False)` → `ORDER BY total DESC`.\n\nEl Módulo 3 de Analista parte de aquí y llega a pipelines reproducibles con pandas.\n\n**Lo usarás en:** Analista (Módulo 3 de Python y todo el Módulo 4 de estadística), Machine learning completo (scikit-learn sobre DataFrames), IA aplicada a datos (pandas + modelos de lenguaje) e Inteligencia Artificial (llamadas a la API desde Python).",
+          "codeSnippet": "import pandas as pd\n\n# En un proyecto real: df = pd.read_csv(\"datos/pedidos.csv\")\ndf = pd.DataFrame({\n    \"pedido\": [1, 2, 3, 4, 5],\n    \"pais\": [\"Perú\", \"Chile\", \"Perú\", \"México\", \"Chile\"],\n    \"estado\": [\"entregado\", \"entregado\", \"cancelado\", \"entregado\", \"enviado\"],\n    \"total\": [120.0, 80.5, 300.0, 45.0, 210.0],\n})\n\nprint(df.shape)                    # (5, 4)\nvalidos = df[df[\"estado\"] != \"cancelado\"]\nresumen = (validos.groupby(\"pais\")[\"total\"]\n                  .sum()\n                  .sort_values(ascending=False))\nprint(resumen)\n# Chile     290.5\n# Perú      120.0\n# México     45.0",
+          "codeLanguage": "python",
+          "keyTakeaway": "pandas traduce lo que ya sabes de SQL: filtro = WHERE, groupby = GROUP BY, sort_values = ORDER BY."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Python de análisis que otro puede volver a ejecutar.",
+        "rules": [
+          "Rutas relativas para leer datos y una carpeta `datos/` en el proyecto.",
+          "Revisa siempre `df.shape` y `df.info()` después de leer un archivo.",
+          "No modifiques el DataFrame original: crea uno nuevo para cada paso (`validos = df[…]`).",
+          "Funciones pequeñas con docstring para cada transformación.",
+          "Compara un total de pandas con el mismo total en SQL o Excel."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import pandas as pd\n\n\ndef cargar_pedidos(ruta):\n    \"\"\"Lee el CSV de pedidos y muestra su forma.\"\"\"\n    df = pd.read_csv(ruta, parse_dates=[\"fecha\"])\n    print(df.shape)\n    print(df.isna().sum())\n    return df\n\n# pedidos = cargar_pedidos(\"datos/pedidos.csv\")"
+      },
+      "comparison": {
+        "scenario": "Sumar las ventas por país de un CSV.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "import pandas as pd\ndf = pd.read_csv(\"C:/Users/pedro/Desktop/pedidos.csv\")\ntotal = {}\nfor i in range(len(df)):\n    p = df[\"pais\"][i]\n    if p in total:\n        total[p] = total[p] + df[\"total\"][i]\n    else:\n        total[p] = df[\"total\"][i]\nprint(total)",
+        "juniorFlaws": [
+          "Ruta absoluta de otra computadora.",
+          "Un ciclo fila por fila para algo que pandas hace en una línea.",
+          "No excluye pedidos cancelados ni revisa el archivo."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "import pandas as pd\n\npedidos = pd.read_csv(\"datos/pedidos.csv\")\nprint(pedidos.shape)\nventas_pais = (pedidos[pedidos[\"estado\"] != \"cancelado\"]\n               .groupby(\"pais\")[\"total\"].sum()\n               .sort_values(ascending=False))\nprint(ventas_pais)",
+        "intermediateBenefits": [
+          "Ruta relativa al proyecto.",
+          "groupby resume sin ciclos y es mucho más rápido.",
+          "La regla de negocio (sin cancelados) queda explícita."
+        ],
+        "codeLanguage": "python"
+      },
+      "exercises": [
+        {
+          "id": "fn12-ej-1",
+          "title": "Práctica 1: Diccionario de precios",
+          "difficulty": "Básico",
+          "prompt": "Crea un diccionario `precios` con tres productos y su precio. Recórrelo e imprime cada producto con su precio con IVA (18 %) usando un f-string con 2 decimales. Al final imprime el producto más caro.",
+          "hint": "`for nombre, precio in precios.items():` recorre clave y valor. Para el más caro, `max(precios, key=precios.get)`.",
+          "solutionExplanation": "`.items()` devuelve pares clave-valor; `max` con `key` compara por el valor.",
+          "solutionCode": "precios = {\"Audífonos\": 59.9, \"Teclado\": 89.5, \"Monitor\": 189.0}\nfor nombre, precio in precios.items():\n    print(f\"{nombre}: {precio * 1.18:.2f}\")\nprint(\"Más caro:\", max(precios, key=precios.get))",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "fn12-ej-2",
+          "title": "Práctica 2: Filtrar con una comprensión",
+          "difficulty": "Básico",
+          "prompt": "Dada la lista de diccionarios `pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]`, crea con una comprensión la lista de ids de los pedidos de más de 100 y calcula el total de esos pedidos.",
+          "hint": "`[p[\"id\"] for p in pedidos if p[\"total\"] > 100]`.",
+          "solutionExplanation": "Ids [1, 3] y total 530. La comprensión hace el filtro y la selección de columna a la vez.",
+          "solutionCode": "pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]\ngrandes = [p[\"id\"] for p in pedidos if p[\"total\"] > 100]\ntotal = sum(p[\"total\"] for p in pedidos if p[\"total\"] > 100)\nprint(grandes, total)  # [1, 3] 530",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "fn12-ej-3",
+          "title": "Práctica 3: De SQL a pandas",
+          "difficulty": "Intermedio",
+          "prompt": "Traduce a pandas esta consulta, suponiendo un DataFrame `pedidos` con las columnas `pais`, `estado` y `total`: `SELECT pais, COUNT(*) AS pedidos, SUM(total) AS importe FROM pedidos WHERE estado <> 'cancelado' GROUP BY pais ORDER BY importe DESC;`",
+          "hint": "Filtra, luego `groupby(\"pais\").agg(pedidos=(\"total\", \"count\"), importe=(\"total\", \"sum\"))`.",
+          "solutionExplanation": "`agg` con nombres crea varias columnas de resumen a la vez, igual que el SELECT de la consulta.",
+          "solutionCode": "import pandas as pd\n\npedidos = pd.DataFrame({\n    \"pais\": [\"Perú\", \"Chile\", \"Perú\", \"Chile\"],\n    \"estado\": [\"entregado\", \"cancelado\", \"enviado\", \"entregado\"],\n    \"total\": [120.0, 50.0, 80.0, 200.0],\n})\nresultado = (pedidos[pedidos[\"estado\"] != \"cancelado\"]\n             .groupby(\"pais\")\n             .agg(pedidos=(\"total\", \"count\"), importe=(\"total\", \"sum\"))\n             .sort_values(\"importe\", ascending=False))\nprint(resultado)",
+          "codeLanguage": "python"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn12-q1",
+          "question": "Si `ventas = [10, 20, 30]`, ¿qué devuelve `ventas[1]`?",
+          "options": [
+            "30",
+            "10",
+            "20",
+            "Un error de índice"
+          ],
+          "correctIndex": 2,
+          "explanation": "Las posiciones empiezan en 0: la posición 1 es el segundo elemento."
+        },
+        {
+          "id": "fn12-q2",
+          "question": "¿Qué equivale en pandas a `WHERE pais = 'Perú'`?",
+          "options": [
+            "df[\"pais\"] = \"Perú\"",
+            "df.groupby(\"pais\")",
+            "df.sort_values(\"pais\")",
+            "df[df[\"pais\"] == \"Perú\"]"
+          ],
+          "correctIndex": 3,
+          "explanation": "Se filtra con una condición dentro de corchetes; `=` asignaría el valor a toda la columna."
+        },
+        {
+          "id": "fn12-q3",
+          "question": "¿Para qué sirve `try / except`?",
+          "options": [
+            "Para repetir un bloque hasta que no haya errores",
+            "Para atrapar un error esperable y que el programa siga",
+            "Para ocultar todos los errores del programa",
+            "Para probar si una función es más rápida"
+          ],
+          "correctIndex": 1,
+          "explanation": "Se usa con errores concretos que sabes que pueden pasar, como un valor que no es número."
+        }
+      ]
+    },
+    {
+      "id": "cap-13",
+      "order": 13,
+      "kind": "chapter",
+      "code": "Cap. 13",
+      "module": "Módulo 4 · Programar",
+      "title": "HTML y JavaScript básico: la página, la consola y tu primera función",
+      "subtitle": "Un puente corto hacia Programación Web: la estructura de una página, JavaScript en la consola del navegador y un botón que hace algo.",
+      "estimatedMinutes": 45,
+      "status": "published",
+      "objectives": [
+        "Reconocer la estructura de un documento HTML y las etiquetas más comunes.",
+        "Abrir las herramientas de desarrollador y usar la consola para probar JavaScript.",
+        "Escribir variables con `const` y `let`, arreglos, objetos y funciones en JavaScript.",
+        "Conectar un botón de la página con una función mediante un evento."
+      ],
+      "theorySections": [
+        {
+          "id": "fn13-sec-1",
+          "title": "1. La estructura de una página",
+          "body": "Una página web es un archivo de texto `.html` que el navegador lee y dibuja. Está hecha de **etiquetas** que abren y cierran: `<p>texto</p>`.\n\n- `<head>`: información de la página (título, estilos). No se ve.\n- `<body>`: lo que se ve.\n- `<h1>` a `<h3>`: títulos. `<p>`: párrafo. `<a href=\"…\">`: enlace. `<img src=\"…\" alt=\"…\">`: imagen.\n- `<ul>` y `<li>`: lista. `<table>`, `<tr>`, `<td>`: tabla.\n- `<button>`, `<input>`: controles.\n\nLos **atributos** van dentro de la etiqueta de apertura: `id=\"total\"` da un nombre único al elemento para encontrarlo desde JavaScript.\n\nHTML da la **estructura**, CSS el **aspecto** y JavaScript el **comportamiento**. El curso de Programación Web empieza exactamente aquí y lo aplica a una página real.",
+          "codeSnippet": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Mi primera página</title>\n</head>\n<body>\n  <h1>Calculadora de IVA</h1>\n  <p>Escribe un monto y pulsa el botón.</p>\n  <input id=\"monto\" type=\"number\" placeholder=\"Monto\">\n  <button id=\"calcular\">Calcular</button>\n  <p>Total: <strong id=\"total\">—</strong></p>\n  <script src=\"app.js\"></script>\n</body>\n</html>",
+          "codeLanguage": "html",
+          "keyTakeaway": "HTML es estructura. Los `id` son los nombres con los que JavaScript encuentra cada elemento."
+        },
+        {
+          "id": "fn13-sec-2",
+          "title": "2. JavaScript en la consola",
+          "body": "Todo navegador trae **herramientas de desarrollador** (F12 o clic derecho → Inspeccionar). La pestaña **Consola** ejecuta JavaScript al instante: es el mejor lugar para probar.\n\nLo que ya sabes del capítulo 3, con la sintaxis de JavaScript:\n\n- Variables: `const` para lo que no cambia y `let` para lo que sí. No uses `var`.\n- Arreglos `[ ]` y objetos `{ }`: el equivalente de las listas y diccionarios de Python.\n- Funciones: `function nombre(a, b) { return a + b; }` o la forma flecha `const suma = (a, b) => a + b;`.\n- Condiciones con `if / else if / else` y comparaciones con `===` (estricto: compara valor y tipo). Evita `==`, que convierte tipos y da sorpresas como `\"5\" == 5` → `true`.\n- `console.log(x)` muestra valores para depurar.\n\nLos métodos de arreglos `filter`, `map` y `reduce` son la versión JavaScript de filtrar, transformar y acumular.",
+          "codeSnippet": "const pedidos = [\n  { id: 1, pais: \"Perú\", total: 120 },\n  { id: 2, pais: \"Chile\", total: 35 },\n  { id: 3, pais: \"Perú\", total: 410 },\n];\n\nconst dePeru = pedidos.filter((p) => p.pais === \"Perú\");\nconst totales = dePeru.map((p) => p.total);\nconst suma = totales.reduce((acum, t) => acum + t, 0);\n\nconsole.log(dePeru.length, suma);   // 2 530\nconsole.log(\"5\" === 5);              // false",
+          "codeLanguage": "javascript",
+          "keyTakeaway": "const por defecto, let si cambia, === siempre. filter, map y reduce = filtrar, transformar, acumular."
+        },
+        {
+          "id": "fn13-sec-3",
+          "title": "3. Un botón que hace algo: el DOM y los eventos",
+          "body": "El **DOM** es la página convertida en objetos que JavaScript puede leer y cambiar.\n\n- `document.getElementById(\"monto\")` encuentra un elemento por su `id`. `document.querySelector(\"#monto\")` hace lo mismo con un selector CSS.\n- `.value` lee lo escrito en un `<input>` (siempre llega como **texto**: conviértelo con `Number(...)`).\n- `.textContent` cambia el texto de un elemento.\n- `addEventListener(\"click\", funcion)` ejecuta la función cuando ocurre el evento.\n\nEl flujo es siempre el mismo: **escuchar** un evento, **leer** datos de la página, **calcular** y **escribir** el resultado. Con estas cuatro piezas el curso de Programación Web construye una aplicación completa, y la pestaña JavaScript de Práctica tiene ejercicios de DOM para entrenarlas.\n\n**Lo usarás en:** Programación y Desarrollo Web (desde la Lec. 00), TypeScript y React (que agrega tipos a este mismo JavaScript), Back-end y APIs (JavaScript en el servidor con Node) y la pestaña JavaScript de Práctica.",
+          "codeSnippet": "// app.js — conecta la calculadora de la sección 1\nconst TASA_IVA = 0.18;\n\nfunction calcularTotal(monto) {\n  return Math.round(monto * (1 + TASA_IVA) * 100) / 100;\n}\n\ndocument.getElementById(\"calcular\").addEventListener(\"click\", () => {\n  const monto = Number(document.getElementById(\"monto\").value);\n  const salida = document.getElementById(\"total\");\n  if (Number.isNaN(monto) || monto <= 0) {\n    salida.textContent = \"Escribe un monto válido\";\n    return;\n  }\n  salida.textContent = calcularTotal(monto).toFixed(2);\n});",
+          "codeLanguage": "javascript",
+          "keyTakeaway": "Escuchar, leer, calcular, escribir. Lo que viene de un input es texto: conviértelo antes de operar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "JavaScript claro y sin trampas de tipos.",
+        "rules": [
+          "`const` por defecto, `let` solo si el valor cambia; nunca `var`.",
+          "Compara siempre con `===` y `!==`.",
+          "Convierte con `Number()` lo que leas de un input y valida que no sea NaN.",
+          "El `<script>` al final del body (o con `defer`) para que los elementos ya existan.",
+          "Separa la lógica (calcularTotal) del código que toca la página."
+        ],
+        "codeLanguage": "javascript",
+        "referenceCode": "// Lógica pura: fácil de probar en la consola\nconst calcularTotal = (monto, tasa = 0.18) => Math.round(monto * (1 + tasa) * 100) / 100;\n\nconsole.assert(calcularTotal(100) === 118, \"100 con IVA debe dar 118\");"
+      },
+      "comparison": {
+        "scenario": "Sumar un monto escrito en un input al total acumulado.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "var total = 0;\nfunction sumar() {\n  var m = document.getElementById(\"monto\").value;\n  total = total + m;\n  if (total == \"0\") alert(\"vacío\");\n  document.getElementById(\"total\").innerHTML = total;\n}",
+        "juniorFlaws": [
+          "El valor del input es texto: `0 + \"50\"` da `\"050\"`, no 50.",
+          "`==` compara con conversión de tipos.",
+          "`var` y nombres de una letra.",
+          "innerHTML con datos del usuario abre la puerta a inyectar código."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "let total = 0;\nfunction sumar() {\n  const monto = Number(document.getElementById(\"monto\").value);\n  if (Number.isNaN(monto)) return;\n  total = total + monto;\n  document.getElementById(\"total\").textContent = total.toFixed(2);\n}",
+        "intermediateBenefits": [
+          "Number convierte el texto antes de sumar.",
+          "Valida NaN antes de operar.",
+          "textContent muestra texto sin interpretarlo como HTML."
+        ],
+        "codeLanguage": "javascript"
+      },
+      "exercises": [
+        {
+          "id": "fn13-ej-1",
+          "title": "Práctica 1: Una tarjeta de producto",
+          "difficulty": "Básico",
+          "prompt": "Escribe el HTML de una tarjeta de producto con: un título `h2` con el nombre, una imagen con texto alternativo, un párrafo con el precio dentro de un `<strong id=\"precio\">` y una lista con tres características.",
+          "hint": "Usa `<img src=\"…\" alt=\"…\">`, `<ul>` y `<li>`.",
+          "solutionExplanation": "El `alt` describe la imagen para lectores de pantalla y por si no carga. El `id` permite cambiar el precio desde JavaScript.",
+          "solutionCode": "<article>\n  <h2>Audífonos Pulse</h2>\n  <img src=\"img/audifonos.png\" alt=\"Audífonos negros sobre una mesa\">\n  <p>Precio: <strong id=\"precio\">59.90</strong></p>\n  <ul>\n    <li>Bluetooth 5.3</li>\n    <li>30 horas de batería</li>\n    <li>Micrófono integrado</li>\n  </ul>\n</article>",
+          "codeLanguage": "html"
+        },
+        {
+          "id": "fn13-ej-2",
+          "title": "Práctica 2: Resumen en la consola",
+          "difficulty": "Básico",
+          "prompt": "En la consola del navegador, con el arreglo `const notas = [85, 60, 30, 92, 74];`, calcula el promedio y la lista de notas aprobadas (70 o más) usando `reduce` y `filter`.",
+          "hint": "Promedio = suma / cantidad. La suma sale de `reduce((a, n) => a + n, 0)`.",
+          "solutionExplanation": "Promedio 68.2 y aprobadas [85, 92, 74].",
+          "solutionCode": "const notas = [85, 60, 30, 92, 74];\nconst promedio = notas.reduce((a, n) => a + n, 0) / notas.length;\nconst aprobadas = notas.filter((n) => n >= 70);\nconsole.log(promedio, aprobadas);  // 68.2 [85, 92, 74]",
+          "codeLanguage": "javascript"
+        },
+        {
+          "id": "fn13-ej-3",
+          "title": "Práctica 3: Contador de clics",
+          "difficulty": "Intermedio",
+          "prompt": "Con un `<button id=\"sumar\">+1</button>` y un `<span id=\"cuenta\">0</span>`, escribe el JavaScript para que cada clic sume 1 y muestre el valor. Agrega un segundo botón `id=\"reiniciar\"` que lo vuelva a 0.",
+          "hint": "Una variable `let cuenta = 0` y dos `addEventListener`.",
+          "solutionExplanation": "El estado (la cuenta) vive en una variable; la página solo lo muestra. Es la misma idea que usa React con `useState`.",
+          "solutionCode": "let cuenta = 0;\nconst salida = document.getElementById(\"cuenta\");\n\ndocument.getElementById(\"sumar\").addEventListener(\"click\", () => {\n  cuenta = cuenta + 1;\n  salida.textContent = cuenta;\n});\n\ndocument.getElementById(\"reiniciar\").addEventListener(\"click\", () => {\n  cuenta = 0;\n  salida.textContent = cuenta;\n});",
+          "codeLanguage": "javascript"
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn13-q1",
+          "question": "¿Qué devuelve `\"5\" === 5` en JavaScript?",
+          "options": [
+            "Un error de tipo",
+            "undefined",
+            "true",
+            "false"
+          ],
+          "correctIndex": 3,
+          "explanation": "`===` compara valor y tipo: un texto no es igual a un número."
+        },
+        {
+          "id": "fn13-q2",
+          "question": "¿Qué tipo de dato devuelve `.value` de un `<input type=\"number\">`?",
+          "options": [
+            "Número, porque el input es de tipo number",
+            "Un objeto con el valor y su tipo",
+            "Texto, que hay que convertir con Number()",
+            "Booleano, según si el campo está lleno"
+          ],
+          "correctIndex": 2,
+          "explanation": "`.value` siempre es un string; el tipo del input solo cambia el teclado y la validación."
+        },
+        {
+          "id": "fn13-q3",
+          "question": "¿Qué hace `addEventListener(\"click\", fn)`?",
+          "options": [
+            "Ejecuta fn una vez al cargar la página",
+            "Agrega un botón nuevo a la página",
+            "Hace clic en el elemento automáticamente",
+            "Ejecuta fn cada vez que se hace clic en el elemento"
+          ],
+          "correctIndex": 3,
+          "explanation": "Registra una función que se llamará cuando ocurra el evento."
+        }
+      ]
+    },
+    {
+      "id": "cap-14",
+      "order": 14,
+      "kind": "chapter",
+      "code": "Cap. 14",
+      "module": "Módulo 5 · Estadística y cierre",
+      "title": "Estadística descriptiva: media, mediana, dispersión, percentiles y correlación",
+      "subtitle": "Resumir un conjunto de números con pocas cifras bien elegidas, y no dejarse engañar por los valores extremos.",
+      "estimatedMinutes": 50,
+      "status": "published",
+      "objectives": [
+        "Calcular e interpretar media, mediana y moda, y elegir cuál representa mejor los datos.",
+        "Medir la dispersión con rango, desviación estándar y rango intercuartílico.",
+        "Usar percentiles y cuartiles para describir una distribución y detectar valores atípicos.",
+        "Interpretar una correlación sin confundirla con causalidad."
+      ],
+      "theorySections": [
+        {
+          "id": "fn14-sec-1",
+          "title": "1. Tendencia central: media, mediana y moda",
+          "body": "Una **medida de tendencia central** responde «¿cuál es el valor típico?».\n\n- **Media** (promedio): suma / cantidad. Usa todos los valores, por eso un solo valor extremo la arrastra.\n- **Mediana**: el valor del medio cuando ordenas los datos (si son pares, el promedio de los dos centrales). No le afectan los extremos.\n- **Moda**: el valor más frecuente. Útil para datos categóricos (el país con más clientes).\n\nEjemplo: sueldos 1, 1, 2, 2, 20 (miles). Media = 5,2; mediana = 2. ¿Quién gana «lo típico»? La mediana responde mejor.\n\nRegla práctica: si la media y la mediana están lejos, la distribución es **asimétrica** (tiene una cola) y conviene reportar la mediana, o las dos.\n\nEn Excel: `PROMEDIO`, `MEDIANA`, `MODA.UNO`. En SQL: `AVG` (la mediana necesita `PERCENTILE_CONT`, que verás en Analista). En pandas: `.mean()`, `.median()`, `.mode()`.",
+          "codeSnippet": "import pandas as pd\n\nsueldos = pd.Series([1, 1, 2, 2, 20])\nprint(sueldos.mean())     # 5.2\nprint(sueldos.median())   # 2.0\nprint(sueldos.mode()[0])  # 1",
+          "codeLanguage": "python",
+          "keyTakeaway": "Media y mediana juntas cuentan la historia: si se separan mucho, hay valores extremos."
+        },
+        {
+          "id": "fn14-sec-2",
+          "title": "2. Dispersión y percentiles",
+          "body": "Dos grupos pueden tener la misma media y ser muy distintos. La **dispersión** mide cuánto se alejan los valores entre sí.\n\n- **Rango**: máximo − mínimo. Simple, pero depende solo de dos valores.\n- **Desviación estándar**: la distancia típica de cada valor a la media. Si es pequeña, los datos están apretados alrededor de la media. En Excel `DESVEST.M`; en pandas `.std()`.\n- **Percentil p**: el valor por debajo del cual queda el p % de los datos. El percentil 50 es la mediana. Los **cuartiles** son los percentiles 25 (Q1), 50 (Q2) y 75 (Q3).\n- **Rango intercuartílico** (IQR): Q3 − Q1, la anchura del 50 % central. No le afectan los extremos.\n\nUna regla común para marcar **valores atípicos**: los que quedan por debajo de Q1 − 1,5·IQR o por encima de Q3 + 1,5·IQR. Es lo que dibuja un **diagrama de caja** (boxplot).\n\n`df.describe()` en pandas te da todo esto de una vez.",
+          "codeSnippet": "import pandas as pd\n\ntiempos = pd.Series([12, 14, 15, 15, 16, 17, 18, 19, 21, 60])  # minutos de entrega\nprint(tiempos.describe())\n\nq1, q3 = tiempos.quantile(0.25), tiempos.quantile(0.75)\niqr = q3 - q1\natipicos = tiempos[(tiempos < q1 - 1.5 * iqr) | (tiempos > q3 + 1.5 * iqr)]\nprint(atipicos.tolist())   # [60]",
+          "codeLanguage": "python",
+          "keyTakeaway": "Reporta centro y dispersión juntos: «mediana 16,5 min, IQR 4 min» dice mucho más que «promedio 20,7»."
+        },
+        {
+          "id": "fn14-sec-3",
+          "title": "3. Relación entre dos variables: correlación",
+          "body": "La **correlación** (de Pearson) mide si dos variables numéricas se mueven juntas **en línea recta**. Va de −1 a 1:\n\n- Cerca de **1**: cuando una sube, la otra sube.\n- Cerca de **−1**: cuando una sube, la otra baja.\n- Cerca de **0**: no hay relación lineal (puede haber otra forma de relación).\n\nTres advertencias que el Módulo 4 de Analista desarrolla:\n\n1) **Correlación no es causalidad**: las ventas de helados y los ahogamientos se correlacionan porque ambos suben en verano.\n2) Un par de valores extremos puede crear o esconder una correlación: **mira siempre el gráfico de dispersión**.\n3) Con pocos datos, una correlación alta puede ser casualidad.\n\nEn Excel: `COEF.DE.CORREL`. En pandas: `df[\"a\"].corr(df[\"b\"])` o `df.corr()` para todas las columnas.\n\n**Lo usarás en:** Analista (Módulo 4 de estadística aplicada y experimentación, Cap. 20 de regresión), Machine learning completo (métricas y distribución de errores), Power BI (medidas de resumen) e IA aplicada a datos (validar resúmenes generados).",
+          "codeSnippet": "import pandas as pd\n\ndf = pd.DataFrame({\n    \"inversion_publicidad\": [10, 15, 20, 25, 30, 35],\n    \"ventas\":               [100, 120, 150, 155, 190, 200],\n})\nr = df[\"inversion_publicidad\"].corr(df[\"ventas\"])\nprint(round(r, 2))   # 0.99 → relación lineal fuerte y positiva\n# Fuerte no significa causal: falta descartar estacionalidad, precios, etc.",
+          "codeLanguage": "python",
+          "keyTakeaway": "Una correlación es una pista, no una prueba. Grafica antes de concluir y busca otras explicaciones."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Resúmenes estadísticos honestos.",
+        "rules": [
+          "Reporta siempre un centro y una dispersión: mediana con IQR o media con desviación.",
+          "Si media y mediana difieren mucho, dilo y explica por qué.",
+          "Indica cuántos datos hay (n) junto a cada resumen.",
+          "Grafica la distribución (histograma o caja) antes de elegir la medida.",
+          "No digas «causa» a partir de una correlación."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import pandas as pd\n\n\ndef resumen(serie):\n    \"\"\"Resumen honesto de una columna numérica.\"\"\"\n    q1, q3 = serie.quantile([0.25, 0.75])\n    return {\"n\": int(serie.count()), \"media\": round(serie.mean(), 2),\n            \"mediana\": serie.median(), \"iqr\": q3 - q1}\n\nprint(resumen(pd.Series([12, 14, 15, 15, 16, 17, 18, 19, 21, 60])))"
+      },
+      "comparison": {
+        "scenario": "Informar el tiempo de entrega típico de un mes con un pedido que tardó 60 minutos.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "«El tiempo promedio de entrega fue de 20,7 minutos.»",
+        "juniorFlaws": [
+          "Un solo pedido extremo infla la media: 9 de 10 pedidos tardaron 21 minutos o menos.",
+          "No dice cuántos pedidos hubo ni cuánto varían.",
+          "Oculta el caso atípico, que es justo lo que habría que revisar."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "«En junio se entregaron 10 pedidos. Mediana: 16,5 min (la mitad tardó menos). El 50 % central estuvo entre 15 y 18,75 min. Un pedido tardó 60 min (atípico); sin él, la media es 16,3 min.»",
+        "intermediateBenefits": [
+          "La mediana representa el caso típico.",
+          "El IQR muestra cuánto varían los tiempos.",
+          "El atípico se informa aparte para investigarlo."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn14-ej-1",
+          "title": "Práctica 1: Media o mediana",
+          "difficulty": "Básico",
+          "prompt": "Ventas diarias de una semana: 120, 135, 128, 140, 131, 125, 980 (el domingo hubo una venta corporativa). Calcula media y mediana a mano y di cuál reportarías como «venta diaria típica».",
+          "hint": "Ordena los valores para la mediana; hay 7, así que es el cuarto.",
+          "solutionExplanation": "Media = 1.759 / 7 ≈ 251,3. Mediana = 131. La típica es 131: la media está inflada por un solo día. Lo correcto es reportar la mediana y mencionar la venta corporativa aparte."
+        },
+        {
+          "id": "fn14-ej-2",
+          "title": "Práctica 2: Cuartiles y atípicos",
+          "difficulty": "Intermedio",
+          "prompt": "Con pandas, para los montos `[45, 52, 48, 60, 55, 49, 51, 300, 47, 53]`, calcula Q1, Q3, el IQR y lista los valores atípicos con la regla de 1,5·IQR.",
+          "hint": "`serie.quantile(0.25)` y `serie.quantile(0.75)`.",
+          "solutionExplanation": "Q1 ≈ 48,25, Q3 ≈ 54,5, IQR ≈ 6,25. El límite superior es ≈ 63,9, así que 300 es atípico.",
+          "solutionCode": "import pandas as pd\n\nmontos = pd.Series([45, 52, 48, 60, 55, 49, 51, 300, 47, 53])\nq1, q3 = montos.quantile(0.25), montos.quantile(0.75)\niqr = q3 - q1\nlimite_inf, limite_sup = q1 - 1.5 * iqr, q3 + 1.5 * iqr\nprint(q1, q3, iqr)\nprint(montos[(montos < limite_inf) | (montos > limite_sup)].tolist())  # [300]",
+          "codeLanguage": "python"
+        },
+        {
+          "id": "fn14-ej-3",
+          "title": "Práctica 3: ¿Causa o coincidencia?",
+          "difficulty": "Intermedio",
+          "prompt": "Un informe dice: «Las tiendas con más empleados venden más (correlación 0,85), así que contratar más personal aumentará las ventas». Escribe dos explicaciones alternativas y qué dato pedirías para comprobar la afirmación.",
+          "hint": "Piensa en una tercera variable que cause las dos cosas, y en la dirección de la relación.",
+          "solutionExplanation": "1) Tercera variable: las tiendas grandes o en zonas de mucho tránsito tienen más empleados y más ventas por su ubicación. 2) Causalidad inversa: las tiendas que venden más contratan más. Pediría datos de antes y después de contratar en las mismas tiendas, o un experimento en algunas tiendas comparadas con otras similares (lo verás en el Módulo 4 de Analista)."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn14-q1",
+          "question": "En datos con unos pocos valores muy altos, ¿qué medida representa mejor el valor típico?",
+          "options": [
+            "La media",
+            "La suma",
+            "La mediana",
+            "El máximo"
+          ],
+          "correctIndex": 2,
+          "explanation": "La mediana no se mueve con los valores extremos; la media sí."
+        },
+        {
+          "id": "fn14-q2",
+          "question": "¿Qué mide el rango intercuartílico (IQR)?",
+          "options": [
+            "La anchura del 50 % central de los datos",
+            "La diferencia entre el máximo y el mínimo",
+            "La distancia promedio de los datos a la media",
+            "El valor que más se repite en los datos"
+          ],
+          "correctIndex": 0,
+          "explanation": "IQR = Q3 − Q1, y por eso no le afectan los extremos."
+        },
+        {
+          "id": "fn14-q3",
+          "question": "Dos variables tienen correlación 0,9. ¿Qué puedes concluir?",
+          "options": [
+            "Que una causa los cambios de la otra",
+            "Que el 90 % de los datos son iguales",
+            "Que no hay valores atípicos en los datos",
+            "Que se mueven juntas en forma casi lineal"
+          ],
+          "correctIndex": 3,
+          "explanation": "La correlación mide asociación lineal, no causalidad."
+        }
+      ]
+    },
+    {
+      "id": "cap-15",
+      "order": 15,
+      "kind": "chapter",
+      "code": "Cap. 15",
+      "module": "Módulo 5 · Estadística y cierre",
+      "title": "Proyecto de nivelación: una pregunta, tres herramientas",
+      "subtitle": "Responde la misma pregunta de negocio en Excel, en T-SQL y en Python, comprueba que las tres cifras cuadran y decide qué curso sigue.",
+      "estimatedMinutes": 90,
+      "status": "published",
+      "objectives": [
+        "Convertir una pregunta de negocio en una definición precisa: grano, filtros y métrica.",
+        "Resolverla en Excel con una tabla dinámica, en T-SQL con JOIN y GROUP BY, y en Python con pandas.",
+        "Reconciliar los tres resultados y explicar cualquier diferencia.",
+        "Comunicar el hallazgo en cinco líneas y elegir tu siguiente curso con la lista de salida."
+      ],
+      "theorySections": [
+        {
+          "id": "fn15-sec-1",
+          "title": "1. La pregunta y su definición",
+          "body": "**Pregunta**: «¿Qué categoría de producto vendió más en cada país en el primer semestre de 2026, y cuánto representa del total del país?».\n\nAntes de abrir cualquier herramienta, escribe la definición (Cap. 04 y Cap. 09):\n\n- **Fuente**: base tienda (`clientes`, `pedidos`, `detalle_pedido`, `productos`).\n- **Filtros**: pedidos del 2026-01-01 al 2026-06-30, sin cancelados.\n- **Métrica**: importe = `cantidad × precio_unitario` (lo cobrado, no el precio de lista).\n- **Grano del resultado**: una fila por país × categoría.\n- **Control**: la suma de todas las filas debe igualar el importe total del semestre.\n\nEsta ficha es lo que diferencia un análisis de un número suelto. Todos los cursos de datos de la plataforma la piden de una forma u otra.",
+          "codeSnippet": "Ficha del análisis\nPregunta: categoría líder por país, 1.er semestre 2026, y su % del país\nFuente:   tienda (4 tablas)\nFiltros:  2026-01-01 ≤ fecha < 2026-07-01 · estado <> 'cancelado'\nMétrica:  SUM(cantidad × precio_unitario)\nGrano:    país × categoría\nControl:  Σ filas = total del semestre",
+          "codeLanguage": "plaintext",
+          "keyTakeaway": "Define fuente, filtros, métrica, grano y control antes de calcular. Así las tres herramientas responden lo mismo."
+        },
+        {
+          "id": "fn15-sec-2",
+          "title": "2. Tres soluciones",
+          "body": "**T-SQL** (ejecútalo en la consola de Práctica): une las cuatro tablas (Cap. 10), filtra (Cap. 07), agrupa (Cap. 09) y calcula el porcentaje.\n\n**Excel**: exporta el resultado de una consulta a nivel línea (sin agrupar) a una hoja, conviértelo en Tabla y arma una tabla dinámica con Filas = país, Columnas = categoría, Valores = suma de importe, y «Mostrar valores como % del total de fila» (Cap. 06).\n\n**Python**: lee ese mismo detalle con pandas, filtra, agrupa con `groupby([\"pais\", \"categoria\"])` y calcula el porcentaje con `transform(\"sum\")` (Cap. 12).\n\nEl código de la derecha es la versión SQL; la de Python está en la pestaña Estándar.",
+          "codeSnippet": "WITH ventas AS (\n    SELECT c.pais,\n           pr.categoria,\n           SUM(d.cantidad * d.precio_unitario) AS importe\n    FROM detalle_pedido AS d\n    JOIN pedidos   AS p  ON p.id  = d.pedido_id\n    JOIN clientes  AS c  ON c.id  = p.cliente_id\n    JOIN productos AS pr ON pr.id = d.producto_id\n    WHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n      AND p.estado <> 'cancelado'\n    GROUP BY c.pais, pr.categoria\n)\nSELECT v.pais,\n       v.categoria,\n       v.importe,\n       ROUND(100.0 * v.importe / t.total_pais, 1) AS pct_pais\nFROM ventas AS v\nJOIN (SELECT pais, SUM(importe) AS total_pais\n      FROM ventas GROUP BY pais) AS t ON t.pais = v.pais\nORDER BY v.pais, v.importe DESC;",
+          "codeLanguage": "sql",
+          "keyTakeaway": "La misma ficha, tres herramientas. El `WITH` (CTE) es un adelanto del Cap. 01 de Analista: le pone nombre a un paso intermedio."
+        },
+        {
+          "id": "fn15-sec-3",
+          "title": "3. Reconciliar, comunicar y elegir tu siguiente curso",
+          "body": "**Reconciliar**: compara el total del semestre en las tres herramientas. Si no coinciden, las causas típicas son: un filtro de fechas distinto (¿incluiste el 30 de junio?), cancelados que se colaron, o un JOIN que duplicó filas. Encontrar y explicar la diferencia **es** el trabajo de un analista.\n\n**Comunicar** en cinco líneas: la respuesta primero, luego el dato que la sostiene, la definición usada, una advertencia y una siguiente pregunta. Con la base tienda: «En el 1.er semestre, Electrónica lideró en 3 de 6 países (Colombia, España y Perú, con 56 % a 59 % de lo vendido en cada uno). En México lideró Hogar, en Argentina Papelería y en Chile Accesorios. Base: pedidos no cancelados, importe cobrado; total 11.842,37. Ojo: Argentina y Chile suman menos de 300 entre los dos, así que un solo pedido cambia su líder. Siguiente: ver si se repite en el 2.º semestre».\n\n**Lista de salida**: marca lo que ya puedes hacer sin mirar apuntes.\n\n- Moverme en la terminal y usar rutas relativas → listo para **Web**, **Back-end** y **Nube y DevOps**.\n- Escribir SELECT con WHERE, GROUP BY, HAVING y JOIN sin errores → listo para **Analista**, **SQL Server a fondo**, **Power BI** e **Ingeniería de datos**.\n- Leer y agrupar un CSV con pandas y calcular media, mediana y percentiles → listo para el **Módulo 3 y 4 de Analista** y para **IA aplicada a datos**.\n- Escribir HTML con un botón que llama a una función de JavaScript → listo para **Programación Web** y luego **TypeScript y React**.\n\nSi te falta una, vuelve al capítulo de ese tema y repite su examen.\n\n**Lo usarás en:** el primer capítulo de cualquier curso de la ruta que elijas: este proyecto es exactamente el tipo de tarea con la que empiezan Analista, Power BI e IA aplicada a datos.",
+          "keyTakeaway": "Tres herramientas, una cifra. Cuando cuadran, sabes que entendiste el problema; cuando no, aprendiste dónde mirar."
+        }
+      ],
+      "professionalStandard": {
+        "title": "Estándar profesional",
+        "summary": "Un análisis entregable.",
+        "rules": [
+          "Ficha escrita antes de calcular: fuente, filtros, métrica, grano y control.",
+          "El mismo filtro de fechas semiabierto en todas las herramientas.",
+          "El total de control cuadra en Excel, SQL y Python, o la diferencia está explicada.",
+          "El mensaje empieza por la respuesta, no por el método.",
+          "Guarda consulta, notebook y hoja en una carpeta de proyecto ordenada (Cap. 02)."
+        ],
+        "codeLanguage": "python",
+        "referenceCode": "import pandas as pd\n\n# detalle.csv: una fila por línea de pedido con fecha, estado, pais, categoria, cantidad, precio_unitario\ndetalle = pd.read_csv(\"datos/detalle.csv\", parse_dates=[\"fecha\"])\nsemestre = detalle[(detalle[\"fecha\"] >= \"2026-01-01\") & (detalle[\"fecha\"] < \"2026-07-01\")\n                   & (detalle[\"estado\"] != \"cancelado\")].copy()\nsemestre[\"importe\"] = semestre[\"cantidad\"] * semestre[\"precio_unitario\"]\n\nventas = semestre.groupby([\"pais\", \"categoria\"], as_index=False)[\"importe\"].sum()\nventas[\"pct_pais\"] = (100 * ventas[\"importe\"]\n                      / ventas.groupby(\"pais\")[\"importe\"].transform(\"sum\")).round(1)\nprint(ventas.sort_values([\"pais\", \"importe\"], ascending=[True, False]))\nprint(\"Control:\", round(ventas[\"importe\"].sum(), 2), \"=\", round(semestre[\"importe\"].sum(), 2))"
+      },
+      "comparison": {
+        "scenario": "Entregar el resultado del proyecto a tu jefe.",
+        "juniorLabel": "Forma incorrecta",
+        "juniorCode": "Adjunto la consulta y el Excel. La categoría que más vendió es Electrónica con 6.164,51.",
+        "juniorFlaws": [
+          "No responde la pregunta por país.",
+          "No dice qué periodo ni qué pedidos se incluyeron.",
+          "No hay control: nadie sabe si la cifra es correcta.",
+          "Obliga al jefe a abrir archivos para entender."
+        ],
+        "intermediateLabel": "Forma correcta",
+        "intermediateCode": "En el 1.er semestre de 2026 Electrónica lideró en 3 de 6 países (Colombia, España y Perú, 56–59 % de cada uno); México: Hogar; Argentina: Papelería; Chile: Accesorios.\nBase: pedidos no cancelados, importe cobrado (cantidad × precio unitario).\nControl: el total (11.842,37) cuadra en SQL, Excel y Python.\nOjo: Argentina y Chile tienen muy pocas ventas; un pedido cambia su líder.\nPropongo revisar el 2.º semestre cuando cierre.",
+        "intermediateBenefits": [
+          "La respuesta va primero y por país.",
+          "La definición queda explícita.",
+          "El control da confianza en la cifra.",
+          "La advertencia y la siguiente pregunta muestran criterio."
+        ],
+        "codeLanguage": "plaintext"
+      },
+      "exercises": [
+        {
+          "id": "fn15-ej-1",
+          "title": "Práctica 1: La consulta del proyecto",
+          "difficulty": "Intermedio",
+          "prompt": "Ejecuta la consulta de la sección 2 en la consola de Práctica (base tienda). Luego escribe una segunda consulta que devuelva el total del semestre sin agrupar por país ni categoría, y comprueba que es igual a la suma de la columna `importe` de la primera.",
+          "hint": "La segunda consulta es la misma CTE `ventas` seguida de `SELECT SUM(importe) FROM ventas`, o la consulta de detalle sin GROUP BY con `SUM(...)`.",
+          "solutionExplanation": "Si las dos cifras coinciden, el JOIN no duplicó filas y los filtros son los mismos.",
+          "solutionCode": "SELECT SUM(d.cantidad * d.precio_unitario) AS total_semestre\nFROM detalle_pedido AS d\nJOIN pedidos AS p ON p.id = d.pedido_id\nWHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n  AND p.estado <> 'cancelado';",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn15-ej-2",
+          "title": "Práctica 2: Solo la categoría líder",
+          "difficulty": "Avanzado",
+          "prompt": "Modifica la consulta para que devuelva una sola fila por país: la categoría con mayor importe y su porcentaje. Pista de nivel Analista: puedes usar `ROW_NUMBER()`, o resolverlo con lo que sabes comparando contra el máximo por país.",
+          "hint": "Con lo de este curso: calcula `MAX(importe)` por país en una subconsulta y únela con `ventas` donde el importe sea igual al máximo.",
+          "solutionExplanation": "Esta versión usa solo JOIN y GROUP BY. Si dos categorías empatan en el máximo, aparecerán las dos; con `ROW_NUMBER()` (Cap. 01 de Analista) elegirías una.",
+          "solutionCode": "WITH ventas AS (\n    SELECT c.pais, pr.categoria, SUM(d.cantidad * d.precio_unitario) AS importe\n    FROM detalle_pedido AS d\n    JOIN pedidos   AS p  ON p.id  = d.pedido_id\n    JOIN clientes  AS c  ON c.id  = p.cliente_id\n    JOIN productos AS pr ON pr.id = d.producto_id\n    WHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n      AND p.estado <> 'cancelado'\n    GROUP BY c.pais, pr.categoria\n), totales AS (\n    SELECT pais, SUM(importe) AS total_pais, MAX(importe) AS maximo\n    FROM ventas GROUP BY pais\n)\nSELECT v.pais, v.categoria, v.importe,\n       ROUND(100.0 * v.importe / t.total_pais, 1) AS pct_pais\nFROM ventas AS v\nJOIN totales AS t ON t.pais = v.pais AND v.importe = t.maximo\nORDER BY v.importe DESC;",
+          "codeLanguage": "sql"
+        },
+        {
+          "id": "fn15-ej-3",
+          "title": "Práctica 3: Tu mensaje y tu ruta",
+          "difficulty": "Básico",
+          "prompt": "Con tus resultados, escribe el mensaje de cinco líneas (respuesta, dato, definición, advertencia, siguiente pregunta). Después repasa la lista de salida de la sección 3 y anota en tu cuaderno qué curso empiezas y qué capítulo de este curso repasarás antes.",
+          "hint": "Usa como molde el ejemplo de la Comparación. La lista de salida está al final de la sección 3.",
+          "solutionExplanation": "Un buen mensaje se entiende sin abrir ningún archivo. Y una buena ruta es concreta: «Empiezo Analista el lunes; antes repaso el Cap. 10 porque fallé la pregunta de LEFT JOIN»."
+        }
+      ],
+      "exam": [
+        {
+          "id": "fn15-q1",
+          "question": "Antes de calcular, ¿qué debe tener la ficha de un análisis?",
+          "options": [
+            "Fuente, filtros, métrica, grano y un control",
+            "El gráfico final y los colores del informe",
+            "Solo la consulta SQL que se va a ejecutar",
+            "El nombre del archivo y la fecha de entrega"
+          ],
+          "correctIndex": 0,
+          "explanation": "La ficha garantiza que todas las herramientas calculen exactamente lo mismo."
+        },
+        {
+          "id": "fn15-q2",
+          "question": "El total del semestre da 10.500 en SQL y 10.820 en Excel. ¿Qué revisas primero?",
+          "options": [
+            "Que el gráfico de Excel use la escala correcta",
+            "Que Excel esté actualizado a la última versión",
+            "Que los filtros de fecha y de estado sean iguales en ambos",
+            "Que la consulta SQL use mayúsculas en las palabras clave"
+          ],
+          "correctIndex": 2,
+          "explanation": "Las diferencias casi siempre vienen de filtros distintos o de filas duplicadas por un JOIN."
+        },
+        {
+          "id": "fn15-q3",
+          "question": "¿Cómo debe empezar el mensaje con el resultado?",
+          "options": [
+            "Con la lista de herramientas empleadas",
+            "Con la respuesta a la pregunta",
+            "Con la explicación del método usado",
+            "Con las limitaciones del análisis"
+          ],
+          "correctIndex": 1,
+          "explanation": "Quien lo lee necesita primero la respuesta; el método y las advertencias van después."
+        }
+      ]
+    }
+  ]
+}

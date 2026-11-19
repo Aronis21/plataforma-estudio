@@ -3,6 +3,25 @@
   "descripcion": "Mi cuaderno de estudio: lecciones, ejercicios y evaluaciones, con mis notas y mi progreso en la misma página.",
   "cursos": [
     {
+      "id": "fundamentos",
+      "archivo": "fundamentos.json",
+      "tema": "datos",
+      "separador": "Fundamentos",
+      "cuaderno": "Cuaderno de bases",
+      "categoria": "Fundamentos",
+      "etiquetas": [
+        "Terminal",
+        "Lógica",
+        "Excel",
+        "T-SQL",
+        "Python",
+        "JavaScript",
+        "Estadística"
+      ],
+      "color": "#8B5CF6",
+      "publicado": true
+    },
+    {
       "id": "analista-datos-intermedio",
       "archivo": "analista-datos-intermedio.json",
       "tema": "datos",
