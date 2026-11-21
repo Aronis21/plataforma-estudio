@@ -4,7 +4,7 @@
   "subtitle": "Terminal, lógica, tablas, Excel, SQL básico en T-SQL, Python, HTML y JavaScript, y estadística descriptiva: todo lo que suponen los demás cursos, en 15 capítulos.",
   "level": "Principiante",
   "author": "Aronis",
-  "updatedAt": "2026-11-19",
+  "updatedAt": "2026-11-21",
   "chapters": [
     {
       "id": "cap-01",
@@ -60,27 +60,33 @@
       "exercises": [
         {
           "id": "fn01-ej-1",
-          "title": "Práctica 1: Tu ruta personal",
+          "title": "Práctica 1: ¿Qué capítulos necesita María?",
           "difficulty": "Básico",
-          "prompt": "Elige el curso que quieres hacer después de este. Con el mapa de la sección 2, escribe la lista de capítulos de Fundamentos que necesitas y ordénalos.",
-          "hint": "Busca tu curso en la lista de la sección 2 y copia los capítulos que pide. Agrega siempre el 15 (proyecto) al final.",
-          "solutionExplanation": "Ejemplo para Analista: 4, 5, 6, 7, 8, 9, 10, 11, 12, 14 y 15. Para Web: 2, 3, 13 y 15. Lo importante es que la lista salga del mapa y no de lo que te parece más fácil."
+          "prompt": "**Contexto.** María quiere empezar el curso **Power BI y DAX**.\n\n**Mapa de requisitos:**\n\n- **Analista** pide los caps. 4, 5, 6, 7, 8, 9, 10, 11, 12 y 14\n- **Power BI** pide 4, 5, 6, 7, 8, 9 y 10\n- **SQL Server a fondo** pide 2, 7, 8, 9, 10 y 11\n- **Programación Web** pide 2, 3 y 13\n- **Nube y DevOps** pide 2.\n\nEl cap. 15 (proyecto) se recomienda siempre al final.\n\n**Qué tienes que hacer:**\n\n1) Busca Power BI en el mapa y copia sus capítulos.\n2) Agrega el capítulo del proyecto al final.\n3) Escribe la lista completa en orden.\n\n**Resultado esperado:** una lista de 8 capítulos.",
+          "hint": "Solo necesitas la frase del mapa que empieza con **Power BI**.",
+          "solutionExplanation": "Power BI pide 7 capítulos. Súmale el 15 y tendrás 8.",
+          "solutionCode": "Caps. 4, 5, 6, 7, 8, 9, 10 y 15\n\nPor qué:\n- 4: pensar en tablas (Power BI trabaja con tablas relacionadas)\n- 5 y 6: Excel (Power Query y DAX piensan igual)\n- 7 a 10: SQL básico (Power BI se conecta a SQL Server)\n- 15: el proyecto, para practicar todo junto",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn01-ej-2",
-          "title": "Práctica 2: Prueba de nivel",
+          "title": "Práctica 2: Leer el resultado de la prueba de nivel",
           "difficulty": "Básico",
-          "prompt": "Haz el examen de este capítulo sin consultar nada. Anota qué preguntas fallaste y, con la explicación de cada una, qué capítulo te toca estudiar.",
-          "hint": "El examen está en la pestaña Examen de este capítulo. Cada explicación termina con «Si fallaste, estudia el Cap. X».",
-          "solutionExplanation": "Cruza esta lista con la de la práctica 1: los capítulos que aparecen en las dos son tu prioridad. Los que acertaste y tu ruta pide, repásalos rápido."
+          "prompt": "**Contexto.** Pedro hizo la prueba de nivel (la Evaluación de este capítulo). Cada pregunta corresponde a un capítulo: P1 → Cap. 02 · P2 → Cap. 03 · P3 → Cap. 04 · P4 → Cap. 05 · P5 → Cap. 07 · P6 → Cap. 08 · P7 → Cap. 09 · P8 → Cap. 10 · P9 → Cap. 12 · P10 → Cap. 14. Pedro **falló las preguntas 5, 6 y 8** y acertó el resto.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué capítulos tiene que estudiar Pedro.\n2) Escribe qué capítulos puede repasar rápido porque los aprobó.\n\n**Resultado esperado:** 3 capítulos para estudiar y 7 para repasar rápido.",
+          "hint": "Usa la tabla P → Cap. del contexto con las preguntas que falló.",
+          "solutionExplanation": "P5, P6 y P8 son tres capítulos de SQL. Los otros siete son los que acertó.",
+          "solutionCode": "Estudiar: Cap. 07 (SELECT y WHERE), Cap. 08 (NULL y CASE) y Cap. 10 (JOIN).\nRepasar rápido: Caps. 02, 03, 04, 05, 09, 12 y 14.\n\nOjo: el Cap. 11 no tiene pregunta en la prueba. Si su ruta es de SQL, igual debe leerlo.",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn01-ej-3",
-          "title": "Práctica 3: Tu calendario",
+          "title": "Práctica 3: Ordenar una semana de estudio",
           "difficulty": "Básico",
-          "prompt": "Arma un calendario de dos semanas con tus capítulos prioritarios, 30 a 45 minutos por día, y deja un día de repaso por semana.",
-          "hint": "Un capítulo por día es buen ritmo. Los capítulos de SQL (7 a 11) son los más largos: dales un día entero a cada uno.",
-          "solutionExplanation": "Un buen calendario es concreto (qué capítulo, qué día) y tiene repaso. Si en una semana no cumples, no lo rehagas: mueve todo un día y sigue."
+          "prompt": "**Contexto.** Lucía quiere hacer **Programación Web**. Estudia de lunes a viernes, un capítulo por día, y el viernes repasa.\n\n**Mapa de requisitos:**\n\n- **Analista** pide los caps. 4, 5, 6, 7, 8, 9, 10, 11, 12 y 14\n- **Power BI** pide 4, 5, 6, 7, 8, 9 y 10\n- **SQL Server a fondo** pide 2, 7, 8, 9, 10 y 11\n- **Programación Web** pide 2, 3 y 13\n- **Nube y DevOps** pide 2.\n\nEl cap. 15 (proyecto) se recomienda siempre al final.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué capítulos necesita Lucía (incluye el proyecto).\n2) Reparte esos capítulos de lunes a jueves y deja el viernes para repasar.\n\n**Resultado esperado:** 4 capítulos, uno por día de lunes a jueves.",
+          "hint": "Programación Web pide tres capítulos; súmale el 15.",
+          "solutionExplanation": "Ordénalos de menor a mayor número: cada capítulo usa lo del anterior.",
+          "solutionCode": "Lunes:     Cap. 02 (archivos y terminal)\nMartes:    Cap. 03 (lógica de programación)\nMiércoles: Cap. 13 (HTML y JavaScript)\nJueves:    Cap. 15 (proyecto)\nViernes:   repaso de los exámenes que haya fallado",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -282,30 +288,32 @@
       "exercises": [
         {
           "id": "fn02-ej-1",
-          "title": "Práctica 1: Rutas",
+          "title": "Práctica 1: Escribir rutas relativas",
           "difficulty": "Básico",
-          "prompt": "Estás en `/home/ana/proyecto/consultas`. Escribe la ruta relativa hacia: a) `/home/ana/proyecto/datos/ventas.csv`; b) `/home/ana/proyecto/README.md`; c) `/home/ana/fotos/logo.png`.",
-          "hint": "Cada `..` sube un nivel. Desde `consultas`, un `..` te deja en `proyecto`.",
-          "solutionExplanation": "a) `../datos/ventas.csv`; b) `../README.md`; c) `../../fotos/logo.png` (dos niveles arriba llegas a `/home/ana`)."
+          "prompt": "**Contexto.** Tu terminal está en la carpeta `/home/ana/proyecto/consultas`. Recuerda: `..` significa «la carpeta de arriba».\n\n**Qué tienes que hacer:**\n\n1) Escribe la ruta relativa hasta `/home/ana/proyecto/datos/ventas.csv`.\n2) Escribe la ruta relativa hasta `/home/ana/proyecto/README.md`.\n3) Escribe la ruta relativa hasta `/home/ana/fotos/logo.png`.\n\n**Resultado esperado:** tres rutas que empiezan con `..`.",
+          "hint": "Desde `consultas`, un `..` te deja en `proyecto`.",
+          "solutionExplanation": "Para la tercera necesitas subir dos veces: `../..` te deja en `/home/ana`.",
+          "solutionCode": "1) ../datos/ventas.csv\n2) ../README.md\n3) ../../fotos/logo.png\n\nExplicación: desde consultas, .. = proyecto; ../.. = /home/ana.",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn02-ej-2",
-          "title": "Práctica 2: Arma la estructura",
+          "title": "Práctica 2: Crear carpetas con la terminal",
           "difficulty": "Básico",
-          "prompt": "Con la terminal, crea una carpeta `fundamentos` con las subcarpetas `excel`, `sql` y `python`, y un archivo vacío `notas.md` dentro de `fundamentos`. Luego lista el contenido.",
-          "hint": "`mkdir` acepta varios nombres a la vez. Usa `touch` para el archivo.",
-          "solutionExplanation": "Si `touch` no existe en tu terminal (CMD), usa Git Bash o PowerShell con `New-Item notas.md`.",
-          "solutionCode": "mkdir fundamentos\ncd fundamentos\nmkdir excel sql python\ntouch notas.md\nls",
+          "prompt": "**Contexto.** Abre una terminal (Git Bash en Windows; Terminal en macOS o Linux). Vas a crear la carpeta de estudio de este curso.\n\n**Qué tienes que hacer:**\n\n1) Crea una carpeta llamada `fundamentos` y entra en ella.\n2) Dentro, crea tres carpetas: `excel`, `sql` y `python`.\n3) Crea un archivo vacío llamado `notas.md`.\n4) Lista el contenido de la carpeta.\n\n**Resultado esperado:** el último comando muestra `excel  notas.md  python  sql`.",
+          "hint": "Usarás `mkdir`, `cd`, `touch` y `ls`.",
+          "solutionExplanation": "`mkdir` acepta varios nombres separados por espacios: `mkdir uno dos tres`.",
+          "solutionCode": "mkdir fundamentos\ncd fundamentos\nmkdir excel sql python\ntouch notas.md\nls\n\n# Si touch no funciona (CMD de Windows), usa Git Bash.",
           "codeLanguage": "bash"
         },
         {
           "id": "fn02-ej-3",
-          "title": "Práctica 3: Renombra y ordena",
+          "title": "Práctica 3: Renombrar y mover un archivo",
           "difficulty": "Intermedio",
-          "prompt": "En `fundamentos` hay un archivo `Consulta Nueva (1).sql`. Renómbralo a `primera_consulta.sql` y muévelo a la carpeta `sql` en un solo comando. Después confirma que está ahí.",
-          "hint": "`mv` mueve y renombra a la vez. Si el nombre tiene espacios, ponlo entre comillas.",
-          "solutionExplanation": "Las comillas evitan que la terminal lea `Consulta`, `Nueva` y `(1).sql` como tres archivos distintos.",
-          "solutionCode": "mv \"Consulta Nueva (1).sql\" sql/primera_consulta.sql\nls sql",
+          "prompt": "**Contexto.** Estás dentro de la carpeta `fundamentos` de la práctica anterior. Ahí hay un archivo llamado `Consulta Nueva (1).sql` (con espacios y paréntesis).\n\n**Qué tienes que hacer:**\n\n1) Con **un solo comando**, cámbiale el nombre a `primera_consulta.sql` y muévelo a la carpeta `sql`.\n2) Comprueba con otro comando que el archivo está en `sql`.\n\n**Resultado esperado:** `ls sql` muestra `primera_consulta.sql`.",
+          "hint": "`mv` sirve para mover y para renombrar al mismo tiempo.",
+          "solutionExplanation": "Si un nombre tiene espacios, escríbelo entre comillas dobles.",
+          "solutionCode": "mv \"Consulta Nueva (1).sql\" sql/primera_consulta.sql\nls sql\n\n# Sin comillas, la terminal leería tres archivos: Consulta, Nueva y (1).sql",
           "codeLanguage": "bash"
         }
       ],
@@ -424,32 +432,32 @@
       "exercises": [
         {
           "id": "fn03-ej-1",
-          "title": "Práctica 1: Aprobado o no",
+          "title": "Práctica 1: Aprobado, recuperación o reprobado",
           "difficulty": "Básico",
-          "prompt": "Escribe una función `estado(nota)` que devuelva «aprobado» si la nota es 70 o más, «recuperación» si está entre 50 y 69, y «reprobado» si es menor que 50. Pruébala con 85, 60 y 30.",
-          "hint": "Ordena las condiciones de mayor a menor y usa `elif`.",
-          "solutionExplanation": "Al ordenar de mayor a menor no hace falta escribir `nota >= 50 and nota < 70`: si llegó a la segunda rama, ya sabes que es menor que 70.",
-          "solutionCode": "def estado(nota):\n    if nota >= 70:\n        return \"aprobado\"\n    elif nota >= 50:\n        return \"recuperación\"\n    return \"reprobado\"\n\nprint(estado(85), estado(60), estado(30))",
+          "prompt": "**Contexto.** Una escuela clasifica las notas así: **70 o más** → «aprobado»; **de 50 a 69** → «recuperación»; **menos de 50** → «reprobado».\n\n**Qué tienes que hacer:**\n\n1) Escribe en Python una función `estado(nota)` que devuelva el texto que corresponde.\n2) Llámala con 85, 60 y 30 e imprime los resultados.\n\n**Resultado esperado:** `aprobado recuperación reprobado`.",
+          "hint": "Usa `if`, `elif` y `else`, y pon primero la condición más alta.",
+          "solutionExplanation": "Primero `if nota >= 70`, luego `elif nota >= 50`. Todo lo demás es «reprobado».",
+          "solutionCode": "def estado(nota):\n    if nota >= 70:\n        return \"aprobado\"\n    elif nota >= 50:\n        return \"recuperación\"\n    return \"reprobado\"\n\nprint(estado(85), estado(60), estado(30))\n# aprobado recuperación reprobado",
           "codeLanguage": "python"
         },
         {
           "id": "fn03-ej-2",
-          "title": "Práctica 2: Contar y sumar",
+          "title": "Práctica 2: Total, cantidad y promedio",
           "difficulty": "Básico",
-          "prompt": "Dada la lista `ventas = [120, 0, 75, 300, 0, 45]`, recorre la lista con un ciclo y calcula: el total vendido, cuántas ventas fueron mayores que 0 y el promedio de esas ventas mayores que 0.",
-          "hint": "Usa dos acumuladores: uno para la suma y otro para el conteo. Divide al final.",
-          "solutionExplanation": "Total 540, 4 ventas con monto, promedio 135. Fíjate que el promedio se calcula solo sobre las ventas que cumplen la condición.",
-          "solutionCode": "ventas = [120, 0, 75, 300, 0, 45]\ntotal = 0\nconteo = 0\nfor v in ventas:\n    total = total + v\n    if v > 0:\n        conteo = conteo + 1\nprint(total, conteo, total / conteo)  # 540 4 135.0",
+          "prompt": "**Contexto.** Estas son las ventas de una semana: `ventas = [120, 0, 75, 300, 0, 45]`. Los días con 0 no hubo ventas.\n\n**Qué tienes que hacer:**\n\n1) Con un ciclo `for`, calcula el **total vendido**.\n2) En el mismo ciclo, cuenta **cuántos días hubo ventas** (venta mayor que 0).\n3) Calcula el **promedio de los días con ventas** (total ÷ días con ventas) e imprime los tres números.\n\n**Resultado esperado:** `540 4 135.0`.",
+          "hint": "Necesitas dos variables que empiecen en 0: una para sumar y otra para contar.",
+          "solutionExplanation": "Dentro del `for`: suma siempre; cuenta solo `if v > 0`. El promedio se calcula después del ciclo.",
+          "solutionCode": "ventas = [120, 0, 75, 300, 0, 45]\ntotal = 0\ndias_con_venta = 0\nfor v in ventas:\n    total = total + v\n    if v > 0:\n        dias_con_venta = dias_con_venta + 1\nprint(total, dias_con_venta, total / dias_con_venta)\n# 540 4 135.0",
           "codeLanguage": "python"
         },
         {
           "id": "fn03-ej-3",
-          "title": "Práctica 3: Mientras no llegue a la meta",
+          "title": "Práctica 3: ¿Cuántos meses para llegar a la meta?",
           "difficulty": "Intermedio",
-          "prompt": "Ahorras 150 por mes y tu meta es 2.000. Con un ciclo `while`, calcula cuántos meses necesitas y cuánto tendrás ahorrado al llegar.",
-          "hint": "La condición del `while` es «mientras lo ahorrado sea menor que la meta». Suma 150 y cuenta un mes en cada vuelta.",
-          "solutionExplanation": "Se necesitan 14 meses y tendrás 2.100. Un `while` sirve aquí porque no sabes de antemano cuántas vueltas habrá.",
-          "solutionCode": "meta = 2000\nahorro = 0\nmeses = 0\nwhile ahorro < meta:\n    ahorro = ahorro + 150\n    meses = meses + 1\nprint(meses, ahorro)  # 14 2100",
+          "prompt": "**Contexto.** Ahorras **150 por mes** y quieres juntar **2000**. Empiezas en 0.\n\n**Qué tienes que hacer:**\n\n1) Crea las variables `ahorro = 0` y `meses = 0`.\n2) Con un ciclo `while`, suma 150 al ahorro y 1 a los meses **mientras el ahorro sea menor que 2000**.\n3) Imprime los meses y el ahorro final.\n\n**Resultado esperado:** `14 2100`.",
+          "hint": "La condición del `while` es `ahorro < 2000`.",
+          "solutionExplanation": "En cada vuelta haces dos cosas: `ahorro = ahorro + 150` y `meses = meses + 1`.",
+          "solutionCode": "ahorro = 0\nmeses = 0\nwhile ahorro < 2000:\n    ahorro = ahorro + 150\n    meses = meses + 1\nprint(meses, ahorro)\n# 14 2100\n\n# Con 13 meses tendrías 1950 (no alcanza); con 14, 2100.",
           "codeLanguage": "python"
         }
       ],
@@ -570,27 +578,33 @@
       "exercises": [
         {
           "id": "fn04-ej-1",
-          "title": "Práctica 1: Encuentra el grano",
+          "title": "Práctica 1: ¿Qué representa una fila?",
           "difficulty": "Básico",
-          "prompt": "Di la granularidad de cada tabla: a) registro de asistencia con columnas `empleado_id, fecha, hora_entrada, hora_salida`; b) `producto_id, nombre, precio`; c) `tienda_id, producto_id, fecha, unidades_vendidas`.",
-          "hint": "Pregúntate qué combinación de columnas no se puede repetir.",
-          "solutionExplanation": "a) Una fila por empleado y día. b) Una fila por producto. c) Una fila por tienda, producto y día. La combinación de columnas que no se repite es también la clave primaria."
+          "prompt": "**Contexto.** La **granularidad** es la respuesta a «una fila = ¿qué?». Mira estas tres tablas:\n\n- A) `asistencia(empleado_id, fecha, hora_entrada, hora_salida)`\n- B) `productos(producto_id, nombre, precio)`\n- C) `ventas_diarias(tienda_id, producto_id, fecha, unidades)`\n\n**Qué tienes que hacer:**\n\n1) Completa para cada tabla la frase «una fila por …».\n\n**Resultado esperado:** tres frases; la de C combina tres cosas.",
+          "hint": "Pregúntate qué columnas no se pueden repetir juntas en dos filas.",
+          "solutionExplanation": "En A un empleado aparece un día una sola vez. En C se repite la tienda, el producto y la fecha, pero no los tres a la vez.",
+          "solutionCode": "A) Una fila por empleado y día.\nB) Una fila por producto.\nC) Una fila por tienda, producto y día.\n\nLas columnas que forman el grano son también la clave primaria.",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn04-ej-2",
-          "title": "Práctica 2: Ordena la tabla",
+          "title": "Práctica 2: Ordenar una tabla mal hecha",
           "difficulty": "Intermedio",
-          "prompt": "Una hoja tiene las columnas `Cliente | Teléfonos | Compras 2025 | Compras 2026`, con celdas como `\"Ana Torres\" | \"999111222 / 988777666\" | 3 | 5`. Propón tablas ordenadas que guarden lo mismo.",
-          "hint": "Hay un dato repetido en una celda y un dato (el año) escondido en los nombres de columna.",
-          "solutionExplanation": "Tres tablas: `clientes(id, nombre)`, `telefonos(cliente_id, telefono)` con una fila por teléfono y `compras_anuales(cliente_id, anio, compras)` con una fila por cliente y año. Así cada celda tiene un valor y agregar 2027 es agregar filas."
+          "prompt": "**Contexto.** Una hoja de Excel tiene estas columnas y una fila de ejemplo:\n\n`Cliente | Teléfonos | Compras 2025 | Compras 2026`\n\n`Ana Torres | 999111222 / 988777666 | 3 | 5`\n\nTiene dos problemas: una celda con **dos teléfonos** y el **año escondido en el nombre** de las columnas.\n\n**Qué tienes que hacer:**\n\n1) Divide la información en tres tablas: clientes, teléfonos y compras por año.\n2) Escribe las columnas de cada tabla.\n3) Escribe cómo quedaría Ana Torres en cada tabla (usa el id 1).\n\n**Resultado esperado:** 3 tablas; Ana ocupa 1 fila en clientes, 2 en teléfonos y 2 en compras.",
+          "hint": "Cada celda debe tener un solo valor. Lo que se repite va en su propia tabla con el id del cliente.",
+          "solutionExplanation": "El año pasa a ser una columna `anio`, y cada año es una fila.",
+          "solutionCode": "clientes(id, nombre)\n  1 | Ana Torres\n\ntelefonos(cliente_id, telefono)\n  1 | 999111222\n  1 | 988777666\n\ncompras_anuales(cliente_id, anio, compras)\n  1 | 2025 | 3\n  1 | 2026 | 5\n\nVentaja: agregar 2027 es agregar una fila, no una columna.",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn04-ej-3",
-          "title": "Práctica 3: Claves",
+          "title": "Práctica 3: Encontrar las claves",
           "difficulty": "Intermedio",
-          "prompt": "En la base «tienda», ¿qué columnas de `detalle_pedido` son claves foráneas y hacia dónde apuntan? ¿Qué combinación de columnas podría ser su clave primaria?",
-          "hint": "Mira qué columnas terminan en `_id`.",
-          "solutionExplanation": "`pedido_id → pedidos.id` y `producto_id → productos.id`. La clave primaria puede ser la combinación `(pedido_id, producto_id)`, si un producto aparece una sola vez por pedido. Una clave de varias columnas se llama clave compuesta."
+          "prompt": "**Contexto.** La base **tienda** tiene estas tablas:\n\n- `pedidos(id, cliente_id, fecha, estado)`\n- `productos(id, nombre, categoria, precio, activo)`\n- `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)`\n\nUna **clave foránea** es una columna que apunta al `id` de otra tabla.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué columnas de `detalle_pedido` son claves foráneas y a qué tabla apuntan.\n2) Escribe qué combinación de columnas identifica cada fila de `detalle_pedido` (su clave primaria).\n\n**Resultado esperado:** dos claves foráneas y una clave primaria de dos columnas.",
+          "hint": "Mira las columnas que terminan en `_id`.",
+          "solutionExplanation": "Un mismo pedido tiene varios productos, así que `pedido_id` solo no basta para identificar la fila.",
+          "solutionCode": "Claves foráneas:\n  pedido_id   → pedidos.id\n  producto_id → productos.id\n\nClave primaria: (pedido_id, producto_id)\nUn producto aparece una sola vez en cada pedido. A una clave de dos columnas se le llama clave compuesta.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -710,27 +724,33 @@
       "exercises": [
         {
           "id": "fn05-ej-1",
-          "title": "Práctica 1: Referencias",
+          "title": "Práctica 1: Una celda fija al copiar",
           "difficulty": "Básico",
-          "prompt": "En `G1` está la meta mensual (1.000). En la columna B tienes ventas por día (B2:B31). Escribe en C2 una fórmula que diga «cumple» si la venta del día es al menos 1/30 de la meta, y que puedas copiar hasta C31.",
-          "hint": "La meta debe quedar fija al copiar: necesita `$` en columna y fila.",
-          "solutionExplanation": "`=SI(B2>=$G$1/30; \"cumple\"; \"no cumple\")`. Si escribieras `G1` sin `$`, al copiar hacia abajo pasaría a `G2`, `G3`… que están vacías."
+          "prompt": "**Contexto.** En la celda **E1** está el precio mínimo para envío gratis: **100**. En la columna B tienes el monto de cada pedido, de B2 a B20.\n\n**Qué tienes que hacer:**\n\n1) Escribe en C2 una fórmula que muestre «gratis» si B2 es mayor o igual que E1, y «con costo» si no.\n2) Asegúrate de que, al copiarla hasta C20, siga comparando con E1.\n\n**Resultado esperado:** si B2 = 150, C2 muestra «gratis»; si B3 = 40, C3 muestra «con costo».",
+          "hint": "Usa la función SI. Para que E1 no cambie al copiar, necesita el signo `$`.",
+          "solutionExplanation": "La forma es `=SI(condición; \"gratis\"; \"con costo\")` y la referencia fija se escribe `$E$1`.",
+          "solutionCode": "=SI(B2>=$E$1; \"gratis\"; \"con costo\")\n\nAl copiar hacia abajo, B2 pasa a B3, B4… pero $E$1 queda fijo.\nSin los $, en C3 diría E2, que está vacía.",
+          "codeLanguage": "excel"
         },
         {
           "id": "fn05-ej-2",
-          "title": "Práctica 2: Totales con condiciones",
+          "title": "Práctica 2: Sumar y contar con condiciones",
           "difficulty": "Intermedio",
-          "prompt": "Con la Tabla `Pedidos(Fecha, ClienteID, Pais, Estado, Total)`, escribe fórmulas para: a) total de Chile; b) cantidad de pedidos cancelados; c) promedio de los pedidos de México que no están cancelados.",
-          "hint": "Para «no está cancelado» el criterio es `\"<>cancelado\"`.",
-          "solutionExplanation": "a) `=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"Chile\")`\nb) `=CONTAR.SI.CONJUNTO(Pedidos[Estado]; \"cancelado\")`\nc) `=PROMEDIO.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"México\"; Pedidos[Estado]; \"<>cancelado\")`"
+          "prompt": "**Contexto.** Tienes una Tabla de Excel llamada **Pedidos** con 5 filas (Fecha, ClienteID, Pais, Estado, Total):\n\n- 2026-03-02 · 1 · Chile · entregado · 120\n- 2026-03-03 · 2 · México · entregado · 300\n- 2026-03-05 · 3 · Chile · cancelado · 80\n- 2026-03-08 · 4 · México · entregado · 200\n- 2026-03-09 · 9 · México · cancelado · 150\n\n**Qué tienes que hacer:**\n\n1) Escribe la fórmula del **total de Chile**.\n2) Escribe la fórmula de **cuántos pedidos están cancelados**.\n3) Escribe la fórmula del **total de México sin contar los cancelados**.\n\n**Resultado esperado:** 200, 2 y 500.",
+          "hint": "Usa SUMAR.SI.CONJUNTO para sumar y CONTAR.SI.CONJUNTO para contar.",
+          "solutionExplanation": "«No cancelado» se escribe como criterio `\"<>cancelado\"`. En SUMAR.SI.CONJUNTO el primer argumento es la columna que se suma.",
+          "solutionCode": "1) =SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"Chile\")                                → 200\n2) =CONTAR.SI.CONJUNTO(Pedidos[Estado]; \"cancelado\")                                        → 2\n3) =SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Pais]; \"México\"; Pedidos[Estado]; \"<>cancelado\") → 500\n\nComprobación a mano: Chile = 120 + 80; México sin cancelados = 300 + 200.",
+          "codeLanguage": "excel"
         },
         {
           "id": "fn05-ej-3",
-          "title": "Práctica 3: Buscar el segmento",
+          "title": "Práctica 3: Traer un dato de otra tabla",
           "difficulty": "Intermedio",
-          "prompt": "En la Tabla `Pedidos` agrega una columna `Segmento` que traiga el segmento del cliente desde la Tabla `Clientes(ClienteID, Nombre, Segmento)`. Si el cliente no existe, debe mostrar «revisar». Luego cuenta cuántos pedidos quedaron en «revisar».",
-          "hint": "BUSCARX con cuatro argumentos; después un CONTAR.SI.CONJUNTO sobre la nueva columna.",
-          "solutionExplanation": "`=BUSCARX([@ClienteID]; Clientes[ClienteID]; Clientes[Segmento]; \"revisar\")` y `=CONTAR.SI.CONJUNTO(Pedidos[Segmento]; \"revisar\")`. Ese conteo es un control de calidad: debería ser 0. Si no lo es, hay pedidos de clientes que no están en la tabla de clientes."
+          "prompt": "**Contexto.** Tienes una Tabla de Excel llamada **Pedidos** con 5 filas (Fecha, ClienteID, Pais, Estado, Total):\n\n- 2026-03-02 · 1 · Chile · entregado · 120\n- 2026-03-03 · 2 · México · entregado · 300\n- 2026-03-05 · 3 · Chile · cancelado · 80\n- 2026-03-08 · 4 · México · entregado · 200\n- 2026-03-09 · 9 · México · cancelado · 150\n\nY otra Tabla llamada **Clientes** con 4 filas (ClienteID, Nombre, Segmento):\n\n- 1 · Ana · minorista\n- 2 · Luis · empresa\n- 3 · María · minorista\n- 4 · Carlos · empresa\n\n**Qué tienes que hacer:**\n\n1) En Pedidos, agrega una columna **Segmento** con BUSCARX que traiga el segmento de cada cliente.\n2) Si el cliente no existe en Clientes, debe mostrar «revisar».\n3) Escribe una fórmula que cuente cuántos pedidos quedaron en «revisar».\n\n**Resultado esperado:** 4 pedidos con segmento y 1 en «revisar» (el del cliente 9).",
+          "hint": "BUSCARX tiene un cuarto argumento: lo que muestra si no encuentra.",
+          "solutionExplanation": "Busca `[@ClienteID]` en `Clientes[ClienteID]` y devuelve `Clientes[Segmento]`. Para contar, CONTAR.SI.CONJUNTO sobre la nueva columna.",
+          "solutionCode": "Columna Segmento:\n=BUSCARX([@ClienteID]; Clientes[ClienteID]; Clientes[Segmento]; \"revisar\")\n\nConteo:\n=CONTAR.SI.CONJUNTO(Pedidos[Segmento]; \"revisar\")   → 1\n\nEl cliente 9 no está en Clientes. Ese conteo es un control de calidad: lo ideal es 0.",
+          "codeLanguage": "excel"
         }
       ],
       "exam": [
@@ -850,27 +870,33 @@
       "exercises": [
         {
           "id": "fn06-ej-1",
-          "title": "Práctica 1: Limpia la columna País",
+          "title": "Práctica 1: Unificar los nombres de país",
           "difficulty": "Básico",
-          "prompt": "La columna A tiene: `\" perú\"`, `\"PERU\"`, `\"Perú \"`, `\"chile\"`, `\"Chile\"`. Escribe una fórmula para la columna B que deje todos los valores en un formato único. ¿Qué problema queda sin resolver?",
-          "hint": "Combina ESPACIOS con NOMPROPIO.",
-          "solutionExplanation": "`=NOMPROPIO(ESPACIOS(A2))` deja `Perú`, `Peru`, `Perú`, `Chile`, `Chile`. Queda `Peru` sin tilde: las fórmulas no adivinan ortografía. Se arregla con `SUSTITUIR` o con una tabla de equivalencias y BUSCARX."
+          "prompt": "**Contexto.** La columna A tiene cinco países escritos de formas distintas: `\" perú\"`, `\"PERÚ\"`, `\"Perú \"`, `\"chile\"` y `\"Chile\"` (las comillas solo marcan dónde hay espacios).\n\n**Qué tienes que hacer:**\n\n1) Escribe en B2 una fórmula que quite los espacios sobrantes y deje la primera letra en mayúscula.\n2) Cópiala hasta B6 y cuenta cuántos países distintos quedan.\n\n**Resultado esperado:** en la columna B quedan solo «Perú» y «Chile»: 2 países distintos.",
+          "hint": "Necesitas dos funciones, una dentro de la otra.",
+          "solutionExplanation": "ESPACIOS quita los espacios sobrantes; NOMPROPIO pone la primera letra en mayúscula. Primero se aplica la de adentro.",
+          "solutionCode": "=NOMPROPIO(ESPACIOS(A2))\n\n\" perú\"  → Perú\n\"PERÚ\"   → Perú\n\"Perú \"  → Perú\n\"chile\"  → Chile\n\"Chile\"  → Chile\n\nOjo: si alguien escribe «Peru» sin tilde, esta fórmula no lo arregla; harías falta SUSTITUIR.",
+          "codeLanguage": "excel"
         },
         {
           "id": "fn06-ej-2",
-          "title": "Práctica 2: Mes desde la fecha",
+          "title": "Práctica 2: Sacar el mes de una fecha",
           "difficulty": "Básico",
-          "prompt": "Tienes fechas en la columna A. Crea una columna B con el texto `aaaa-mm` de cada fecha, para poder agrupar por mes. Luego explica por qué no conviene escribir el mes a mano.",
-          "hint": "La función TEXTO recibe un formato entre comillas.",
-          "solutionExplanation": "`=TEXTO(A2; \"aaaa-mm\")`. Escribirlo a mano produce errores y no se actualiza si llegan datos nuevos. (En Excel en inglés el formato es `\"yyyy-mm\"`.)"
+          "prompt": "**Contexto.** En la columna A tienes fechas de pedidos, por ejemplo **15/03/2026** en A2 y **02/04/2026** en A3. Quieres agrupar por mes.\n\n**Qué tienes que hacer:**\n\n1) Escribe en B2 una fórmula que convierta la fecha en un texto con el formato año-mes.\n2) Cópiala a B3.\n\n**Resultado esperado:** B2 = «2026-03» y B3 = «2026-04».",
+          "hint": "La función TEXTO convierte una fecha en texto con el formato que le indiques entre comillas.",
+          "solutionExplanation": "El formato de año con cuatro cifras es `aaaa` y el del mes con dos cifras es `mm`.",
+          "solutionCode": "=TEXTO(A2; \"aaaa-mm\")\n\nB2 → 2026-03\nB3 → 2026-04\n\nEn Excel en inglés el formato es \"yyyy-mm\".",
+          "codeLanguage": "excel"
         },
         {
           "id": "fn06-ej-3",
-          "title": "Práctica 3: Arma la dinámica",
+          "title": "Práctica 3: Armar una tabla dinámica",
           "difficulty": "Intermedio",
-          "prompt": "Con una Tabla `Pedidos(Fecha, Pais, Segmento, Estado, Total)`, describe la tabla dinámica que responde: «¿cuánto vendió cada segmento en cada país, sin contar cancelados?». Indica qué campo va en cada zona y cómo comprobarías que el total es correcto.",
-          "hint": "Una pregunta «por X y por Y» pone X en Filas y Y en Columnas. Lo que se excluye va en Filtros.",
-          "solutionExplanation": "Filtros: Estado (desmarcar cancelado). Filas: Pais. Columnas: Segmento. Valores: Suma de Total. Control: el Total general debe ser igual a `=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Estado]; \"<>cancelado\")`."
+          "prompt": "**Contexto.** Tienes una Tabla **Pedidos** con las columnas Fecha, Pais, Segmento, Estado y Total. Quieres responder: **«¿cuánto vendió cada segmento en cada país, sin contar los cancelados?»**. Una tabla dinámica tiene cuatro zonas: Filtros, Filas, Columnas y Valores.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué campo pones en cada una de las cuatro zonas.\n2) Escribe una fórmula para comprobar que el Total general de la dinámica es correcto.\n\n**Resultado esperado:** una zona con «Pais», otra con «Segmento», otra con «Estado» y otra con «Suma de Total».",
+          "hint": "«Por país y por segmento»: uno va en Filas y el otro en Columnas. Lo que se excluye va en Filtros.",
+          "solutionExplanation": "El Total general debe ser igual a la suma de Total de los pedidos que no están cancelados.",
+          "solutionCode": "Filtros:  Estado (desmarca «cancelado»)\nFilas:    Pais\nColumnas: Segmento\nValores:  Suma de Total\n\nControl:\n=SUMAR.SI.CONJUNTO(Pedidos[Total]; Pedidos[Estado]; \"<>cancelado\")\nDebe dar lo mismo que el Total general de la dinámica.",
+          "codeLanguage": "excel"
         }
       ],
       "exam": [
@@ -991,29 +1017,29 @@
           "id": "fn07-ej-1",
           "title": "Práctica 1: Productos baratos",
           "difficulty": "Básico",
-          "prompt": "Lista nombre, categoría y precio de los productos activos (`activo = 1`) que cuestan 20 o menos, del más barato al más caro.",
-          "hint": "Dos condiciones con AND y ORDER BY sin DESC.",
-          "solutionExplanation": "Filtra con WHERE y ordena ascendente.",
+          "prompt": "**Contexto.** Tabla `productos(id, nombre, categoria, precio, activo)`. `activo = 1` significa que el producto está a la venta. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra las columnas nombre, categoria y precio.\n2) Solo de los productos **activos** que cuestan **20 o menos**.\n3) Ordénalos del más barato al más caro.\n\n**Resultado esperado:** 5 filas. La primera es «Cuaderno Punteado» (7.5) y la última «Termo Acero» (18.5).",
+          "hint": "Necesitas SELECT, FROM, WHERE con dos condiciones y ORDER BY.",
+          "solutionExplanation": "Las dos condiciones se unen con AND: `activo = 1 AND precio <= 20`. El orden de menor a mayor es el que viene por defecto.",
           "solutionCode": "SELECT nombre, categoria, precio\nFROM productos\nWHERE activo = 1\n  AND precio <= 20\nORDER BY precio;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn07-ej-2",
-          "title": "Práctica 2: Clientes por nombre",
+          "title": "Práctica 2: Buscar por país y por nombre",
           "difficulty": "Básico",
-          "prompt": "Lista los clientes cuyo nombre empieza con «Ma» y los clientes de ciudades que terminan en «a», con su nombre y ciudad, ordenados por nombre.",
-          "hint": "Dos condiciones LIKE unidas por OR: `'Ma%'` y `'%a'`.",
-          "solutionExplanation": "`%` reemplaza cualquier cantidad de caracteres, incluso ninguno.",
-          "solutionCode": "SELECT nombre, ciudad\nFROM clientes\nWHERE nombre LIKE 'Ma%'\n   OR ciudad LIKE '%a'\nORDER BY nombre;",
+          "prompt": "**Contexto.** Tabla `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Escribe una consulta que muestre nombre y pais de los clientes de **México o Chile**, ordenados por nombre.\n2) Escribe otra consulta que muestre nombre y ciudad de los clientes cuyo **nombre empieza con «Ma»**.\n\n**Resultado esperado:** la primera da 7 filas; la segunda, 3 (Martín Aguilar, María Gómez y Mateo Silva).",
+          "hint": "Para «uno u otro país» usa IN. Para «empieza con» usa LIKE.",
+          "solutionExplanation": "`pais IN ('México', 'Chile')` y `nombre LIKE 'Ma%'`: el `%` significa «cualquier cosa después».",
+          "solutionCode": "-- 1) México o Chile\nSELECT nombre, pais\nFROM clientes\nWHERE pais IN ('México', 'Chile')\nORDER BY nombre;\n\n-- 2) Nombre que empieza con «Ma»\nSELECT nombre, ciudad\nFROM clientes\nWHERE nombre LIKE 'Ma%';",
           "codeLanguage": "sql"
         },
         {
           "id": "fn07-ej-3",
-          "title": "Práctica 3: Últimos pedidos entregados",
+          "title": "Práctica 3: Los últimos pedidos entregados de marzo",
           "difficulty": "Intermedio",
-          "prompt": "Muestra los 5 pedidos entregados más recientes del primer trimestre de 2026 (enero a marzo), con id, cliente_id y fecha.",
-          "hint": "Rango de fechas semiabierto, filtro por estado, TOP (5) y ORDER BY fecha DESC.",
-          "solutionExplanation": "El fin del rango es `'2026-04-01'` con `<`, así se incluye todo el 31 de marzo.",
+          "prompt": "**Contexto.** Tabla `pedidos(id, cliente_id, fecha, estado)`. El estado puede ser «pendiente», «enviado», «entregado» o «cancelado». Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra id, cliente_id y fecha de los pedidos **entregados** del **primer trimestre de 2026** (enero a marzo).\n2) Ordénalos del más reciente al más antiguo.\n3) Quédate solo con los **5 primeros**.\n\n**Resultado esperado:** 5 filas. La primera es el pedido 57, del 2026-03-25.",
+          "hint": "Necesitas TOP (5), un filtro de estado, un rango de fechas y ORDER BY … DESC.",
+          "solutionExplanation": "El rango de fechas se escribe `fecha >= '2026-01-01' AND fecha < '2026-04-01'`: así entra todo el 31 de marzo.",
           "solutionCode": "SELECT TOP (5) id, cliente_id, fecha\nFROM pedidos\nWHERE estado = 'entregado'\n  AND fecha >= '2026-01-01'\n  AND fecha <  '2026-04-01'\nORDER BY fecha DESC;",
           "codeLanguage": "sql"
         }
@@ -1133,31 +1159,31 @@
       "exercises": [
         {
           "id": "fn08-ej-1",
-          "title": "Práctica 1: Ciudad o país",
+          "title": "Práctica 1: Clientes sin ciudad",
           "difficulty": "Básico",
-          "prompt": "Lista nombre y una columna `ubicacion` que muestre la ciudad del cliente o, si no tiene, el texto «(país) sin ciudad», por ejemplo «México sin ciudad».",
-          "hint": "COALESCE con CONCAT como segundo argumento.",
-          "solutionExplanation": "CONCAT arma el texto alternativo y COALESCE lo usa solo cuando la ciudad es NULL.",
-          "solutionCode": "SELECT nombre,\n       COALESCE(ciudad, CONCAT(pais, ' sin ciudad')) AS ubicacion\nFROM clientes;",
+          "prompt": "**Contexto.** Tabla `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)`. Algunos clientes tienen la ciudad en NULL (sin dato). Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra el nombre de los clientes que **no tienen ciudad**.\n2) Agrega una columna `ubicacion` que diga el país seguido de « sin ciudad», por ejemplo «México sin ciudad».\n\n**Resultado esperado:** 2 filas: Jorge Castro (México sin ciudad) y Daniela Flores (Colombia sin ciudad).",
+          "hint": "Para encontrar los NULL no sirve `= NULL`: se usa `IS NULL`.",
+          "solutionExplanation": "Para unir el país con el texto usa `CONCAT(pais, ' sin ciudad')`.",
+          "solutionCode": "SELECT nombre,\n       CONCAT(pais, ' sin ciudad') AS ubicacion\nFROM clientes\nWHERE ciudad IS NULL;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn08-ej-2",
-          "title": "Práctica 2: Antigüedad del cliente",
+          "title": "Práctica 2: Clasificar clientes por antigüedad",
           "difficulty": "Intermedio",
-          "prompt": "Para cada cliente, muestra nombre, fecha de registro y una columna `antiguedad` con «nuevo» si se registró en 2026, «reciente» si fue en 2025 y «veterano» si fue antes.",
-          "hint": "CASE con condiciones sobre fecha_registro, de la más reciente a la más antigua.",
-          "solutionExplanation": "Se compara con fechas de corte en lugar de usar YEAR, que también funcionaría.",
+          "prompt": "**Contexto.** Tabla `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra nombre y fecha_registro de todos los clientes.\n2) Agrega una columna `antiguedad`: «nuevo» si se registró en 2026 o después, «reciente» si fue en 2025 y «veterano» si fue antes de 2025.\n3) Ordena por fecha_registro, de la más nueva a la más antigua.\n\n**Resultado esperado:** 20 filas: 6 «nuevo», 6 «reciente» y 8 «veterano».",
+          "hint": "Usa CASE WHEN … THEN … ELSE … END y pon primero la condición de la fecha más reciente.",
+          "solutionExplanation": "Primer WHEN: `fecha_registro >= '2026-01-01'`. Segundo WHEN: `fecha_registro >= '2025-01-01'`. Lo demás va en ELSE.",
           "solutionCode": "SELECT nombre,\n       fecha_registro,\n       CASE\n         WHEN fecha_registro >= '2026-01-01' THEN 'nuevo'\n         WHEN fecha_registro >= '2025-01-01' THEN 'reciente'\n         ELSE 'veterano'\n       END AS antiguedad\nFROM clientes\nORDER BY fecha_registro DESC;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn08-ej-3",
-          "title": "Práctica 3: Días hasta hoy",
+          "title": "Práctica 3: ¿Cuántos días lleva pendiente?",
           "difficulty": "Intermedio",
-          "prompt": "Muestra los pedidos pendientes con su id, fecha y cuántos días llevan pendientes al 30 de junio de 2026. Ordénalos del más antiguo al más nuevo.",
-          "hint": "DATEDIFF(DAY, fecha, '2026-06-30').",
-          "solutionExplanation": "Usar una fecha fija hace que el resultado sea reproducible; en producción usarías `CAST(GETDATE() AS date)`.",
+          "prompt": "**Contexto.** Tabla `pedidos(id, cliente_id, fecha, estado)`. Hoy, para este ejercicio, es el **30 de junio de 2026**. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra id y fecha de los pedidos con estado «pendiente».\n2) Agrega una columna `dias_pendiente` con los días que pasaron desde la fecha del pedido hasta el 2026-06-30.\n3) Ordénalos del más antiguo al más nuevo.\n\n**Resultado esperado:** 7 filas. La primera es el pedido 34 (2026-01-11) con 170 días.",
+          "hint": "La función que cuenta días entre dos fechas es DATEDIFF.",
+          "solutionExplanation": "Se escribe `DATEDIFF(DAY, fecha_inicio, fecha_fin)`: aquí, `DATEDIFF(DAY, fecha, '2026-06-30')`.",
           "solutionCode": "SELECT id,\n       fecha,\n       DATEDIFF(DAY, fecha, '2026-06-30') AS dias_pendiente\nFROM pedidos\nWHERE estado = 'pendiente'\nORDER BY fecha;",
           "codeLanguage": "sql"
         }
@@ -1277,32 +1303,32 @@
       "exercises": [
         {
           "id": "fn09-ej-1",
-          "title": "Práctica 1: Productos por categoría",
+          "title": "Práctica 1: Resumen por categoría",
           "difficulty": "Básico",
-          "prompt": "Para cada categoría de productos, muestra cuántos productos tiene, el precio mínimo, el máximo y el promedio redondeado a 2 decimales. Ordena por cantidad de productos, de mayor a menor.",
-          "hint": "GROUP BY categoria y ROUND(AVG(precio), 2).",
-          "solutionExplanation": "Cada fila del resultado es una categoría.",
+          "prompt": "**Contexto.** Tabla `productos(id, nombre, categoria, precio, activo)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Para cada categoría muestra: cuántos productos tiene, el precio más bajo, el más alto y el promedio redondeado a 2 decimales.\n2) Ordena de la categoría con más productos a la que tiene menos.\n\n**Resultado esperado:** 5 filas. La primera es Electrónica: 5 productos, mínimo 9.9, máximo 189 y promedio 82.46.",
+          "hint": "Usa COUNT, MIN, MAX y AVG, y agrupa con GROUP BY categoria.",
+          "solutionExplanation": "El promedio redondeado se escribe `ROUND(AVG(precio), 2)`. Para ordenar por la cantidad: `ORDER BY COUNT(*) DESC`.",
           "solutionCode": "SELECT categoria,\n       COUNT(*)              AS productos,\n       MIN(precio)           AS minimo,\n       MAX(precio)           AS maximo,\n       ROUND(AVG(precio), 2) AS promedio\nFROM productos\nGROUP BY categoria\nORDER BY productos DESC;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn09-ej-2",
-          "title": "Práctica 2: Pedidos grandes",
+          "title": "Práctica 2: Pedidos de más de 500",
           "difficulty": "Intermedio",
-          "prompt": "Desde `detalle_pedido`, lista los pedidos cuyo importe total (cantidad × precio_unitario) supera 200, con su importe, del mayor al menor.",
-          "hint": "Agrupa por pedido_id y filtra el SUM en HAVING.",
-          "solutionExplanation": "El importe es una condición del grupo, por eso va en HAVING y no en WHERE.",
-          "solutionCode": "SELECT pedido_id,\n       SUM(cantidad * precio_unitario) AS importe\nFROM detalle_pedido\nGROUP BY pedido_id\nHAVING SUM(cantidad * precio_unitario) > 200\nORDER BY importe DESC;",
+          "prompt": "**Contexto.** Tabla `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)`. Cada fila es un producto dentro de un pedido; el importe de una fila es `cantidad * precio_unitario`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Calcula el importe total de cada pedido (suma de sus filas).\n2) Muestra solo los pedidos cuyo importe total **supera 500**.\n3) Ordénalos del importe más alto al más bajo.\n\n**Resultado esperado:** 7 filas. La primera es el pedido 45 con 810.7.",
+          "hint": "Agrupa por pedido_id y suma el importe.",
+          "solutionExplanation": "La condición «importe total mayor que 500» es sobre el grupo, así que va en HAVING, no en WHERE.",
+          "solutionCode": "SELECT pedido_id,\n       SUM(cantidad * precio_unitario) AS importe\nFROM detalle_pedido\nGROUP BY pedido_id\nHAVING SUM(cantidad * precio_unitario) > 500\nORDER BY importe DESC;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn09-ej-3",
-          "title": "Práctica 3: Estados por mes",
+          "title": "Práctica 3: Estados de los pedidos por mes",
           "difficulty": "Intermedio",
-          "prompt": "Arma un resumen con una fila por mes de 2026 y columnas: total de pedidos, entregados, pendientes y cancelados.",
-          "hint": "Un SUM(CASE …) por cada estado.",
-          "solutionExplanation": "Es una tabla dinámica con Filas = mes y Columnas = estado, escrita en SQL.",
-          "solutionCode": "SELECT MONTH(fecha) AS mes,\n       COUNT(*) AS pedidos,\n       SUM(CASE WHEN estado = 'entregado' THEN 1 ELSE 0 END) AS entregados,\n       SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,\n       SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) AS cancelados\nFROM pedidos\nWHERE fecha >= '2026-01-01' AND fecha < '2027-01-01'\nGROUP BY MONTH(fecha)\nORDER BY mes;",
+          "prompt": "**Contexto.** Tabla `pedidos(id, cliente_id, fecha, estado)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Haz un resumen con **una fila por mes** (usa `MONTH(fecha)`).\n2) Columnas: mes, total de pedidos, entregados, pendientes y cancelados.\n3) Ordena por mes.\n\n**Resultado esperado:** 6 filas (enero a junio). Enero: 8 pedidos, 6 entregados, 1 pendiente y 0 cancelados.",
+          "hint": "Agrupa por MONTH(fecha). Para contar solo un estado, suma 1 cuando se cumple y 0 cuando no.",
+          "solutionExplanation": "Cada columna de estado es `SUM(CASE WHEN estado = 'entregado' THEN 1 ELSE 0 END)`, cambiando el estado.",
+          "solutionCode": "SELECT MONTH(fecha) AS mes,\n       COUNT(*) AS pedidos,\n       SUM(CASE WHEN estado = 'entregado' THEN 1 ELSE 0 END) AS entregados,\n       SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,\n       SUM(CASE WHEN estado = 'cancelado' THEN 1 ELSE 0 END) AS cancelados\nFROM pedidos\nGROUP BY MONTH(fecha)\nORDER BY mes;",
           "codeLanguage": "sql"
         }
       ],
@@ -1424,32 +1450,32 @@
       "exercises": [
         {
           "id": "fn10-ej-1",
-          "title": "Práctica 1: Pedidos con nombre",
+          "title": "Práctica 1: Pedidos con el nombre del cliente",
           "difficulty": "Básico",
-          "prompt": "Lista id del pedido, fecha, estado y nombre del cliente de todos los pedidos de abril de 2026, ordenados por fecha.",
-          "hint": "INNER JOIN de pedidos con clientes por cliente_id.",
-          "solutionExplanation": "Cada pedido tiene exactamente un cliente, así que el resultado tiene tantas filas como pedidos de abril.",
+          "prompt": "**Contexto.** Tablas `pedidos(id, cliente_id, fecha, estado)` y `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)`. `pedidos.cliente_id` apunta a `clientes.id`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Une pedidos con clientes.\n2) Muestra id del pedido, fecha, estado y nombre del cliente.\n3) Solo pedidos de **abril de 2026**, ordenados por fecha.\n\n**Resultado esperado:** 12 filas. La primera es el pedido 32 (2026-04-05) de Andrés Vargas.",
+          "hint": "Usa JOIN … ON con la clave que une las dos tablas.",
+          "solutionExplanation": "La unión es `ON c.id = p.cliente_id`. El rango de abril: `p.fecha >= '2026-04-01' AND p.fecha < '2026-05-01'`.",
           "solutionCode": "SELECT p.id, p.fecha, p.estado, c.nombre\nFROM pedidos AS p\nJOIN clientes AS c ON c.id = p.cliente_id\nWHERE p.fecha >= '2026-04-01' AND p.fecha < '2026-05-01'\nORDER BY p.fecha;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn10-ej-2",
-          "title": "Práctica 2: Clientes sin compras",
+          "title": "Práctica 2: Clientes que nunca compraron",
           "difficulty": "Intermedio",
-          "prompt": "Lista los clientes que no tienen ningún pedido, con su nombre y país.",
-          "hint": "LEFT JOIN de clientes a pedidos y quédate con las filas donde el pedido es NULL.",
-          "solutionExplanation": "Este patrón se llama anti-join. La alternativa con `NOT EXISTS` la verás en Analista.",
+          "prompt": "**Contexto.** Tablas `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)` y `pedidos(id, cliente_id, fecha, estado)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Muestra nombre y pais de los clientes que **no tienen ningún pedido**.\n\n**Resultado esperado:** 3 filas: Carlos Ruiz, Lucía Medina y Paula Méndez.",
+          "hint": "Empieza en clientes y usa LEFT JOIN hacia pedidos: así los clientes sin pedidos se conservan.",
+          "solutionExplanation": "Al cliente sin pedidos el LEFT JOIN le pone NULL en las columnas de pedidos. Filtra con `WHERE p.id IS NULL`.",
           "solutionCode": "SELECT c.nombre, c.pais\nFROM clientes AS c\nLEFT JOIN pedidos AS p ON p.cliente_id = c.id\nWHERE p.id IS NULL;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn10-ej-3",
-          "title": "Práctica 3: Ventas por categoría y país",
+          "title": "Práctica 3: Ventas de Perú por categoría",
           "difficulty": "Intermedio",
-          "prompt": "Calcula el importe vendido (cantidad × precio_unitario) por país del cliente y categoría del producto, sin pedidos cancelados. Ordena por país y luego por importe de mayor a menor.",
-          "hint": "Necesitas las cuatro tablas. Filtra el estado en WHERE (aquí todos son INNER JOIN) y agrupa por país y categoría.",
-          "solutionExplanation": "Con INNER JOIN el filtro en WHERE es correcto. El grano del resultado es país × categoría.",
-          "solutionCode": "SELECT c.pais,\n       pr.categoria,\n       SUM(d.cantidad * d.precio_unitario) AS importe\nFROM detalle_pedido AS d\nJOIN pedidos   AS p  ON p.id  = d.pedido_id\nJOIN clientes  AS c  ON c.id  = p.cliente_id\nJOIN productos AS pr ON pr.id = d.producto_id\nWHERE p.estado <> 'cancelado'\nGROUP BY c.pais, pr.categoria\nORDER BY c.pais, importe DESC;",
+          "prompt": "**Contexto.** Tablas `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)`, `pedidos(id, cliente_id, fecha, estado)`, `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)` y `productos(id, nombre, categoria, precio, activo)`. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Une las cuatro tablas.\n2) Calcula el importe vendido (`cantidad * precio_unitario`) por categoría de producto, solo para clientes de **Perú** y sin pedidos **cancelados**.\n3) Ordena del importe más alto al más bajo.\n\n**Resultado esperado:** 5 filas. La primera es Electrónica con 1662.25.",
+          "hint": "Ve de detalle_pedido a pedidos (pedido_id), de pedidos a clientes (cliente_id) y de detalle_pedido a productos (producto_id).",
+          "solutionExplanation": "Filtros en WHERE: `c.pais = 'Perú' AND p.estado <> 'cancelado'`. Agrupa por `pr.categoria`.",
+          "solutionCode": "SELECT pr.categoria,\n       SUM(d.cantidad * d.precio_unitario) AS importe\nFROM detalle_pedido AS d\nJOIN pedidos   AS p  ON p.id  = d.pedido_id\nJOIN clientes  AS c  ON c.id  = p.cliente_id\nJOIN productos AS pr ON pr.id = d.producto_id\nWHERE c.pais = 'Perú'\n  AND p.estado <> 'cancelado'\nGROUP BY pr.categoria\nORDER BY importe DESC;",
           "codeLanguage": "sql"
         }
       ],
@@ -1568,32 +1594,32 @@
       "exercises": [
         {
           "id": "fn11-ej-1",
-          "title": "Práctica 1: Tabla de proveedores",
+          "title": "Práctica 1: Crear la tabla de proveedores",
           "difficulty": "Básico",
-          "prompt": "Crea una tabla `proveedores` con: id autonumérico como clave primaria, nombre obligatorio de hasta 100 caracteres, país obligatorio, correo opcional y fecha de alta obligatoria con valor por defecto la fecha de hoy.",
-          "hint": "IDENTITY(1,1) PRIMARY KEY, NVARCHAR, NOT NULL y DEFAULT (CAST(GETDATE() AS date)).",
-          "solutionExplanation": "El correo no lleva NOT NULL porque es opcional.",
-          "solutionCode": "CREATE TABLE proveedores (\n    id         INT IDENTITY(1,1) PRIMARY KEY,\n    nombre     NVARCHAR(100) NOT NULL,\n    pais       NVARCHAR(50)  NOT NULL,\n    correo     NVARCHAR(150) NULL,\n    fecha_alta DATE          NOT NULL DEFAULT (CAST(GETDATE() AS date))\n);",
+          "prompt": "**Contexto.** Vas a guardar proveedores. Cada uno tiene: un **id** que se genera solo, un **nombre** obligatorio (hasta 100 caracteres), un **país** obligatorio (hasta 50) y un **correo** opcional (hasta 150).\n\n**Qué tienes que hacer:**\n\n1) Escribe el CREATE TABLE de la tabla `proveedores` con esas cuatro columnas.\n2) Ejecútalo en Práctica → T-SQL y luego `SELECT * FROM proveedores;`.\n\n**Resultado esperado:** la consulta se ejecuta sin errores y devuelve 0 filas, porque la tabla todavía está vacía.",
+          "hint": "El id autonumérico es `INT IDENTITY(1,1) PRIMARY KEY`. Los textos con tildes usan NVARCHAR.",
+          "solutionExplanation": "Obligatorio = `NOT NULL`; opcional = `NULL`. Ejemplo: `nombre NVARCHAR(100) NOT NULL`.",
+          "solutionCode": "CREATE TABLE proveedores (\n    id      INT IDENTITY(1,1) PRIMARY KEY,\n    nombre  NVARCHAR(100) NOT NULL,\n    pais    NVARCHAR(50)  NOT NULL,\n    correo  NVARCHAR(150) NULL\n);\n\nSELECT * FROM proveedores;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn11-ej-2",
-          "title": "Práctica 2: Insertar y comprobar",
+          "title": "Práctica 2: Insertar dos proveedores",
           "difficulty": "Básico",
-          "prompt": "Inserta dos proveedores en una sola instrucción, uno con correo y otro sin correo, sin indicar el id ni la fecha de alta. Luego consulta la tabla.",
-          "hint": "Lista de columnas sin id ni fecha_alta; para el correo vacío usa NULL.",
-          "solutionExplanation": "La base asigna el id con IDENTITY y la fecha con DEFAULT.",
+          "prompt": "**Contexto.** Usa la tabla `proveedores(id, nombre, pais, correo)` de la práctica anterior (créala primero en la misma consola). El id se genera solo.\n\n**Qué tienes que hacer:**\n\n1) Inserta en **una sola instrucción** estos dos proveedores: «Distribuidora Andina» de Perú con correo ventas@andina.example, y «Importadora Sur» de Chile **sin correo**.\n2) Consulta la tabla para ver el resultado.\n\n**Resultado esperado:** 2 filas; la de Importadora Sur tiene el correo en NULL.",
+          "hint": "Escribe la lista de columnas sin el id: `INSERT INTO proveedores (nombre, pais, correo) VALUES …`.",
+          "solutionExplanation": "Las dos filas van en el mismo VALUES separadas por coma. Para «sin correo» escribe NULL (sin comillas).",
           "solutionCode": "INSERT INTO proveedores (nombre, pais, correo)\nVALUES (N'Distribuidora Andina', N'Perú', N'ventas@andina.example'),\n       (N'Importadora Sur',      N'Chile', NULL);\n\nSELECT * FROM proveedores;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn11-ej-3",
-          "title": "Práctica 3: Desactivar productos con cuidado",
+          "title": "Práctica 3: Desactivar productos sin riesgo",
           "difficulty": "Intermedio",
-          "prompt": "Hay que desactivar (`activo = 0`) los productos de la categoría Papelería que cuestan menos de 10. Escribe el procedimiento seguro completo.",
-          "hint": "SELECT con el WHERE, transacción, UPDATE con el mismo WHERE y COMMIT.",
-          "solutionExplanation": "Si el SELECT devuelve 1 fila, el UPDATE debe decir «1 fila afectada» antes de confirmar.",
-          "solutionCode": "SELECT id, nombre, precio FROM productos\nWHERE categoria = 'Papelería' AND precio < 10;\n\nBEGIN TRANSACTION;\nUPDATE productos\nSET activo = 0\nWHERE categoria = 'Papelería' AND precio < 10;\nCOMMIT;   -- o ROLLBACK si el número de filas no coincide",
+          "prompt": "**Contexto.** Tabla `productos(id, nombre, categoria, precio, activo)`. Te piden desactivar (`activo = 0`) los productos de **Papelería** que cuestan **menos de 10**. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Escribe primero un SELECT que muestre qué productos se van a cambiar.\n2) Abre una transacción con BEGIN TRANSACTION.\n3) Escribe el UPDATE con el **mismo WHERE** del SELECT.\n4) Cierra con COMMIT.\n\n**Resultado esperado:** el SELECT muestra 1 producto (Cuaderno Punteado, 7.5) y el UPDATE dice «1 fila afectada».",
+          "hint": "El orden es: mirar (SELECT), proteger (BEGIN TRANSACTION), cambiar (UPDATE) y confirmar (COMMIT).",
+          "solutionExplanation": "El WHERE de los dos es `categoria = 'Papelería' AND precio < 10`. Si el número de filas no coincidiera, usarías ROLLBACK en lugar de COMMIT.",
+          "solutionCode": "SELECT id, nombre, precio\nFROM productos\nWHERE categoria = 'Papelería' AND precio < 10;   -- 1 fila\n\nBEGIN TRANSACTION;\n\nUPDATE productos\nSET activo = 0\nWHERE categoria = 'Papelería' AND precio < 10;   -- 1 fila afectada\n\nCOMMIT;",
           "codeLanguage": "sql"
         }
       ],
@@ -1712,32 +1738,32 @@
       "exercises": [
         {
           "id": "fn12-ej-1",
-          "title": "Práctica 1: Diccionario de precios",
+          "title": "Práctica 1: Precios con IVA",
           "difficulty": "Básico",
-          "prompt": "Crea un diccionario `precios` con tres productos y su precio. Recórrelo e imprime cada producto con su precio con IVA (18 %) usando un f-string con 2 decimales. Al final imprime el producto más caro.",
-          "hint": "`for nombre, precio in precios.items():` recorre clave y valor. Para el más caro, `max(precios, key=precios.get)`.",
-          "solutionExplanation": "`.items()` devuelve pares clave-valor; `max` con `key` compara por el valor.",
-          "solutionCode": "precios = {\"Audífonos\": 59.9, \"Teclado\": 89.5, \"Monitor\": 189.0}\nfor nombre, precio in precios.items():\n    print(f\"{nombre}: {precio * 1.18:.2f}\")\nprint(\"Más caro:\", max(precios, key=precios.get))",
+          "prompt": "**Contexto.** Tienes este diccionario en Python: `precios = {\"Audífonos\": 59.9, \"Teclado\": 89.5, \"Monitor\": 189.0}`. El IVA es 18 %.\n\n**Qué tienes que hacer:**\n\n1) Recorre el diccionario con un `for`.\n2) Imprime cada producto con su precio con IVA (precio × 1.18) con 2 decimales, usando un f-string.\n\n**Resultado esperado:** tres líneas: `Audífonos: 70.68`, `Teclado: 105.61` y `Monitor: 223.02`.",
+          "hint": "`for nombre, precio in precios.items():` te da la clave y el valor en cada vuelta.",
+          "solutionExplanation": "Dentro del f-string, `{precio * 1.18:.2f}` muestra el número con 2 decimales.",
+          "solutionCode": "precios = {\"Audífonos\": 59.9, \"Teclado\": 89.5, \"Monitor\": 189.0}\nfor nombre, precio in precios.items():\n    print(f\"{nombre}: {precio * 1.18:.2f}\")\n\n# Audífonos: 70.68\n# Teclado: 105.61\n# Monitor: 223.02",
           "codeLanguage": "python"
         },
         {
           "id": "fn12-ej-2",
-          "title": "Práctica 2: Filtrar con una comprensión",
+          "title": "Práctica 2: Filtrar pedidos grandes",
           "difficulty": "Básico",
-          "prompt": "Dada la lista de diccionarios `pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]`, crea con una comprensión la lista de ids de los pedidos de más de 100 y calcula el total de esos pedidos.",
-          "hint": "`[p[\"id\"] for p in pedidos if p[\"total\"] > 100]`.",
-          "solutionExplanation": "Ids [1, 3] y total 530. La comprensión hace el filtro y la selección de columna a la vez.",
-          "solutionCode": "pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]\ngrandes = [p[\"id\"] for p in pedidos if p[\"total\"] > 100]\ntotal = sum(p[\"total\"] for p in pedidos if p[\"total\"] > 100)\nprint(grandes, total)  # [1, 3] 530",
+          "prompt": "**Contexto.** Tienes esta lista de pedidos: `pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]`.\n\n**Qué tienes que hacer:**\n\n1) Con una comprensión de lista, crea `grandes` con los **id** de los pedidos de más de 100.\n2) Calcula la suma del total de esos pedidos.\n3) Imprime las dos cosas.\n\n**Resultado esperado:** `[1, 3] 530`.",
+          "hint": "La forma es `[lo_que_quieres for p in pedidos if condición]`.",
+          "solutionExplanation": "Lo que quieres es `p[\"id\"]` y la condición es `p[\"total\"] > 100`. Para la suma: `sum(p[\"total\"] for p in pedidos if p[\"total\"] > 100)`.",
+          "solutionCode": "pedidos = [{\"id\": 1, \"total\": 120}, {\"id\": 2, \"total\": 35}, {\"id\": 3, \"total\": 410}]\ngrandes = [p[\"id\"] for p in pedidos if p[\"total\"] > 100]\ntotal = sum(p[\"total\"] for p in pedidos if p[\"total\"] > 100)\nprint(grandes, total)\n# [1, 3] 530",
           "codeLanguage": "python"
         },
         {
           "id": "fn12-ej-3",
-          "title": "Práctica 3: De SQL a pandas",
+          "title": "Práctica 3: Un resumen con pandas",
           "difficulty": "Intermedio",
-          "prompt": "Traduce a pandas esta consulta, suponiendo un DataFrame `pedidos` con las columnas `pais`, `estado` y `total`: `SELECT pais, COUNT(*) AS pedidos, SUM(total) AS importe FROM pedidos WHERE estado <> 'cancelado' GROUP BY pais ORDER BY importe DESC;`",
-          "hint": "Filtra, luego `groupby(\"pais\").agg(pedidos=(\"total\", \"count\"), importe=(\"total\", \"sum\"))`.",
-          "solutionExplanation": "`agg` con nombres crea varias columnas de resumen a la vez, igual que el SELECT de la consulta.",
-          "solutionCode": "import pandas as pd\n\npedidos = pd.DataFrame({\n    \"pais\": [\"Perú\", \"Chile\", \"Perú\", \"Chile\"],\n    \"estado\": [\"entregado\", \"cancelado\", \"enviado\", \"entregado\"],\n    \"total\": [120.0, 50.0, 80.0, 200.0],\n})\nresultado = (pedidos[pedidos[\"estado\"] != \"cancelado\"]\n             .groupby(\"pais\")\n             .agg(pedidos=(\"total\", \"count\"), importe=(\"total\", \"sum\"))\n             .sort_values(\"importe\", ascending=False))\nprint(resultado)",
+          "prompt": "**Contexto.** Copia este código, que crea una tabla de pedidos:\n\n`import pandas as pd`\n\n`pedidos = pd.DataFrame({\"pais\": [\"Perú\", \"Chile\", \"Perú\", \"Chile\"], \"estado\": [\"entregado\", \"cancelado\", \"enviado\", \"entregado\"], \"total\": [120.0, 50.0, 80.0, 250.0]})`\n\n**Qué tienes que hacer:**\n\n1) Quita los pedidos cancelados.\n2) Suma el total por país con `groupby`.\n3) Ordena de mayor a menor e imprime el resultado.\n\n**Resultado esperado:** Chile 250.0 y luego Perú 200.0 (Perú = 120 + 80; Chile = 250, porque el de 50 está cancelado).",
+          "hint": "Los tres pasos son: filtrar con `pedidos[condición]`, agrupar con `.groupby(\"pais\")[\"total\"].sum()` y ordenar con `.sort_values(...)`.",
+          "solutionExplanation": "La condición es `pedidos[\"estado\"] != \"cancelado\"`. Para ordenar de mayor a menor: `sort_values(ascending=False)`.",
+          "solutionCode": "import pandas as pd\n\npedidos = pd.DataFrame({\n    \"pais\": [\"Perú\", \"Chile\", \"Perú\", \"Chile\"],\n    \"estado\": [\"entregado\", \"cancelado\", \"enviado\", \"entregado\"],\n    \"total\": [120.0, 50.0, 80.0, 250.0],\n})\nvalidos = pedidos[pedidos[\"estado\"] != \"cancelado\"]\nresumen = validos.groupby(\"pais\")[\"total\"].sum().sort_values(ascending=False)\nprint(resumen)\n# Chile    250.0\n# Perú     200.0",
           "codeLanguage": "python"
         }
       ],
@@ -1857,31 +1883,31 @@
       "exercises": [
         {
           "id": "fn13-ej-1",
-          "title": "Práctica 1: Una tarjeta de producto",
+          "title": "Práctica 1: La tarjeta de un producto",
           "difficulty": "Básico",
-          "prompt": "Escribe el HTML de una tarjeta de producto con: un título `h2` con el nombre, una imagen con texto alternativo, un párrafo con el precio dentro de un `<strong id=\"precio\">` y una lista con tres características.",
-          "hint": "Usa `<img src=\"…\" alt=\"…\">`, `<ul>` y `<li>`.",
-          "solutionExplanation": "El `alt` describe la imagen para lectores de pantalla y por si no carga. El `id` permite cambiar el precio desde JavaScript.",
-          "solutionCode": "<article>\n  <h2>Audífonos Pulse</h2>\n  <img src=\"img/audifonos.png\" alt=\"Audífonos negros sobre una mesa\">\n  <p>Precio: <strong id=\"precio\">59.90</strong></p>\n  <ul>\n    <li>Bluetooth 5.3</li>\n    <li>30 horas de batería</li>\n    <li>Micrófono integrado</li>\n  </ul>\n</article>",
+          "prompt": "**Contexto.** Vas a escribir el HTML de una tarjeta para el producto **Audífonos Pulse**, que cuesta **59.90** y tiene tres características: Bluetooth, 30 horas de batería y micrófono.\n\n**Qué tienes que hacer:**\n\n1) Pon el nombre en un título `h2`.\n2) Agrega una imagen `img/audifonos.png` con un texto alternativo que la describa.\n3) Pon el precio en un párrafo, dentro de `<strong id=\"precio\">`.\n4) Agrega una lista `ul` con las tres características.\n\n**Resultado esperado:** al abrir el archivo en el navegador ves el título, la imagen (o su texto si no existe), el precio en negrita y una lista de tres puntos.",
+          "hint": "Cada etiqueta que abres se cierra: `<h2>…</h2>`, `<p>…</p>`, `<ul>…</ul>`. La imagen no se cierra.",
+          "solutionExplanation": "Cada característica va en un `<li>` dentro del `<ul>`. El texto alternativo va en el atributo `alt`.",
+          "solutionCode": "<article>\n  <h2>Audífonos Pulse</h2>\n  <img src=\"img/audifonos.png\" alt=\"Audífonos negros sobre una mesa\">\n  <p>Precio: <strong id=\"precio\">59.90</strong></p>\n  <ul>\n    <li>Bluetooth</li>\n    <li>30 horas de batería</li>\n    <li>Micrófono</li>\n  </ul>\n</article>",
           "codeLanguage": "html"
         },
         {
           "id": "fn13-ej-2",
-          "title": "Práctica 2: Resumen en la consola",
+          "title": "Práctica 2: Promedio y aprobados en la consola",
           "difficulty": "Básico",
-          "prompt": "En la consola del navegador, con el arreglo `const notas = [85, 60, 30, 92, 74];`, calcula el promedio y la lista de notas aprobadas (70 o más) usando `reduce` y `filter`.",
-          "hint": "Promedio = suma / cantidad. La suma sale de `reduce((a, n) => a + n, 0)`.",
-          "solutionExplanation": "Promedio 68.2 y aprobadas [85, 92, 74].",
-          "solutionCode": "const notas = [85, 60, 30, 92, 74];\nconst promedio = notas.reduce((a, n) => a + n, 0) / notas.length;\nconst aprobadas = notas.filter((n) => n >= 70);\nconsole.log(promedio, aprobadas);  // 68.2 [85, 92, 74]",
+          "prompt": "**Contexto.** Abre la consola del navegador (F12 → Consola). Tienes este arreglo de notas: `const notas = [85, 60, 30, 92, 74];`.\n\n**Qué tienes que hacer:**\n\n1) Calcula el **promedio** con `reduce` (suma) dividido entre `notas.length`.\n2) Crea `aprobadas` con `filter`, solo con las notas de **70 o más**.\n3) Muestra los dos resultados con `console.log`.\n\n**Resultado esperado:** `68.2 [85, 92, 74]`.",
+          "hint": "`reduce((acum, n) => acum + n, 0)` suma todo el arreglo, empezando en 0.",
+          "solutionExplanation": "Para el filtro: `notas.filter((n) => n >= 70)`.",
+          "solutionCode": "const notas = [85, 60, 30, 92, 74];\nconst promedio = notas.reduce((acum, n) => acum + n, 0) / notas.length;\nconst aprobadas = notas.filter((n) => n >= 70);\nconsole.log(promedio, aprobadas);\n// 68.2 [85, 92, 74]",
           "codeLanguage": "javascript"
         },
         {
           "id": "fn13-ej-3",
-          "title": "Práctica 3: Contador de clics",
+          "title": "Práctica 3: Un contador con dos botones",
           "difficulty": "Intermedio",
-          "prompt": "Con un `<button id=\"sumar\">+1</button>` y un `<span id=\"cuenta\">0</span>`, escribe el JavaScript para que cada clic sume 1 y muestre el valor. Agrega un segundo botón `id=\"reiniciar\"` que lo vuelva a 0.",
-          "hint": "Una variable `let cuenta = 0` y dos `addEventListener`.",
-          "solutionExplanation": "El estado (la cuenta) vive en una variable; la página solo lo muestra. Es la misma idea que usa React con `useState`.",
+          "prompt": "**Contexto.** La página tiene este HTML: `<button id=\"sumar\">+1</button> <button id=\"reiniciar\">Reiniciar</button> <span id=\"cuenta\">0</span>`.\n\n**Qué tienes que hacer:**\n\n1) Crea una variable `cuenta` que empiece en 0.\n2) Cuando se haga clic en «+1», suma 1 a la cuenta y muéstrala en el `span`.\n3) Cuando se haga clic en «Reiniciar», vuelve la cuenta a 0 y muéstrala.\n\n**Resultado esperado:** tres clics en «+1» muestran 3; un clic en «Reiniciar» muestra 0.",
+          "hint": "Necesitas `document.getElementById` para encontrar cada elemento y `addEventListener(\"click\", …)` para cada botón.",
+          "solutionExplanation": "Usa `let cuenta = 0;`. Para mostrar el número: `salida.textContent = cuenta;`.",
           "solutionCode": "let cuenta = 0;\nconst salida = document.getElementById(\"cuenta\");\n\ndocument.getElementById(\"sumar\").addEventListener(\"click\", () => {\n  cuenta = cuenta + 1;\n  salida.textContent = cuenta;\n});\n\ndocument.getElementById(\"reiniciar\").addEventListener(\"click\", () => {\n  cuenta = 0;\n  salida.textContent = cuenta;\n});",
           "codeLanguage": "javascript"
         }
@@ -2001,29 +2027,33 @@
       "exercises": [
         {
           "id": "fn14-ej-1",
-          "title": "Práctica 1: Media o mediana",
+          "title": "Práctica 1: ¿Media o mediana?",
           "difficulty": "Básico",
-          "prompt": "Ventas diarias de una semana: 120, 135, 128, 140, 131, 125, 980 (el domingo hubo una venta corporativa). Calcula media y mediana a mano y di cuál reportarías como «venta diaria típica».",
-          "hint": "Ordena los valores para la mediana; hay 7, así que es el cuarto.",
-          "solutionExplanation": "Media = 1.759 / 7 ≈ 251,3. Mediana = 131. La típica es 131: la media está inflada por un solo día. Lo correcto es reportar la mediana y mencionar la venta corporativa aparte."
+          "prompt": "**Contexto.** Las ventas de una semana fueron: **120, 135, 128, 140, 131, 125 y 980**. El último día hubo una venta grande a una empresa, que no es normal.\n\n**Qué tienes que hacer:**\n\n1) Calcula la **media** (suma ÷ 7).\n2) Calcula la **mediana**: ordena los 7 valores y toma el del medio.\n3) Escribe cuál de las dos usarías para decir «la venta típica de un día».\n\n**Resultado esperado:** media ≈ 251,3; mediana = 131.",
+          "hint": "La suma de los siete valores es 1.759.",
+          "solutionExplanation": "Ordenados quedan: 120, 125, 128, 131, 135, 140, 980. Con 7 valores, el del medio es el cuarto.",
+          "solutionCode": "Media   = 1759 / 7 ≈ 251,3\nMediana = 131 (el 4.º de: 120, 125, 128, 131, 135, 140, 980)\n\nUsaría la mediana: la media está inflada por un solo día de 980.\nLa venta a la empresa se informa aparte.",
+          "codeLanguage": "texto"
         },
         {
           "id": "fn14-ej-2",
-          "title": "Práctica 2: Cuartiles y atípicos",
+          "title": "Práctica 2: Encontrar el valor atípico",
           "difficulty": "Intermedio",
-          "prompt": "Con pandas, para los montos `[45, 52, 48, 60, 55, 49, 51, 300, 47, 53]`, calcula Q1, Q3, el IQR y lista los valores atípicos con la regla de 1,5·IQR.",
-          "hint": "`serie.quantile(0.25)` y `serie.quantile(0.75)`.",
-          "solutionExplanation": "Q1 ≈ 48,25, Q3 ≈ 54,5, IQR ≈ 6,25. El límite superior es ≈ 63,9, así que 300 es atípico.",
-          "solutionCode": "import pandas as pd\n\nmontos = pd.Series([45, 52, 48, 60, 55, 49, 51, 300, 47, 53])\nq1, q3 = montos.quantile(0.25), montos.quantile(0.75)\niqr = q3 - q1\nlimite_inf, limite_sup = q1 - 1.5 * iqr, q3 + 1.5 * iqr\nprint(q1, q3, iqr)\nprint(montos[(montos < limite_inf) | (montos > limite_sup)].tolist())  # [300]",
+          "prompt": "**Contexto.** Tienes 10 montos de pedidos: **45, 52, 48, 60, 55, 49, 51, 300, 47, 53**. Un valor es atípico si es mayor que Q3 + 1,5 × IQR (IQR = Q3 − Q1).\n\n**Qué tienes que hacer:**\n\n1) Con pandas, crea una Series con los montos.\n2) Calcula Q1 (`quantile(0.25)`), Q3 (`quantile(0.75)`) y el IQR.\n3) Calcula el límite superior e imprime los montos que lo superan.\n\n**Resultado esperado:** Q1 = 48.25, Q3 = 54.5, IQR = 6.25, límite ≈ 63.9; el atípico es 300.",
+          "hint": "Empieza con `import pandas as pd` y `montos = pd.Series([...])`.",
+          "solutionExplanation": "Límite superior: `q3 + 1.5 * iqr`. Para filtrar: `montos[montos > limite]`.",
+          "solutionCode": "import pandas as pd\n\nmontos = pd.Series([45, 52, 48, 60, 55, 49, 51, 300, 47, 53])\nq1 = montos.quantile(0.25)\nq3 = montos.quantile(0.75)\niqr = q3 - q1\nlimite = q3 + 1.5 * iqr\nprint(q1, q3, iqr, limite)          # 48.25 54.5 6.25 63.875\nprint(montos[montos > limite].tolist())  # [300]",
           "codeLanguage": "python"
         },
         {
           "id": "fn14-ej-3",
           "title": "Práctica 3: ¿Causa o coincidencia?",
           "difficulty": "Intermedio",
-          "prompt": "Un informe dice: «Las tiendas con más empleados venden más (correlación 0,85), así que contratar más personal aumentará las ventas». Escribe dos explicaciones alternativas y qué dato pedirías para comprobar la afirmación.",
-          "hint": "Piensa en una tercera variable que cause las dos cosas, y en la dirección de la relación.",
-          "solutionExplanation": "1) Tercera variable: las tiendas grandes o en zonas de mucho tránsito tienen más empleados y más ventas por su ubicación. 2) Causalidad inversa: las tiendas que venden más contratan más. Pediría datos de antes y después de contratar en las mismas tiendas, o un experimento en algunas tiendas comparadas con otras similares (lo verás en el Módulo 4 de Analista)."
+          "prompt": "**Contexto.** Un informe dice: «Las tiendas con más empleados venden más (correlación 0,85). **Por lo tanto**, si contratamos más personal, venderemos más».\n\n**Qué tienes que hacer:**\n\n1) Escribe una **tercera causa** que podría explicar las dos cosas a la vez.\n2) Escribe por qué la relación podría ir **al revés**.\n3) Escribe qué dato pedirías para comprobar si contratar sube las ventas.\n\n**Resultado esperado:** tres respuestas cortas, de una o dos líneas cada una.",
+          "hint": "Piensa en algo que haga que una tienda necesite más empleados **y** venda más, como su tamaño o ubicación.",
+          "solutionExplanation": "Al revés: ¿podría ser que vender más obligue a contratar? Para comprobar, compara las mismas tiendas antes y después de contratar.",
+          "solutionCode": "1) Tercera causa: las tiendas grandes o con mucho público tienen más empleados y más ventas por su ubicación.\n2) Al revés: las tiendas que venden más contratan más porque tienen más trabajo.\n3) Dato: ventas de las mismas tiendas antes y después de contratar, comparadas con tiendas parecidas que no contrataron.\n\nUna correlación muestra que dos cosas van juntas, no que una cause la otra.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -2141,31 +2171,33 @@
       "exercises": [
         {
           "id": "fn15-ej-1",
-          "title": "Práctica 1: La consulta del proyecto",
+          "title": "Práctica 1: El total de control",
           "difficulty": "Intermedio",
-          "prompt": "Ejecuta la consulta de la sección 2 en la consola de Práctica (base tienda). Luego escribe una segunda consulta que devuelva el total del semestre sin agrupar por país ni categoría, y comprueba que es igual a la suma de la columna `importe` de la primera.",
-          "hint": "La segunda consulta es la misma CTE `ventas` seguida de `SELECT SUM(importe) FROM ventas`, o la consulta de detalle sin GROUP BY con `SUM(...)`.",
-          "solutionExplanation": "Si las dos cifras coinciden, el JOIN no duplicó filas y los filtros son los mismos.",
-          "solutionCode": "SELECT SUM(d.cantidad * d.precio_unitario) AS total_semestre\nFROM detalle_pedido AS d\nJOIN pedidos AS p ON p.id = d.pedido_id\nWHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n  AND p.estado <> 'cancelado';",
+          "prompt": "**Contexto.** Tablas `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)` y `pedidos(id, cliente_id, fecha, estado)`. En el proyecto, el total vendido del primer semestre de 2026 sin cancelados es la cifra de control. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Une detalle_pedido con pedidos.\n2) Filtra pedidos de enero a junio de 2026 que no estén cancelados.\n3) Calcula en una sola fila la suma de `cantidad * precio_unitario`.\n\n**Resultado esperado:** 1 fila con 11842.37.",
+          "hint": "Es una consulta sin GROUP BY: solo un SUM con JOIN y WHERE.",
+          "solutionExplanation": "La unión es `ON p.id = d.pedido_id`. El rango: `p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'`.",
+          "solutionCode": "SELECT SUM(d.cantidad * d.precio_unitario) AS total_semestre\nFROM detalle_pedido AS d\nJOIN pedidos AS p ON p.id = d.pedido_id\nWHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n  AND p.estado <> 'cancelado';\n-- 11842.37",
           "codeLanguage": "sql"
         },
         {
           "id": "fn15-ej-2",
-          "title": "Práctica 2: Solo la categoría líder",
+          "title": "Práctica 2: La categoría líder de cada país",
           "difficulty": "Avanzado",
-          "prompt": "Modifica la consulta para que devuelva una sola fila por país: la categoría con mayor importe y su porcentaje. Pista de nivel Analista: puedes usar `ROW_NUMBER()`, o resolverlo con lo que sabes comparando contra el máximo por país.",
-          "hint": "Con lo de este curso: calcula `MAX(importe)` por país en una subconsulta y únela con `ventas` donde el importe sea igual al máximo.",
-          "solutionExplanation": "Esta versión usa solo JOIN y GROUP BY. Si dos categorías empatan en el máximo, aparecerán las dos; con `ROW_NUMBER()` (Cap. 01 de Analista) elegirías una.",
-          "solutionCode": "WITH ventas AS (\n    SELECT c.pais, pr.categoria, SUM(d.cantidad * d.precio_unitario) AS importe\n    FROM detalle_pedido AS d\n    JOIN pedidos   AS p  ON p.id  = d.pedido_id\n    JOIN clientes  AS c  ON c.id  = p.cliente_id\n    JOIN productos AS pr ON pr.id = d.producto_id\n    WHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n      AND p.estado <> 'cancelado'\n    GROUP BY c.pais, pr.categoria\n), totales AS (\n    SELECT pais, SUM(importe) AS total_pais, MAX(importe) AS maximo\n    FROM ventas GROUP BY pais\n)\nSELECT v.pais, v.categoria, v.importe,\n       ROUND(100.0 * v.importe / t.total_pais, 1) AS pct_pais\nFROM ventas AS v\nJOIN totales AS t ON t.pais = v.pais AND v.importe = t.maximo\nORDER BY v.importe DESC;",
+          "prompt": "**Contexto.** Tablas `detalle_pedido(pedido_id, producto_id, cantidad, precio_unitario)`, `pedidos(id, cliente_id, fecha, estado)`, `clientes(id, nombre, ciudad, pais, fecha_registro, segmento)` y `productos(id, nombre, categoria, precio, activo)`. La Lección de este capítulo tiene una consulta con `WITH ventas AS (…)` que calcula el importe por país y categoría. Puedes escribirla y ejecutarla en **Práctica → T-SQL**, con la base **tienda**.\n\n**Qué tienes que hacer:**\n\n1) Copia la parte `WITH ventas AS (…)` de la Lección.\n2) Agrega otro paso `maximos` con el importe más alto de cada país (`MAX(importe)` agrupado por país).\n3) Une ventas con maximos por país **y** por importe para quedarte solo con la categoría líder.\n\n**Resultado esperado:** 6 filas: Colombia, España y Perú → Electrónica; México → Hogar; Argentina → Papelería; Chile → Accesorios.",
+          "hint": "Un `WITH` puede tener varios pasos separados por comas: `WITH ventas AS (…), maximos AS (…)`.",
+          "solutionExplanation": "La unión final es `JOIN maximos AS m ON m.pais = v.pais AND m.maximo = v.importe`.",
+          "solutionCode": "WITH ventas AS (\n    SELECT c.pais, pr.categoria, SUM(d.cantidad * d.precio_unitario) AS importe\n    FROM detalle_pedido AS d\n    JOIN pedidos   AS p  ON p.id  = d.pedido_id\n    JOIN clientes  AS c  ON c.id  = p.cliente_id\n    JOIN productos AS pr ON pr.id = d.producto_id\n    WHERE p.fecha >= '2026-01-01' AND p.fecha < '2026-07-01'\n      AND p.estado <> 'cancelado'\n    GROUP BY c.pais, pr.categoria\n), maximos AS (\n    SELECT pais, MAX(importe) AS maximo\n    FROM ventas\n    GROUP BY pais\n)\nSELECT v.pais, v.categoria, v.importe\nFROM ventas AS v\nJOIN maximos AS m ON m.pais = v.pais AND m.maximo = v.importe\nORDER BY v.importe DESC;",
           "codeLanguage": "sql"
         },
         {
           "id": "fn15-ej-3",
-          "title": "Práctica 3: Tu mensaje y tu ruta",
+          "title": "Práctica 3: Escribir el mensaje del resultado",
           "difficulty": "Básico",
-          "prompt": "Con tus resultados, escribe el mensaje de cinco líneas (respuesta, dato, definición, advertencia, siguiente pregunta). Después repasa la lista de salida de la sección 3 y anota en tu cuaderno qué curso empiezas y qué capítulo de este curso repasarás antes.",
-          "hint": "Usa como molde el ejemplo de la Comparación. La lista de salida está al final de la sección 3.",
-          "solutionExplanation": "Un buen mensaje se entiende sin abrir ningún archivo. Y una buena ruta es concreta: «Empiezo Analista el lunes; antes repaso el Cap. 10 porque fallé la pregunta de LEFT JOIN»."
+          "prompt": "**Contexto.** Estos son los resultados del proyecto: Electrónica fue la categoría líder en Colombia, España y Perú; Hogar en México; Papelería en Argentina; Accesorios en Chile. El total del semestre fue 11.842,37. Argentina y Chile vendieron muy poco (menos de 300 entre los dos).\n\n**Qué tienes que hacer:**\n\n1) Escribe un mensaje de **5 líneas** para tu jefe, en este orden: 1) la respuesta, 2) el dato que la apoya, 3) qué pedidos contaste, 4) una advertencia, 5) una pregunta para el futuro.\n\n**Resultado esperado:** 5 líneas que se entienden sin abrir ningún archivo.",
+          "hint": "La primera línea responde directamente: ¿qué categoría lideró y dónde?",
+          "solutionExplanation": "La advertencia sale de los países con pocas ventas. La pregunta para el futuro puede ser sobre el segundo semestre.",
+          "solutionCode": "1) Electrónica fue la categoría líder en 3 de 6 países: Colombia, España y Perú.\n2) En México lideró Hogar, en Argentina Papelería y en Chile Accesorios.\n3) Conté los pedidos de enero a junio de 2026 no cancelados (total 11.842,37).\n4) Argentina y Chile vendieron muy poco: un solo pedido puede cambiar su líder.\n5) Propongo revisar si se repite en el segundo semestre.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [

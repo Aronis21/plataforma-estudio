@@ -73,7 +73,7 @@
     return html;
   }
 
-  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown", javascript: "JavaScript", html: "HTML", css: "CSS", json: "JSON", typescript: "TypeScript", plaintext: "Configuración", dax: "DAX", powerquery: "Power Query (M)" };
+  const NOMBRES_LENGUAJE = { sql: "SQL", python: "Python", yaml: "YAML", bash: "Bash", markdown: "Markdown", javascript: "JavaScript", html: "HTML", css: "CSS", json: "JSON", typescript: "TypeScript", plaintext: "Configuración", texto: "Respuesta", excel: "Excel", dax: "DAX", powerquery: "Power Query (M)" };
 
   // DAX y Power Query (M) no vienen en el build de highlight.js: se registran aquí de forma ligera.
   if (window.hljs && !window.hljs.getLanguage("dax")) {
@@ -118,7 +118,7 @@
       } catch (_) { /* se queda sin resaltar */ }
     }
     const etiqueta = NOMBRES_LENGUAJE[leng] || leng || "código";
-    return `<div class="code">
+    return `<div class="code${leng === "texto" || leng === "excel" ? " ajustar" : ""}">
       <div class="code-head"><span>${escapar(etiqueta)}</span><button class="copy-btn" type="button">Copiar</button></div>
       <pre><code class="hljs">${cuerpo}</code></pre>
     </div>`;

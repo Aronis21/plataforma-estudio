@@ -229,6 +229,7 @@ body[data-tema="hoy"] .hoja::before {
 .copy-btn { font: inherit; font-size: var(--t-xs); background: none; border: 1px solid var(--code-borde); border-radius: var(--r-sm); min-height: 32px; padding: 0 .6rem; color: var(--tinta-2); cursor: pointer; }
 .copy-btn:hover { color: var(--tinta); }
 .code pre { margin: 0; overflow-x: auto; }
+.code.ajustar pre code.hljs { white-space: pre-wrap; overflow-wrap: anywhere; } /* respuestas en texto y fórmulas: se ajustan al ancho */
 .code pre code.hljs { display: block; padding: .9rem 1rem; font-family: var(--f-mono); font-size: .86rem; line-height: 1.6; background: transparent; border-radius: 0; color: var(--sx-txt); }
 /* Colores de sintaxis (highlight.js) tomados del tema del curso */
 .hljs-keyword, .hljs-selector-tag, .hljs-built_in, .hljs-type { color: var(--sx-kw); }

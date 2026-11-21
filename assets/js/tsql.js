@@ -10,7 +10,7 @@
  *
  * Cubre: TOP (n), OFFSET … FETCH, ISNULL, IIF, LEN, CHARINDEX, LEFT/RIGHT, CONCAT, + para unir
  * textos, STRING_AGG … WITHIN GROUP, GETDATE, DATEDIFF, DATEADD, DATEPART, DATENAME, DATETRUNC,
- * YEAR/MONTH/DAY, EOMONTH, DATEFROMPARTS, FORMAT, CAST/CONVERT/TRY_CAST, N'texto', [corchetes], GO,
+ * IDENTITY(1,1) PRIMARY KEY, YEAR/MONTH/DAY, EOMONTH, DATEFROMPARTS, FORMAT, CAST/CONVERT/TRY_CAST, N'texto', [corchetes], GO,
  * JSON_VALUE, JSON_QUERY, ISJSON, CROSS/OUTER APPLY OPENJSON (columnas key, value, type) y GENERATE_SERIES.
  * No cubre: variables (@x), DECLARE, procedimientos, tablas temporales (#t), MERGE, PIVOT.
  */
@@ -346,6 +346,8 @@
     // Objetos y transacciones (curso SQL Server a fondo)
     // dbo.tabla → tabla; CREATE OR ALTER VIEW / ALTER VIEW → DROP VIEW IF EXISTS + CREATE VIEW
     t = t.replace(/\bdbo\s*\.\s*/gi, "");
+    // INT IDENTITY(1,1) PRIMARY KEY → INTEGER PRIMARY KEY (SQLite numera solo esa forma)
+    t = t.replace(/\b(?:BIG|SMALL)?INT\s+IDENTITY\s*\(\s*\d+\s*,\s*\d+\s*\)\s+PRIMARY\s+KEY\b/gi, "INTEGER PRIMARY KEY");
     t = t.replace(/\b(?:CREATE\s+OR\s+ALTER|ALTER)\s+VIEW\s+([^\s(]+)/gi, "DROP VIEW IF EXISTS $1; CREATE VIEW $1");
     // [NON]CLUSTERED se quita; INCLUDE (…) no existe en SQLite: se ignora con aviso
     t = t.replace(/\s+(?:NON)?CLUSTERED\b/gi, "");
