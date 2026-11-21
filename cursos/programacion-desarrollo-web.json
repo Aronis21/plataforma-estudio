@@ -75,17 +75,21 @@
           "id": "lec-00-ej-1",
           "title": "Práctica 1: Clasifica los cambios",
           "difficulty": "Básico",
-          "prompt": "Para cada cambio, di si se hace en HTML, CSS, JavaScript o `config/`:\n1. Agregar una columna \"Prioridad\" a la tabla de actividades.\n2. Hacer más grandes los números de las tarjetas del Inicio.\n3. Que el botón \"Finalizar\" pida confirmación antes de cerrar la actividad.\n4. Cambiar el monto de un cálculo que ya está como ajuste.",
-          "hint": "Pregúntate: ¿cambia la estructura, la apariencia, el comportamiento o un valor configurable?",
-          "solutionExplanation": "1. HTML (el encabezado de la tabla) **y** JavaScript (las filas se generan con código).\n2. CSS.\n3. JavaScript (un `confirm()` antes de cambiar el estado).\n4. `config/`: los valores que pueden cambiar están separados del código justamente para esto."
+          "prompt": "**Contexto.** Tu página tiene cuatro partes: **HTML** (estructura: qué hay en la pantalla), **CSS** (apariencia), **JavaScript** (comportamiento) y la carpeta **`config/`** (valores que se pueden cambiar sin tocar el código). Estos son cuatro cambios que te pidieron:\n\n- A) Agregar una columna «Prioridad» a la tabla de actividades.\n- B) Hacer más grandes los números de las tarjetas del Inicio.\n- C) Que el botón «Finalizar» pida confirmación antes de cerrar la actividad.\n- D) Cambiar el monto de un cálculo que ya está como ajuste.\n\n**Qué tienes que hacer:**\n\n1) Para cada cambio (A, B, C y D), escribe en qué parte se hace. Uno de ellos necesita dos partes.\n\n**Resultado esperado:** 4 respuestas; la A lleva dos partes.",
+          "hint": "Pregúntate si el cambio toca la estructura, la apariencia, el comportamiento o un valor configurable.",
+          "solutionExplanation": "En la tabla, el encabezado está en el HTML, pero las filas las genera el código.",
+          "solutionCode": "A) HTML (el encabezado <th> de la tabla) y JavaScript (las filas se generan con código).\nB) CSS (tamaño de letra).\nC) JavaScript (un confirm() antes de cambiar el estado).\nD) config/ (los valores que pueden cambiar están separados del código justamente para esto).",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-00-ej-2",
           "title": "Práctica 2: Recorre tu proyecto",
           "difficulty": "Básico",
-          "prompt": "*En tu página:* abre la carpeta del proyecto y anota, para tres pantallas del menú, el id de su `<section>` en `index.html` y el archivo de `js/modulos/` que la dibuja. Usa el documento `documentacion/02-mapa-del-proyecto.md` como guía.",
-          "hint": "Busca en `index.html` el texto `id=\"v-` para encontrar todas las secciones.",
-          "solutionExplanation": "El objetivo es que relaciones pantalla → sección → módulo. Por ejemplo: Actividades → `v-actividades` → `js/modulos/actividades.js`. Ese recorrido es el que harás cada vez que quieras modificar una pantalla."
+          "prompt": "**Contexto.** Cada pantalla del menú de tu página es una `<section>` en `index.html` cuyo id empieza con `v-` (por ejemplo `v-actividades`), y la dibuja un archivo de `js/modulos/`. El documento `documentacion/02-mapa-del-proyecto.md` lo resume.\n\n**Qué tienes que hacer:**\n\n1) Abre la carpeta del proyecto en VS Code.\n2) Elige tres pantallas del menú.\n3) Para cada una, anota: nombre en el menú → id de su `<section>` → archivo de `js/modulos/` que la dibuja.\n\n**Cómo sabes que lo lograste:** tienes tres líneas con la forma «Pantalla → v-… → js/modulos/….js» y cada archivo existe.",
+          "hint": "Busca en `index.html` el texto `id=\"v-` para ver todas las secciones.",
+          "solutionExplanation": "El nombre del módulo suele parecerse al id: `v-actividades` lo dibuja `actividades.js`. Confírmalo buscando el id dentro de `js/modulos/`.",
+          "solutionCode": "Ejemplo de una línea correcta:\nActividades → v-actividades → js/modulos/actividades.js\n\nEste recorrido (pantalla → sección → módulo) es el que harás cada vez que quieras modificar una pantalla.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -197,9 +201,11 @@
           "id": "lec-01-ej-1",
           "title": "Práctica 1: Encuentra una función",
           "difficulty": "Básico",
-          "prompt": "*En tu página:* con `Ctrl+Shift+F`, encuentra dónde se define la función que vuelve a dibujar todas las pantallas después de un cambio (pista: su nombre empieza por `redibujar`). Anota el archivo y cuántos lugares la llaman.",
-          "hint": "Busca `function redibujar` para la definición y luego solo `redibujar` para las llamadas.",
-          "solutionExplanation": "La definición está en el archivo de arranque de la aplicación (`js/nucleo/app.js`). Las llamadas aparecen en varios módulos: cada vez que un cambio debe verse en pantalla, se llama a esa función."
+          "prompt": "**Contexto.** En VS Code, `Ctrl+Shift+F` busca un texto en todos los archivos del proyecto. Tu página tiene una función que vuelve a dibujar todas las pantallas después de un cambio; su nombre empieza por `redibujar`.\n\n**Qué tienes que hacer:**\n\n1) Busca `function redibujar` para encontrar dónde se **define**. Anota el archivo.\n2) Busca solo `redibujar(` para ver dónde se **llama**. Anota cuántos resultados hay.\n\n**Cómo sabes que lo lograste:** tienes el nombre de un archivo y un número de llamadas mayor que 1.",
+          "hint": "La definición lleva la palabra `function` delante; las llamadas, no.",
+          "solutionExplanation": "El panel de búsqueda muestra arriba el total: «N resultados en M archivos».",
+          "solutionCode": "Definición: js/nucleo/app.js (el archivo de arranque).\nLlamadas: aparecen en varios módulos; cada vez que un cambio debe verse en pantalla, se llama a esa función.\n\nEl número exacto depende de tu versión de la página.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-01-ej-2",
@@ -334,9 +340,11 @@
           "id": "lec-02-ej-2",
           "title": "Práctica 2: Cambia un estilo en vivo",
           "difficulty": "Básico",
-          "prompt": "Inspecciona el título de cualquier pantalla de tu página. En el panel de estilos, cambia su tamaño de letra y su color. Luego identifica en qué archivo CSS y en qué línea está la regla original.",
-          "hint": "La referencia del archivo aparece a la derecha de cada regla, con el número de línea.",
-          "solutionExplanation": "Las DevTools muestran el origen de cada regla (por ejemplo `3-panel-y-pantallas.css:120`). Así sabes exactamente qué línea editar en VS Code para hacer el cambio permanente."
+          "prompt": "**Contexto.** Las DevTools (F12) permiten cambiar estilos en vivo para probar, y muestran en qué archivo y línea está cada regla de CSS.\n\n**Qué tienes que hacer:**\n\n1) Abre tu página, haz clic derecho sobre el título de cualquier pantalla y elige **Inspeccionar**.\n2) En el panel **Styles**, cambia su `font-size` y su `color` y mira el cambio.\n3) Anota el archivo CSS y la línea de la regla original (aparece a la derecha de la regla).\n\n**Cómo sabes que lo lograste:** anotaste algo como `nombre-del-archivo.css:120` y, al abrirlo en VS Code, esa línea tiene la regla.",
+          "hint": "Al recargar la página, los cambios hechos en DevTools desaparecen: son solo para probar.",
+          "solutionExplanation": "La referencia tiene la forma `archivo.css:número`. Haz clic en ella para saltar al archivo.",
+          "solutionCode": "Ejemplo: 3-panel-y-pantallas.css:120\n\nCon eso sabes exactamente qué línea editar en VS Code para que el cambio sea permanente.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -599,9 +607,11 @@
           "id": "lec-04-ej-2",
           "title": "Práctica 2: Elige el campo correcto",
           "difficulty": "Intermedio",
-          "prompt": "Para cada dato de una actividad, elige el tipo de campo y si sería `select`, `datalist` o `input` simple: cliente, estado, cantidad de equipos, kilometraje del odómetro, observación larga, localidad.",
-          "hint": "Piensa: ¿la lista es fija o crece? ¿es número, fecha o texto largo?",
-          "solutionExplanation": "- Cliente: `input` con `datalist` (la lista crece).\n- Estado: `select` (lista fija definida en la configuración).\n- Cantidad: `input type=\"number\" min=\"1\"`.\n- Kilometraje: `input type=\"number\" min=\"0\"`.\n- Observación: `textarea`.\n- Localidad: `input` con `datalist` (muchas opciones, se busca escribiendo)."
+          "prompt": "**Contexto.** En un formulario cada dato necesita el campo adecuado: `select` (lista fija), `input` con `datalist` (sugerencias, pero se puede escribir otra cosa), `input type=\"number\"`, o `textarea` (texto largo). Los datos de una actividad son: cliente, estado, cantidad de equipos, kilometraje del odómetro, observación larga y localidad.\n\n**Qué tienes que hacer:**\n\n1) Para cada uno de los 6 datos, elige el campo y, si es número, su mínimo.\n\n**Resultado esperado:** 6 respuestas; 2 son `datalist`, 1 es `select`, 2 son `number` y 1 es `textarea`.",
+          "hint": "Pregúntate: ¿la lista de opciones es fija o crece? ¿Es número o texto largo?",
+          "solutionExplanation": "Los clientes y las localidades crecen con el tiempo; los estados están definidos en la configuración.",
+          "solutionCode": "Cliente:      input con datalist (la lista crece)\nEstado:       select (lista fija definida en la configuración)\nCantidad:     input type=\"number\" min=\"1\"\nKilometraje:  input type=\"number\" min=\"0\"\nObservación:  textarea\nLocalidad:    input con datalist (muchas opciones, se busca escribiendo)",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -728,9 +738,11 @@
           "id": "lec-05-ej-2",
           "title": "Práctica 2: Prueba de teclado",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* recorre la pantalla de Actividades usando solo el teclado (Tab para avanzar, Shift+Tab para retroceder, Enter para activar). Anota cada elemento al que no llegas o donde no ves el foco.",
-          "hint": "Si un elemento clicable no recibe foco, probablemente no es un button ni un enlace.",
-          "solutionExplanation": "Cada problema que encuentres es una mejora concreta: convertir elementos en `<button>`, agregar `aria-label` o un estilo `:focus-visible`. Guarda la lista: la usarás cuando sepas CSS y JavaScript."
+          "prompt": "**Contexto.** Una página accesible se puede usar solo con el teclado: **Tab** avanza, **Shift+Tab** retrocede y **Enter** activa. El elemento activo debe verse marcado (eso es el «foco»).\n\n**Qué tienes que hacer:**\n\n1) Abre la pantalla Actividades de tu página y no toques el ratón.\n2) Recórrela con Tab hasta el final.\n3) Anota cada elemento al que no llegas o en el que no ves dónde está el foco.\n\n**Cómo sabes que lo lograste:** tienes una lista (puede estar vacía) con el nombre de cada elemento problemático y qué le pasa.",
+          "hint": "Si algo se puede pulsar con el ratón pero Tab no llega, probablemente no es un `<button>` ni un enlace.",
+          "solutionExplanation": "Si llegas pero no ves el foco, falta un estilo `:focus-visible` en el CSS.",
+          "solutionCode": "Ejemplo de lista:\n- Íconos de editar en la tabla: Tab no llega (son <span>, deberían ser <button>).\n- Botón «Filtrar»: llega, pero no se ve el foco (falta :focus-visible).\n\nGuarda la lista: la corregirás cuando sepas CSS y JavaScript.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -847,9 +859,11 @@
           "id": "lec-06-ej-1",
           "title": "Práctica 1: ¿Quién gana?",
           "difficulty": "Básico",
-          "prompt": "Para un `<button class=\"btn principal\">` dentro de `<section id=\"v-inicio\">`, ¿de qué color queda el texto?\n```\n.btn.principal { color: white; }\n#v-inicio button { color: yellow; }\n.principal { color: blue; }\n```",
-          "hint": "Cuenta ids, clases y etiquetas de cada selector.",
-          "solutionExplanation": "Amarillo. `#v-inicio button` tiene un id (1,0,1); `.btn.principal` tiene dos clases (0,2,0). Cualquier selector con id gana a uno sin id."
+          "prompt": "**Contexto.** Tienes un `<button class=\"btn principal\">` dentro de `<section id=\"v-inicio\">`. Tres reglas de CSS le dan color al texto:\n\n- `.btn.principal { color: white; }`\n- `#v-inicio button { color: yellow; }`\n- `.principal { color: blue; }`\n\nGana la regla más **específica**: se cuentan (ids, clases, etiquetas) y se compara de izquierda a derecha.\n\n**Qué tienes que hacer:**\n\n1) Calcula la especificidad de cada regla.\n2) Di de qué color queda el texto.\n\n**Resultado esperado:** un color.",
+          "hint": "Cuenta ids (#), clases (.) y etiquetas (como button) en cada selector.",
+          "solutionExplanation": "`#v-inicio button` tiene 1 id; ninguna de las otras tiene ids.",
+          "solutionCode": ".btn.principal → (0, 2, 0)\n#v-inicio button → (1, 0, 1)\n.principal → (0, 1, 0)\n\nQueda AMARILLO: cualquier selector con un id gana a uno sin ids.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-06-ej-2",
@@ -983,9 +997,11 @@
           "id": "lec-07-ej-2",
           "title": "Práctica 2: Encuentra la configuración de apariencia",
           "difficulty": "Básico",
-          "prompt": "*En tu página:* abre el archivo de apariencia de la carpeta `config/` y localiza la variable del color principal. Cámbiala en tu copia, recarga y anota qué partes de la página cambiaron.",
+          "prompt": "**Contexto.** Tu página guarda los colores en **variables CSS** (nombres que empiezan con `--`) dentro de un archivo de la carpeta `config/`. Si una parte de la página usa la variable, cambia sola; si tiene el color escrito a mano, no cambia.\n\n**Qué tienes que hacer:**\n\n1) Abre en tu copia el archivo de apariencia de `config/` y busca la variable del color principal.\n2) Cámbiala por un color muy distinto (por ejemplo `red`) y recarga la página.\n3) Anota qué partes cambiaron y cuáles se quedaron con el color viejo.\n\n**Cómo sabes que lo lograste:** tienes dos listas: «cambió» y «no cambió».",
           "hint": "Busca `:root` o `--` dentro de `config/`.",
-          "solutionExplanation": "Todo lo que cambió depende de esa variable. Lo que no cambió tiene un color escrito directamente: es candidato a pasarse a variable."
+          "solutionExplanation": "Lo que no cambió tiene el color escrito directamente en otro CSS: búscalo con Ctrl+Shift+F.",
+          "solutionCode": "Ejemplo:\nCambió: botones principales, encabezado, chips de estado.\nNo cambió: el borde de las tarjetas (tiene #1D64D8 escrito a mano).\n\nLo que no cambió es candidato a pasarse a variable. Al terminar, vuelve a poner el color original.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -1892,9 +1908,11 @@
           "id": "lec-14-ej-2",
           "title": "Práctica 2: Busca un punto inseguro",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* busca `innerHTML` en todo el proyecto (Ctrl+Shift+F). Revisa tres resultados y comprueba que todos los datos que vienen del usuario o de Excel pasan por la función de escape.",
-          "hint": "Busca los `${` dentro de cada plantilla y mira si llevan la función de escape alrededor.",
-          "solutionExplanation": "Los números calculados por la propia página son seguros; lo que escribe el usuario o llega de un archivo, no. Si encuentras uno sin escapar, es una corrección pequeña y valiosa."
+          "prompt": "**Contexto.** Asignar texto con `innerHTML` es peligroso si el texto viene del usuario o de un Excel: un dato como `<img src=x onerror=alert(1)>` ejecutaría código (XSS). Tu página tiene una función de escape (`esc`) que lo evita.\n\n**Qué tienes que hacer:**\n\n1) En VS Code, busca `innerHTML` en todo el proyecto (Ctrl+Shift+F).\n2) Elige tres resultados y, dentro de cada plantilla, revisa cada `${…}`.\n3) Para cada `${…}` anota si es seguro (número calculado por la página o pasa por `esc(…)`) o inseguro.\n\n**Cómo sabes que lo lograste:** tienes 3 plantillas revisadas y cada `${…}` marcado como seguro o inseguro.",
+          "hint": "Mira lo que hay dentro de cada `${…}`: ¿empieza con `esc(`?",
+          "solutionExplanation": "Los números calculados por la página son seguros; un texto escrito por una persona o leído de un archivo debe ir dentro de `esc(…)`.",
+          "solutionCode": "Ejemplo de revisión:\n${esc(a.cliente)}   → seguro (escapado)\n${a.horas * 2}      → seguro (número calculado)\n${a.observacion}    → INSEGURO: debe ser ${esc(a.observacion)}\n\nSi encuentras uno inseguro, la corrección es envolverlo en esc(…).",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -2412,9 +2430,11 @@
           "id": "lec-18-ej-2",
           "title": "Práctica 2: Editar en tu página",
           "difficulty": "Básico",
-          "prompt": "*En tu página:* localiza el formulario de actividades en `index.html` y el código que lo guarda (busca su id). Identifica: ¿cómo distingue crear de editar? ¿dónde valida? ¿qué función llama al final?",
-          "hint": "Busca el id del formulario o la palabra submit en js/modulos.",
-          "solutionExplanation": "Reconocer estas tres piezas (crear/editar, validar, guardar y redibujar) en tu código es lo que te permitirá agregar un campo en el Proyecto 1."
+          "prompt": "**Contexto.** El formulario de actividades sirve para **crear** y para **editar**. El código que lo guarda hace tres cosas: decide si crea o edita, valida los datos y guarda y redibuja.\n\n**Qué tienes que hacer:**\n\n1) Busca en `index.html` el formulario de actividades y anota su `id`.\n2) Busca ese id en `js/modulos/` para encontrar el código que lo guarda.\n3) Anota: cómo distingue crear de editar, dónde valida y qué función llama al final.\n\n**Cómo sabes que lo lograste:** tienes tres respuestas, cada una con el nombre de una variable o función que existe en el código.",
+          "hint": "Busca la palabra `submit` cerca de ese id.",
+          "solutionExplanation": "Para distinguir crear de editar se suele mirar si ya hay un id guardado (por ejemplo en un campo oculto o en una variable).",
+          "solutionCode": "Ejemplo de respuesta:\n1) Crear o editar: si el campo oculto del id está vacío, crea; si tiene valor, edita.\n2) Validación: una función que revisa campos obligatorios antes de guardar.\n3) Al final: guardar() y redibujar().\n\nReconocer estas tres piezas es lo que te permitirá agregar un campo en el Proyecto 1.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -2529,17 +2549,21 @@
           "id": "lec-19-ej-1",
           "title": "Práctica 1: Rastrea tres botones",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* elige tres botones distintos (por ejemplo uno de la tabla de actividades, uno de técnicos y uno de importar). Para cada uno anota: su `data-act`, el archivo donde se registra, qué datos de `S` modifica y si termina guardando y redibujando.",
-          "hint": "Inspecciona → copia data-act → Ctrl+Shift+F.",
-          "solutionExplanation": "Si los tres siguen el mismo ciclo, entendiste la arquitectura. Si alguno no guarda o no redibuja, encontraste algo para revisar con cuidado."
+          "prompt": "**Contexto.** En tu página, cada botón tiene un atributo `data-act` con el nombre de una acción. Esa acción se registra con `registrarAccion('nombre', …)`, cambia los datos del estado `S`, guarda y redibuja.\n\n**Qué tienes que hacer:**\n\n1) Elige tres botones distintos (por ejemplo: uno de la tabla de actividades, uno de técnicos y el de importar).\n2) Para cada uno: inspecciónalo y copia su `data-act`.\n3) Busca ese nombre con Ctrl+Shift+F y anota: archivo donde se registra, qué parte de `S` cambia y si termina guardando y redibujando.\n\n**Cómo sabes que lo lograste:** una tabla de 3 filas con: data-act, archivo, dato de S que cambia, ¿guarda y redibuja?",
+          "hint": "Inspeccionar → copiar el valor de data-act → Ctrl+Shift+F con ese texto.",
+          "solutionExplanation": "Dentro de la función de la acción, busca líneas como `S.acts…`, `guardar()` y `redibujar()`.",
+          "solutionCode": "Ejemplo de una fila:\ndata-act=\"finalizar\" | js/modulos/actividades.js | S.acts[i].estado | sí guarda y redibuja\n\nSi los tres siguen ese mismo ciclo, entendiste la arquitectura. Si alguno no guarda o no redibuja, encontraste algo para revisar.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-19-ej-2",
           "title": "Práctica 2: ¿Dónde va el script?",
           "difficulty": "Básico",
-          "prompt": "Vas a crear `js/modulos/repuestos.js`, que usa `registrarAccion`, `esc` y la lista `S.repuestos`. ¿Entre qué scripts lo colocas y por qué?",
-          "hint": "Necesita que existan las utilidades y las acciones, y debe registrarse antes del arranque.",
-          "solutionExplanation": "Después de los archivos del núcleo y de datos (porque usa `esc`, `registrarAccion` y el estado) y antes de `app.js` (que dibuja todo al iniciar y necesita que el módulo ya exista)."
+          "prompt": "**Contexto.** En `index.html` los scripts se cargan en este orden: 1) configuración (`config/…`), 2) núcleo (`js/nucleo/utilidades.js`, acciones), 3) datos (`js/datos/…`), 4) módulos de pantalla (`js/modulos/…`) y 5) `js/nucleo/app.js`, que arranca y dibuja todo. Vas a crear `js/modulos/repuestos.js`, que usa `registrarAccion`, `esc` y la lista `S.repuestos`.\n\n**Qué tienes que hacer:**\n\n1) Di entre qué scripts colocas el nuevo archivo.\n2) Explica en una frase por qué.\n\n**Resultado esperado:** una posición en la lista y una razón.",
+          "hint": "Un script solo puede usar lo que ya se cargó antes que él.",
+          "solutionExplanation": "Necesita las utilidades, las acciones y los datos, y debe existir antes de que `app.js` dibuje todo.",
+          "solutionCode": "Va con los demás módulos: después de núcleo y datos, y antes de js/nucleo/app.js.\n\nPor qué: usa esc, registrarAccion y S (que se definen antes), y app.js necesita que el módulo ya exista cuando arranca.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -2788,9 +2812,11 @@
           "id": "lec-21-ej-1",
           "title": "Práctica 1: Encabezados limpios",
           "difficulty": "Básico",
-          "prompt": "Usa la función `clave` para convertir estos encabezados: `' Fecha '`, `'CLIENTE'`, `'Técnico'`, `'Nº Orden'`. ¿Qué devuelve cada uno?",
-          "hint": "trim, minúsculas, y quitar acentos con normalize('NFD').",
-          "solutionExplanation": "`'fecha'`, `'cliente'`, `'tecnico'`, `'nº orden'`. El último conserva el símbolo º y el espacio: si lo necesitas como clave, decide un nombre (por ejemplo `orden`) y mapea los encabezados conocidos."
+          "prompt": "**Contexto.** Tu página tiene una función `clave(texto)` que limpia los encabezados de un Excel: quita espacios de los extremos (`trim`), pasa a minúsculas y quita los acentos (`normalize('NFD')` y luego borra las marcas). Los encabezados que llegaron son: `' Fecha '`, `'CLIENTE'`, `'Técnico'` y `'Nº Orden'`.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué devuelve `clave` para cada uno de los 4 encabezados.\n\n**Resultado esperado:** 4 textos en minúsculas y sin acentos.",
+          "hint": "Aplica los tres pasos en orden: trim, minúsculas y quitar acentos.",
+          "solutionExplanation": "Ojo con el último: el símbolo º no es un acento, y el espacio del medio no lo quita trim.",
+          "solutionCode": "' Fecha '   → 'fecha'\n'CLIENTE'   → 'cliente'\n'Técnico'   → 'tecnico'\n'Nº Orden'  → 'nº orden'\n\nEl último conserva º y el espacio. Si lo necesitas como clave, mapea ese encabezado a un nombre fijo, por ejemplo 'orden'.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-21-ej-2",
@@ -2929,9 +2955,11 @@
           "id": "lec-22-ej-2",
           "title": "Práctica 2: Encuentra los gráficos de tu página",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* busca las funciones que dibujan gráficos (busca `<svg` o `viewBox` en `js/`). Para una de ellas, identifica: qué datos recibe, cómo calcula el máximo y dónde está el color. Luego, en tu copia, cambia el color por una variable del tema.",
-          "hint": "Ctrl+Shift+F con viewBox.",
-          "solutionExplanation": "Reconocer el patrón datos → escala → plantilla en el código real te permitirá crear tu propio indicador gráfico en el Proyecto 2."
+          "prompt": "**Contexto.** Tu página dibuja gráficos con SVG. Todas siguen el mismo patrón: reciben datos, calculan una escala (el máximo) y arman una plantilla `<svg>` con colores.\n\n**Qué tienes que hacer:**\n\n1) Busca `viewBox` en la carpeta `js/` con Ctrl+Shift+F.\n2) Elige una de las funciones que aparecen y anota: qué datos recibe, cómo calcula el máximo y en qué línea está el color.\n3) En tu copia, cambia ese color por una variable del tema, por ejemplo `var(--color-principal)`, y recarga.\n\n**Cómo sabes que lo lograste:** el gráfico se ve igual que antes y, si cambias la variable del tema, el gráfico cambia de color.",
+          "hint": "El máximo suele calcularse con `Math.max(...valores)`.",
+          "solutionExplanation": "El color puede estar en un atributo `fill=\"…\"` o `stroke=\"…\"` dentro de la plantilla.",
+          "solutionCode": "Ejemplo de respuesta:\nFunción: dibujarBarras(datos) en js/modulos/inicio.js\nDatos: lista de { etiqueta, valor }\nMáximo: Math.max(...datos.map(d => d.valor))\nColor: fill=\"#1D64D8\" → cámbialo por fill=\"var(--color-principal)\"",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -3046,9 +3074,11 @@
           "id": "lec-23-ej-1",
           "title": "Práctica 1: Diagnostica el mensaje",
           "difficulty": "Básico",
-          "prompt": "Para cada error, di la causa más probable:\n1. `Uncaught ReferenceError: dibujarRepuestos is not defined at app.js:41`\n2. `Uncaught TypeError: Cannot read properties of null (reading 'addEventListener') at repuestos.js:5`\n3. `Uncaught SyntaxError: Unexpected token '}' (at repuestos.js:88)`",
-          "hint": "Piensa en el orden de scripts, los ids del HTML y los signos de puntuación.",
-          "solutionExplanation": "1. `repuestos.js` no está incluido o se carga **después** de `app.js`, o el nombre de la función está mal escrito.\n2. En la línea 5 se busca un elemento por id que no existe en `index.html` (id mal escrito o falta la sección).\n3. Falta o sobra una llave, paréntesis o coma cerca de la línea 88; todo el archivo deja de ejecutarse."
+          "prompt": "**Contexto.** La consola del navegador mostró estos tres errores:\n\n- A) `Uncaught ReferenceError: dibujarRepuestos is not defined at app.js:41`\n- B) `Uncaught TypeError: Cannot read properties of null (reading 'addEventListener') at repuestos.js:5`\n- C) `Uncaught SyntaxError: Unexpected token '}' (at repuestos.js:88)`\n\n**Qué tienes que hacer:**\n\n1) Para cada error, escribe la causa más probable y qué revisarías.\n\n**Resultado esperado:** 3 causas, una por error.",
+          "hint": "ReferenceError = algo no existe; TypeError con null = no se encontró un elemento; SyntaxError = un signo mal puesto.",
+          "solutionExplanation": "Para A piensa en el orden de los scripts; para B, en los id del HTML; para C, en llaves y paréntesis.",
+          "solutionCode": "A) repuestos.js no está incluido en index.html, se carga DESPUÉS de app.js, o el nombre de la función está mal escrito.\nB) En la línea 5 se busca un elemento por id que no existe en index.html (id mal escrito o falta la sección).\nC) Falta o sobra una llave, un paréntesis o una coma cerca de la línea 88; todo el archivo deja de ejecutarse.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-23-ej-2",
@@ -3311,9 +3341,11 @@
           "id": "lec-25-ej-2",
           "title": "Práctica 2: Explora las pruebas de tu proyecto",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* abre `pruebas/pruebas.html` en el navegador. Anota cuántas pruebas hay y qué archivos cubren. Luego agrega en tu copia una prueba nueva para un cálculo que aún no tenga ninguna, y comprueba que pasa.",
-          "hint": "Mira cómo están escritas las pruebas existentes y copia su forma.",
-          "solutionExplanation": "Seguir el estilo del proyecto es tan importante como la prueba en sí: así cualquiera la entiende."
+          "prompt": "**Contexto.** Tu proyecto tiene pruebas automáticas en `pruebas/pruebas.html`: al abrir ese archivo en el navegador, se ejecutan y muestran cuáles pasan.\n\n**Qué tienes que hacer:**\n\n1) Abre `pruebas/pruebas.html` y anota cuántas pruebas hay y de qué archivos.\n2) Elige un cálculo de tu página que aún no tenga prueba.\n3) Copia la forma de una prueba existente, escribe una nueva para ese cálculo y recarga.\n\n**Cómo sabes que lo lograste:** tu prueba nueva aparece en la lista y pasa (en verde).",
+          "hint": "Abre el archivo de pruebas en VS Code y copia una prueba entera como punto de partida.",
+          "solutionExplanation": "Una buena prueba usa un caso que puedes calcular a mano: «con estas 3 actividades, el total debe ser 5».",
+          "solutionCode": "Ejemplo (la forma exacta depende de tu proyecto):\nprueba('contarAtrasadas cuenta solo las no finalizadas', () => {\n  const acts = [{ fecha: '2026-01-01', estado: 'Pendiente' }, { fecha: '2026-01-01', estado: 'Finalizado' }];\n  igual(contarAtrasadas(acts, '2026-02-01'), 1);\n});",
+          "codeLanguage": "javascript"
         }
       ],
       "exam": [
@@ -3442,9 +3474,11 @@
           "id": "lec-26-ej-2",
           "title": "Práctica 2: ¿restore o revert?",
           "difficulty": "Intermedio",
-          "prompt": "Elige el comando para cada caso:\n1. Rompiste el CSS editando y aún no hiciste commit.\n2. Subiste ayer un commit que dañó el cálculo de dietas y el equipo ya está usando esa versión.\n3. Agregaste por error un archivo de datos con `git add` pero aún no hiciste commit.",
-          "hint": "¿El cambio ya está confirmado? ¿Ya se subió?",
-          "solutionExplanation": "1. `git restore css/archivo.css`.\n2. `git revert <id-del-commit>` y luego `git push`.\n3. `git restore --staged archivo` (y agrégalo al `.gitignore` si no debe subirse nunca)."
+          "prompt": "**Contexto.** Tres comandos de Git para deshacer: `git restore archivo` (descarta cambios sin commit), `git restore --staged archivo` (saca un archivo del `git add`) y `git revert <id>` (crea un commit que deshace otro ya subido). Casos:\n\n- A) Rompiste el CSS editando y aún no hiciste commit.\n- B) Ayer subiste un commit que dañó el cálculo de dietas y el equipo ya usa esa versión.\n- C) Agregaste por error un archivo de datos con `git add`, pero aún no hiciste commit.\n\n**Qué tienes que hacer:**\n\n1) Escribe el comando para cada caso.\n\n**Resultado esperado:** 3 comandos distintos.",
+          "hint": "Pregúntate: ¿el cambio ya está en un commit? ¿Ya se subió?",
+          "solutionExplanation": "Si ya se subió y otros lo usan, no se borra la historia: se crea un commit que lo deshace.",
+          "solutionCode": "A) git restore css/archivo.css\nB) git revert <id-del-commit>   y luego   git push\nC) git restore --staged archivo   (y agrégalo a .gitignore si nunca debe subirse)",
+          "codeLanguage": "bash"
         }
       ],
       "exam": [
@@ -3558,17 +3592,21 @@
           "id": "lec-27-ej-1",
           "title": "Práctica 1: Un PR completo",
           "difficulty": "Intermedio",
-          "prompt": "*En tu proyecto:* crea una rama, haz un cambio pequeño (por ejemplo un texto de ayuda), súbela, abre un pull request en GitHub, revisa el diff, espera la Action y únelo. Luego comprueba la página publicada.",
-          "hint": "Después del push, GitHub muestra un botón 'Compare & pull request'.",
-          "solutionExplanation": "Este es el flujo que usarás para cada cambio a partir de ahora, también para los proyectos del módulo 09."
+          "prompt": "**Contexto.** El flujo de trabajo con GitHub es: rama nueva → cambio → push → pull request (PR) → revisar → esperar la Action → unir → comprobar lo publicado.\n\n**Qué tienes que hacer:**\n\n1) Crea una rama: `git switch -c texto-ayuda`.\n2) Haz un cambio pequeño (por ejemplo un texto de ayuda), haz commit y `git push -u origin texto-ayuda`.\n3) En GitHub, abre el pull request, revisa el diff y espera a que la Action termine en verde.\n4) Une el PR y abre la página publicada.\n\n**Cómo sabes que lo lograste:** la página publicada muestra tu cambio y el PR aparece como «Merged».",
+          "hint": "Después del push, GitHub muestra un botón «Compare & pull request».",
+          "solutionExplanation": "Si la Action falla, abre su detalle: dice el archivo y la línea del problema (lo practicas en el ejercicio siguiente).",
+          "solutionCode": "git switch -c texto-ayuda\n# …editas el texto…\ngit add .\ngit commit -m \"Texto de ayuda en el formulario\"\ngit push -u origin texto-ayuda\n# GitHub → Compare & pull request → revisar → Action en verde → Merge\n\nEste es el flujo que usarás para cada cambio a partir de ahora.",
+          "codeLanguage": "bash"
         },
         {
           "id": "lec-27-ej-2",
           "title": "Práctica 2: Lee una Action fallida",
           "difficulty": "Básico",
-          "prompt": "Una Action falló con este mensaje: `css/3-panel-y-pantallas.css  140:3  ✖  Unexpected unknown property \"colr\"  property-no-unknown`. ¿Qué archivo, línea y corrección corresponden?",
-          "hint": "Lee archivo, línea:columna, mensaje y regla.",
-          "solutionExplanation": "Archivo `css/3-panel-y-pantallas.css`, línea 140: la propiedad está mal escrita (`colr` → `color`). Corregir, commit, push."
+          "prompt": "**Contexto.** Una Action de GitHub falló con este mensaje:\n\n`css/3-panel-y-pantallas.css  140:3  ✖  Unexpected unknown property \"colr\"  property-no-unknown`\n\nEl formato es: archivo, línea:columna, mensaje y nombre de la regla.\n\n**Qué tienes que hacer:**\n\n1) Escribe el archivo y la línea.\n2) Escribe qué está mal y cómo lo corriges.\n3) Escribe los pasos para que la Action vuelva a pasar.\n\n**Resultado esperado:** un archivo, una línea, una corrección y tres pasos.",
+          "hint": "Lee el mensaje de izquierda a derecha: primero dónde, luego qué.",
+          "solutionExplanation": "«unknown property» significa que esa propiedad de CSS no existe: probablemente está mal escrita.",
+          "solutionCode": "Archivo: css/3-panel-y-pantallas.css, línea 140.\nProblema: la propiedad está mal escrita: colr → color.\nPasos: corregir, commit y push. La Action vuelve a correr sola.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -3681,9 +3719,11 @@
           "id": "lec-28-ej-1",
           "title": "Práctica 1: Reescribe el pedido",
           "difficulty": "Básico",
-          "prompt": "Convierte este pedido vago en uno claro: \"Haz que los técnicos se vean mejor en el calendario\".",
-          "hint": "Decide qué significa 'mejor': ¿colores por técnico?, ¿iniciales?, ¿filtro?",
-          "solutionExplanation": "Un ejemplo: 'En el Calendario, muestra cada actividad con un color por técnico (usa una paleta de 8 colores en variables CSS; si hay más técnicos, repite). Agrega una leyenda con nombre y color. No cambies los datos guardados. Rama nueva, revisión y pasos de prueba.'"
+          "prompt": "**Contexto.** Un pedido vago a Claude (o a cualquier persona) produce un resultado que no es el que querías. Un buen pedido dice **qué**, **dónde**, **cómo se ve el resultado**, **qué no tocar** y **cómo probarlo**. El pedido vago es: «Haz que los técnicos se vean mejor en el calendario».\n\n**Qué tienes que hacer:**\n\n1) Decide qué significa «mejor» (por ejemplo: un color por técnico).\n2) Reescribe el pedido incluyendo las cinco partes: qué, dónde, cómo se ve, qué no tocar y cómo probar.\n\n**Resultado esperado:** un pedido de 3 a 5 líneas que otra persona podría hacer sin preguntarte nada.",
+          "hint": "Elige una sola mejora concreta: colores, iniciales o un filtro.",
+          "solutionExplanation": "Agrega siempre «no cambies los datos guardados» y «trabaja en una rama nueva».",
+          "solutionCode": "Ejemplo:\n«En el Calendario, muestra cada actividad con un color por técnico (paleta de 8 colores en variables CSS; si hay más técnicos, se repite). Agrega una leyenda con nombre y color. No cambies los datos guardados. Hazlo en una rama nueva y explica cómo probarlo.»",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-28-ej-2",
@@ -3809,9 +3849,11 @@
           "id": "proy-1-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
-          "prompt": "*En tu página:* implementa el campo **prioridad** siguiendo los seis pasos. Entrégalo como pull request. En la descripción del PR, lista los archivos cambiados y cómo probarlo.",
+          "prompt": "**Contexto.** Vas a agregar el campo **prioridad** (baja, media, alta) a las actividades. Un campo nuevo toca seis lugares: 1) datos y migración (`js/datos/`), 2) formulario, 3) validación, 4) tabla, 5) exportación a Excel y 6) estilos. Si falta uno, aparece un error tarde o temprano.\n\n**Qué tienes que hacer:**\n\n1) Datos: sube la versión de los datos y escribe la migración que pone `prioridad: 'media'` a las actividades viejas.\n2) Formulario: agrega el campo en `index.html` y su lectura y llenado al crear y editar.\n3) Validación: acepta solo baja, media o alta (definidas en `config/`).\n4) Tabla y Excel: agrega la columna en la tabla y en la exportación.\n5) Estilos: un chip de color por prioridad.\n6) Entrégalo como pull request, listando los archivos cambiados y cómo probarlo.\n\n**Cómo sabes que lo lograste:** una actividad vieja muestra «media»; puedes crear y editar con prioridad; aparece en la tabla y en el Excel exportado; y el PR tiene la lista de archivos.",
           "hint": "Empieza por la migración y comprueba en la consola que todas las actividades tienen prioridad antes de tocar el formulario.",
-          "solutionExplanation": "Si algo se rompe, usa la lección 23: lee el error, ve a la línea y corrige la causa. Si te bloqueas, pide ayuda describiendo el paso exacto en que estás (lección 28)."
+          "solutionExplanation": "Haz un commit por cada uno de los seis lugares. Si algo se rompe, la consola te dice archivo y línea (Lec. 23).",
+          "solutionCode": "Comprobación en la consola tras la migración:\nS.acts.every(a => ['baja', 'media', 'alta'].includes(a.prioridad))   // true\n\nLista para la descripción del PR:\n- js/datos/…: versión y migración\n- index.html: campo en el formulario y <th> en la tabla\n- js/modulos/actividades.js: leer, llenar, validar y mostrar\n- exportación a Excel: columna Prioridad\n- CSS: chips de prioridad\nCómo probar: crear, editar, exportar y abrir una actividad antigua.",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-1-ej-2",
@@ -3938,17 +3980,21 @@
           "id": "proy-2-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
-          "prompt": "*En tu página:* implementa el indicador de atrasos con su prueba, su tarjeta y la mini tendencia. Entrégalo por PR.",
+          "prompt": "**Contexto.** Vas a crear en el Inicio un indicador: **«¿Cuántas actividades atrasadas hay y cuál es la más antigua?»**. Atrasada = fecha anterior a hoy y estado distinto de Finalizado.\n\n**Qué tienes que hacer:**\n\n1) Escribe una función pura `atrasadas(acts, hoy)` que devuelva la lista de atrasadas, y una prueba con 3 actividades.\n2) Copia una tarjeta existente del Inicio y muéstrala con el número y la fecha de la más antigua.\n3) Agrega una mini tendencia con los atrasos de los últimos 14 días usando `puntosLinea` (Lec. 22).\n4) Entrégalo por pull request.\n\n**Cómo sabes que lo lograste:** la prueba pasa, la tarjeta muestra el mismo número que cuentas a mano en la tabla, y la línea tiene 14 puntos.",
           "hint": "Haz primero la función y su prueba; luego la tarjeta; al final el gráfico.",
-          "solutionExplanation": "El orden importa: si la prueba pasa, cualquier problema posterior es de la pantalla, no del cálculo."
+          "solutionExplanation": "Pasa `hoy` como parámetro en lugar de usar `new Date()` dentro: así la prueba siempre da lo mismo.",
+          "solutionCode": "function atrasadas(acts, hoy) {\n  return acts.filter((a) => a.fecha < hoy && a.estado !== 'Finalizado');\n}\n\n// Prueba: 1 atrasada de 3\nconst acts = [\n  { fecha: '2026-01-10', estado: 'Pendiente' },\n  { fecha: '2026-01-10', estado: 'Finalizado' },\n  { fecha: '2026-03-01', estado: 'Pendiente' },\n];\nconsole.assert(atrasadas(acts, '2026-02-01').length === 1);",
+          "codeLanguage": "javascript"
         },
         {
           "id": "proy-2-ej-2",
           "title": "Reto 2: Tu propio indicador",
           "difficulty": "Avanzado",
-          "prompt": "Diseña un indicador que te sería útil en tu trabajo diario (por ejemplo, servicios finalizados esta semana por técnico, o unidades con más de N km desde su último servicio). Escribe la definición en palabras, la función pura y dos pruebas.",
-          "hint": "Empieza por la pregunta que te haces cada mañana al abrir la página.",
-          "solutionExplanation": "Si puedes escribir la definición en una frase sin ambigüedades, puedes programarla. Si no, primero aclara la regla con tu equipo."
+          "prompt": "**Contexto.** Un buen indicador responde una pregunta concreta y tiene una definición sin ambigüedades. Ejemplos: «servicios finalizados esta semana por técnico» o «unidades con más de N km desde su último servicio».\n\n**Qué tienes que hacer:**\n\n1) Escribe la pregunta que te haces cada mañana al abrir la página.\n2) Escribe la definición exacta en una o dos frases (qué cuenta, qué no, desde qué fecha).\n3) Escribe la función pura que lo calcula y dos pruebas: un caso normal y un caso límite (lista vacía, por ejemplo).\n\n**Resultado esperado:** otra persona puede leer tu definición y calcular el número a mano sin preguntarte nada.",
+          "hint": "Si al escribir la definición dudas («¿cuenta el domingo?»), esa duda es lo primero que debes aclarar.",
+          "solutionExplanation": "El caso límite más útil suele ser la lista vacía: la función debe devolver 0 o una lista vacía, no un error.",
+          "solutionCode": "Ejemplo:\nPregunta: ¿cuántos servicios finalizó cada técnico esta semana?\nDefinición: actividades con estado Finalizado y fecha de cierre entre el lunes y hoy, agrupadas por técnico.\n\nfunction finalizadosPorTecnico(acts, lunes, hoy) {\n  const res = {};\n  for (const a of acts) {\n    if (a.estado === 'Finalizado' && a.cierre >= lunes && a.cierre <= hoy) {\n      res[a.tecnico] = (res[a.tecnico] || 0) + 1;\n    }\n  }\n  return res;\n}\n// Prueba límite: finalizadosPorTecnico([], '2026-03-02', '2026-03-06') → {}",
+          "codeLanguage": "javascript"
         }
       ],
       "exam": [
@@ -4063,9 +4109,11 @@
           "id": "proy-3-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
-          "prompt": "*En tu página:* agrega el estado \"En espera de repuesto\" con su color, revisa todos los usos de estados y entrega el cambio por PR. En la descripción, lista cada lugar que revisaste.",
-          "hint": "Ctrl+Shift+F con 'Pendiente' y 'Finalizado' es el mejor punto de partida.",
-          "solutionExplanation": "La lista de lugares revisados es tan valiosa como el código: demuestra que el cambio no dejó rincones sin cubrir."
+          "prompt": "**Contexto.** Vas a agregar el estado **«En espera de repuesto»**. Los estados se definen en un archivo de `config/`, pero puede haber código que compara con el texto de un estado (`=== 'Pendiente'`), y ese código no se entera del estado nuevo.\n\n**Qué tienes que hacer:**\n\n1) Agrega el estado en el archivo de estados de `config/`, en su lugar del orden, y márcalo como abierto.\n2) Busca con Ctrl+Shift+F «Pendiente» y «Finalizado» y revisa cada resultado.\n3) Agrega su variable de color y la clase del chip, en modo claro y oscuro.\n4) Comprueba: formulario, tabla, filtros, indicadores, calendario y Excel.\n5) Entrégalo por PR con la lista de cada lugar que revisaste.\n\n**Cómo sabes que lo lograste:** el estado aparece en el formulario y en los filtros, se ve con su color, cuenta como abierta en los indicadores y sale en el Excel.",
+          "hint": "Ctrl+Shift+F con 'Pendiente' es el mejor punto de partida.",
+          "solutionExplanation": "En cada resultado pregúntate: ¿este código debería tratar el estado nuevo igual que Pendiente? Si compara con texto, cámbialo para que use la configuración (por ejemplo una propiedad `abierto`).",
+          "solutionCode": "Ejemplo de lista para el PR:\n- config/estados.js: nuevo estado, abierto: true\n- css: --estado-repuesto (claro y oscuro) y .chip-repuesto\n- js/modulos/inicio.js: contaba \"!== 'Finalizado'\" → ahora usa abierto\n- filtros y calendario: sin cambios (ya leen la configuración)\n- exportación a Excel: comprobada\n\nLa lista de lugares revisados demuestra que el cambio no dejó rincones sin cubrir.",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-3-ej-2",
@@ -4190,9 +4238,11 @@
           "id": "proy-4-ej-1",
           "title": "Reto final: Pantalla de repuestos",
           "difficulty": "Avanzado",
-          "prompt": "*En tu página:* crea la pantalla **Repuestos** con: tabla (fecha, pieza, actividad relacionada, estado), formulario en `<dialog>` para agregar y editar, acción para marcar como recibido, indicador de pendientes y exportación a Excel. Entrégala por PR cumpliendo la definición de terminado.",
-          "hint": "Sigue el orden: datos y migración → HTML → módulo con dibujar → acciones → formulario → estilos → Excel → pruebas → documentación. Un commit por paso.",
-          "solutionExplanation": "Si completas este reto, has demostrado todas las habilidades del curso sobre tu propia página: estructura, estilos, lógica, datos, calidad y publicación. A partir de aquí, cualquier mejora sigue el mismo camino."
+          "prompt": "**Contexto.** Vas a crear la pantalla **Repuestos**. Una pantalla nueva reúne todo el curso: datos (`S.repuestos` con migración), HTML (una `<section id=\"v-repuestos\" hidden>` y su botón de menú con `data-view`), un módulo `js/modulos/repuestos.js` con su función de dibujo y sus acciones, y el script incluido antes del arranque.\n\n**Qué tienes que hacer:**\n\n1) Datos y migración: `S.repuestos = []` en las versiones viejas.\n2) HTML: sección con tabla (fecha, pieza, actividad relacionada, estado) y formulario en `<dialog>`; botón en el menú.\n3) Módulo: `dibujarRepuestos()` a partir de `S.repuestos` y las acciones agregar, editar y marcar como recibido.\n4) Indicador de pendientes y exportación a Excel.\n5) Pruebas y documentación. Un commit por paso y entrega por PR.\n\n**Cómo sabes que lo lograste:** puedes agregar, editar y marcar como recibido un repuesto; al recargar sigue ahí; el indicador cuenta los pendientes; y el Excel incluye la hoja de repuestos.",
+          "hint": "Copia la estructura de un módulo existente pequeño y adáptala; no empieces desde cero.",
+          "solutionExplanation": "Si el menú no muestra la pantalla, revisa que el `data-view` del botón coincida con el id de la sección sin `v-`.",
+          "solutionCode": "Orden recomendado (un commit por línea):\n1. js/datos: S.repuestos + migración\n2. index.html: <section id=\"v-repuestos\" hidden> + botón data-view=\"repuestos\"\n3. js/modulos/repuestos.js: dibujarRepuestos()\n4. acciones: agregar, editar, recibido\n5. formulario en <dialog>\n6. estilos\n7. exportación a Excel\n8. pruebas\n9. documentación",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-4-ej-2",
@@ -4316,17 +4366,21 @@
           "id": "lec-29-ej-1",
           "title": "Práctica 1: Tu proyecto de prueba",
           "difficulty": "Básico",
-          "prompt": "Crea un proyecto de Firebase de prueba, registra una app web, activa Authentication (correo y contraseña) y crea Firestore en modo producción. Guarda el bloque de configuración en un archivo de notas.",
-          "hint": "Todo se hace desde la consola de Firebase; no necesitas instalar nada.",
-          "solutionExplanation": "Con esto tienes el 'servidor' listo. En las próximas lecciones lo conectarás a una copia de tu página."
+          "prompt": "**Contexto.** Firebase es el «servidor» de tu página en la nube. Todo se configura desde la consola web (console.firebase.google.com); no hay que instalar nada.\n\n**Qué tienes que hacer:**\n\n1) Crea un proyecto de Firebase **de prueba**.\n2) Registra una app web (ícono `</>`) y copia el bloque de configuración que te muestra.\n3) Activa **Authentication** con el proveedor correo y contraseña.\n4) Crea **Firestore** en modo producción.\n5) Guarda el bloque de configuración en un archivo de notas.\n\n**Cómo sabes que lo lograste:** en la consola ves Authentication y Firestore activos, y tienes guardado un bloque con `apiKey`, `authDomain` y `projectId`.",
+          "hint": "Usa un proyecto de prueba, no el real: aquí vas a experimentar.",
+          "solutionExplanation": "La configuración está en Configuración del proyecto → Tus apps.",
+          "solutionCode": "El bloque guardado se parece a esto:\nconst firebaseConfig = {\n  apiKey: \"AIza…\",\n  authDomain: \"tu-proyecto.firebaseapp.com\",\n  projectId: \"tu-proyecto\",\n  appId: \"1:…:web:…\"\n};\n\nCon esto el servidor está listo; en las próximas lecciones lo conectas a una copia de tu página.",
+          "codeLanguage": "javascript"
         },
         {
           "id": "lec-29-ej-2",
           "title": "Práctica 2: ¿Qué es secreto?",
           "difficulty": "Intermedio",
-          "prompt": "Clasifica como *público* o *secreto*: (a) la `apiKey` de la configuración web de Firebase, (b) la contraseña de tu usuario administrador, (c) el archivo JSON de una cuenta de servicio de Google, (d) el `projectId`, (e) una clave de la API de un servicio de mapas de pago.",
-          "hint": "Piensa: ¿esto ya viaja a cualquier navegador que abre la página?",
-          "solutionExplanation": "Públicos: (a) y (d), porque Firebase los envía a todo navegador y la protección la dan las reglas. Secretos: (b), (c) y (e). Ninguno de esos tres debe subirse a GitHub ni ponerse en el código de la página."
+          "prompt": "**Contexto.** Algunos datos viajan a cualquier navegador que abre tu página (son públicos); otros nunca deben salir de tu computadora ni subirse a GitHub (son secretos). Datos:\n\n- A) la `apiKey` de la configuración web de Firebase\n- B) la contraseña de tu usuario administrador\n- C) el archivo JSON de una cuenta de servicio de Google\n- D) el `projectId`\n- E) una clave de la API de un servicio de mapas de pago\n\n**Qué tienes que hacer:**\n\n1) Clasifica cada uno como público o secreto.\n\n**Resultado esperado:** 2 públicos y 3 secretos.",
+          "hint": "Pregúntate: ¿esto ya está dentro del código que descarga cualquier navegador?",
+          "solutionExplanation": "La configuración web de Firebase va en el código de la página; lo que la protege son las reglas, no esconderla.",
+          "solutionCode": "Públicos: A y D (Firebase los envía a todo navegador; la protección la dan las reglas).\nSecretos: B, C y E. Ninguno debe subirse a GitHub ni ponerse en el código de la página.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -4586,9 +4640,11 @@
           "id": "lec-31-ej-2",
           "title": "Práctica 2: Prueba sin conexión",
           "difficulty": "Básico",
-          "prompt": "Con la caché persistente activa, abre las DevTools → Network → marca **Offline**. Cambia el estado de una actividad, recarga la página y comprueba que el cambio sigue ahí. Luego vuelve a **Online** y verifica en la consola de Firebase que el cambio llegó.",
-          "hint": "El indicador de sincronización debe pasar de 'Guardando…' a 'Al día' al volver la conexión.",
-          "solutionExplanation": "Así compruebas el comportamiento que tendrá el técnico en una zona sin señal."
+          "prompt": "**Contexto.** Con la caché persistente de Firestore activa, tu página sigue funcionando sin conexión y sincroniza al volver la señal.\n\n**Qué tienes que hacer:**\n\n1) Abre DevTools → Network y marca **Offline**.\n2) Cambia el estado de una actividad y recarga la página.\n3) Comprueba que el cambio sigue ahí.\n4) Vuelve a **Online** y comprueba en la consola de Firebase que el cambio llegó.\n\n**Cómo sabes que lo lograste:** el cambio sobrevive a la recarga sin conexión, el indicador pasa de «Guardando…» a «Al día» y el documento en Firebase tiene el estado nuevo.",
+          "hint": "La opción Offline está en el desplegable de velocidad de la pestaña Network.",
+          "solutionExplanation": "Si al recargar sin conexión la página no abre, la caché persistente no está activa (revisa la configuración de Firestore de la lección).",
+          "solutionCode": "Resultado correcto:\n1. Offline → cambio → recarga: el cambio sigue.\n2. Online: «Guardando…» → «Al día».\n3. Consola de Firebase → actividades → el documento muestra el estado nuevo.\n\nAsí compruebas lo que vivirá un técnico en una zona sin señal.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -4715,9 +4771,11 @@
           "id": "lec-32-ej-2",
           "title": "Práctica 2: Simulador",
           "difficulty": "Básico",
-          "prompt": "En el simulador de reglas, prueba tres casos sobre `actividades/a1`: una lectura sin sesión, un `delete` como técnico y un `update` del campo `estado` como técnico. Anota el resultado esperado de cada uno y compruébalo.",
-          "hint": "Para simular un usuario con rol necesitas su uid y que exista su documento en usuarios.",
-          "solutionExplanation": "Esperado: lectura sin sesión denegada; delete como técnico denegado; update de estado como técnico permitido."
+          "prompt": "**Contexto.** El **simulador de reglas** de Firestore (consola de Firebase → Firestore → Reglas → Simulador) prueba si una operación se permite o no, sin tocar los datos. Tus reglas dicen: hay que iniciar sesión para leer; solo un administrador puede borrar; un técnico puede cambiar el campo `estado`.\n\n**Qué tienes que hacer:**\n\n1) Antes de probar, escribe el resultado que esperas (permitido o denegado) para: A) leer `actividades/a1` sin sesión; B) `delete` de `actividades/a1` como técnico; C) `update` del campo `estado` de `actividades/a1` como técnico.\n2) Prueba los tres casos en el simulador y compara.\n\n**Resultado esperado:** 1 permitido y 2 denegados, y el simulador coincide con lo que escribiste.",
+          "hint": "Para simular un usuario con rol necesitas su uid y que exista su documento en la colección usuarios.",
+          "solutionExplanation": "Aplica las reglas una por una: ¿hay sesión? ¿qué rol tiene? ¿qué operación es?",
+          "solutionCode": "A) Leer sin sesión → DENEGADO\nB) delete como técnico → DENEGADO\nC) update de estado como técnico → PERMITIDO\n\nSi el simulador no coincide, la regla correspondiente tiene un error.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -4834,9 +4892,11 @@
           "id": "proy-5-ej-1",
           "title": "Reto 1: Haz la migración en el proyecto de prueba",
           "difficulty": "Avanzado",
-          "prompt": "Sigue las etapas 1 a 6 con tu proyecto de prueba y una copia de tus datos. Entrega por PR: la función de subida, la lectura con `onSnapshot`, `guardarCambio` usada en al menos tres acciones, las reglas en `firestore.rules` y el interruptor `USAR_NUBE`.",
-          "hint": "Empieza por una sola colección (técnicos), luego vehículos y al final actividades.",
-          "solutionExplanation": "Migrar colección por colección limita el riesgo: si algo falla, sabes exactamente en qué parte."
+          "prompt": "**Contexto.** Vas a llevar tus datos a Firestore **en el proyecto de prueba**, por etapas: rama nueva, respaldo, subida conservando los ids, lectura con `onSnapshot`, guardado con `guardarCambio` y un interruptor `USAR_NUBE` para poder volver a la versión local.\n\n**Qué tienes que hacer:**\n\n1) Crea una rama nueva y descarga un respaldo completo (Lec. 20).\n2) Escribe la función que sube el respaldo con `writeBatch` y `setDoc` conservando los ids. Empieza solo por técnicos.\n3) Lee los datos con `onSnapshot` y redibuja.\n4) Usa `guardarCambio` en al menos tres acciones.\n5) Escribe las reglas en `firestore.rules` y agrega el interruptor `USAR_NUBE`.\n6) Entrégalo por PR.\n\n**Cómo sabes que lo lograste:** con `USAR_NUBE = true` los datos vienen de Firestore y un cambio en un equipo aparece en otro; con `false` la página funciona como antes.",
+          "hint": "Migra una colección a la vez: técnicos, luego vehículos y al final actividades.",
+          "solutionExplanation": "Conservar los ids es clave: si cambian, se rompen relaciones como `tecnicoId`.",
+          "solutionCode": "Comprobación final:\n- Abre la página en dos navegadores con USAR_NUBE = true.\n- Cambia un estado en uno: aparece en el otro en segundos.\n- Pon USAR_NUBE = false: vuelve a funcionar con los datos locales.\n\nSi algo falla, sabes en qué colección fue porque migraste una por una.",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-5-ej-2",
@@ -4959,17 +5019,21 @@
           "id": "lec-33-ej-1",
           "title": "Práctica 1: Elige el hosting",
           "difficulty": "Básico",
-          "prompt": "Para cada caso, elige el tipo de hosting y explica por qué:\n1. Tu plataforma de estudio personal.\n2. La página de mantenimiento, usada por 10 personas desde la calle, con datos en Firestore.\n3. Una página que solo debe funcionar dentro de la oficina y cuyos datos no pueden salir del edificio.\n4. La empresa ya paga un hosting con cPanel para su sitio corporativo.",
+          "prompt": "**Contexto.** Opciones de hosting: **estático gestionado** (GitHub Pages, Cloudflare Pages: gratis, sin mantenimiento), **Firebase Hosting** (junto a tus datos de Firebase), **hosting compartido** (cPanel, el que ya paga una empresa) y **servidor privado** en la red interna. Casos:\n\n- A) Tu plataforma de estudio personal.\n- B) La página de mantenimiento, usada por 10 personas desde la calle, con datos en Firestore.\n- C) Una página que solo debe funcionar dentro de la oficina y cuyos datos no pueden salir del edificio.\n- D) La empresa ya paga un hosting con cPanel para su sitio corporativo.\n\n**Qué tienes que hacer:**\n\n1) Elige el hosting para cada caso y explica por qué en una frase.\n\n**Resultado esperado:** 4 respuestas, cada una con un tipo de hosting distinto.",
           "hint": "Piensa en quién la usa, desde dónde y qué datos maneja.",
-          "solutionExplanation": "1. Hosting estático gestionado (GitHub Pages o Cloudflare Pages): gratis y sin mantenimiento.\n2. Firebase Hosting: mismo proyecto que los datos, HTTPS y control de acceso con Authentication.\n3. Servidor privado en la red interna.\n4. Un subdominio en ese hosting compartido (por ejemplo `planificador.empresa.com`), si la empresa lo autoriza."
+          "solutionExplanation": "Si los datos ya están en Firebase, lo más simple es publicar en el mismo proyecto.",
+          "solutionCode": "A) Estático gestionado (GitHub Pages o Cloudflare Pages): gratis y sin mantenimiento.\nB) Firebase Hosting: mismo proyecto que los datos, HTTPS y acceso con Authentication.\nC) Servidor privado en la red interna.\nD) Un subdominio en ese hosting compartido (planificador.empresa.com), si la empresa lo autoriza.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-33-ej-2",
           "title": "Práctica 2: Tu primer deploy en Firebase",
           "difficulty": "Intermedio",
-          "prompt": "Con tu proyecto de prueba de Firebase, publica una copia de tu página: instala firebase-tools, `firebase init hosting`, configura `ignore` para no subir `pruebas/` ni `documentacion/`, publica primero en un canal de prueba y luego con `firebase deploy`.",
-          "hint": "Si al abrir la URL ves la página de bienvenida de Firebase, `init` creó un index.html de ejemplo: no reemplaces el tuyo cuando lo pregunte.",
-          "solutionExplanation": "Tendrás tu página en https://tu-proyecto.web.app con HTTPS, lista para conectarle un dominio en la próxima lección."
+          "prompt": "**Contexto.** Vas a publicar una copia de tu página en Firebase Hosting con la herramienta de línea de comandos `firebase-tools`, usando tu proyecto de prueba.\n\n**Qué tienes que hacer:**\n\n1) Instala la herramienta: `npm install -g firebase-tools` y entra con `firebase login`.\n2) En la carpeta de tu copia, ejecuta `firebase init hosting`. Cuando pregunte si sobrescribir `index.html`, responde **No**.\n3) En `firebase.json`, agrega `pruebas/**` y `documentacion/**` a la lista `ignore`.\n4) Publica primero en un canal de prueba: `firebase hosting:channel:deploy prueba`.\n5) Si se ve bien, publica: `firebase deploy`.\n\n**Cómo sabes que lo lograste:** abres https://tu-proyecto.web.app y ves tu página (no la página de bienvenida de Firebase).",
+          "hint": "El canal de prueba te da una URL temporal para revisar antes de publicar de verdad.",
+          "solutionExplanation": "Si ves la bienvenida de Firebase, `init` reemplazó tu index.html: recupéralo con `git restore index.html` y vuelve a publicar.",
+          "solutionCode": "npm install -g firebase-tools\nfirebase login\nfirebase init hosting        # carpeta pública: .   ¿sobrescribir index.html? No\n# firebase.json → \"ignore\": [\"firebase.json\", \"**/.*\", \"pruebas/**\", \"documentacion/**\"]\nfirebase hosting:channel:deploy prueba\nfirebase deploy",
+          "codeLanguage": "bash"
         }
       ],
       "exam": [
@@ -5094,9 +5158,11 @@
           "id": "lec-34-ej-2",
           "title": "Práctica 2: Pide un subdominio",
           "difficulty": "Intermedio",
-          "prompt": "Redacta el mensaje para el encargado de TI de tu empresa pidiendo el subdominio `planificador.empresa.com` para tu página en Firebase Hosting: qué registros necesitas, para qué es la página y quién la administra.",
-          "hint": "Los registros exactos los obtienes primero en Firebase → Hosting → Agregar dominio personalizado.",
-          "solutionExplanation": "Un pedido claro, con los registros exactos y el propósito, se aprueba mucho más rápido."
+          "prompt": "**Contexto.** Quieres publicar tu página en `planificador.empresa.com`. El DNS de la empresa lo administra TI, así que debes pedirles que agreguen los registros que te da Firebase (Hosting → Agregar dominio personalizado). Un pedido claro se aprueba rápido.\n\n**Qué tienes que hacer:**\n\n1) Escribe un mensaje para TI que incluya: el subdominio que pides, para qué es la página, quién la administra y los registros exactos (tipo, nombre y valor) que deben agregar.\n\n**Resultado esperado:** un mensaje que TI puede ejecutar sin hacerte preguntas.",
+          "hint": "Primero agrega el dominio en Firebase: te mostrará los registros exactos.",
+          "solutionExplanation": "Incluye tipo (A o TXT), nombre (planificador) y valor de cada registro, copiados tal cual de Firebase.",
+          "solutionCode": "Hola, equipo de TI:\n\nNecesito el subdominio planificador.empresa.com para la página de planificación de mantenimiento, publicada en Firebase Hosting. La administro yo (nombre, área).\n\nRegistros a agregar en el DNS de empresa.com:\n- TXT  planificador  <valor de verificación que da Firebase>\n- A    planificador  <IP 1 que da Firebase>\n- A    planificador  <IP 2 que da Firebase>\n\nFirebase emite el certificado HTTPS automáticamente. Gracias.",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -5211,9 +5277,11 @@
           "id": "lec-35-ej-1",
           "title": "Práctica 1: Lista de archivos públicos",
           "difficulty": "Básico",
-          "prompt": "*En tu proyecto:* escribe la lista exacta de archivos y carpetas que deben subirse a un hosting y la de los que **no** deben subirse, con la razón de cada uno.",
-          "hint": "Piensa en qué necesita el navegador para mostrar la página y qué solo usas tú al desarrollar.",
-          "solutionExplanation": "Suben: index.html, manifest, sw.js, css, js, config, recursos y librerías. No suben: .git, .github, node_modules, pruebas, documentacion, package.json, archivos de configuración de linters y cualquier respaldo .json con datos."
+          "prompt": "**Contexto.** Al subir tu página a un hosting, solo deben ir los archivos que el navegador necesita. Tu proyecto tiene: `index.html`, `manifest.webmanifest`, `sw.js`, `css/`, `js/`, `config/`, `recursos/`, `librerias/`, `.git/`, `.github/`, `node_modules/`, `pruebas/`, `documentacion/`, `package.json`, archivos de configuración del linter y un respaldo `datos.json`.\n\n**Qué tienes que hacer:**\n\n1) Separa la lista en dos: **se suben** y **no se suben**.\n2) Para cada archivo que no se sube, escribe la razón en pocas palabras.\n\n**Resultado esperado:** 8 elementos que se suben y 8 que no.",
+          "hint": "Pregúntate: ¿el navegador necesita esto para mostrar la página, o solo lo uso yo al desarrollar?",
+          "solutionExplanation": "Un respaldo con datos reales nunca va a un servidor público.",
+          "solutionCode": "Se suben: index.html, manifest.webmanifest, sw.js, css/, js/, config/, recursos/, librerias/\n\nNo se suben:\n- .git/ y .github/: historial y workflows, solo para desarrollo\n- node_modules/ y package.json: herramientas de desarrollo\n- pruebas/ y documentacion/: no son parte de la página\n- configuración del linter: solo para revisar código\n- datos.json: tiene datos reales",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-35-ej-2",
@@ -5352,9 +5420,11 @@
           "id": "lec-36-ej-2",
           "title": "Práctica 2: Checklist de seguridad",
           "difficulty": "Básico",
-          "prompt": "Escribe tu propia lista de verificación para un VPS nuevo, en orden, con el comando de cada paso. Debe incluir al menos: llave SSH, actualizaciones, usuario sin root, firewall, Nginx, HTTPS y simulacro de renovación.",
-          "hint": "Usa como base las secciones 1 y 3.",
-          "solutionExplanation": "Una lista propia, probada, te permite montar un servidor nuevo en minutos y sin olvidar pasos de seguridad."
+          "prompt": "**Contexto.** Al crear un VPS hay que asegurarlo antes de publicar nada. Pasos mínimos: entrar con llave SSH, actualizar el sistema, crear un usuario sin root, activar el firewall, instalar Nginx, obtener HTTPS con Certbot y probar la renovación del certificado.\n\n**Qué tienes que hacer:**\n\n1) Escribe tu lista de verificación con esos 7 pasos en orden.\n2) Al lado de cada paso, escribe el comando que usarías (Ubuntu).\n\n**Resultado esperado:** 7 pasos, cada uno con su comando.",
+          "hint": "Primero seguridad (llave, actualizaciones, usuario, firewall); después el servidor web (Nginx, HTTPS).",
+          "solutionExplanation": "El firewall en Ubuntu es `ufw`; Certbot tiene un modo `--dry-run` para el simulacro.",
+          "solutionCode": "1. Llave SSH:        ssh-copy-id usuario@IP\n2. Actualizar:       sudo apt update && sudo apt upgrade -y\n3. Usuario sin root: sudo adduser deploy && sudo usermod -aG sudo deploy\n4. Firewall:         sudo ufw allow OpenSSH && sudo ufw allow 'Nginx Full' && sudo ufw enable\n5. Nginx:            sudo apt install nginx && sudo nginx -t\n6. HTTPS:            sudo certbot --nginx -d tu-dominio.com\n7. Renovación:       sudo certbot renew --dry-run",
+          "codeLanguage": "bash"
         }
       ],
       "exam": [
@@ -5471,17 +5541,21 @@
           "id": "lec-37-ej-1",
           "title": "Práctica 1: Servidor de prueba en la red",
           "difficulty": "Básico",
-          "prompt": "En tu computadora, levanta el servidor de prueba de Python desde una copia de la página y ábrela desde tu celular conectado al mismo Wi-Fi. En la consola (o con `isSecureContext` en una pestaña de depuración remota), comprueba que no es un contexto seguro.",
-          "hint": "Para ver tu IP local: `ipconfig` en Windows o `ip a` en Linux. Si no abre, revisa el firewall de Windows.",
-          "solutionExplanation": "Verás la página, pero el service worker no se registrará: es la limitación que explica la sección 2."
+          "prompt": "**Contexto.** Una página servida por `http://192.168.x.x` en la red local **no** es un «contexto seguro»: ahí no funcionan el service worker ni la instalación como app.\n\n**Qué tienes que hacer:**\n\n1) En la carpeta de una copia de tu página, ejecuta `python -m http.server 8000`.\n2) Busca la IP de tu computadora: `ipconfig` (Windows) o `ip a` (Linux).\n3) Desde tu celular, conectado al mismo Wi-Fi, abre `http://TU-IP:8000`.\n4) En la consola de una pestaña de tu computadora abierta con esa misma dirección, escribe `isSecureContext`.\n\n**Cómo sabes que lo lograste:** el celular muestra la página y la consola responde `false`.",
+          "hint": "Si el celular no abre la página, el firewall de Windows puede estar bloqueando el puerto 8000.",
+          "solutionExplanation": "Abre en tu computadora `http://TU-IP:8000` (no localhost) para que la prueba sea igual a la del celular.",
+          "solutionCode": "python -m http.server 8000\nipconfig              # busca «Dirección IPv4», por ejemplo 192.168.1.50\n# celular: http://192.168.1.50:8000  → la página abre\n# consola en http://192.168.1.50:8000:\nisSecureContext        // false\n\nCon false, el service worker no se registra: por eso un servidor interno necesita HTTPS.",
+          "codeLanguage": "bash"
         },
         {
           "id": "lec-37-ej-2",
           "title": "Práctica 2: Propuesta para TI",
           "difficulty": "Intermedio",
-          "prompt": "Redacta una propuesta breve para el departamento de TI con: propósito de la página, equipo donde correría, nombre interno deseado, necesidad de certificado HTTPS y cómo accederían los técnicos desde fuera. Incluye los riesgos y cómo se mitigan.",
-          "hint": "Usa las secciones 2 y 3 como guía para los puntos técnicos.",
-          "solutionExplanation": "Una propuesta que ya trae resueltas las preguntas de seguridad tiene muchas más posibilidades de aprobarse."
+          "prompt": "**Contexto.** Quieres publicar la página en un servidor interno de la empresa. TI aprobará más rápido una propuesta que ya responda sus preguntas de seguridad. Recuerda: sin HTTPS no funciona el modo sin conexión, y no se debe abrir un puerto del router hacia internet.\n\n**Qué tienes que hacer:**\n\n1) Escribe una propuesta corta con estas partes: propósito, equipo donde correría, nombre interno, certificado HTTPS, acceso desde fuera de la oficina y riesgos con su mitigación.\n\n**Resultado esperado:** una propuesta de 6 partes, de media página como máximo.",
+          "hint": "Para el acceso desde fuera, las opciones seguras son una VPN o una red privada tipo malla (como Tailscale).",
+          "solutionExplanation": "Para HTTPS interno, TI puede emitir un certificado de la autoridad interna de la empresa.",
+          "solutionCode": "Propósito: planificar y registrar el mantenimiento de la flota.\nEquipo: PC con Windows Server o Linux, siempre encendida, IP fija.\nNombre interno: planificador.empresa.local\nHTTPS: certificado emitido por la autoridad interna de TI (necesario para el modo sin conexión).\nAcceso desde fuera: por la VPN de la empresa; no se abre ningún puerto en el router.\nRiesgos: equipo apagado (monitor y responsable), datos (respaldo diario), acceso indebido (inicio de sesión y solo red interna).",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -5596,9 +5670,11 @@
           "id": "lec-38-ej-1",
           "title": "Práctica 1: Workflow de Firebase",
           "difficulty": "Intermedio",
-          "prompt": "En tu repositorio de prueba, ejecuta `firebase init hosting:github`, revisa el workflow que crea y agrégale el paso `npm ci && npm run revisar` antes de publicar. Haz un PR con un cambio pequeño, únelo y comprueba que la página se actualiza sola.",
-          "hint": "El asistente te pregunta si quieres publicar al unir a main y si quieres vistas previas de los PR: di que sí a ambos.",
-          "solutionExplanation": "Con las vistas previas, cada PR tendrá su propia URL temporal para probar antes de unir."
+          "prompt": "**Contexto.** Firebase puede crear por ti un workflow de GitHub Actions que publica la página al unir a `main` y crea una vista previa por cada pull request.\n\n**Qué tienes que hacer:**\n\n1) En tu repositorio de prueba, ejecuta `firebase init hosting:github` y responde **sí** a publicar al unir a main y a las vistas previas.\n2) Abre el workflow que creó en `.github/workflows/` y agrega antes de publicar el paso `npm ci && npm run revisar`.\n3) Haz un PR con un cambio pequeño, abre su vista previa, únelo y comprueba la página publicada.\n\n**Cómo sabes que lo lograste:** el PR muestra un comentario con la URL de vista previa, y tras unirlo la página publicada tiene el cambio.",
+          "hint": "El asistente pide permiso en GitHub para guardar un secreto con la cuenta de servicio: acéptalo.",
+          "solutionExplanation": "El paso de revisión va en el mismo `job`, antes del paso que usa la acción de Firebase.",
+          "solutionCode": "Fragmento del workflow con el paso agregado:\nsteps:\n  - uses: actions/checkout@v4\n  - run: npm ci && npm run revisar\n  - uses: FirebaseExtended/action-hosting-deploy@v0\n    with:\n      repoToken: ${{ secrets.GITHUB_TOKEN }}\n      firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TU_PROYECTO }}\n      channelId: live",
+          "codeLanguage": "yaml"
         },
         {
           "id": "lec-38-ej-2",
@@ -5723,17 +5799,21 @@
           "id": "proy-6-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
-          "prompt": "Publica tu página en la opción que elijas (puede ser Firebase Hosting si no tienes otro servidor), con dirección definitiva, HTTPS, workflow de publicación, retorno probado y monitor. Entrega el documento de decisión por PR.",
-          "hint": "Si aún no tienes dominio, usa la dirección del proveedor (como mi-proyecto.web.app) y deja el paso del dominio documentado como pendiente.",
-          "solutionExplanation": "Lo importante es el proceso completo: decisión, publicación automática, retorno y vigilancia."
+          "prompt": "**Contexto.** Vas a publicar tu página de forma definitiva. Puede ser en Firebase Hosting si no tienes otro servidor.\n\n**Qué tienes que hacer:**\n\n1) Escribe en `documentacion/` el documento de decisión: dónde, dirección, quién administra, cómo se publica y cómo se vuelve atrás.\n2) Publica con dirección definitiva y HTTPS.\n3) Configura el workflow de publicación automática.\n4) Prueba el retorno: publica una versión y vuelve a la anterior.\n5) Configura un monitor de disponibilidad (por ejemplo UptimeRobot, plan gratuito).\n6) Entrega el documento por PR.\n\n**Cómo sabes que lo lograste:** la página abre con https, un cambio unido a main se publica solo, volviste a una versión anterior al menos una vez y el monitor te avisa si la página cae.",
+          "hint": "Si aún no tienes dominio, usa la dirección del proveedor (mi-proyecto.web.app) y deja el dominio como pendiente en el documento.",
+          "solutionExplanation": "En Firebase Hosting, el retorno se hace desde la consola: Hosting → historial de versiones → Revertir.",
+          "solutionCode": "Plantilla del documento de decisión:\n# Publicación de la página\n- Dónde: Firebase Hosting (mismo proyecto que los datos)\n- Dirección: https://mi-proyecto.web.app (dominio propio: pendiente)\n- Administra: (tu nombre)\n- Cómo se publica: workflow al unir a main\n- Retorno: consola de Firebase → Hosting → Revertir (probado el AAAA-MM-DD)\n- Monitor: UptimeRobot cada 5 min, aviso por correo",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-6-ej-2",
           "title": "Reto 2: Publica en dos lugares",
           "difficulty": "Avanzado",
-          "prompt": "Configura dos workflows: uno que publique en Firebase Hosting y otro en un segundo destino (un VPS de prueba, un hosting compartido o Cloudflare Pages). Compara en tu documento: facilidad, velocidad, costo y trabajo de mantenimiento.",
+          "prompt": "**Contexto.** Comparar dos destinos con tu propia experiencia te da criterio para recomendar opciones.\n\n**Qué tienes que hacer:**\n\n1) Mantén el workflow de Firebase Hosting del reto anterior.\n2) Configura un segundo destino: un VPS de prueba, un hosting compartido o Cloudflare Pages.\n3) Publica el mismo cambio en los dos.\n4) Escribe una tabla comparando facilidad, velocidad, costo y mantenimiento.\n\n**Cómo sabes que lo lograste:** la misma versión está publicada en dos direcciones y tienes una tabla de 4 filas con tu evaluación.",
           "hint": "Cloudflare Pages puede conectarse directamente al repositorio sin escribir un workflow.",
-          "solutionExplanation": "Comparar con experiencia propia te da criterio para recomendar opciones a tu empresa o a otros clientes."
+          "solutionExplanation": "Mide la velocidad con Lighthouse (Lec. 45) en los dos destinos para comparar con números.",
+          "solutionCode": "Ejemplo de tabla:\n| Criterio      | Firebase Hosting          | Cloudflare Pages        |\n| Facilidad     | init + workflow generado  | conectar el repo        |\n| Velocidad     | Lighthouse 95             | Lighthouse 97           |\n| Costo         | gratis (plan Spark)       | gratis                  |\n| Mantenimiento | ninguno                   | ninguno                 |",
+          "codeLanguage": "texto"
         }
       ],
       "exam": [
@@ -5846,9 +5926,11 @@
           "id": "lec-39-ej-1",
           "title": "Práctica 1: Manifest de tu página",
           "difficulty": "Básico",
-          "prompt": "En una copia de tu página, crea los íconos de 192 y 512 px a partir del logo (con margen), escribe el manifest y enlázalo. Comprueba en DevTools → Application → Manifest que no hay errores.",
-          "hint": "Cualquier editor de imágenes sirve; exporta en PNG con fondo de color sólido.",
-          "solutionExplanation": "La página aún no será instalable del todo hasta tener el service worker (lección 40), pero el manifest ya debe aparecer sin errores."
+          "prompt": "**Contexto.** Para que tu página se pueda instalar como app necesita un **manifest** (`manifest.webmanifest`) con nombre, colores e íconos de 192 y 512 px.\n\n**Qué tienes que hacer:**\n\n1) Crea a partir del logo dos íconos PNG de 192×192 y 512×512, con margen y fondo de color sólido.\n2) Escribe el manifest con name, short_name, start_url, display, colores e íconos.\n3) Enlázalo en `index.html` con `<link rel=\"manifest\" href=\"manifest.webmanifest\">`.\n4) Revisa DevTools → Application → Manifest.\n\n**Cómo sabes que lo lograste:** DevTools → Application → Manifest muestra el nombre y los dos íconos, sin errores.",
+          "hint": "Cualquier editor de imágenes sirve; exporta en PNG.",
+          "solutionExplanation": "Los nombres de archivo en `icons` deben coincidir exactamente con los de tu carpeta.",
+          "solutionCode": "{\n  \"name\": \"Planificador de mantenimiento\",\n  \"short_name\": \"Planificador\",\n  \"start_url\": \"./\",\n  \"display\": \"standalone\",\n  \"background_color\": \"#ffffff\",\n  \"theme_color\": \"#1D64D8\",\n  \"icons\": [\n    { \"src\": \"recursos/icono-192.png\", \"sizes\": \"192x192\", \"type\": \"image/png\" },\n    { \"src\": \"recursos/icono-512.png\", \"sizes\": \"512x512\", \"type\": \"image/png\" }\n  ]\n}\n\nAún no será instalable del todo: falta el service worker (Lec. 40).",
+          "codeLanguage": "json"
         },
         {
           "id": "lec-39-ej-2",
@@ -5974,9 +6056,11 @@
           "id": "lec-40-ej-1",
           "title": "Práctica 1: Sin conexión",
           "difficulty": "Intermedio",
-          "prompt": "En tu copia, crea `sw.js` con la lista de archivos de tu página, regístralo y publícalo en una rama de GitHub Pages o en local con Live Server. En DevTools → Network marca Offline y recarga: la página debe abrir.",
-          "hint": "Si falta un archivo en la lista, `addAll` falla entero: revisa la consola del service worker en Application.",
-          "solutionExplanation": "Para obtener la lista de archivos, copia las rutas de los `<link>` y `<script>` de tu index.html."
+          "prompt": "**Contexto.** Un **service worker** (`sw.js`) guarda en caché los archivos de la página para que abra sin conexión. Si un archivo de su lista no existe, falla entero.\n\n**Qué tienes que hacer:**\n\n1) Crea `sw.js` con la lista de todos los archivos de tu página (copia las rutas de los `<link>` y `<script>` de `index.html`).\n2) Regístralo desde tu JavaScript con `navigator.serviceWorker.register('sw.js')`.\n3) Abre la página con Live Server o GitHub Pages (no con doble clic).\n4) En DevTools → Network marca **Offline** y recarga.\n\n**Cómo sabes que lo lograste:** con Offline marcado, la página abre igual.",
+          "hint": "Si no abre, mira la consola del service worker en DevTools → Application → Service Workers: dice qué archivo falló.",
+          "solutionExplanation": "Usa rutas relativas (`./css/…`) iguales a las de tu `index.html`.",
+          "solutionCode": "const VERSION = 'v1';\nconst ARCHIVOS = ['./', './index.html', './css/estilos.css', './js/nucleo/app.js' /* …todos los demás */];\n\nself.addEventListener('install', (e) => {\n  e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ARCHIVOS)));\n});\n\nself.addEventListener('fetch', (e) => {\n  e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));\n});",
+          "codeLanguage": "javascript"
         },
         {
           "id": "lec-40-ej-2",
@@ -6230,9 +6314,11 @@
           "id": "lec-42-ej-1",
           "title": "Práctica 1: Vista de impresión de tu página",
           "difficulty": "Básico",
-          "prompt": "En tu copia, agrega `@media print` que oculte el menú, los filtros y los botones, y ponga la tabla de actividades a todo el ancho con encabezados repetidos. Pruébalo con la emulación de impresión de las DevTools.",
-          "hint": "DevTools → los tres puntos → More tools → Rendering → Emulate CSS media type.",
-          "solutionExplanation": "Con la emulación ves el resultado sin gastar papel ni abrir el diálogo cada vez."
+          "prompt": "**Contexto.** Con `@media print` puedes decidir cómo se ve la página al imprimir o guardar como PDF.\n\n**Qué tienes que hacer:**\n\n1) En tu CSS, agrega un bloque `@media print`.\n2) Oculta el menú, los filtros y los botones.\n3) Pon la tabla de actividades a todo el ancho y haz que su encabezado se repita en cada hoja.\n4) Pruébalo en DevTools → ⋮ → More tools → Rendering → Emulate CSS media type: print.\n\n**Cómo sabes que lo lograste:** con la emulación de impresión, solo se ve la tabla a todo el ancho y sin botones.",
+          "hint": "Para ocultar: `display: none`. Para el ancho: `width: 100%`.",
+          "solutionExplanation": "El encabezado se repite solo si está dentro de `<thead>` y le pones `display: table-header-group`.",
+          "solutionCode": "@media print {\n  nav, .filtros, button { display: none; }\n  table { width: 100%; }\n  thead { display: table-header-group; }\n  tr { break-inside: avoid; }\n}",
+          "codeLanguage": "css"
         },
         {
           "id": "lec-42-ej-2",
@@ -6353,9 +6439,11 @@
           "id": "proy-7-ej-1",
           "title": "Reto 1: Haz el proyecto",
           "difficulty": "Avanzado",
-          "prompt": "Implementa las seis piezas en tu página y entrégalas por PR, con capturas de: la app instalada, la página abierta en modo avión y una orden de trabajo en PDF.",
-          "hint": "Empieza por la impresión (no depende de nada); luego manifest, luego service worker.",
-          "solutionExplanation": "La impresión da valor inmediato aunque la parte de PWA tarde más en quedar perfecta."
+          "prompt": "**Contexto.** Vas a hacer tu página instalable, que funcione sin conexión y que imprima una orden de trabajo. Las seis piezas son: íconos y manifest (Lec. 39), `sw.js` (Lec. 40), registro del service worker, aviso de nueva versión, vista de impresión (Lec. 42) y la orden de trabajo imprimible.\n\n**Qué tienes que hacer:**\n\n1) Empieza por la vista de impresión y la orden de trabajo.\n2) Luego el manifest y los íconos.\n3) Luego el service worker, su registro y el aviso de nueva versión.\n4) Entrégalo por PR con tres capturas: la app instalada, la página abierta en modo avión y una orden en PDF.\n\n**Cómo sabes que lo lograste:** las tres capturas muestran lo pedido y Lighthouse marca la página como instalable.",
+          "hint": "La impresión no depende de nada: da valor inmediato aunque la parte de PWA tarde más.",
+          "solutionExplanation": "Antes de cada publicación, cambia `VERSION` en `sw.js`; si no, los usuarios seguirán viendo la versión vieja.",
+          "solutionCode": "Lista de entrega del PR:\n☐ manifest.webmanifest + íconos 192 y 512\n☐ sw.js con VERSION y lista de archivos completa\n☐ registro del service worker y aviso «hay una versión nueva»\n☐ @media print y orden de trabajo\n☐ captura: app instalada\n☐ captura: modo avión\n☐ captura: orden en PDF",
+          "codeLanguage": "texto"
         },
         {
           "id": "proy-7-ej-2",
@@ -6492,9 +6580,11 @@
           "id": "lec-43-ej-2",
           "title": "Práctica 2: Plan de migración",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* lista los archivos de `js/` en el orden en que aparecen en `index.html` y marca cuáles no dependen de ningún otro. Esos serán los primeros en convertirse a módulo. Escribe el plan por etapas en un archivo de la carpeta `documentacion/`.",
-          "hint": "Los archivos de config y de utilidades suelen ser los que no dependen de nadie.",
-          "solutionExplanation": "Un plan escrito permite hacer la migración en varios PR pequeños, cada uno probado, en vez de un cambio gigante y riesgoso."
+          "prompt": "**Contexto.** Pasar tu página a módulos de JavaScript (`import`/`export`) es más seguro por etapas: primero los archivos que no dependen de ningún otro.\n\n**Qué tienes que hacer:**\n\n1) Lista los archivos de `js/` en el orden en que aparecen en `index.html`.\n2) Marca los que no usan funciones ni variables de otros archivos.\n3) Escribe en `documentacion/plan-modulos.md` un plan por etapas: primero los marcados, después los que solo dependen de ellos, y así hasta `app.js`.\n\n**Cómo sabes que lo lograste:** cada etapa del plan solo contiene archivos cuyas dependencias ya están en etapas anteriores.",
+          "hint": "Los archivos de `config/` y de utilidades suelen ser los que no dependen de nadie.",
+          "solutionExplanation": "Para saber si un archivo depende de otro, busca dentro de él nombres de funciones definidas en otro archivo.",
+          "solutionCode": "# Plan de migración a módulos\nEtapa 1 (sin dependencias): config/*.js, js/nucleo/utilidades.js\nEtapa 2: js/nucleo/acciones.js, js/datos/*.js\nEtapa 3: js/modulos/*.js (uno por PR)\nEtapa 4: js/nucleo/app.js y <script type=\"module\"> en index.html\n\nCada etapa es un PR pequeño y probado.",
+          "codeLanguage": "markdown"
         }
       ],
       "exam": [
@@ -6609,9 +6699,11 @@
           "id": "lec-44-ej-1",
           "title": "Práctica 1: Tipos de tus datos",
           "difficulty": "Intermedio",
-          "prompt": "*En tu página:* crea `js/datos/tipos.js` con un `@typedef` para Actividad, Técnico y Vehículo según la forma real de tus datos (mírala en la consola con `S.acts[0]`). Luego activa `@ts-check` en un módulo y corrige los avisos.",
-          "hint": "Los campos que no siempre existen van entre corchetes: [campo].",
-          "solutionExplanation": "Escribir los tipos te obliga a decidir qué campos son obligatorios: muchas veces descubres datos inconsistentes."
+          "prompt": "**Contexto.** Con JSDoc puedes describir la forma de tus datos (`@typedef`) y activar la revisión de tipos en un archivo con `// @ts-check`, sin cambiar a TypeScript.\n\n**Qué tienes que hacer:**\n\n1) En la consola de tu página, escribe `S.acts[0]` y mira los campos de una actividad real.\n2) Crea `js/datos/tipos.js` con un `@typedef` para Actividad, Técnico y Vehículo.\n3) En un módulo, agrega `// @ts-check` en la primera línea y corrige los avisos que muestre VS Code.\n\n**Cómo sabes que lo lograste:** el módulo con `@ts-check` no muestra subrayados rojos y, al pasar el ratón sobre una actividad, VS Code muestra sus campos.",
+          "hint": "Los campos que no siempre existen van entre corchetes: `[campo]`.",
+          "solutionExplanation": "Para usar el tipo en una función: `/** @param {Actividad} a */` encima de la función.",
+          "solutionCode": "/**\n * @typedef {Object} Actividad\n * @property {string} id\n * @property {string} fecha        AAAA-MM-DD\n * @property {string} cliente\n * @property {string} estado\n * @property {string} tecnicoId\n * @property {string} [observacion]\n */\n\n/** @param {Actividad} a */\nfunction estaAbierta(a) {\n  return a.estado !== 'Finalizado';\n}",
+          "codeLanguage": "javascript"
         },
         {
           "id": "lec-44-ej-2",
@@ -6734,9 +6826,11 @@
           "id": "lec-45-ej-1",
           "title": "Práctica 1: Auditoría de tu página",
           "difficulty": "Básico",
-          "prompt": "*En tu página:* ejecuta Lighthouse en modo móvil en una ventana de incógnito. Anota las cuatro puntuaciones y los tres primeros problemas de Accessibility y de Performance. Corrige al menos uno de cada categoría en tu copia y vuelve a medir.",
-          "hint": "Cada problema tiene un enlace 'Learn more' con la explicación y cómo corregirlo.",
-          "solutionExplanation": "Guardar el antes y el después en el PR documenta la mejora y te enseña qué cambios valen la pena."
+          "prompt": "**Contexto.** Lighthouse (en DevTools) mide tu página en cuatro categorías: Performance, Accessibility, Best Practices y SEO, y lista los problemas con su explicación.\n\n**Qué tienes que hacer:**\n\n1) Abre tu página en una ventana de incógnito y ejecuta Lighthouse en modo **móvil**.\n2) Anota las cuatro puntuaciones y los tres primeros problemas de Accessibility y de Performance.\n3) Corrige al menos un problema de cada una de esas dos categorías en tu copia.\n4) Vuelve a medir y anota las puntuaciones nuevas.\n\n**Cómo sabes que lo lograste:** tienes una tabla de antes y después en la que Accessibility y Performance no bajaron, y al menos una subió.",
+          "hint": "Usa incógnito para que las extensiones del navegador no afecten la medición.",
+          "solutionExplanation": "Cada problema tiene un enlace «Learn more» con la explicación y cómo corregirlo.",
+          "solutionCode": "Ejemplo de registro para el PR:\n| Categoría      | Antes | Después |\n| Performance    | 78    | 86      |\n| Accessibility  | 84    | 95      |\n| Best Practices | 92    | 92      |\n| SEO            | 90    | 90      |\n\nCorregido: botones sin nombre accesible (aria-label) e imágenes sin width/height.",
+          "codeLanguage": "texto"
         },
         {
           "id": "lec-45-ej-2",

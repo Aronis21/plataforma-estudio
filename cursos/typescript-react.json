@@ -830,9 +830,11 @@
           "id": "tsr-06-ej-1",
           "title": "Práctica 1: Detectar la mentira",
           "difficulty": "Básico",
-          "prompt": "Explica qué pasa al ejecutar este código si el servidor responde `{\"error\": \"sin permiso\"}` con estado 403, y por qué el compilador no avisó:\n\n```\nconst r = await fetch(\"/api/actividades\");\nconst lista: Actividad[] = await r.json();\nconsole.log(lista.length);\n```",
-          "hint": "Piensa en qué devuelve `r.json()` y qué hace `fetch` con un 403.",
-          "solutionExplanation": "`fetch` no lanza error con un 403. `r.json()` devuelve `any`, que se puede asignar a `Actividad[]` sin comprobación. `lista` es en realidad un objeto, así que `lista.length` es `undefined` y el fallo aparece más adelante."
+          "prompt": "**Contexto.** Este código pide la lista de actividades al servidor:\n\n- `const r = await fetch(\"/api/actividades\");`\n- `const lista: Actividad[] = await r.json();`\n- `console.log(lista.length);`\n\nEl servidor responde con estado **403** y el cuerpo `{\"error\": \"sin permiso\"}`.\n\n**Qué tienes que hacer:**\n\n1) Explica qué imprime `console.log` y por qué no hubo un error en `fetch`.\n2) Explica por qué el compilador de TypeScript no avisó.\n3) Escribe cómo lo corregirías.\n\n**Resultado esperado:** 3 explicaciones cortas y una versión corregida del código.",
+          "hint": "Piensa en qué hace `fetch` cuando el servidor responde con un error HTTP, y qué tipo devuelve `r.json()`.",
+          "solutionExplanation": "`r.json()` devuelve `any`, y `any` se puede asignar a cualquier tipo sin comprobación.",
+          "solutionCode": "1) Imprime undefined: fetch no lanza error con un 403, y lista es en realidad el objeto { error: ... }, que no tiene length.\n2) r.json() devuelve any: TypeScript acepta asignarlo a Actividad[] sin revisar nada.\n3) Corrección:\nconst r = await fetch(\"/api/actividades\");\nif (!r.ok) throw new Error(`Error ${r.status}`);\nconst datos: unknown = await r.json();\nconst lista = validarActividades(datos);   // revisa la forma antes de usarla",
+          "codeLanguage": "typescript"
         },
         {
           "id": "tsr-06-ej-2",
@@ -1728,9 +1730,11 @@
           "id": "tsr-12-ej-1",
           "title": "Práctica 1: Construye el tablero",
           "difficulty": "Avanzado",
-          "prompt": "Crea el proyecto con Vite y la estructura de carpetas propuesta. Implementa tipos, validador, reductor con las cuatro acciones, contexto con guardado en `localStorage`, formulario, filtros, lista y resumen.",
-          "hint": "Avanza por capas: primero tipos y reductor (pruébalos con `console.assert`), luego el contexto y al final los componentes.",
-          "solutionExplanation": "Lo importante es que cada pieza tenga una sola responsabilidad y que los tipos guíen las conexiones. Si algo no compila, el mensaje de `tsc` suele decir exactamente qué falta."
+          "prompt": "**Contexto.** Vas a construir el **tablero de tareas de mantenimiento**: formulario (equipo, descripción, prioridad, horas), lista con filtros por estado y prioridad y búsqueda por equipo, marcar como hecha, editar y eliminar, resumen (pendientes, urgentes y horas por hacer) y guardado en `localStorage`.\n\n**Qué tienes que hacer:**\n\n1) Crea el proyecto con Vite (`npm create vite@latest`, plantilla react-ts) y las carpetas de la Lección.\n2) Escribe los tipos, el validador y el reductor con sus cuatro acciones (agregar, editar, marcar, eliminar), y pruébalos con `console.assert`.\n3) Crea el contexto que inicializa el reductor desde `localStorage` y guarda cada cambio.\n4) Crea los componentes: formulario, filtros, lista y resumen.\n5) Ejecuta `npm run build`.\n\n**Cómo sabes que lo lograste:** `npm run build` termina sin errores de tipos, puedes agregar, editar, marcar y eliminar tareas, y al recargar la página siguen ahí.",
+          "hint": "Avanza por capas: primero tipos y reductor, después el contexto y al final los componentes.",
+          "solutionExplanation": "Si algo no compila, el mensaje de `tsc` dice el archivo, la línea y qué tipo esperaba.",
+          "solutionCode": "Ejemplo del reductor (src/estado/reductor.ts):\ntype Accion =\n  | { tipo: 'agregar'; tarea: Tarea }\n  | { tipo: 'editar'; tarea: Tarea }\n  | { tipo: 'marcar'; id: string }\n  | { tipo: 'eliminar'; id: string };\n\nexport function reductor(tareas: Tarea[], a: Accion): Tarea[] {\n  switch (a.tipo) {\n    case 'agregar':  return [...tareas, a.tarea];\n    case 'editar':   return tareas.map((t) => (t.id === a.tarea.id ? a.tarea : t));\n    case 'marcar':   return tareas.map((t) => (t.id === a.id ? { ...t, hecha: !t.hecha } : t));\n    case 'eliminar': return tareas.filter((t) => t.id !== a.id);\n  }\n}",
+          "codeLanguage": "typescript"
         },
         {
           "id": "tsr-12-ej-2",
