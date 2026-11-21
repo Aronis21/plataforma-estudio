@@ -799,7 +799,10 @@
       : "";
     return `<p class="sin-penalizacion" style="margin-bottom:1rem">Escribe tu intento, pide pistas si te atascas y mira la solución cuando quieras. Sin penalización: el objetivo es entender.</p>` + practicar + cap.exercises
       .map((e) => {
-        const niveles = [e.hint, e.solutionExplanation].filter(Boolean).length;
+        // Sin código de solución, la explicación ES la solución: va en "Ver solución" y no como pista 2.
+        const explEsSolucion = !e.solutionCode && !!e.solutionExplanation;
+        const pista2 = explEsSolucion ? "" : e.solutionExplanation;
+        const niveles = [e.hint, pista2].filter(Boolean).length;
         return `<article class="ejercicio" data-ej="${escapar(e.id)}">
         <div class="ej-head">
           <h2>${enLinea(e.title)}</h2>
@@ -814,17 +817,17 @@
         </label>
         <div class="row">
           ${e.hint ? '<button class="btn ghost" data-accion="pista1" type="button">Pista nivel 1</button>' : ""}
-          ${e.solutionExplanation ? '<button class="btn ghost" data-accion="pista2" type="button">Pista nivel 2</button>' : ""}
+          ${pista2 ? '<button class="btn ghost" data-accion="pista2" type="button">Pista nivel 2</button>' : ""}
           <button class="btn ghost" data-accion="solucion" type="button">Ver solución</button>
           ${niveles ? `<span class="intentos" aria-label="Pistas usadas">pistas ${Array.from({ length: niveles }, () => '<span class="punto"></span>').join("")}</span>` : ""}
         </div>
         <div class="pistas-nivel">
           ${e.hint ? `<div class="pista" data-nivel="1" hidden><strong>Pista · nivel 1</strong>${bloques(e.hint)}</div>` : ""}
-          ${e.solutionExplanation ? `<div class="pista" data-nivel="2" hidden><strong>Pista · nivel 2</strong>${bloques(e.solutionExplanation)}</div>` : ""}
+          ${pista2 ? `<div class="pista" data-nivel="2" hidden><strong>Pista · nivel 2</strong>${bloques(pista2)}</div>` : ""}
         </div>
         <div class="solucion" hidden>
           <div class="h-mano" style="font-size:1.4rem">solución</div>
-          ${bloqueCodigo(e.solutionCode, e.codeLanguage)}
+          ${explEsSolucion ? `<div class="lectura">${bloques(e.solutionExplanation)}</div>` : bloqueCodigo(e.solutionCode, e.codeLanguage)}
         </div>
         <div class="autoevaluacion">
           <div class="h-mano">¿cómo te fue?</div>
