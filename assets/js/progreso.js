@@ -56,10 +56,23 @@
     });
   }
 
+  // Capítulos publicados sin examen (orientación, consulta): se completan al marcarlos como leídos.
+  const SIN_EXAMEN = new Set();
+  function registrarCurso(curso) {
+    for (const cap of curso.chapters || []) {
+      if (!(cap.exam && cap.exam.length) && cap.status !== "en-preparacion" && (cap.theorySections || []).length) {
+        SIN_EXAMEN.add(curso.id + "/" + cap.id);
+      }
+    }
+  }
+  const sinExamen = (idCurso, idCap) => SIN_EXAMEN.has(idCurso + "/" + idCap);
+
   // Estado de un capítulo: 'aprobado' | 'leido' | 'pendiente'
+  // Con examen: aprobado al llegar al 70 %. Sin examen: aprobado (completado) al marcarlo como leído.
   function estado(idCurso, idCap) {
     const c = capitulo(idCurso, idCap);
     if (c.examen && c.examen.total && c.examen.mejor / c.examen.total >= APROBADO) return "aprobado";
+    if (c.leido && sinExamen(idCurso, idCap)) return "aprobado";
     if (c.leido) return "leido";
     return "pendiente";
   }
@@ -95,6 +108,7 @@
   }
 
   window.Progreso = {
+    registrarCurso, sinExamen,
     APROBADO, capitulo, marcarLeido, marcarEjercicio, registrarExamen, estado,
     resumenCurso, exportarTodo, importarTodo, reiniciarCurso,
   };

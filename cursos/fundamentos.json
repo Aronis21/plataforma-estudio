@@ -13,14 +13,14 @@
       "code": "Cap. 01",
       "module": "Módulo 0 · Antes de empezar",
       "title": "Cómo usar este curso y qué curso sigue después",
-      "subtitle": "El mapa de rutas de la plataforma, cómo estudiar cada capítulo y una prueba de nivel para saber qué puedes saltar.",
+      "subtitle": "El mapa de rutas de la plataforma, qué capítulos necesitas para tu siguiente curso y cómo estudiar cada uno.",
       "estimatedMinutes": 30,
       "status": "published",
       "objectives": [
         "Ubicar este curso dentro de las rutas de Datos, Web e IA de la plataforma.",
         "Saber qué conocimientos supone cada curso y en qué capítulo de este curso los aprendes.",
-        "Usar la prueba de nivel (pestaña Examen) para decidir qué capítulos estudiar y cuáles repasar rápido.",
-        "Seguir una rutina de estudio: leer, escribir el código a mano, hacer los ejercicios y luego el examen."
+        "Seguir una rutina de estudio: leer, escribir el código a mano, hacer los ejercicios y luego el examen.",
+        "Decidir qué capítulos estudiar a fondo y cuáles repasar rápido según lo que ya sabes."
       ],
       "theorySections": [
         {
@@ -39,9 +39,9 @@
         },
         {
           "id": "fn01-sec-3",
-          "title": "3. Cómo estudiar cada capítulo y la prueba de nivel",
-          "body": "Cada capítulo tiene la misma estructura: **Teoría** (tres secciones con código), **Estándar** (las reglas que usa un profesional), **Comparación** (forma incorrecta frente a correcta), **Ejercicios** (con pista y solución ocultas) y **Examen**.\n\nUna rutina que funciona:\n\n1) Lee una sección y **escribe el código a mano**, no lo copies.\n2) Intenta cada ejercicio sin abrir la pista. Si te atascas más de 10 minutos, ábrela.\n3) Haz el examen al final. Si fallas una pregunta, vuelve a la sección que indica la explicación.\n\n**Prueba de nivel**: el examen de este capítulo no evalúa este capítulo. Son 10 preguntas, una por tema del curso. La explicación de cada una dice qué capítulo estudiar si la fallaste. Si aciertas todas las de SQL, por ejemplo, puedes repasar los caps. 7 a 11 en diagonal y pasar al proyecto.\n\n**Lo usarás en:** todos los cursos: este capítulo es tu mapa. Vuelve a él cuando termines un módulo para ver qué curso se te abre.",
-          "keyTakeaway": "Haz la prueba de nivel ahora, antes de leer nada más. Te ahorra horas en lo que ya sabes."
+          "title": "3. Cómo estudiar cada capítulo",
+          "body": "Los capítulos 2 a 15 tienen la misma estructura: **Lección** (tres secciones con código), **Regla** (lo que hace un profesional), **Corrección** (forma incorrecta frente a correcta), **Ejercicios** y **Evaluación**. Este capítulo es solo orientación: no tiene ejercicios ni evaluación, y queda completo al marcarlo.\n\nUna rutina que funciona:\n\n1) Lee una sección y **escribe el código a mano**, no lo copies.\n2) Intenta cada ejercicio sin abrir las pistas. Cada uno trae los datos que necesitas y el **resultado esperado** para que te compruebes. Si te atascas más de 10 minutos, abre la pista 1, luego la 2 y, al final, la solución.\n3) Haz la Evaluación al final. Si fallas una pregunta, su explicación te dice qué repasar.\n\n**¿Ya sabes un tema?** Ve directo a la Evaluación de ese capítulo. Si la apruebas (70 % o más), el capítulo queda aprobado y puedes pasar al siguiente sin leerlo entero.\n\n**Lo usarás en:** todos los cursos: este capítulo es tu mapa. Vuelve a él cuando termines un módulo para ver qué curso se te abre.",
+          "keyTakeaway": "Si un tema ya lo dominas, empieza por su Evaluación: aprobarla te ahorra leer el capítulo."
         }
       ],
       "professionalStandard": {
@@ -55,162 +55,8 @@
           "No avances con un examen por debajo de 2 de 3: repasa primero."
         ],
         "codeLanguage": "plaintext",
-        "referenceCode": "Plan de una semana (30–45 min por día)\nLunes     Prueba de nivel + Cap. 2\nMartes    Cap. 3\nMiércoles Cap. 4\nJueves    Cap. 5\nViernes   Cap. 6\nSábado    Repaso de los exámenes fallados\nDomingo   Descanso"
-      },
-      "exercises": [
-        {
-          "id": "fn01-ej-1",
-          "title": "Práctica 1: ¿Qué capítulos necesita María?",
-          "difficulty": "Básico",
-          "prompt": "**Contexto.** María quiere empezar el curso **Power BI y DAX**.\n\n**Mapa de requisitos:**\n\n- **Analista** pide los caps. 4, 5, 6, 7, 8, 9, 10, 11, 12 y 14\n- **Power BI** pide 4, 5, 6, 7, 8, 9 y 10\n- **SQL Server a fondo** pide 2, 7, 8, 9, 10 y 11\n- **Programación Web** pide 2, 3 y 13\n- **Nube y DevOps** pide 2.\n\nEl cap. 15 (proyecto) se recomienda siempre al final.\n\n**Qué tienes que hacer:**\n\n1) Busca Power BI en el mapa y copia sus capítulos.\n2) Agrega el capítulo del proyecto al final.\n3) Escribe la lista completa en orden.\n\n**Resultado esperado:** una lista de 8 capítulos.",
-          "hint": "Solo necesitas la frase del mapa que empieza con **Power BI**.",
-          "solutionExplanation": "Power BI pide 7 capítulos. Súmale el 15 y tendrás 8.",
-          "solutionCode": "Caps. 4, 5, 6, 7, 8, 9, 10 y 15\n\nPor qué:\n- 4: pensar en tablas (Power BI trabaja con tablas relacionadas)\n- 5 y 6: Excel (Power Query y DAX piensan igual)\n- 7 a 10: SQL básico (Power BI se conecta a SQL Server)\n- 15: el proyecto, para practicar todo junto",
-          "codeLanguage": "texto"
-        },
-        {
-          "id": "fn01-ej-2",
-          "title": "Práctica 2: Leer el resultado de la prueba de nivel",
-          "difficulty": "Básico",
-          "prompt": "**Contexto.** Pedro hizo la prueba de nivel (la Evaluación de este capítulo). Cada pregunta corresponde a un capítulo: P1 → Cap. 02 · P2 → Cap. 03 · P3 → Cap. 04 · P4 → Cap. 05 · P5 → Cap. 07 · P6 → Cap. 08 · P7 → Cap. 09 · P8 → Cap. 10 · P9 → Cap. 12 · P10 → Cap. 14. Pedro **falló las preguntas 5, 6 y 8** y acertó el resto.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué capítulos tiene que estudiar Pedro.\n2) Escribe qué capítulos puede repasar rápido porque los aprobó.\n\n**Resultado esperado:** 3 capítulos para estudiar y 7 para repasar rápido.",
-          "hint": "Usa la tabla P → Cap. del contexto con las preguntas que falló.",
-          "solutionExplanation": "P5, P6 y P8 son tres capítulos de SQL. Los otros siete son los que acertó.",
-          "solutionCode": "Estudiar: Cap. 07 (SELECT y WHERE), Cap. 08 (NULL y CASE) y Cap. 10 (JOIN).\nRepasar rápido: Caps. 02, 03, 04, 05, 09, 12 y 14.\n\nOjo: el Cap. 11 no tiene pregunta en la prueba. Si su ruta es de SQL, igual debe leerlo.",
-          "codeLanguage": "texto"
-        },
-        {
-          "id": "fn01-ej-3",
-          "title": "Práctica 3: Ordenar una semana de estudio",
-          "difficulty": "Básico",
-          "prompt": "**Contexto.** Lucía quiere hacer **Programación Web**. Estudia de lunes a viernes, un capítulo por día, y el viernes repasa.\n\n**Mapa de requisitos:**\n\n- **Analista** pide los caps. 4, 5, 6, 7, 8, 9, 10, 11, 12 y 14\n- **Power BI** pide 4, 5, 6, 7, 8, 9 y 10\n- **SQL Server a fondo** pide 2, 7, 8, 9, 10 y 11\n- **Programación Web** pide 2, 3 y 13\n- **Nube y DevOps** pide 2.\n\nEl cap. 15 (proyecto) se recomienda siempre al final.\n\n**Qué tienes que hacer:**\n\n1) Escribe qué capítulos necesita Lucía (incluye el proyecto).\n2) Reparte esos capítulos de lunes a jueves y deja el viernes para repasar.\n\n**Resultado esperado:** 4 capítulos, uno por día de lunes a jueves.",
-          "hint": "Programación Web pide tres capítulos; súmale el 15.",
-          "solutionExplanation": "Ordénalos de menor a mayor número: cada capítulo usa lo del anterior.",
-          "solutionCode": "Lunes:     Cap. 02 (archivos y terminal)\nMartes:    Cap. 03 (lógica de programación)\nMiércoles: Cap. 13 (HTML y JavaScript)\nJueves:    Cap. 15 (proyecto)\nViernes:   repaso de los exámenes que haya fallado",
-          "codeLanguage": "texto"
-        }
-      ],
-      "exam": [
-        {
-          "id": "fn01-q1",
-          "question": "Prueba de nivel · Terminal. ¿Qué hace el comando `cd ..`?",
-          "options": [
-            "Vuelve a la carpeta personal del usuario",
-            "Borra la carpeta actual y todo su contenido",
-            "Lista los archivos ocultos de la carpeta actual",
-            "Sube a la carpeta que contiene a la carpeta actual"
-          ],
-          "correctIndex": 3,
-          "explanation": "`..` significa «la carpeta de arriba». Si fallaste, estudia el Cap. 02."
-        },
-        {
-          "id": "fn01-q2",
-          "question": "Prueba de nivel · Lógica. Si `x = 7`, ¿qué imprime: si x > 5 y x < 10 → «A», si no → «B»?",
-          "options": [
-            "A, porque 7 cumple las dos condiciones",
-            "Nada, porque falta un caso para x = 7",
-            "B, porque 7 no es mayor que 10",
-            "A y B, porque se evalúan ambas ramas"
-          ],
-          "correctIndex": 0,
-          "explanation": "Con «y» deben cumplirse las dos condiciones, y 7 las cumple. Si fallaste, estudia el Cap. 03."
-        },
-        {
-          "id": "fn01-q3",
-          "question": "Prueba de nivel · Tablas. Una tabla tiene una fila por cada producto vendido en cada pedido. ¿Cuál es su granularidad?",
-          "options": [
-            "Una fila por cliente",
-            "Una fila por pedido y producto",
-            "Una fila por pedido",
-            "Una fila por producto"
-          ],
-          "correctIndex": 1,
-          "explanation": "La granularidad es lo que representa una fila. Si fallaste, estudia el Cap. 04."
-        },
-        {
-          "id": "fn01-q4",
-          "question": "Prueba de nivel · Excel. Copias `=B2*$E$1` una fila hacia abajo. ¿Qué fórmula queda?",
-          "options": [
-            "=B2*$E$1",
-            "=B3*$E$1",
-            "=B3*$E$2",
-            "=C2*$E$1"
-          ],
-          "correctIndex": 1,
-          "explanation": "El `$` fija la referencia; `B2` es relativa y baja a `B3`. Si fallaste, estudia el Cap. 05."
-        },
-        {
-          "id": "fn01-q5",
-          "question": "Prueba de nivel · SQL. ¿Qué consulta devuelve los clientes de Perú?",
-          "options": [
-            "SELECT nombre WHERE pais = 'Perú' FROM clientes;",
-            "SELECT nombre FROM clientes WHERE pais = 'Perú';",
-            "SELECT nombre FROM clientes ORDER BY 'Perú';",
-            "SELECT nombre FROM clientes HAVING pais = 'Perú';"
-          ],
-          "correctIndex": 1,
-          "explanation": "Las filas se filtran con `WHERE`, después de `FROM`. Si fallaste, estudia el Cap. 07."
-        },
-        {
-          "id": "fn01-q6",
-          "question": "Prueba de nivel · SQL. ¿Qué devuelve `WHERE ciudad = NULL`?",
-          "options": [
-            "Las filas sin ciudad registrada",
-            "Ninguna fila: NULL se compara con IS NULL",
-            "Todas las filas de la tabla",
-            "Un error de sintaxis al ejecutar"
-          ],
-          "correctIndex": 1,
-          "explanation": "Comparar con `= NULL` nunca es verdadero. Si fallaste, estudia el Cap. 08."
-        },
-        {
-          "id": "fn01-q7",
-          "question": "Prueba de nivel · SQL. Quieres los países con más de 3 clientes. ¿Dónde va `COUNT(*) > 3`?",
-          "options": [
-            "En WHERE, antes de GROUP BY pais",
-            "En SELECT, como una columna más",
-            "En HAVING, después de GROUP BY pais",
-            "En ORDER BY, al final de la consulta"
-          ],
-          "correctIndex": 2,
-          "explanation": "Las condiciones sobre grupos van en `HAVING`. Si fallaste, estudia el Cap. 09."
-        },
-        {
-          "id": "fn01-q8",
-          "question": "Prueba de nivel · SQL. Quieres todos los clientes, tengan o no pedidos. ¿Qué JOIN usas desde clientes?",
-          "options": [
-            "CROSS JOIN pedidos",
-            "INNER JOIN pedidos",
-            "JOIN pedidos con WHERE",
-            "LEFT JOIN pedidos"
-          ],
-          "correctIndex": 3,
-          "explanation": "`LEFT JOIN` conserva todas las filas de la izquierda. Si fallaste, estudia el Cap. 10."
-        },
-        {
-          "id": "fn01-q9",
-          "question": "Prueba de nivel · Python. ¿Qué imprime `print(len([3, 5, 8]))`?",
-          "options": [
-            "3",
-            "[3, 5, 8]",
-            "8",
-            "16"
-          ],
-          "correctIndex": 0,
-          "explanation": "`len` cuenta los elementos de la lista. Si fallaste, estudia el Cap. 12."
-        },
-        {
-          "id": "fn01-q10",
-          "question": "Prueba de nivel · Estadística. Sueldos: 1, 1, 2, 2, 20 (miles). ¿Qué medida representa mejor el sueldo típico?",
-          "options": [
-            "La suma, que es 26",
-            "La media, que es 5,2",
-            "El máximo, que es 20",
-            "La mediana, que es 2"
-          ],
-          "correctIndex": 3,
-          "explanation": "Un valor extremo arrastra la media; la mediana no se mueve. Si fallaste, estudia el Cap. 14."
-        }
-      ]
+        "referenceCode": "Plan de una semana (30–45 min por día)\nLunes     Cap. 1 + Cap. 2\nMartes    Cap. 3\nMiércoles Cap. 4\nJueves    Cap. 5\nViernes   Cap. 6\nSábado    Repaso de los exámenes fallados\nDomingo   Descanso"
+      }
     },
     {
       "id": "cap-02",

@@ -45,6 +45,7 @@
     const curso = await cargarJSON(`cursos/${entrada.archivo}`);
     curso.chapters = [...(curso.chapters || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     curso._meta = entrada;
+    P.registrarCurso(curso);
     cacheCursos[id] = curso;
     return curso;
   }
@@ -1103,9 +1104,9 @@
             <h1 class="titulo-hoja" style="font-size:clamp(2rem,3.6vw,2.9rem);margin-top:.5rem">${escapar(cap.title)}</h1>
             ${cap.subtitle ? `<p class="lead" style="margin-top:.6rem">${enLinea(cap.subtitle)}</p>` : ""}
             ${pestañas.length ? `<div class="row meta">
-              <span class="pill est-${est}">${TEXTO_ESTADO[est]}</span>
+              <span class="pill est-${est}">${est === "aprobado" && P.sinExamen(curso.id, cap.id) ? "Completado" : TEXTO_ESTADO[est]}</span>
               <span class="small muted">${escapar(cap.module || "")}</span>
-              <label class="check" style="margin-left:auto"><input type="checkbox" id="chkLeido" ${leido ? "checked" : ""}> Marcar como leído</label>
+              <label class="check" style="margin-left:auto"><input type="checkbox" id="chkLeido" ${leido ? "checked" : ""}> ${P.sinExamen(curso.id, cap.id) ? "Marcar como completado" : "Marcar como leído"}</label>
             </div>` : ""}
           </header>
           ${pestañas.length ? `<nav class="tabs" role="tablist" aria-label="Partes del capítulo">
